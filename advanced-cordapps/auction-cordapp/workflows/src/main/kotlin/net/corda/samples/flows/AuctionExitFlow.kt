@@ -37,7 +37,7 @@ class AuctionExitFlow(private val auctionId:UUID) : FlowLogic<SignedTransaction>
         // highest bidder must sign to avoid consuming a auction that's not settled yet.
         val signers = listOf(auctionState.auctioneer.owningKey)
         if (auctionState.winner != null){
-            signers.plus(auctionState.winner)
+            signers.plus(auctionState.winner!!.owningKey)
         }
 
         // Build the transaction to consume to the transaction.
@@ -48,30 +48,24 @@ class AuctionExitFlow(private val auctionId:UUID) : FlowLogic<SignedTransaction>
         // Verify the transaction
         txBuilder.verify(serviceHub)
 
-        val allSession = emptyList<FlowSession>()
-
         // Sign the transaction
-        val stx = serviceHub.signInitialTransaction(txBuilder)
-
+        var stx = serviceHub.signInitialTransaction(txBuilder) //I am calling from PartyB
         if (auctionState.winner != null){
             if(auctionState.auctioneer == ourIdentity){
                 val winnerSession = initiateFlow(auctionState.winner!!)
                 winnerSession.send(true)
-                allSession.plus(winnerSession)
-                subFlow(CollectSignatureFlow(stx, (winnerSession)))
+                stx = subFlow(CollectSignaturesFlow(stx, listOf(winnerSession)))
             }else{
                 val auctioneerSession = initiateFlow(auctionState.auctioneer)
                 auctioneerSession.send(true)
-                allSession.plus(auctioneerSession)
-                subFlow(CollectSignatureFlow(stx, (auctioneerSession)))
+                stx = subFlow(CollectSignaturesFlow(stx, listOf(auctioneerSession)))
             }
         }
-        auctionState.bidders.map {
-            if(it != ourIdentity){
-                val session = initiateFlow(it)
-                session.send(false)
-                allSession.plus(session)
-            }
+        val allSession: MutableList<FlowSession> = mutableListOf<FlowSession>().toMutableList()
+        for (party in auctionState.participants.filter { it != ourIdentity }){
+            val session = initiateFlow(party)
+            session.send(false)
+            allSession += session
         }
         return subFlow(FinalityFlow(stx,allSession))
     }
@@ -83,10 +77,10 @@ class AuctionExitFlowResponder(val counterpartySession: FlowSession) : FlowLogic
     override fun call():SignedTransaction {
         val flag = counterpartySession.receive<Boolean>().unwrap{it -> it}
         if(flag){
-            val signedTransactionFlow = object : SignTransactionFlow(counterpartySession) {
+            subFlow(object : SignTransactionFlow(counterpartySession) {
                 override fun checkTransaction(stx: SignedTransaction){
                 }
-            }
+            })
         }
         return subFlow(ReceiveFinalityFlow(counterpartySession))
         }
