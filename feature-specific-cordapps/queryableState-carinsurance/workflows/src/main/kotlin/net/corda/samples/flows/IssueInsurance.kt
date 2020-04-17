@@ -53,7 +53,7 @@ class IssueInsurance(val insuranceInfo: InsuranceInfo,
     }
 }
 
-@InitiatedBy(InsuranceClaim::class)
+@InitiatedBy(IssueInsurance::class)
 class IssueInsuranceResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call():SignedTransaction {

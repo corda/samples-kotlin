@@ -38,6 +38,9 @@ object InsuranceSchemaV1 : MappedSchema(
     @Entity
     @Table(name = "VEHICLE_DETAIL")
     class PersistentVehicle(
+            @Column(name = "Id")
+            val uuid:UUID,
+
             @Column(name = "registrationNumber")
             val registrationNumber: String,
 
@@ -60,7 +63,9 @@ object InsuranceSchemaV1 : MappedSchema(
             val fuelType: String
     ):PersistentState(){
         // Default constructor required by hibernate.
-        constructor(): this("", "", "", "","","","")
+        constructor(registrationNumber: String, chasisNumber: String, make: String, model: String, variant: String, color: String, fuelType: String) : this(
+                UUID.randomUUID(),registrationNumber, chasisNumber, make, model,variant,color,fuelType)
+        constructor() : this(UUID.randomUUID(),"","","","","","","")
     }
 
 
@@ -75,9 +80,11 @@ object InsuranceSchemaV1 : MappedSchema(
             val duration:Int,
             @Column(name = "premium")
             val premium: Int,
-            @Column(name = "vehicle")
-            val vehicle: PersistentVehicle,
-            @Column(name = "claims")
+            @OneToOne(cascade = [CascadeType.PERSIST])
+            @JoinColumns(JoinColumn(name = "id", referencedColumnName = "id"), JoinColumn(name = "registrationNumber", referencedColumnName = "registrationNumber"))
+            val vehicle: PersistentVehicle?,
+            @OneToMany(cascade = [CascadeType.PERSIST])
+            @JoinColumns(JoinColumn(name = "output_index", referencedColumnName = "output_index"), JoinColumn(name = "transaction_id", referencedColumnName = "transaction_id"))
             val claims: List<PersistentClaim>
     ):PersistentState(),Serializable{
         constructor(): this("", 0, 0, 0, PersistentVehicle(), listOf())
