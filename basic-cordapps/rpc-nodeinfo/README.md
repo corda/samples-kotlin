@@ -14,26 +14,28 @@ After cloning, use the _getInfo_ gradle task to retrieve node information.
 Here we'll be using java just to create an RPC call against a corda node.
 
 
-You'll find our example to do this in [Main.java](https://github.com/corda/samples-java/blob/master/basic-cordapps/rpc-nodeinfo/java-app/src/main/java/net/corda/Main.java#L31-L46)
+You'll find our example to do this in [Main.kt](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/rpc-nodeinfo/kotlin-app/src/main/kotlin/net/corda/Main.kt#L15)
 
-```java
-        System.out.println("Node connected: " + proxy.nodeInfo().getLegalIdentities().get(0));
+```kotlin
+    val proxy = loginToCordaNode(host, username, password)
 
-        System.out.println("Time: " + proxy.currentNodeTime());
+    println("Node connected: ${proxy.nodeInfo().legalIdentities.first()}")
 
-        System.out.println("Flows: " + proxy.registeredFlows());
+    println("Time: ${proxy.currentNodeTime()}.")
 
-        System.out.println("Platform version: " + proxy.nodeInfo().getPlatformVersion());
+    println("Flows: ${proxy.registeredFlows()}")
 
-        System.out.println("Current Network Map Status --> ");
-        proxy.networkMapSnapshot().iterator().forEachRemaining(it -> {
-            System.out.println("-- " + it.getLegalIdentities().get(0) + " @ " + it.getAddresses().get(0).getHost());
-        });
+    println("Platform version: ${proxy.nodeInfo().platformVersion}")
 
-        System.out.println("Registered Notaries --> ");
-        proxy.notaryIdentities().iterator().forEachRemaining(it -> {
-            System.out.println("-- " + it.getName());
-        });
+    println("Current Network Map Status -->")
+    proxy.networkMapSnapshot().map {
+        println("-- ${it.legalIdentities.first().name} @ ${it.addresses.first().host}")
+    }
+
+    println("Registered Notaries -->")
+    proxy.notaryIdentities().map {
+        println("-- ${it.name}")
+    }
 ```
 
 
@@ -52,7 +54,7 @@ Then run the following task against Party A defined in the CorDapp Example:
 
 Java version:
 
-    ./gradlew java-app:getInfo -Phost="localhost:10007" -Pusername="user1" -Ppassword="test"
+    ./gradlew kotlin-app:getInfo -Phost="localhost:10007" -Pusername="user1" -Ppassword="test"
 
 In a closer look of the parameters:
 
