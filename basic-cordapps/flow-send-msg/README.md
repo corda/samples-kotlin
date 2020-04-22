@@ -24,7 +24,7 @@ Take a look at initiating flow [Ping](https://github.com/corda/samples-kotlin/bl
 
 You'll notice that this flow does what we expect, which is to send an outbound ping, and expect to receive a pong. If we receive a pong, then our flow is sucessful.
 
-```
+```kotlin
     @Suspendable
     override fun call() {
         val counterpartySession = initiateFlow(counterparty)
