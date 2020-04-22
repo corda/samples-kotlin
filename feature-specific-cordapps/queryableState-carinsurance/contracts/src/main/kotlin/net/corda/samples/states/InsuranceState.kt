@@ -9,6 +9,7 @@ import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
 import net.corda.core.schemas.QueryableState
 import java.lang.IllegalArgumentException
+import java.util.*
 
 
 // *********
@@ -29,7 +30,9 @@ data class InsuranceState(val policyNumber: String,
             var persistentClaims = listOf<InsuranceSchemaV1.PersistentClaim>()
             if(claims != null && claims.isNotEmpty()) {
                 for (item in claims){
-                    persistentClaims.plus(InsuranceSchemaV1.PersistentClaim(item.claimNumber,
+                    persistentClaims.plus(InsuranceSchemaV1.PersistentClaim(
+                            UUID.randomUUID(),
+                            item.claimNumber,
                             item.claimDescription,
                             item.claimAmount))
                 }

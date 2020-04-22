@@ -22,6 +22,9 @@ object InsuranceSchemaV1 : MappedSchema(
     @Entity
     @Table(name = "CLAIM_DETAIL")
     class PersistentClaim(
+            @Id @Column(name = "Id")
+            val uuid:UUID,
+
             @Column(name = "claimNumber")
             var claimNumber: String,
 
@@ -30,15 +33,15 @@ object InsuranceSchemaV1 : MappedSchema(
 
             @Column(name = "claimAmount")
             var claimAmount: Int
-    ) : PersistentState() {
+    ) {
         // Default constructor required by hibernate.
-        constructor(): this("", "", 0)
+        constructor(): this(UUID.randomUUID(),"", "", 0)
     }
 
     @Entity
     @Table(name = "VEHICLE_DETAIL")
     class PersistentVehicle(
-            @Column(name = "Id")
+            @Id @Column(name = "Id")
             val uuid:UUID,
 
             @Column(name = "registrationNumber")
@@ -61,7 +64,7 @@ object InsuranceSchemaV1 : MappedSchema(
 
             @Column(name = "fuelType")
             val fuelType: String
-    ):PersistentState(){
+    ){
         // Default constructor required by hibernate.
         constructor(registrationNumber: String, chasisNumber: String, make: String, model: String, variant: String, color: String, fuelType: String) : this(
                 UUID.randomUUID(),registrationNumber, chasisNumber, make, model,variant,color,fuelType)
