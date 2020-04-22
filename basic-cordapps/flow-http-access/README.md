@@ -20,22 +20,23 @@ Be aware that support of HTTP requests in flows is currently limited:
 Be careful when making HTTP calls in flows; they have to be blocking.
 In addition, if the flow fails and is restarted, the HTTP request will be replayed as-is.
 
-You'll find our HTTP request example within [HTTPCallFlow.java](https://github.com/corda/samples-java/blob/master/basic-cordapps/flow-http-access/workflows-java/src/main/java/net/corda/samples/flowhttp/HttpCallFlow.java#L27-L43)
+You'll find our HTTP request example within [HTTPCallFlow.kt](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/flow-http-access/workflows-kotlin/src/main/kotlin/com/flowhttp/HttpCallFlow.kt)
 
 It works mostly as you'd expect, using a request builder to make a request at a client and use the result.
 
-```java
-    public String call() throws FlowException {
-        final Request httpRequest = new Request.Builder().url(Constants.BITCOIN_README_URL).build();
-        String value = null;
-        Response httpResponse = null;
-        try {
-            httpResponse = new OkHttpClient().newCall(httpRequest).execute();
-            value = httpResponse.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return value;
+```kotlin
+    @Suspendable
+    override fun call(): String {
+        val httpRequest = Request.Builder().url(BITCOIN_README_URL).build()
+
+        // BE CAREFUL when making HTTP calls in flows:
+        // 1. The request must be executed in a BLOCKING way. Flows don't
+        //    currently support suspending to await an HTTP call's response
+        // 2. The request must be idempotent. If the flow fails and has to
+        //    restart from a checkpoint, the request will also be replayed
+        val httpResponse = OkHttpClient().newCall(httpRequest).execute()
+
+        return httpResponse.body().string()
     }
 
 ```
@@ -50,10 +51,13 @@ See https://docs.corda.net/getting-set-up.html.
 
 ### Running the nodes:
 
-See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
-
-Java use the `workflows-java:deployNodes` task and `./workflows-java/build/nodes/runnodes` script.
-
+```
+./gradlew clean deployNodes
+```
+Then type: (to run the nodes)
+```
+./build/nodes/runnodes
+```
 
 ### Interacting with the nodes:
 
