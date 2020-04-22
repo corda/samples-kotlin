@@ -20,36 +20,34 @@ We define a state (the "ping" to be shared), define a contract (the way to make 
 You'll notice in our code we call these two classes ping and pong, the flow that sends the `"ping"`, and the flow that returns with a `"pong"`.
 
 
-Take a look at [Ping.java](https://github.com/corda/samples-java/blob/master/basic-cordapps/flow-send-msg/workflows-java/src/main/java/net/corda/examples/pingpong/flows/Ping.java#L20-L28).
+Take a look at initiating flow [Ping](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/flow-send-msg/workflows-kotlin/src/main/kotlin/net/corda/examples/pingpong/flows/PingFlow.kt#L11).
 
 You'll notice that this flow does what we expect, which is to send an outbound ping, and expect to receive a pong. If we receive a pong, then our flow is sucessful.
 
 ```
-    public Void call() throws FlowException {
-        final FlowSession counterpartySession = initiateFlow(counterparty);
-        final UntrustworthyData<String> counterpartyData = counterpartySession.sendAndReceive(String.class, "ping");
-        counterpartyData.unwrap( msg -> {
-            assert(msg.equals("pong"));
-            return true;
-        });
-        return null;
+    @Suspendable
+    override fun call() {
+        val counterpartySession = initiateFlow(counterparty)
+        val counterpartyData = counterpartySession.sendAndReceive<String>("ping")
+        counterpartyData.unwrap { msg ->
+            assert(msg == "pong")
+        }
     }
 ```
 
 
-And of course we see a similar behavior in [Pong.java](https://github.com/corda/samples-java/blob/master/basic-cordapps/flow-send-msg/workflows-java/src/main/java/net/corda/examples/pingpong/flows/Pong.java#L22-L30).
+And of course we see a similar behavior in responder flow [Pong](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/flow-send-msg/workflows-kotlin/src/main/kotlin/net/corda/examples/pingpong/flows/PingFlow.kt#L25).
 
 We expect to receive data from a counterparty that contains a ping, when we receive it, we respond with a pong.
 
-```java
-    public Void call() throws FlowException {
-        UntrustworthyData<String> counterpartyData = counterpartySession.receive(String.class);
-        counterpartyData.unwrap(msg -> {
-            assert (msg.equals("ping"));
-            return true;
-        });
-        counterpartySession.send("pong");
-        return null;
+```kotlin
+    @Suspendable
+    override fun call() {
+        val counterpartyData = counterpartySession.receive<String>()
+        counterpartyData.unwrap { msg ->
+            assert(msg == "ping")
+        }
+        counterpartySession.send("pong")
     }
 ```
 
@@ -63,10 +61,13 @@ See https://docs.corda.net/getting-set-up.html.
 
 ## Running the nodes:
 
-See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
-
-Java use the `workflows-java:deployNodes` task and `./workflows-java/build/nodes/runnodes` script.
-
+```
+./gradlew clean deployNodes
+```
+Then type: (to run the nodes)
+```
+./build/nodes/runnodes
+```
 
 ## Pinging a node:
 
@@ -92,18 +93,9 @@ Run the following command from the root of the project:
 For example, if your node has the RPC address `localhost:10006`, you'd ping party B from a
 Unix/Mac OSX machine by running:
 
-    ./gradlew pingPartyBJava -Paddress=localhost:10006 -PnodeName="O=PartyB,L=New York,C=US"
+    ./gradlew pingPartyBKotlin -Paddress=localhost:10006 -PnodeName="O=PartyB,L=New York,C=US"
 
 You should see the following message, indicating that PartyB responded to your ping:
 
     Successfully pinged O=PartyB,L=New York,C=US..
-
-### RPC via IntelliJ:
-
-Run the `Run Ping-Pong RPC Client` run configuration from IntelliJ. You can modify the run
-configuration to set your node's RPC address and the name of the node to ping.
-
-You should see the following message, indicating that PartyB responded to your ping:
-
-    `Successfully pinged O=PartyB,L=New York,C=US.`.
 
