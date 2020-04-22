@@ -32,11 +32,10 @@ class InsuranceClaim(val claimInfo: ClaimInfo,
         //compose claim
         val claim = Claim(claimInfo.claimNumber, claimInfo.claimDescription, claimInfo.claimAmount)
         val input = inputStateAndRef.state.data
-        var claimlist = listOf<Claim>()
-        if (input.claims == null || input.claims!!.isEmpty()){
-            claimlist.plus(claim)
-        }else{
-            claimlist = (input.claims!!) + (claim)
+        var claimlist = ArrayList<Claim>()
+        claimlist.add(claim)
+        for (item in input.claims){
+            claimlist.add(item)
         }
 
         //create the output

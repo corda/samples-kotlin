@@ -84,9 +84,14 @@ class MainController(rpc: NodeRPCConnection) {
 
     @PostMapping(value = ["/vehicleInsurance/claim/{policyNumber}"])
     fun claim(@RequestBody claimInfo: ClaimInfo, @PathVariable policyNumber:String):ResponseEntity<String>{
+        print("---------")
+        print(claimInfo)
+        print("---------")
+        print(policyNumber)
+        print("---------")
         return try {
-            proxy.startFlow(::InsuranceClaim,claimInfo,policyNumber)
-            ResponseEntity.status(HttpStatus.CREATED).body("Insurance Claim Completed")
+            val stx = proxy.startFlow(::InsuranceClaim,claimInfo,policyNumber)
+            ResponseEntity.status(HttpStatus.CREATED).body("Claim filed ${stx.id}")
 
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)

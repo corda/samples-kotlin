@@ -10,6 +10,7 @@ import net.corda.core.schemas.PersistentState
 import net.corda.core.schemas.QueryableState
 import java.lang.IllegalArgumentException
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 // *********
@@ -23,14 +24,14 @@ data class InsuranceState(val policyNumber: String,
                           val insurer: Party,
                           val insuree: Party,
                           val vehicleDetail: VehicleDetail,
-                          val claims:List<Claim>?,
+                          val claims:List<Claim> = listOf(),
                           override val participants: List<AbstractParty> = listOf(insuree,insurer)) : QueryableState {
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is InsuranceSchemaV1){
-            var persistentClaims = listOf<InsuranceSchemaV1.PersistentClaim>()
-            if(claims != null && claims.isNotEmpty()) {
+            var persistentClaims = ArrayList<InsuranceSchemaV1.PersistentClaim>()
+            if(claims.isNotEmpty()) {
                 for (item in claims){
-                    persistentClaims.plus(InsuranceSchemaV1.PersistentClaim(
+                    persistentClaims.add(InsuranceSchemaV1.PersistentClaim(
                             UUID.randomUUID(),
                             item.claimNumber,
                             item.claimDescription,

@@ -34,7 +34,7 @@ class IssueInsurance(val insuranceInfo: InsuranceInfo,
                 vehicleInfo.model, vehicleInfo.variant, vehicleInfo.color, vehicleInfo.fuelType)
 
         // Build the insurance output state.
-        val output = InsuranceState(insuranceInfo.policyNumber, insuranceInfo.insuredValue, insuranceInfo.duration, insuranceInfo.premium, insurer, insuree, vDetail, null)
+        val output = InsuranceState(insuranceInfo.policyNumber, insuranceInfo.insuredValue, insuranceInfo.duration, insuranceInfo.premium, insurer, insuree, vDetail)
 
         // Build the transaction
         val txBuilder = TransactionBuilder(notary)
