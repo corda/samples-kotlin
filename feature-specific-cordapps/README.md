@@ -8,13 +8,7 @@ This CorDapp allows nodes to reach agreement over arbitrary strings of text, but
 ### [attachment-sendfile](./attachment-sendfile):
 This Cordapp shows how to upload and download an attachment via a flow.
 
-### [confidential identity whistleblower](./confidentialidentity-whistleblower):
-This CorDapp is a simple showcase of confidential identities (i.e. anonymous public keys).
-
-### [confidential identity whistleblower](./confidentialidentity-whistleblower):
-This CorDapp is a simple showcase of confidential identities (i.e. anonymous public keys).
-
-### [confidential identity whistleblower](./confidentialidentity-whistleblower):
+### [confidential identity whistleblower](./confidentialIdentity-whistleblower):
 This CorDapp is a simple showcase of confidential identities (i.e. anonymous public keys).
 
 ### [service autopayroll](./cordaservice-autopayroll):
