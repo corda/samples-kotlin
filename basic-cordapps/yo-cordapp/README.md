@@ -13,53 +13,66 @@ In corda, we can use abstractions to accomplish the same thing.
 We define a state (the yo to be shared), define a contract (the way to make sure the yo is legit), and define the flow (the control flow of our cordapp).
 
 ### States
-We define a [Yo as a state](https://github.com/corda/samples-java/blob/master/basic-cordapps/yo-cordapp/contracts/src/main/java/net/corda/examples/yo/states/YoState.java#L31-L35), or a corda fact.
+We define a [Yo as a state](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/yo-cordapp/contracts/src/main/kotlin/net/corda/examples/yo/states/YoState.kt), or a corda fact.
 
-```java
-    public YoState(Party origin, Party target) {
-        this.origin = origin;
-        this.target = target;
-        this.yo = "Yo!";
-    }
+```kotlin
+@BelongsToContract(YoContract::class)
+data class YoState(val origin: Party,
+                   val target: Party,
+                   val yo: String = "Yo!") : ContractState {
+    override val participants = listOf(target)
+    override fun toString() = "${origin.name}: $yo"
+}
 ```
 
 
 ### Contracts
-We define [the "Yo Social Contract"](https://github.com/corda/samples-java/blob/master/basic-cordapps/yo-cordapp/contracts/src/main/java/net/corda/examples/yo/contracts/YoContract.java#L21-L32), which, in this case, verifies some basic assumptions about a Yo.
+We define [the "Yo Social Contract"](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/yo-cordapp/contracts/src/main/kotlin/net/corda/examples/yo/contracts/YoContract.kt), which, in this case, verifies some basic assumptions about a Yo.
 
-```java
-    @Override
-    public void verify(@NotNull LedgerTransaction tx) throws IllegalArgumentException {
-        CommandWithParties<Commands.Send> command = requireSingleCommand(tx.getCommands(), Commands.Send.class);
-        requireThat(req -> {
-            req.using("There can be no inputs when Yo'ing other parties", tx.getInputs().isEmpty());
-            req.using("There must be one output: The Yo!", tx.getOutputs().size() == 1);
-            YoState yo = tx.outputsOfType(YoState.class).get(0);
-            req.using("No sending Yo's to yourself!", !yo.getTarget().equals(yo.getOrigin()));
-            req.using("The Yo! must be signed by the sender.", command.getSigners().contains(yo.getOrigin().getOwningKey()));
-            return null;
-        });
+```kotlin
+    override fun verify(tx: LedgerTransaction) = requireThat {
+        val command = tx.commands.requireSingleCommand<Commands.Send>()
+        "There can be no inputs when Yo'ing other parties." using (tx.inputs.isEmpty())
+        "There must be one output: The Yo!" using (tx.outputs.size == 1)
+        val yo = tx.outputsOfType<YoState>().single()
+        "No sending Yo's to yourself!" using (yo.target != yo.origin)
+        "The Yo! must be signed by the sender." using (yo.origin.owningKey == command.signers.single())
     }
 
 ```
 
 
 ### Flows
-And then we send the Yo [within a flow](https://github.com/corda/samples-java/blob/master/basic-cordapps/yo-cordapp/workflows/src/main/java/net/corda/examples/yo/flows/YoFlow.java#L59-L64).
+And then we send the Yo [within a flow](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/yo-cordapp/workflows/src/main/kotlin/net/corda/examples/yo/flows/Flows.kt).
 
-```java
-        Party me = getOurIdentity();
-        Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
-        Command<YoContract.Commands.Send> command = new Command<YoContract.Commands.Send>(new YoContract.Commands.Send(), ImmutableList.of(me.getOwningKey()));
-        YoState state = new YoState(me, target);
-        StateAndContract stateAndContract = new StateAndContract(state, YoContract.ID);
-        TransactionBuilder utx = new TransactionBuilder(notary).withItems(stateAndContract, command);
+```kotlin
+        @Suspendable
+        override fun call(): SignedTransaction {
+        progressTracker.currentStep = CREATING
+
+        val me = serviceHub.myInfo.legalIdentities.first()
+        val notary = serviceHub.networkMapCache.notaryIdentities.single()
+        val command = Command(YoContract.Commands.Send(), listOf(me.owningKey))
+        val state = YoState(me, target)
+        val stateAndContract = StateAndContract(state, YoContract.ID)
+        val utx = TransactionBuilder(notary = notary).withItems(stateAndContract, command)
+
+        progressTracker.currentStep = SIGNING
+        val stx = serviceHub.signInitialTransaction(utx)
+
+        progressTracker.currentStep = VERIFYING
+        stx.verify(serviceHub)
+
+        progressTracker.currentStep = FINALISING
+        val targetSession = initiateFlow(target)
+        return subFlow(FinalityFlow(stx, listOf(targetSession), FINALISING.childProgressTracker()))
+    }
 ```
 
 On the receiving end, the other corda node will simply receive the Yo using corda provided subroutines, or subflows.
 
-```java
-    return subFlow(new ReceiveFinalityFlow(counterpartySession));
+```kotlin
+    return subFlow(ReceiveFinalityFlow(counterpartySession))
 ```
 
 
@@ -73,14 +86,13 @@ See https://docs.corda.net/getting-set-up.html.
 
 ### Running the nodes
 
-See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
-
-Java
-``./gradlew deployNodesJava``
-
-
-then
-``./build/nodes/runnodes``
+```
+./gradlew clean deployNodes
+```
+Then type: (to run the nodes)
+```
+./build/nodes/runnodes
+```
 
 ### Sending a Yo
 
