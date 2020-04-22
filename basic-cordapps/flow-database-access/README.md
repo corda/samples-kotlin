@@ -10,9 +10,9 @@ maintain a table of cryptocurrency values in the node's database. There are thre
 
 The CorDapp defines three flows:
 
-* `AddTokenValueFlow`, [which adds a new token to the database table with an initial value](https://github.com/corda/samples-java/blob/master/basic-cordapps/flow-database-access/workflows-java/src/main/java/net/corda/samples/flowdb/AddTokenValueFlow.java#L34-L48)
-* `UpdateTokenValueFlow`, [which updates the value of an existing token in the database table](https://github.com/corda/samples-java/blob/master/basic-cordapps/flow-database-access/workflows-java/src/main/java/net/corda/samples/flowdb/UpdateTokenValueFlow.java#L34-L42)
-* `QueryTokenValueFlow`, [which reads the value of an existing token from the database table](https://github.com/corda/samples-java/blob/master/basic-cordapps/flow-database-access/workflows-java/src/main/java/net/corda/samples/flowdb/QueryTokenValueFlow.java#L32-L40)
+* `AddTokenValueFlow`, [which adds a new token to the database table with an initial value](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/flow-database-access/workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L16)
+* `UpdateTokenValueFlow`, [which updates the value of an existing token in the database table](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/flow-database-access/workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L37)
+* `QueryTokenValueFlow`, [which reads the value of an existing token from the database table](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/flow-database-access/workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L52)
 
 Under the hood, the database accesses are managed by the CryptoValuesDatabaseService CordaService.
 
@@ -30,10 +30,14 @@ See https://docs.corda.net/getting-set-up.html.
 ## Usage
 
 ### Running the nodes:
-
-See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
-
-Java use the `workflows-java:deployNodes` task and `./workflows-java/build/nodes/runnodes` script.
+Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
+```
+./gradlew clean deployNodes
+```
+Then type: (to run the nodes)
+```
+./build/nodes/runnodes
+```
 
 ### Interacting with the node:
 
