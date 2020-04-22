@@ -26,7 +26,7 @@ This CorDapp implements an oracle service that allows nodes to:
 ### [queryable state car insurance](./queryableState-carinsurance):
 This CorDapp demonstrates QueryableState works in Corda. Corda allows developers to have the ability to expose some or all parts of their states to a custom database table using an ORM tools. To support this feature the state must implement `QueryableState`.
 
-### [reference states and sanctionsbody](./referenceStates-sanctionsbody):
+### [reference states and sanctionsbody](./referenceStates-sanctionsBody):
 This CorDapp demonstrates the use of reference states in a transaction and in the verification method of a contract.
 
 This CorDapp allows two nodes to enter into an IOU agreement, but enforces that both parties belong to a list of sanctioned entities. This list of sanctioned entities is taken from a referenced SanctionedEntities state.
