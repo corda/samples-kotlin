@@ -16,13 +16,13 @@ accept or modify the proposal, this attempt will be rejected automatically at th
 
 ### Flows
 
-We start with the proposal flow implemented in [ProposalFlow.kt](https://github.com/corda/samples-kotlin/blob/master/advanced-cordapps/negotiation-cordapp/workflows-kotlin/src/main/kotlin/negotiation/flows/ProposalFlow.kt)
+We start with the proposal flow implemented in [ProposalFlow.kt](./workflows-kotlin/src/main/kotlin/negotiation/flows/ProposalFlow.kt)
 
 
-The modification of the proposal is implemented in [ModificationFlow.kt](https://github.com/corda/samples-kotlin/blob/master/advanced-cordapps/negotiation-cordapp/workflows-kotlin/src/main/kotlin/negotiation/flows/ModificationFlow.kt).
+The modification of the proposal is implemented in [ModificationFlow.kt](./workflows-kotlin/src/main/kotlin/negotiation/flows/ModificationFlow.kt).
 
 
-In the [AcceptanceFlow](https://github.com/corda/samples-kotlin/blob/master/advanced-cordapps/negotiation-cordapp/workflows-kotlin/src/main/kotlin/negotiation/flows/AcceptanceFlow.kt), we receive the modified ProposalState and it's converted into a TradeState.
+In the [AcceptanceFlow](./workflows-kotlin/src/main/kotlin/negotiation/flows/AcceptanceFlow.kt), we receive the modified ProposalState and it's converted into a TradeState.
 
 
 
