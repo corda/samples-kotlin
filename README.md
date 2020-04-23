@@ -19,27 +19,27 @@ The samples are divided into 4 sections with the following desciption:
 
 ```
 .
-├── advanced-cordapps
+├── Advanced
 │   ├── auction-cordapp
 │   ├── negotiation-cordapp
 │   └── obligation-cordapp
-├── basic-cordapps
+├── Basic
 │   ├── flow-database-access
 │   ├── flow-http-access
 │   ├── flow-send-msg
 │   ├── rpc-nodeinfo
 │   └── yo-cordapp
-├── feature-specific-cordapps
-│   ├── attachment-blacklist
-│   ├── attachment-sendfile
-│   ├── confidentialIdentity-whistleblower
-│   ├── cordaService-autopayroll
-│   ├── observableStates-tradereporting
-│   ├── oracle-primenumber
-│   ├── queryableState-carinsurance
-│   ├── referenceStates-sanctionsBody
-│   └── schedulableState-heartbeat
-└── token-cordapps
+├── Features
+│   ├── Attachment-blacklist
+│   ├── Attachment-sendfile
+│   ├── ConfidentialIdentity-whistleblower
+│   ├── CordaService-autopayroll
+│   ├── ObservableStates-tradereporting
+│   ├── Oracle-primenumber
+│   ├── QueryableState-carinsurance
+│   ├── ReferenceStates-sanctionsBody
+│   └── SchedulableState-heartbeat
+└── Tokens
     ├── bikemarket
     ├── dollartohousetoken
     ├── fungiblehousetoken
