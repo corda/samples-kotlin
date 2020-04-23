@@ -5,6 +5,7 @@
 
 ## Introduction
 This repository contains multiple sample apps, from cordapps that help you get started, all the way to demonstrating specific features and advanced usage.
+
 To get started explore the [Basic](./Basic) folder, or navigate to the [Advanced](./Advanced) and [Features](./Features) folders to see a description of whats available. You can find the exact same set of Cordapp demonstration in Java language at [link](https://github.com/corda/samples-java). 
 
 ## Directories
