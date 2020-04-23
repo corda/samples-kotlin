@@ -21,7 +21,7 @@ check that the parties to the `AgreementState` are not blacklisted.
 
 There aren't many flows here, so it's quick to cover.
 
-There's a [proposal](https://github.com/corda/samples-kotlin/blob/master/feature-specific-cordapps/attachment-blacklist/workflows-kotlin/src/main/kotlin/net/corda/examples/attachments/ReachAgreementFlow.kt#L16) and [acceptance](https://github.com/corda/samples-kotlin/blob/master/feature-specific-cordapps/attachment-blacklist/workflows-kotlin/src/main/kotlin/net/corda/examples/attachments/ReachAgreementFlow.kt#L43) flow
+There's a [proposal](./workflows-kotlin/src/main/kotlin/net/corda/examples/attachments/ReachAgreementFlow.kt#L16) and [acceptance](./workflows-kotlin/src/main/kotlin/net/corda/examples/attachments/ReachAgreementFlow.kt#L43) flow
 
 
 
