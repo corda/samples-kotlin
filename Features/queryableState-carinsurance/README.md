@@ -36,7 +36,7 @@ from the link: https://www.getpostman.com/collections/ddc01c13b8ab4b5e853b.
 Use the option Import > Import from Link option in Postman to import the collection.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/corda/samples/queryable-state/carinsurance-QueryableState/clients/src/main/resources/static/Postman_screenshot.png" alt="Postman Import Collection" width="400">
+<img src="./clients/src/main/resources/static/Postman_screenshot.png" alt="Postman Import Collection" width="400">
 </p>
 
 ## Connecting to the Database
