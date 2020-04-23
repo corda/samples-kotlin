@@ -20,7 +20,7 @@ We define a state (the "ping" to be shared), define a contract (the way to make 
 You'll notice in our code we call these two classes ping and pong, the flow that sends the `"ping"`, and the flow that returns with a `"pong"`.
 
 
-Take a look at initiating flow [Ping](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/flow-send-msg/workflows-kotlin/src/main/kotlin/net/corda/examples/pingpong/flows/PingFlow.kt#L11).
+Take a look at initiating flow [Ping](./workflows-kotlin/src/main/kotlin/net/corda/examples/pingpong/flows/PingFlow.kt#L11).
 
 You'll notice that this flow does what we expect, which is to send an outbound ping, and expect to receive a pong. If we receive a pong, then our flow is sucessful.
 
@@ -36,7 +36,7 @@ You'll notice that this flow does what we expect, which is to send an outbound p
 ```
 
 
-And of course we see a similar behavior in responder flow [Pong](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/flow-send-msg/workflows-kotlin/src/main/kotlin/net/corda/examples/pingpong/flows/PingFlow.kt#L25).
+And of course we see a similar behavior in responder flow [Pong](./workflows-kotlin/src/main/kotlin/net/corda/examples/pingpong/flows/PingFlow.kt#L25).
 
 We expect to receive data from a counterparty that contains a ping, when we receive it, we respond with a pong.
 
