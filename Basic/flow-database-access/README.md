@@ -10,9 +10,9 @@ maintain a table of cryptocurrency values in the node's database. There are thre
 
 The CorDapp defines three flows:
 
-* `AddTokenValueFlow`, [which adds a new token to the database table with an initial value](./workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L16)
-* `UpdateTokenValueFlow`, [which updates the value of an existing token in the database table](./workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L37)
-* `QueryTokenValueFlow`, [which reads the value of an existing token from the database table](./workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L52)
+* [`AddTokenValueFlow`](./workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L16), which adds a new token to the database table with an initial value
+* [`UpdateTokenValueFlow`](./workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L37), which updates the value of an existing token in the database table
+* [`QueryTokenValueFlow`](./workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L52), which reads the value of an existing token from the database table
 
 Under the hood, the database accesses are managed by the CryptoValuesDatabaseService CordaService.
 
