@@ -28,9 +28,9 @@ See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
 *Note that some date constraint(eg. payday) is being commented out to make sure the sample can be ran smoothly  
 
 ### States
-* **[StockState](./contracts/src/main/java/net/corda/examples/stockpaydividend/states/StockState.java)** -
+* **[StockState](./contracts/src/main/kotlin/net/corda/samples/stockpaydividend/states/StockState.kt)** -
 which holds the underlying information of a stock like stock name, symbol, dividend, etc.  
-* **[DividendState](./contracts/src/main/java/net/corda/examples/stockpaydividend/states/DividendState.java)** -
+* **[DividendState](./contracts/src/main/kotlin/net/corda/samples/stockpaydividend/states/DividendState.kt)** -
 represents the dividend to be paid off by the company to the shareholder. 
 
 
