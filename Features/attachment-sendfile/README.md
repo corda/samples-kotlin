@@ -12,7 +12,7 @@ In this Cordapp, there are two parties:
 
 ### States
 
-You'll want to take a quick look at [InvoiceState.kt](https://github.com/corda/samples-kotlin/blob/master/feature-specific-cordapps/attachment-sendfile/contracts-kotlin/src/main/kotlin/net/corda/examples/sendfile/states/InvoiceState.kt)
+You'll want to take a quick look at [InvoiceState.kt](./contracts-kotlin/src/main/kotlin/net/corda/examples/sendfile/states/InvoiceState.kt)
 
 ```kotlin
 @BelongsToContract(InvoiceContract::class)
@@ -24,7 +24,7 @@ data class InvoiceState(
 
 ### Flows
 
-There are two flows [`sendAttachment`](https://github.com/corda/samples-kotlin/blob/master/feature-specific-cordapps/attachment-sendfile/workflows-kotlin/src/main/kotlin/net/corda/examples/sendfile/flows/SendAttachment.kt) and [`downloadAttachment`](https://github.com/corda/samples-kotlin/blob/master/feature-specific-cordapps/attachment-sendfile/workflows-kotlin/src/main/kotlin/net/corda/examples/sendfile/flows/DownloadAttachment.kt).
+There are two flows [`sendAttachment`](./workflows-kotlin/src/main/kotlin/net/corda/examples/sendfile/flows/SendAttachment.kt) and [`downloadAttachment`](./workflows-kotlin/src/main/kotlin/net/corda/examples/sendfile/flows/DownloadAttachment.kt).
 
 The flow logic is the following:
 
