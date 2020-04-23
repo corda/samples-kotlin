@@ -16,10 +16,10 @@ real world, oracles would instead provide and sign statements about stock prices
 
 This repo is split into three CorDapps:
 
-1. A [base CorDapp](https://github.com/corda/samples-kotlin/tree/master/feature-specific-cordapps/oracle-primenumber/base-kotlin/src/main/kotlin/net/corda/examples/oracle/base/flow) which includes the state and contract definition, as well as some utility flows that need to be
+1. A [base CorDapp](./base-kotlin/src/main/kotlin/net/corda/examples/oracle/base/flow) which includes the state and contract definition, as well as some utility flows that need to be
    shared by both the Oracle service and the client
-2. A client CorDapp which [implements a flow](https://github.com/corda/samples-kotlin/blob/master/feature-specific-cordapps/oracle-primenumber/client-kotlin/src/main/kotlin/net/corda/examples/oracle/client/flow/CreatePrime.kt) to create numbers involving oracle-validated prime numbers
-3. A [service](https://github.com/corda/samples-kotlin/tree/master/feature-specific-cordapps/oracle-primenumber/service-kotlin/src/main/kotlin/net/corda/examples/oracle/service) which implements the primes oracle
+2. A client CorDapp which [implements a flow](./client-kotlin/src/main/kotlin/net/corda/examples/oracle/client/flow/CreatePrime.kt) to create numbers involving oracle-validated prime numbers
+3. A [service](./service-kotlin/src/main/kotlin/net/corda/examples/oracle/service) which implements the primes oracle
 
 
 ## Usage
