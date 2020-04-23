@@ -20,11 +20,6 @@ There are two states [`PaymentRequestState`](./contracts-kotlin/src/main/kotlin/
 ## Usage
 
 
-### Pre-Requisites
-
-See https://docs.corda.net/getting-set-up.html.
-
-
 ### Deploy and run the node
 ```
 ./greadlew deployNodes
