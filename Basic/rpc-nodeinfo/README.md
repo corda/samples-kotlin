@@ -14,7 +14,7 @@ After cloning, use the _getInfo_ gradle task to retrieve node information.
 Here we'll be using java just to create an RPC call against a corda node.
 
 
-You'll find our example to do this in [Main.kt](,/kotlin-app/src/main/kotlin/net/corda/Main.kt#L15)
+You'll find our example to do this in [Main.kt](./kotlin-app/src/main/kotlin/net/corda/Main.kt#L15)
 
 ```kotlin
     val proxy = loginToCordaNode(host, username, password)
