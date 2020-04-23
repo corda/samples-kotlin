@@ -12,7 +12,7 @@ who manage to get ahold of the state cannot identity the whistle-blower or inves
 automatically by the `SwapIdentitiesFlow`.
 
 
-You can find the use of [`SwapIdentitiesFlow` here](https://github.com/corda/samples-kotlin/blob/master/feature-specific-cordapps/confidentialIdentity-whistleblower/workflows-kotlin/src/main/kotlin/net/corda/examples/whistleblower/flows/BlowWhistleFlow.kt#L91).
+You can find the use of [`SwapIdentitiesFlow` here](./workflows-kotlin/src/main/kotlin/net/corda/examples/whistleblower/flows/BlowWhistleFlow.kt#L91).
 
 
 
