@@ -13,7 +13,7 @@ In corda, we can use abstractions to accomplish the same thing.
 We define a state (the yo to be shared), define a contract (the way to make sure the yo is legit), and define the flow (the control flow of our cordapp).
 
 ### States
-We define a [Yo as a state](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/yo-cordapp/contracts/src/main/kotlin/net/corda/examples/yo/states/YoState.kt), or a corda fact.
+We define a [Yo as a state](./contracts/src/main/kotlin/net/corda/examples/yo/states/YoState.kt), or a corda fact.
 
 ```kotlin
 @BelongsToContract(YoContract::class)
@@ -27,7 +27,7 @@ data class YoState(val origin: Party,
 
 
 ### Contracts
-We define [the "Yo Social Contract"](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/yo-cordapp/contracts/src/main/kotlin/net/corda/examples/yo/contracts/YoContract.kt), which, in this case, verifies some basic assumptions about a Yo.
+We define [the "Yo Social Contract"](./contracts/src/main/kotlin/net/corda/examples/yo/contracts/YoContract.kt), which, in this case, verifies some basic assumptions about a Yo.
 
 ```kotlin
     override fun verify(tx: LedgerTransaction) = requireThat {
@@ -43,7 +43,7 @@ We define [the "Yo Social Contract"](https://github.com/corda/samples-kotlin/blo
 
 
 ### Flows
-And then we send the Yo [within a flow](https://github.com/corda/samples-kotlin/blob/master/basic-cordapps/yo-cordapp/workflows/src/main/kotlin/net/corda/examples/yo/flows/Flows.kt).
+And then we send the Yo [within a flow](./workflows/src/main/kotlin/net/corda/examples/yo/flows/Flows.kt).
 
 ```kotlin
         @Suspendable
