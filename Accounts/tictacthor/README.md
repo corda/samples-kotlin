@@ -1,3 +1,6 @@
+## Credit 
+This project is inspired and evolved from a simple [tic-tac-toe](https://github.com/thorgilman/tictactoe) game on Corda by Thor Gilman. 
+
 
 ## Running the sample
 Deploy and run the nodes by:
