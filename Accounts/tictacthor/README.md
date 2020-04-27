@@ -19,7 +19,8 @@ Now go to postman and excute the following in order: (All of the API are POST re
 3. Peter now requests game with David: `http://localhost:8080/requestGameWith/PeterLi/SolutionEng/DavidWinner` 
 4. David has to accept the challenege: `http://localhost:8090/acceptGameInvite/DavidWinner/DevRel/PeterLi`
 5. Game Starts, and Peter makes the first move: `http://localhost:8080/startGameAndFirstMove/PeterLi/DavidWinner/0`
-6. David's turn: `http://localhost:8090/submitMove/DavidWinner/PeterLi/5`
+6. David's turn: `http://localhost:8090/submitMove/DavidWinner/PeterLi/4`
+API Syntax: `http://localhost:8080/submitMove/WHO-AM-I/MY-COUNTERPART/POSITION` 
 
 From here, you can start play the game by changing the very last number from the `submitMove`API call. The game board is representated by an 1-D array: What we just ran can transfer into a tic-tac-toe game board like the one we see on the right.
 ```
@@ -28,8 +29,10 @@ From here, you can start play the game by changing the very last number from the
 │6│7│8│                  │ │ │ │
 ```
 The Game will automatically end when one player win the game. 
+You can also run `run vaultQuery contractStateType: net.corda.samples.tictacthor.states.BoardState` at any given time to see the board games stored in vault. 
 
 now if you want to fast fard the game, Play the following moves in order:
+According to syntax: we should have `http://localhost:8080/submitMove/PeterLi/DavidWinner/3` for the first move below.
 ```
 * Peter: 3                                  │O│ │ │
 * David: 5     This will yield a game like: │O│X│X│
