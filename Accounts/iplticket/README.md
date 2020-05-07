@@ -68,7 +68,7 @@ Run the above flow on BCCI's node. BCCI node will create base token type for the
 
 ####  Step 6
 
-    run vaultQuery contractStateType : com.iplticket.states.IplTicket
+    run vaultQuery contractStateType : com.iplticket.states.IplTicketState
 
 Get the id of this token by running the above query on BCCI node. We will require it in later steps.
 
