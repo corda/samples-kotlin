@@ -75,6 +75,12 @@ class Oracle(val services: ServiceHub) : SingletonSerializeAsToken() {
         // Is it a Merkle tree we are willing to sign over?
         val isValidMerkleTree = ftx.checkWithFun(::isCommandWithCorrectPrimeAndIAmSigner)
 
+        /**
+         * Function that checks if all of the commands that should be signed by the input public key are visible.
+         * This functionality is required from Oracles to check that all of the commands they should sign are visible.
+         */
+        ftx.checkCommandVisibility(services.myInfo.legalIdentities.first().owningKey);
+
         if (isValidMerkleTree) {
             return services.createSignature(ftx, myKey)
         } else {
