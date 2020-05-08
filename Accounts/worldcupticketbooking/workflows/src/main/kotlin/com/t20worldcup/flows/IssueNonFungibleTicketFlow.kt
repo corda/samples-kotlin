@@ -37,7 +37,7 @@ class IssueNonFungibleTicketFlow(private val tokenId:String,
         val stateAndRef = serviceHub.vaultService.queryBy(T20CricketTicketState::class.java, queryCriteria).states[0]
         val ticketState  = stateAndRef.state.data
 
-        //assign the issuer to the IplTicket type who is the BCCI node
+        //assign the issuer to the t20worldcup type who is the BCCI node
         val issuedTicketToken = ticketState.toPointer(ticketState.javaClass) issuedBy ourIdentity
 
         val houseToken = NonFungibleToken(issuedTicketToken, targetAcctAnonymousParty, UniqueIdentifier())

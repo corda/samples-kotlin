@@ -4,7 +4,7 @@ cordapp {
     targetPlatformVersion corda_platform_version
     minimumPlatformVersion corda_platform_version
     contract {
-        name "CorDapp iplticket Contract"
+        name "CorDapp t20worldcup Contract"
         vendor "Corda Open Source"
         licence "Apache License, Version 2.0"
         versionId 1

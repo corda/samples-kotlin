@@ -22,12 +22,12 @@ class CreateT20CricketTicketTokenFlow(private val ticketTeam: String) : FlowLogi
         //get the notary
         val notary = serviceHub.networkMapCache.notaryIdentities[0]
 
-        //create token type by passing in the name of the ipl match. specify the maintainer as BCCI
+        //create token type by passing in the name of the t20 match. specify the maintainer as BCCI
         val id = UniqueIdentifier()
-        val iplTicket = T20CricketTicketState(id, ticketTeam, ourIdentity)
+        val t20Ticket = T20CricketTicketState(id, ticketTeam, ourIdentity)
 
         //warp it with transaction state specifying the notary
-        val transactionState = iplTicket withNotary notary
+        val transactionState = t20Ticket withNotary notary
 
         //call built in sub flow CreateEvolvableTokens to craete the base type on BCCI node
         val stx = subFlow(CreateEvolvableTokens(transactionState))

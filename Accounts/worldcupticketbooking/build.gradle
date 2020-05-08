@@ -120,7 +120,7 @@ dependencies {
 
 cordapp {
     info {
-        name "CorDapp iplticket"
+        name "CorDapp t20worldcup"
         vendor "Corda Open Source"
         targetPlatformVersion corda_platform_version
         minimumPlatformVersion corda_platform_version
