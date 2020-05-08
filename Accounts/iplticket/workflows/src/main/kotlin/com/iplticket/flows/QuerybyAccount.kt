@@ -39,7 +39,7 @@ class QuerybyAccount(private val whoAmI:String) : FlowLogic<String>() {
         }
         //Assets
         val asset = serviceHub.vaultService.queryBy(FungibleToken::class.java, criteria).states
-        val myMoney = asset.map { it.state.data.amount.toString()}
+        val myMoney = asset.map { it.state.data.amount.quantity.toString() + " " + it.state.data.tokenType.tokenIdentifier}
         return "\nI have ticket(s) for $tkList" +
                 "\n I have money of $myMoney"
     }
