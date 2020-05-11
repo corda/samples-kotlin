@@ -27,7 +27,7 @@ Accounts will be created by the Dealer nodes for their clients on their nodes an
 
 Looking at the above diagram follow below mentioned steps to run the application.
 
-####  Step 1
+##  Step 1
 
     start CreateAndShareAccountFlow accountName : dealer1 , partyToShareAccountInfoTo : BCCI
 
@@ -46,13 +46,13 @@ Run the below query to confirm if accounts are created on Dealer1 node. Also run
 
 
 
-####  Step 2
+##  Step 2
 
     start IssueCashFlow accountName : buyer1 , currency : USD , amount : 20
 
 Run the above command on the Bank node, which will issue 20 USD to buyer1 account.
 
-####  Step 3
+##  Step 3
 ```
 flow start QuerybyAccount whoAmI: buyer1
 ```
@@ -63,7 +63,7 @@ run vaultQuery contractStateType : com.r3.corda.lib.tokens.contracts.states.Fung
 ```
 
 
-####  Step 4
+##  Step 4
 
     start CreateT20CricketTicketTokenFlow ticketTeam : MumbaiIndiansVsRajasthanRoyals
     
@@ -73,7 +73,7 @@ You can see your ticket state generated via vault query at the BCCI'd node:
 
     run vaultQuery contractStateType : com.t20worldcup.states.T20CricketTicket
 
-####  Step 5
+##  Step 5
 
     start IssueNonFungibleTicketFlow tokenId : <XXX-XXX-XXXX-XXXXX>, dealerAccountName : dealer1
 
@@ -83,7 +83,7 @@ Switching to the Dealer1's node, you can run the following code to confirm if th
     run vaultQuery contractStateType : com.r3.corda.lib.tokens.contracts.states.NonFungibleToken
 
 
-####  Step 6
+##  Step 6
 ```
 flow start BuyT20CricketTicket tokenId: <XXX-XXX-XXXX-XXXXX>, buyerAccountName: buyer1, sellerAccountName: dealer1, costOfTicker: 5, currency: USD
 ```
@@ -103,10 +103,3 @@ Confirm who owns the FungibleToken (cash) and NonFungibleToken (ticket) again by
 For accounts visit https://github.com/corda/accounts.
 
 For tokens visit https://github.com/corda/token-sdk.
-
-# Future Enhancements
-
-1.As of now accounts created on Dealer1 node perform the DVP. This sample will be modified to include Dealer2 as well and have accounts on Dealer1 interact with 
-Dealer2's accounts. 
-
-2.The base token type will be updated and the updates will be distributed to the current token holders.
