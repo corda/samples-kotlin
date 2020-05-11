@@ -40,77 +40,63 @@ The above flow will create an account named dealer1 on Dealer1 node. Similarly c
     
 The above flows will craete accounts named buyer1 and buyer2 on Dealer1's node and will share this account info with the Bank node.
 
-####  Step 2
+Run the below query to confirm if accounts are created on Dealer1 node. Also run the above query on Bank and BCCI node to confirm if account info is shared with these nodes.
 
     run vaultQuery contractStateType : com.r3.corda.lib.accounts.contracts.states.AccountInfo
 
-Run the above query to confirm if accounts are created on Dealer1 node. Also run the above query on Bank and BCCI node to confirm if 
-account info is shared with these nodes.
 
-####  Step 3
+
+####  Step 2
 
     start IssueCashFlow accountName : buyer1 , currency : USD , amount : 20
 
 Run the above command on the Bank node, which will issue 20 USD to buyer1 account.
 
+####  Step 3
+```
+flow start QuerybyAccount whoAmI: buyer1
+```
+You can check balance of buyer1 account at Dealer1's node
+[Option] You can also run the below command to confirm if 20 USD fungible tokens are stored at Dealer1's node. The current holder field in the output will be an AnonymousParty which specifies an account.
+```
+run vaultQuery contractStateType : com.r3.corda.lib.tokens.contracts.states.FungibleToken
+```
+
+
 ####  Step 4
-
-        run vaultQuery contractStateType : com.r3.corda.lib.accounts.contracts.states.AccountInfo
-
-Copy the id from the above querys output. This is the external id or you can say the unique id of the account.
-Check balance of buyer1 account by hitting below API by passing in this id. Note you will have to start the server before hitting the API.
-This is a POST request so hit below url using Postman.
-
-    http://127.0.0.1:8080/cash-balance?accountId=2f9c288c-aea8-4214-bf1f-b401729a9cea
-
-####  Step 5
-
-    run vaultQuery contractStateType : com.r3.corda.lib.tokens.contracts.states.FungibleToken
-
-Run the above command on Dealer1's node to confirm if 20 USD fungible tokens are created on Dealer1's node. Look at the current holder field in the output.
-This should be an AnonymousParty which specifies an account.
-
-####  Step 6
 
     start CreateT20CricketTicketTokenFlow ticketTeam : MumbaiIndiansVsRajasthanRoyals
     
 Run the above flow on BCCI's node. BCCI node will create base token type for the T20 Ticket for the match MumbaiIndians Vs RajasthanRoyals. The ticket ID returned from this flow will be needed in the next steps.
+You can see your ticket state generated via vault query at the BCCI'd node:
 
-####  Step 7
 
     run vaultQuery contractStateType : com.t20worldcup.states.T20CricketTicket
 
-You can see your ticket state generated via vault query
-####  Step 8
+####  Step 5
 
     start IssueNonFungibleTicketFlow tokenId : <XXX-XXX-XXXX-XXXXX>, dealerAccountName : dealer1
 
 Run the above flow on BCCI's node to issue a non fungible token based off the token type which we created in Step5. You will need to replace the `<XXX-XXX-XXXX-XXXXX>` with the uuid returned from step 6. This token will be issued by the BCCI node to dealer1 account on Dealer1 node. 
-
-####  Step 9
+Switching to the Dealer1's node, you can run the following code to confirm if the token has been issued to the dealer1 account. The current holder it will be a key representing the account.
 
     run vaultQuery contractStateType : com.r3.corda.lib.tokens.contracts.states.NonFungibleToken
 
-Run the above flow on Dealer1's node to confirm if the token has been issued to the dealer1 account. Take a look at the current holder it will be a key representing the account.
 
-####  Step 10
+####  Step 6
 ```
 flow start BuyT20CricketTicket tokenId: <XXX-XXX-XXXX-XXXXX>, buyerAccountName: buyer1, sellerAccountName: dealer1, costOfTicker: 5, currency: USD
 ```
 
 This is the DVP flow where the buyer(buyer1 account on Dealer1 node) account will pay cash to seller account(dealer1 account on Dealer1 node), and the seller accountwill transfer the ticket token to the buyer. Again, replace the `<XXX-XXX-XXXX-XXXXX>` with the uuid generated in step 6.
 
-####  Step 11
+####  Step 7
 ```
 flow start QuerybyAccount whoAmI: buyer1
 flow start QuerybyAccount whoAmI: dealer1
 ```
 Confirm who owns the FungibleToken (cash) and NonFungibleToken (ticket) again by running this on Dealer1's node.
 
-####  Step 12
-
-Retrieve the account id of dealer1 and buyer1 as we did in Step5 and confirm the cash balances. dealer1 account should have balance of 5 and buyer1 will have 
-balance of 15.
 
 # Further Reading
 
