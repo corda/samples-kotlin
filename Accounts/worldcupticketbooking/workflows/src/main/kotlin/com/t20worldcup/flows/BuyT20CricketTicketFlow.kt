@@ -30,7 +30,7 @@ import java.util.*
 class BuyT20CricketTicket(private val tokenId: String,
                        private val buyerAccountName:String,
                        private val sellerAccountName:String,
-                       private val costOfTicker: Long,
+                       private val costOfTicket: Long,
                        private val currency: String) : FlowLogic<String>() {
     companion object {
         object GENERATING_KEYS : Step("Generating Keys for transactions.")
@@ -67,9 +67,9 @@ class BuyT20CricketTicket(private val tokenId: String,
         //Check if the seller has the ticket
         val sellerInfo = accountService.accountInfo(sellerAccountName).single().state.data
         val sellerAcct = subFlow(RequestKeyForAccount(sellerInfo))
-        val criteria = QueryCriteria.VaultQueryCriteria(externalIds = listOf(sellerInfo.identifier.id))
 
         //All of the Tickets Seller has
+        val criteria = QueryCriteria.VaultQueryCriteria(externalIds = listOf(sellerInfo.identifier.id))
         val ticketList = serviceHub.vaultService.queryBy<NonFungibleToken>(criteria = criteria).states
 
         //Retrieve the one that he wants to sell
@@ -93,7 +93,7 @@ class BuyT20CricketTicket(private val tokenId: String,
         addMoveNonFungibleTokens(txbuilder,serviceHub,tokenPointer,buyerAcct)
 
         //Part2 : Move fungible token - crash from buyer to seller
-        val amount = Amount(costOfTicker, getInstance(currency))
+        val amount = Amount(costOfTicket, getInstance(currency))
         val partyAndAmount = PartyAndAmount(sellerAcct, amount)
         val payMoneyCriteria = QueryCriteria.VaultQueryCriteria(externalIds = listOf(buyerInfo.identifier.id),
                 status = Vault.StateStatus.UNCONSUMED)
