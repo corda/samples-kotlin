@@ -85,7 +85,7 @@ Switching to the Dealer1's node, you can run the following code to confirm if th
 
 ##  Step 6
 ```
-flow start BuyT20CricketTicket tokenId: <XXX-XXX-XXXX-XXXXX>, buyerAccountName: buyer1, sellerAccountName: dealer1, costOfTicker: 5, currency: USD
+flow start BuyT20CricketTicket tokenId: <XXX-XXX-XXXX-XXXXX>, buyerAccountName: buyer1, sellerAccountName: dealer1, costOfTicket: 5, currency: USD
 ```
 
 This is the DVP flow where the buyer(buyer1 account on Dealer1 node) account will pay cash to seller account(dealer1 account on Dealer1 node), and the seller accountwill transfer the ticket token to the buyer. Again, replace the `<XXX-XXX-XXXX-XXXXX>` with the uuid generated in step 6.
