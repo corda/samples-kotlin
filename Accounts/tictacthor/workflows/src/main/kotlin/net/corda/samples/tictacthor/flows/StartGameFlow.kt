@@ -1,33 +1,34 @@
-package com.accounts_SupplyChain.flows
+package net.corda.samples.tictacthor.flows
 
-
-import net.corda.core.flows.*
 import co.paralleluniverse.fibers.Suspendable
-import com.accounts_SupplyChain.accountUtilities.NewKeyForAccount
 import com.r3.corda.lib.accounts.contracts.states.AccountInfo
 import com.r3.corda.lib.accounts.workflows.accountService
 import com.r3.corda.lib.accounts.workflows.flows.RequestKeyForAccount
-
-
-import com.accounts_SupplyChain.contracts.PaymentStateContract
-import com.accounts_SupplyChain.states.PaymentState
-import net.corda.core.flows.FlowLogic
-import net.corda.core.flows.StartableByRPC
+import net.corda.samples.tictacthor.accountsUtilities.NewKeyForAccount
+import net.corda.samples.tictacthor.contracts.BoardContract
+import net.corda.samples.tictacthor.states.BoardState
+import net.corda.core.contracts.Command
+import net.corda.core.contracts.StateAndContract
+import net.corda.core.contracts.UniqueIdentifier
+import net.corda.core.flows.*
 import net.corda.core.identity.AnonymousParty
+import net.corda.core.node.StatesToRecord
+import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
-import java.util.concurrent.atomic.AtomicReference
-import net.corda.core.node.StatesToRecord
 import net.corda.core.utilities.ProgressTracker
+import java.util.concurrent.atomic.AtomicReference
 
-@StartableByRPC
-@StartableByService
+/*
+This flow starts a game with another node by creating an new BoardState.
+The responding node cannot decline the request to start a game.
+The request is only denied if the responding node is already participating in a game.
+*/
+
 @InitiatingFlow
-class SendPayment(
-        val whoAmI: String,
-        val whereTo:String,
-        val amount:Int
-) : FlowLogic<String>(){
+@StartableByRPC
+class StartGameFlow(val whoAmI: String,
+                    val whereTo: String) : FlowLogic<UniqueIdentifier>() {
 
     companion object {
         object GENERATING_KEYS : ProgressTracker.Step("Generating Keys for transactions.")
@@ -54,50 +55,68 @@ class SendPayment(
 
     override val progressTracker = tracker()
 
-
-
     @Suspendable
-    override fun call(): String {
+    override fun call(): UniqueIdentifier {
 
-        //Create a key for Loan transaction
+        //Generate key for transaction
         progressTracker.currentStep = GENERATING_KEYS
         val myAccount = accountService.accountInfo(whoAmI).single().state.data
         val myKey = subFlow(NewKeyForAccount(myAccount.identifier.id)).owningKey
+
         val targetAccount = accountService.accountInfo(whereTo).single().state.data
         val targetAcctAnonymousParty = subFlow(RequestKeyForAccount(targetAccount))
 
+        // If this node is already participating in an active game, decline the request to start a new one
+        val criteria = QueryCriteria.VaultQueryCriteria(
+                externalIds = listOf(myAccount.identifier.id)
+        )
+        val results = serviceHub.vaultService.queryBy(
+                contractStateType = BoardState::class.java,
+                criteria = criteria
+        ).states
 
-
-        //generating State for transfer
         progressTracker.currentStep = GENERATING_TRANSACTION
-        val output = PaymentState(amount,targetAcctAnonymousParty,AnonymousParty(myKey))
+        val notary = serviceHub.networkMapCache.notaryIdentities.first()
+        val command = Command(
+                BoardContract.Commands.StartGame(),
+                listOf(myKey,targetAcctAnonymousParty.owningKey))
 
-
-        val transactionBuilder = TransactionBuilder(serviceHub.networkMapCache.notaryIdentities.first())
-        transactionBuilder.addOutputState(output)
-                .addCommand(PaymentStateContract.Commands.Create(), listOf(targetAcctAnonymousParty.owningKey,myKey))
+        val initialBoardState = BoardState(
+                myAccount.identifier,
+                targetAccount.identifier,
+                AnonymousParty(myKey),
+                targetAcctAnonymousParty)
+        val stateAndContract = StateAndContract(initialBoardState, BoardContract.ID)
+        val txBuilder = TransactionBuilder(notary).withItems(stateAndContract, command)
 
         //Pass along Transaction
         progressTracker.currentStep = SIGNING_TRANSACTION
-        val locallySignedTx = serviceHub.signInitialTransaction(transactionBuilder, listOfNotNull(ourIdentity.owningKey,myKey))
-
+        txBuilder.verify(serviceHub)
+        val locallySignedTx = serviceHub.signInitialTransaction(txBuilder, listOfNotNull(ourIdentity.owningKey,myKey))
 
         //Collect sigs
         progressTracker.currentStep =GATHERING_SIGS
         val sessionForAccountToSendTo = initiateFlow(targetAccount.host)
-        val accountToMoveToSignature = subFlow(CollectSignatureFlow(locallySignedTx, sessionForAccountToSendTo, targetAcctAnonymousParty.owningKey))
+
+
+
+        val accountToMoveToSignature = subFlow(CollectSignatureFlow(locallySignedTx, sessionForAccountToSendTo,
+                listOf(targetAcctAnonymousParty.owningKey)))
         val signedByCounterParty = locallySignedTx.withAdditionalSignatures(accountToMoveToSignature)
 
+
         progressTracker.currentStep =FINALISING_TRANSACTION
-        subFlow(FinalityFlow(signedByCounterParty, listOf(sessionForAccountToSendTo).filter { it.counterparty != ourIdentity }))
-        return "Payment send to " + targetAccount.host.name.organisation + "'s "+ targetAccount.name+ " team."
+        val stx = subFlow(FinalityFlow(signedByCounterParty, listOf(sessionForAccountToSendTo).filter { it.counterparty != ourIdentity }))
+        //return "Game created! Game Id: ${initialBoardState.linearId}, Players: $whoAmI, and ${whereTo}" + "\ntxId: ${stx.id}"
+        return initialBoardState.linearId
     }
 }
 
-@InitiatedBy(SendPayment::class)
-class SendPaymentResponder(val counterpartySession: FlowSession) : FlowLogic<Unit>(){
+
+@InitiatedBy(StartGameFlow::class)
+class StartGameFlowResponder(val counterpartySession: FlowSession) : FlowLogic<Unit>() {
     @Suspendable
-    override fun call() {
+    override fun call(){
         subFlow(object : SignTransactionFlow(counterpartySession) {
             @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {
@@ -105,12 +124,5 @@ class SendPaymentResponder(val counterpartySession: FlowSession) : FlowLogic<Uni
             }
         })
         subFlow(ReceiveFinalityFlow(counterpartySession))
-    }
-
+        }
 }
-
-
-
-
-
-

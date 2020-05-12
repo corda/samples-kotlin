@@ -3,11 +3,9 @@ package com.accounts_SupplyChain.flows
 
 import net.corda.core.flows.*
 import co.paralleluniverse.fibers.Suspendable
-import com.r3.corda.lib.accounts.contracts.states.AccountInfo
+import com.accounts_SupplyChain.accountUtilities.NewKeyForAccount
 import com.r3.corda.lib.accounts.workflows.accountService
 import com.r3.corda.lib.accounts.workflows.flows.RequestKeyForAccount
-
-
 import com.r3.corda.lib.accounts.workflows.ourIdentity
 import com.accounts_SupplyChain.contracts.CargoStateContract
 import com.accounts_SupplyChain.states.CargoState
@@ -16,8 +14,6 @@ import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.AnonymousParty
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
-import java.util.concurrent.atomic.AtomicReference
-import net.corda.core.node.StatesToRecord
 import net.corda.core.utilities.ProgressTracker
 
 @StartableByRPC
@@ -89,37 +85,13 @@ class SendCargo(
 class SendCargoResponder(val counterpartySession: FlowSession) : FlowLogic<Unit>(){
     @Suspendable
     override fun call() {
-        val accountMovedTo = AtomicReference<AccountInfo>()
-        val transactionSigner = object : SignTransactionFlow(counterpartySession) {
+        subFlow(object : SignTransactionFlow(counterpartySession) {
+            @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {
-                val keyStateMovedTo = stx.coreTransaction.outRefsOfType(CargoState::class.java).first().state.data.DeliverTo.owningKey
-                keyStateMovedTo.let {
-                    accountMovedTo.set(accountService.accountInfo(keyStateMovedTo)?.state?.data)
-                }
-
-                if (accountMovedTo.get() == null) {
-                    throw IllegalStateException("Account to move to was not found on this node")
-                }
-
+                // Custom Logic to validate transaction.
             }
-        }
-        val transaction = subFlow(transactionSigner)
-        if (counterpartySession.counterparty != serviceHub.myInfo.legalIdentities.first()) {
-            val recievedTx = subFlow(
-                    ReceiveFinalityFlow(
-                            counterpartySession,
-                            expectedTxId = transaction.id,
-                            statesToRecord = StatesToRecord.ALL_VISIBLE
-                    )
-            )
-            val accountInfo = accountMovedTo.get()
-            if (accountInfo != null) {
-                subFlow(BroadcastToCarbonCopyReceiversFlow(accountInfo, recievedTx.coreTransaction.outRefsOfType(CargoState::class.java).first()))
-            }
-
-
-
-        }
+        })
+        subFlow(ReceiveFinalityFlow(counterpartySession))
     }
 
 }

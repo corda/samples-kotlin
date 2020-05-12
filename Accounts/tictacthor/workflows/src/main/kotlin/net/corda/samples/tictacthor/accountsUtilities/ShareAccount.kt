@@ -1,4 +1,4 @@
-package com.accounts_SupplyChain.flows
+package net.corda.samples.tictacthor.accountsUtilities
 
 
 import net.corda.core.flows.*
@@ -15,7 +15,7 @@ import net.corda.core.identity.Party
 class ShareAccountTo(
         private val acctNameShared: String,
         private val shareTo: Party
-        ) : FlowLogic<String>(){
+) : FlowLogic<String>(){
 
     @Suspendable
     override fun call(): String {
