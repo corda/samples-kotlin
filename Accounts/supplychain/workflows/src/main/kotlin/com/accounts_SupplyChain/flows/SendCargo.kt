@@ -58,9 +58,6 @@ class SendCargo(
         val myKey = subFlow(NewKeyForAccount(myAccount.identifier.id)).owningKey
         val targetAccount = accountService.accountInfo(shipTo).single().state.data
         val targetAcctAnonymousParty = subFlow(RequestKeyForAccount(targetAccount))
-
-
-
         //generating State for transfer
         progressTracker.currentStep = GENERATING_TRANSACTION
         val output = CargoState(AnonymousParty(myKey),targetAcctAnonymousParty,cargo,serviceHub.ourIdentity)
@@ -72,7 +69,8 @@ class SendCargo(
 
         progressTracker.currentStep =GATHERING_SIGS
         val sessionForAccountToSendTo = initiateFlow(targetAccount.host)
-        val accountToMoveToSignature = subFlow(CollectSignatureFlow(locallySignedTx, sessionForAccountToSendTo, targetAcctAnonymousParty.owningKey))
+        val accountToMoveToSignature = subFlow(CollectSignatureFlow(locallySignedTx,
+                sessionForAccountToSendTo, targetAcctAnonymousParty.owningKey))
         val signedByCounterParty = locallySignedTx.withAdditionalSignatures(accountToMoveToSignature)
 
         progressTracker.currentStep =FINALISING_TRANSACTION

@@ -75,12 +75,14 @@ class InternalMessage(
 
 
         progressTracker.currentStep = SIGNING_TRANSACTION
-        val locallySignedTx = serviceHub.signInitialTransaction(transactionBuilder, listOfNotNull(newKeyForInitiator.owningKey,ourIdentity.owningKey))
+        val locallySignedTx = serviceHub.signInitialTransaction(transactionBuilder,
+                listOfNotNull(newKeyForInitiator.owningKey,ourIdentity.owningKey))
 
 
         progressTracker.currentStep = GATHERING_SIGS
         val sessionForAccountToSendTo = initiateFlow(targetAccount.host)
-        val accountToMoveToSignature = subFlow(CollectSignatureFlow(locallySignedTx, sessionForAccountToSendTo, targetAcctAnonymousParty.owningKey))
+        val accountToMoveToSignature = subFlow(CollectSignatureFlow(locallySignedTx,
+                sessionForAccountToSendTo, targetAcctAnonymousParty.owningKey))
         val signedByCounterParty = locallySignedTx.withAdditionalSignatures(accountToMoveToSignature)
 
         progressTracker.currentStep = FINALISING_TRANSACTION
