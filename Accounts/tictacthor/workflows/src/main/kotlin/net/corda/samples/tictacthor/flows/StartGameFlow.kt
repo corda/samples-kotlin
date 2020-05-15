@@ -97,17 +97,11 @@ class StartGameFlow(val whoAmI: String,
         //Collect sigs
         progressTracker.currentStep =GATHERING_SIGS
         val sessionForAccountToSendTo = initiateFlow(targetAccount.host)
-
-
-
         val accountToMoveToSignature = subFlow(CollectSignatureFlow(locallySignedTx, sessionForAccountToSendTo,
                 listOf(targetAcctAnonymousParty.owningKey)))
         val signedByCounterParty = locallySignedTx.withAdditionalSignatures(accountToMoveToSignature)
-
-
         progressTracker.currentStep =FINALISING_TRANSACTION
         val stx = subFlow(FinalityFlow(signedByCounterParty, listOf(sessionForAccountToSendTo).filter { it.counterparty != ourIdentity }))
-        //return "Game created! Game Id: ${initialBoardState.linearId}, Players: $whoAmI, and ${whereTo}" + "\ntxId: ${stx.id}"
         return initialBoardState.linearId
     }
 }

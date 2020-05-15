@@ -30,10 +30,6 @@ data class BoardState(val playerO: UniqueIdentifier,
 
     // Returns the party of the current player
     fun getCurrentPlayerParty(): UniqueIdentifier { return if (isPlayerXTurn.booleanValue()) playerX else playerO }
-    fun getConterPlayerParty(): UniqueIdentifier { return if (isPlayerXTurn.booleanValue()) playerO else playerX }
-    fun isOTurn(): kotlin.Boolean {
-        return !isPlayerXTurn.booleanValue()
-    }
     // Get deep copy of board
     private fun Array<CharArray>.copy() = Array(size) { get(it).clone() }
 

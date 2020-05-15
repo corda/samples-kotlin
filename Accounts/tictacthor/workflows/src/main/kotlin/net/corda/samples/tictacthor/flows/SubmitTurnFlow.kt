@@ -74,6 +74,7 @@ class SubmitTurnFlow(private val gameId: UniqueIdentifier,
                 null,
                 listOf(gameId),
                 Vault.StateStatus.UNCONSUMED, null)
+
         val inputBoardStateAndRef = serviceHub.vaultService.queryBy<BoardState>(queryCriteria)
                 .states.singleOrNull()?: throw FlowException("GameState with id $gameId not found.")
         val inputBoardState = inputBoardStateAndRef.state.data
@@ -100,7 +101,6 @@ class SubmitTurnFlow(private val gameId: UniqueIdentifier,
         val accountToMoveToSignature = subFlow(CollectSignatureFlow(locallySignedTx, sessionForAccountToSendTo,
                 targetAcctAnonymousParty.owningKey))
         val signedByCounterParty = locallySignedTx.withAdditionalSignatures(accountToMoveToSignature)
-        progressTracker.currentStep =GATHERING_SIGS_FINISH
 
         progressTracker.currentStep =FINALISING_TRANSACTION
         val stx = subFlow(FinalityFlow(signedByCounterParty, listOf(sessionForAccountToSendTo).filter { it.counterparty != ourIdentity }))

@@ -111,8 +111,7 @@ class Controller(rpc: NodeRPCConnection) {
         return try {
             val gameId = proxy.startFlow(::StartGameFlow,whoAmI,competeWith).returnValue.get()!!
             val submitTurn = proxy.startFlow(::SubmitTurnFlow, gameId, whoAmI,competeWith,x,y).returnValue.get()!!
-            ResponseEntity.status(HttpStatus.CREATED).body("Game Id Created: $gameId" +
-                    "$whoAmI made the first move on position [$x,$y]")
+            ResponseEntity.status(HttpStatus.CREATED).body("Game Id Created: $gameId" + "$whoAmI made the first move on position [$x,$y]")
 
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
@@ -150,21 +149,6 @@ class Controller(rpc: NodeRPCConnection) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
         }
 }
-
-    @GetMapping(value = ["get-board"])
-    private fun getBoard(): List<Char>? {
-        val states = proxy.vaultQueryBy<BoardState>().states
-        if (states.isEmpty()) return emptyList()
-        val boardState = states.single().state.data
-        return boardState.board.flatMap { it.asList() }
-    }
-
-    @GetMapping(value = ["get-is-game-over"])
-    private fun getIsGameOver(): Boolean {
-        val states = proxy.vaultQueryBy<BoardState>().states
-        if (states.single().state.data.status == Status.GAME_OVER) return true
-        return false
-    }
 
 
     private fun isGameOver(whoAmI: String):Boolean{
