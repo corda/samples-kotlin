@@ -1,13 +1,10 @@
-package com.accounts_SupplyChain.flows
+package com.accounts_SupplyChain.accountUtilities
 
 
 import net.corda.core.flows.*
 import co.paralleluniverse.fibers.Suspendable
+import com.accounts_SupplyChain.states.*
 import com.r3.corda.lib.accounts.workflows.accountService
-import com.accounts_SupplyChain.states.CargoState
-import com.accounts_SupplyChain.states.InternalMessageState
-import com.accounts_SupplyChain.states.InvoiceState
-import com.accounts_SupplyChain.states.PaymentState
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.node.services.vault.QueryCriteria
@@ -49,7 +46,7 @@ class ViewInboxByAccount(
         ).states.map { "\n" +"Invoice State : " +it.state.data.amount}
 
         val shippingRequest = serviceHub.vaultService.queryBy(
-                contractStateType = CargoState::class.java,
+                contractStateType = ShippingRequestState::class.java,
                 criteria = criteria
         ).states.map { "\n" +"Shipping Request State : " +it.state.data.cargo + " to " + it.state.data.DeliverTo}
 

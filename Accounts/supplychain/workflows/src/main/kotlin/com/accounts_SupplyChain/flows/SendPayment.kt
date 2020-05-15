@@ -3,6 +3,7 @@ package com.accounts_SupplyChain.flows
 
 import net.corda.core.flows.*
 import co.paralleluniverse.fibers.Suspendable
+import com.accounts_SupplyChain.accountUtilities.NewKeyForAccount
 import com.r3.corda.lib.accounts.contracts.states.AccountInfo
 import com.r3.corda.lib.accounts.workflows.accountService
 import com.r3.corda.lib.accounts.workflows.flows.RequestKeyForAccount
@@ -97,36 +98,13 @@ class SendPayment(
 class SendPaymentResponder(val counterpartySession: FlowSession) : FlowLogic<Unit>(){
     @Suspendable
     override fun call() {
-        val accountMovedTo = AtomicReference<AccountInfo>()
-        val transactionSigner = object : SignTransactionFlow(counterpartySession) {
+        subFlow(object : SignTransactionFlow(counterpartySession) {
+            @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {
-                val keyStateMovedTo = stx.coreTransaction.outRefsOfType(PaymentState::class.java).first().state.data.recipient
-                keyStateMovedTo.let {
-                    accountMovedTo.set(accountService.accountInfo(keyStateMovedTo.owningKey)?.state?.data)
-                }
-                if (accountMovedTo.get() == null) {
-                    throw IllegalStateException("Account to move to was not found on this node")
-                }
-
+                // Custom Logic to validate transaction.
             }
-        }
-        val transaction = subFlow(transactionSigner)
-        if (counterpartySession.counterparty != serviceHub.myInfo.legalIdentities.first()) {
-            val recievedTx = subFlow(
-                    ReceiveFinalityFlow(
-                            counterpartySession,
-                            expectedTxId = transaction.id,
-                            statesToRecord = StatesToRecord.ALL_VISIBLE
-                    )
-            )
-            val accountInfo = accountMovedTo.get()
-            if (accountInfo != null) {
-                subFlow(BroadcastToCarbonCopyReceiversFlow(accountInfo, recievedTx.coreTransaction.outRefsOfType(PaymentState::class.java).first()))
-            }
-
-
-
-        }
+        })
+        subFlow(ReceiveFinalityFlow(counterpartySession))
     }
 
 }

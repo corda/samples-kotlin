@@ -3,7 +3,7 @@ package com.accounts_SupplyChain.flows
 
 import net.corda.core.flows.*
 import co.paralleluniverse.fibers.Suspendable
-import com.r3.corda.lib.accounts.contracts.states.AccountInfo
+import com.accounts_SupplyChain.accountUtilities.NewKeyForAccount
 import com.r3.corda.lib.accounts.workflows.accountService
 import com.accounts_SupplyChain.contracts.ShippingRequestStateContract
 import com.accounts_SupplyChain.states.ShippingRequestState
@@ -13,7 +13,6 @@ import net.corda.core.identity.AnonymousParty
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
-import java.util.concurrent.atomic.AtomicReference
 import net.corda.core.node.StatesToRecord
 import net.corda.core.utilities.ProgressTracker
 

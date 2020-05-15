@@ -1,5 +1,4 @@
-package com.accounts_SupplyChain.flows
-
+package net.corda.samples.tictacthor.accountsUtilities
 
 import net.corda.core.flows.*
 import co.paralleluniverse.fibers.Suspendable
