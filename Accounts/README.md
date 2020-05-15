@@ -6,7 +6,7 @@ This folder features Corda Accounts sample projects.
 This CorDapp mimics a supply chain transaction, where the deal is incorporated among different teams in the companies on both side of the trade.
 
 ### [Tic Tac Thor](./tictacthor):
-This CorDapp recreates the game of Tic Tac Tor via Corda. It primarilly demonstrates how you can have linear state transactions between cross-node accounts. 
+This CorDapp recreates the game of Tic Tac Toe via Corda. It primarilly demonstrates how you can have linear state transactions between cross-node accounts. 
 
 
 ### [Worldcup Ticket Booking](./worldcupticketbooking):
