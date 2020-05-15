@@ -9,7 +9,7 @@ This repository contains multiple sample apps, from CorDapps that help you get s
 To get started explore the [Basic](./Basic) folder, or navigate to the [Advanced](./Advanced) and [Features](./Features) folders to see a description of whats available. You can find the exact same set of CorDapp demonstration in Java language at [link](https://github.com/corda/samples-java). 
 
 ## Directories
-The samples are divided into 4 sections with the following desciption:
+The samples are divided into 5 sections with the following desciption:
 
 * Accounts: These samples showcases how to utilize Corda Accounts Libray to build CorDapps which aim to have massive user volume
 * Advanced: In these samples, we demonstrate more complex and sophisticated features of Corda. 
