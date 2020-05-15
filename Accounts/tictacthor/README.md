@@ -1,6 +1,8 @@
-## Credit 
-This project is inspired and evolved from a simple [tic-tac-toe](https://github.com/thorgilman/tictactoe) game on Corda by Thor Gilman. 
-
+# Tic Tac Thor
+This CorDapp recreates the game of Tic Tac Toe via Corda. It primarilly demonstrates how you can have linear state transactions between cross-node accounts.
+<p align="center">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Tic_tac_toe.svg/1024px-Tic_tac_toe.svg.png" alt="Corda" width="200">
+</p>
 
 ## Running the sample
 Deploy and run the nodes by:
@@ -48,7 +50,8 @@ Now, try to have Anthony play a game with Thor while start a new game between Pe
 
 One key feature about account is that, each account's data is segregated, meaning each account will not be able to see other account's data. In this sample cordapp, the game is queried by account name. Therefore, we see that each account only knows about the game that he participated. Account Peter doesn't know anything about the game between Thor and Anthony. 
 
-
+## Credit 
+This project is inspired and evolved from a simple [tic-tac-toe](https://github.com/thorgilman/tictactoe) game on Corda by Thor Gilman. 
 
 
 
