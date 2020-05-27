@@ -13,13 +13,13 @@ import com.r3.corda.lib.tokens.workflows.types.PartyAndAmount
 import net.corda.core.contracts.Amount
 import net.corda.core.flows.*
 import net.corda.core.node.services.Vault
-import net.corda.core.node.services.queryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import java.util.*
+import net.corda.core.node.services.queryBy as queryBy
 
 
 // *********
@@ -27,7 +27,7 @@ import java.util.*
 // *********
 @InitiatingFlow
 @StartableByRPC
-class BuyT20CricketTicket(private val tokenId: String,
+class DVPAccountsOnSameNode(private val tokenId: String,
                        private val buyerAccountName:String,
                        private val sellerAccountName:String,
                        private val costOfTicket: Long,
@@ -120,8 +120,8 @@ class BuyT20CricketTicket(private val tokenId: String,
     }
 }
 
-@InitiatedBy(BuyT20CricketTicket::class)
-class BuyT20CricketTicketResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+@InitiatedBy(DVPAccountsOnSameNode::class)
+class DVPAccountsOnSameNodeResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call():SignedTransaction {
 

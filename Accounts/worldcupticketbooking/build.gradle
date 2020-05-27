@@ -23,21 +23,20 @@ buildscript {
         //CI
         confidential_id_release_group = "com.r3.corda.lib.ci"
         confidential_id_release_version = "1.0"
-        //Token
+        //tokens
+        tokens_release_version = '1.1'
         tokens_release_group = 'com.r3.corda.lib.tokens'
-        tokens_release_version = '1.0'
 
     }
+
 
     repositories {
         mavenLocal()
         mavenCentral()
         jcenter()
-        maven { url 'http://ci-artifactory.corda.r3cev.com/artifactory/corda-lib-dev' }
+        maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-releases' }
+        // maven { url 'http://ci-artifactory.corda.r3cev.com/artifactory/corda-lib-dev' }
         maven { url 'http://ci-artifactory.corda.r3cev.com/artifactory/corda-lib' }
-        maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda' }
-        // Corda dependencies for the patched Quasar version
-        maven { url "https://software.r3.com/artifactory/corda-dependencies" } // access to the patched Quasar version
     }
 
     dependencies {
@@ -49,6 +48,8 @@ buildscript {
 
     }
 }
+
+
 
 allprojects {
     apply from: "${rootProject.projectDir}/repositories.gradle"
@@ -116,6 +117,8 @@ dependencies {
     cordapp "$tokens_release_group:tokens-contracts:$tokens_release_version"
     cordapp "$tokens_release_group:tokens-workflows:$tokens_release_version"
     cordapp "$tokens_release_group:tokens-money:$tokens_release_version"
+    cordapp "$tokens_release_group:tokens-selection:$tokens_release_version"
+
 }
 
 cordapp {
@@ -158,6 +161,8 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         cordapp("$tokens_release_group:tokens-contracts:$tokens_release_version")
         cordapp("$tokens_release_group:tokens-workflows:$tokens_release_version")
         cordapp("$tokens_release_group:tokens-money:$tokens_release_version")
+        cordapp("$tokens_release_group:tokens-selection:$tokens_release_version")
+
     }
     node {
         name "O=Notary,L=London,C=GB"
@@ -200,16 +205,16 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         extraConfig = ['h2Settings.address' : 'localhost:20043']
     }
 
-//    node {
-//        name "O=Dealer2,L=Delhi,C=IN"
-//        p2pPort 10090
-//        rpcSettings {
-//            address("localhost:10091")
-//            adminAddress("localhost:10092")
-//        }
-//        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
-//        extraConfig = ['h2Settings.address' : 'localhost:20093']
-//    }
+    node {
+        name "O=Dealer2,L=Delhi,C=IN"
+        p2pPort 10090
+        rpcSettings {
+            address("localhost:10091")
+            adminAddress("localhost:10092")
+        }
+        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
+        extraConfig = ['h2Settings.address' : 'localhost:20093']
+    }
 
 }
 
