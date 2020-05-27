@@ -26,15 +26,15 @@ Nodes:
 
 ###  Step 1
 ```
-flow start CreateAndShareAccountFlow accountName: agent1, partyToShareAccountInfoToList: [BCCI, Dealer2]
-flow start CreateAndShareAccountFlow accountName: buyer1, partyToShareAccountInfoToList: [Bank, Dealer2]
-flow start CreateAndShareAccountFlow accountName: buyer2, partyToShareAccountInfoToList: [Bank, Dealer2]
+flow start CreateAndShareAccountFlow accountName: agent1, partyToShareAccountInfoTo: [BCCI, Dealer2]
+flow start CreateAndShareAccountFlow accountName: buyer1, partyToShareAccountInfoTo: [Bank, Dealer2]
+flow start CreateAndShareAccountFlow accountName: buyer2, partyToShareAccountInfoTo: [Bank, Dealer2]
 ```
 Run the above flow on the Dealer1 node. This will create the agent1, buyer1 and buyer2 accounts on the Dealer1 node and share this account info with BCCI, Bank, and Dealer2 node respecticely.
 
 Then let's go to the Dealer2 node and create buyer3 account: 
 ```
-flow start CreateAndShareAccountFlow accountName: buyer3, partyToShareAccountInfoToList: [Bank, Dealer1]
+flow start CreateAndShareAccountFlow accountName: buyer3, partyToShareAccountInfoTo: [Bank, Dealer1]
 ```
 
 Run the below query to confirm if accounts are created on Dealer1 node. Also run the above query on Bank and BCCI node to confirm if account info is shared with these nodes.
