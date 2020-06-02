@@ -1,7 +1,5 @@
 package net.corda.samples.stockpaydividend
 
-import com.r3.corda.lib.tokens.workflows.internal.flows.distribution.RequestAdditionToDistributionList
-import net.corda.samples.stockpaydividend.flows.Responder
 import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkParameters
 import net.corda.testing.node.TestCordapp

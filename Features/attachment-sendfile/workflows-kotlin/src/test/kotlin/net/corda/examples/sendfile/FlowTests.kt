@@ -34,7 +34,7 @@ class FlowTests {
     //because the unit test are in a different working directory than the running node.
     @Test
     fun `attachment list has more than one element`() {
-        val future = a.startFlow(SendAttachment(b.info.legalIdentities.first()))
+        val future = a.startFlow(SendAttachment(b.info.legalIdentities.first(), true))
         network.runNetwork()
         val ptx = future.get()
         assert(ptx.tx.attachments.size > 1)
@@ -43,7 +43,7 @@ class FlowTests {
     //Test #2 test successful download of the attachment by the receiving node.
     @Test
     fun `attachment downloaded by buyer`() {
-        val future = a.startFlow(SendAttachment(b.info.legalIdentities.first()))
+        val future = a.startFlow(SendAttachment(b.info.legalIdentities.first(), true))
         network.runNetwork()
         val future1 = b.startFlow(DownloadAttachment(a.info.legalIdentities.first(), "file.zip"))
         network.runNetwork()
