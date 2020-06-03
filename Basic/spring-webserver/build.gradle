@@ -78,6 +78,9 @@ allprojects {
 
 }
 
+bootJar {
+    enabled = false
+}
 
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     nodeDefaults {

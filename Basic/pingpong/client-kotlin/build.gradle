@@ -3,7 +3,7 @@ apply from: '../repositories.gradle'
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
-    compile project(":workflows-kotlin")
+    cordaCompile project(":workflows-kotlin")
     compile "$corda_release_group:corda-rpc:$corda_release_version"
 
     testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
