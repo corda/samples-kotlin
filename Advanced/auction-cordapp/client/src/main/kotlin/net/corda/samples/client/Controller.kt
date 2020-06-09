@@ -112,7 +112,7 @@ class Controller() {
             proxy.startFlowDynamic(
                     AuctionSettlementFlow::class.java,
                     UUID.fromString(settlementForm.auctionId),
-                    Amount.parseCurrency("${settlementForm.amount} USD")
+                    Amount.parseCurrency("${settlementForm.amount}")
             ).returnValue.get()
             APIResponse.success("Auction ${settlementForm.auctionId} paid")
         } catch (e: Exception) {
