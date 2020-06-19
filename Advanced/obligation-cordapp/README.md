@@ -15,12 +15,12 @@ Given this is intended to implement an IOU, our cordapp consists of three flows 
 
 ### Flows
 
-The first flows are the ones that issue the original cash and assets. You can find that the cash flow [here](./workflows-kotlin/src/main/kotlin/net/corda/training/flows/IOUSettleFlow.kt#L122) and the IOU issurance in [IOUIssueFlow.kt](./workflows-kotlin/src/main/kotlin/net/corda/training/flows/IOUIssueFLow.kt).
+The first flows are the ones that issue the original cash and assets. You can find that the cash flow resides [here](./workflows-kotlin/src/main/kotlin/net/corda/training/flows/IOUSettleFlow.kt#L122) and the IOU issurance in [IOUIssueFlow.kt](./workflows-kotlin/src/main/kotlin/net/corda/training/flows/IOUIssueFLow.kt).
 
 The next flow is the one that transfers ownership of that asset over to another party. That can be found in [IOUTransferFlow.kt](./workflows-kotlin/src/main/kotlin/net/corda/training/flows/IOUTransferFlow.kt).
 
 
-Finally, once we have the ability to transfer assets, we just need to settle up. That functiionality can be found [here in IOUSettleFlow.java](./workflows-kotlin/src/main/kotlin/net/corda/training/flows/IOUSettleFlow.kt#L29)
+Finally, once we have the ability to transfer assets, we just need to settle up. That functiionality can be found here in [IOUSettleFlow.kt](./workflows-kotlin/src/main/kotlin/net/corda/training/flows/IOUSettleFlow.kt#L29)
 
 
 

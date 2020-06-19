@@ -1,15 +1,12 @@
 
+# reference state cordapp
 
-<p align="center">
-  <img src="https://www.corda.net/wp-content/uploads/2016/11/fg005_corda_b.png" alt="Corda" width="500">
-</p>
+This CorDapp demonstrates the use of [reference states](https://training.corda.net/corda-details/reference-states/) in a transaction and in the verification method of a contract.
 
-# Reference State Cordapp
+## Concepts
 
-This CorDapp demonstrates the use of reference states in a transaction and in the verification method of a contract.
 
 This CorDapp allows two nodes to enter into an IOU agreement, but enforces that both parties belong to a list of sanctioned entities. This list of sanctioned entities is taken from a referenced SanctionedEntities state.
-
 
 ## Pre-Requisites
 

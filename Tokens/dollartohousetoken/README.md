@@ -1,10 +1,7 @@
-<p align="center">
-  <img src="https://camo.githubusercontent.com/a7b7d659d6e01a9e49ff2d9919f7a66d84aac66e/68747470733a2f2f7777772e636f7264612e6e65742f77702d636f6e74656e742f75706c6f6164732f323031362f31312f66673030355f636f7264615f622e706e67" alt="Corda" width="500">
-</p>
-
 # NonFungible House Token DvP Sample CorDapp - Java
 
-This CorDapp servers a basic example to create, issue and perform a DvP (Delivery vs Payment) of an Evolvable NonFungible token in Corda utilizing the TokenSDK. 
+This CorDapp provides a basic example to create, issue and perform a DvP (Delivery vs Payment) of an [Evolvable](https://training.corda.net/libraries/tokens-sdk/#evolvabletokentype), [NonFungible](https://training.corda.net/libraries/tokens-sdk/#nonfungibletoken) token in 
+Corda utilizing the Token SDK.
 
 
 # Pre-Requisites
@@ -16,12 +13,15 @@ For a brief introduction to Token SDK in Corda, see https://medium.com/corda/int
 # Usage
 
 ## Running the nodes
-
-See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
-
+Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
+```
+./gradlew clean deployNodes
+```
+Then type: (to run the nodes)
+```
+./build/nodes/runnodes
+```
 ## Interacting with the nodes
-
-### Shell
 
 When started via the command line, each node will display an interactive shell:
 
@@ -36,7 +36,7 @@ First go to the shell of PartyA and issue some USD to Party C. We will need the 
 
     start FiatCurrencyIssueFlow currency: USD, amount: 100000000, recipient: PartyC
 
-We can now go to the shell of PartyC and check the amount of USD issued. Since fiat currency is a fungible token we can query the vault for FungibleToken states.
+We can now go to the shell of PartyC and check the amount of USD issued. Since fiat currency is a fungible token we can query the vault for [FungibleToken](https://training.corda.net/libraries/tokens-sdk/#fungibletoken) states.
 
     run vaultQuery contractStateType: com.r3.corda.lib.tokens.contracts.states.FungibleToken
     
@@ -44,11 +44,11 @@ Once we have the USD issued to PartyC, we can Create and Issue the HouseToken to
     
     start CreateAndIssueHouseToken owner: PartyB, valuationOfHouse: 10000 USD, noOfBedRooms: 2, constructionArea: 1000sqft, additionInfo: NA, address: Mumbai
     
-We can now check the issued house token in PartyB's vault. Since we issued it as a non-fungible token we can query the vault for non-fungible tokens.
+We can now check the issued house token in PartyB's vault. Since we issued it as a [NonFungible](https://training.corda.net/libraries/tokens-sdk/#nonfungibletoken) token we can query the vault for non-fungible tokens.
     
     run vaultQuery contractStateType: com.r3.corda.lib.tokens.contracts.states.NonFungibleToken
     
-Note that HouseState token is an evolvable token which is a linear state, thus we can check PartyB's vault to view the evolvable token
+Note that HouseState token is an evolvable token which is a [LinearState](https://docs.corda.net/docs/corda-os/api-states.html#linearstate), thus we can check PartyB's vault to view the [EvolvableToken](https://training.corda.net/libraries/tokens-sdk/#evolvabletokentype)
 
     run vaultQuery contractStateType: net.corda.samples.dollartohousetoken.states.HouseState
     

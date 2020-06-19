@@ -1,6 +1,6 @@
 # whistle blower cordapp
 
-This CorDapp is a simple showcase of confidential identities (i.e. anonymous public keys).
+This CorDapp is a simple showcase of [confidential identities](https://docs.corda.net/docs/corda-os/api-identity.html#confidential-identities) (i.e. anonymous public keys).
 
 
 ## Concepts
@@ -25,14 +25,18 @@ See https://docs.corda.net/getting-set-up.html.
 
 
 ### Deploy and run the node
+Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```
-./greadlew deployNodes
-./build/node/runnodes
+./gradlew clean deployNodes
+```
+Then type: (to run the nodes)
+```
+./build/nodes/runnodes
 ```
 
 ### Interacting with the nodes:
 
-We will interact with this CorDapp via the nodes' CRaSH shells.
+We will interact with this CorDapp via the nodes' [CRaSH](https://docs.corda.net/docs/corda-os/shell.html) shells.
 
 First, go the the shell of BraveEmployee, and report BadCompany to the TradeBody by running:
 

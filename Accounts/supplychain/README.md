@@ -7,7 +7,8 @@ This sample describes a mock/simple supply chain business flow.
 <p align="center">
   <img src="./Business%20Flow.png" alt="Corda" width="500">
 </p>
-From the above chart, you can see the flow is going back and forth between different parties' accounts. Please follow the instruction below to experience the Accounts library. 
+
+From the above chart, you can see the flow is going back and forth between different parties' accounts. Please follow the instruction below to experience the [Accounts](https://training.corda.net/libraries/accounts-lib/) library. 
 
 # Setting up
 Go into the project directory and build the project
@@ -46,7 +47,7 @@ flow start ShareAccountTo acctNameShared: SellerInventory, shareTo: ShippingCo
 ```
 This is creating 3 accounts under Seller's node and sharing with their specific conterpartie's node or account.
 
-[Optional]: You can run a vaultQuery to see the accoutnInfo that been stored at each node by using: 
+[Optional]: You can run a vaultQuery to see the [AccountInfo](https://training.corda.net/libraries/accounts-lib/#design) that been stored at each node by using: 
 ```
 run vaultQuery contractStateType: com.r3.corda.lib.accounts.contracts.states.AccountInfo
 ```

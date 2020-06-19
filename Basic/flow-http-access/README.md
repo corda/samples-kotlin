@@ -51,13 +51,9 @@ See https://docs.corda.net/getting-set-up.html.
 
 ### Running the nodes:
 
-```
-./gradlew clean deployNodes
-```
-Then type: (to run the nodes)
-```
-./build/nodes/runnodes
-```
+See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
+
+Java use the `workflows-kotlin:deployNodes` task and `./workflows-kotlin/build/nodes/runnodes` script.
 
 ### Interacting with the nodes:
 

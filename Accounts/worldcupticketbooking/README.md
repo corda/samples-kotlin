@@ -57,7 +57,8 @@ Run the above command on the Bank node, which will issue 20 USD to buyer1 accoun
 flow start QuerybyAccount whoAmI: buyer1
 ```
 You can check balance of buyer1 account at Dealer1's node
-[Option] You can also run the below command to confirm if 20 USD fungible tokens are stored at Dealer1's node. The current holder field in the output will be an AnonymousParty which specifies an account.
+
+[Option] You can also run the below command to confirm if 20 USD fungible tokens are stored at Dealer1's node. The current holder field in the output will be an [AnonymousParty](https://docs.corda.net/docs/corda-os/4.4/api-identity.html#party) which specifies an account.
 ```
 run vaultQuery contractStateType : com.r3.corda.lib.tokens.contracts.states.FungibleToken
 ```
@@ -121,7 +122,7 @@ At Dealer2 node
 flow start QuerybyAccount whoAmI: buyer3
 
 ```
-Confirm who owns the FungibleToken (cash) and NonFungibleToken (ticket) again by running this on Dealer1's node.
+Confirm who owns the [FungibleToken](https://training.corda.net/libraries/tokens-sdk/#fungibletoken) (cash) and [NonFungibleToken](https://training.corda.net/libraries/tokens-sdk/#nonfungibletoken) (ticket) again by running this on Dealer1's node.
 
 
 ## Further Reading

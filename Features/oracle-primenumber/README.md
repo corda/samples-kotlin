@@ -1,6 +1,6 @@
 # corda oracle examples
 
-This CorDapp implements an oracle service that allows nodes to:
+This CorDapp implements an [oracle service](https://training.corda.net/corda-details/oracles) that allows nodes to:
 
 * Request the Nth prime number
 * Request the oracle's signature to prove that the number included in their transaction is actually the Nth prime
@@ -36,7 +36,7 @@ See https://docs.corda.net/getting-set-up.html.
 ./build/node/runnodes
 ```
 
-Go to the CRaSH shell for PartyA, and request the 5th prime from the oracle using the `CreatePrime` flow:
+Go to the [CRaSH](https://docs.corda.net/docs/corda-os/shell.html) shell for PartyA, and request the 5th prime from the oracle using the `CreatePrime` flow:
 
     flow start CreatePrime index: 5
 
