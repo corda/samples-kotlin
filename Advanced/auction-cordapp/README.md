@@ -1,7 +1,7 @@
 # Auction CorDapp
 
 This CorDapp serves as a demo of building an auction application on Corda. It leverages
-different features of Corda like `SchedulableState`, `StatePointer` and `OwnableState`. It also demonstrate 
+different features of Corda like [SchedulableState](https://docs.corda.net/docs/corda-os/event-scheduling.html#how-to-implement-scheduled-events), [StatePointer](https://docs.corda.net/docs/corda-os/api-states.html#state-pointers) and [OwnableState](https://docs.corda.net/docs/corda-os/api-states.html#ownablestate). It also demonstrate
 how to perform a DvP (Delivery vs Payment) transaction on Corda.
 
 It has a full-functional client included and an angular UI to interact with the nodes.
@@ -29,10 +29,12 @@ ownership. Left black for simplicity. Has two commands, `CreateAsset` and `Trans
 ### Flows:
 - `CreateAssetFlow`: This flow is used create an asset.
 - `CreateAuctionFlow`: This flow is used to create an auction. Once an asset has been created using
-the`CreateAssetFlow`, this flow can be used to put the asset on auction. The `AuctionState` 
+the `CreateAssetFlow`, this flow can be used to put the asset on auction. The `AuctionState` 
 references to the `Asset` using a `StatePointer`. 
+
 Refer here to learn more about StatePointer: 
 https://medium.com/corda/linking-corda-states-using-statepointer-16e24e5e602
+
 - `BidFlow`: It is used to place a bid on an auction. Bids can be placed only till a predetermined
 deadline defined in the `AuctionState`. 
 - `EndAuctionFlow`: This is a scheduled flow, which run automatically on auction deadline to mark 

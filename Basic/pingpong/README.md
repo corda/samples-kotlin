@@ -2,7 +2,7 @@
 
 This CorDapp allows a node to ping any other node on the network that also has this CorDapp installed.
 
-It demonstrates how to use Corda for messaging and passing data using a flow without saving any states or using any contracts.
+It demonstrates how to use Corda for messaging and passing data using a [flow](https://docs.corda.net/docs/corda-os/flow-state-machines.html#flow-sessions) without saving any states or using any contracts.
 
 
 ### Concepts
@@ -20,7 +20,7 @@ We define a state (the "ping" to be shared), define a contract (the way to make 
 You'll notice in our code we call these two classes ping and pong, the flow that sends the `"ping"`, and the flow that returns with a `"pong"`.
 
 
-Take a look at initiating flow [Ping](./workflows-kotlin/src/main/kotlin/net/corda/examples/pingpong/flows/PingFlow.kt#L11).
+Take a look at initiating flow [PingFlow.kt](./workflows-kotlin/src/main/kotlin/net/corda/examples/pingpong/flows/PingFlow.kt#L11).
 
 You'll notice that this flow does what we expect, which is to send an outbound ping, and expect to receive a pong. If we receive a pong, then our flow is sucessful.
 
@@ -61,13 +61,9 @@ See https://docs.corda.net/getting-set-up.html.
 
 ## Running the nodes:
 
-```
-./gradlew clean deployNodes
-```
-Then type: (to run the nodes)
-```
-./build/nodes/runnodes
-```
+See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
+
+Java use the `workflows-kotlin:deployNodes` task and `./workflows-kotlin/build/nodes/runnodes` script.
 
 ## Pinging a node:
 

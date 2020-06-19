@@ -1,10 +1,6 @@
-<p align="center">
-  <img src="https://www.corda.net/wp-content/uploads/2016/11/fg005_corda_b.png" alt="Corda" width="500">
-</p>
-
 # Heartbeat CorDapp
 
-This CorDapp is a simple showcase of scheduled activities (i.e. activities started by a node at a specific time without 
+This CorDapp is a simple showcase of [scheduled activities](https://docs.corda.net/docs/corda-os/event-scheduling.html#how-to-implement-scheduled-events) (i.e. activities started by a node at a specific time without
 direct input from the node owner).
 
 A node starts its com.heartbeat by calling the `StartHeartbeatFlow`. This creates a `HeartState` on the ledger. This 
@@ -25,13 +21,11 @@ See https://docs.corda.net/getting-set-up.html.
 
 See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
 
-Java use the `contracts-java:deployNodes` task and `./contracts-java/build/nodes/runnodes` script.
-
 Kotlin use the `contracts-kotlin:deployNodes` task and `./contracts-kotlin/build/nodes/runnodes` script.
 
 ## Interacting with the nodes:
 
-Go to the CRaSH shell for PartyA, and run the `StartHeatbeatFlow`:
+Go to the [CRaSH](https://docs.corda.net/docs/corda-os/shell.html) shell for PartyA, and run the `StartHeatbeatFlow`:
 
     start StartHeartbeatFlow
 

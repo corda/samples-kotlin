@@ -1,8 +1,5 @@
 # Bike Market - TokenSDK
 
-<p align="center">
-  <img src="https://www.corda.net/wp-content/uploads/2016/11/fg005_corda_b.png" alt="Corda" width="500">
-</p>
 
 ## Introduction 
 This sample Cordapp demonstrate some simple flows related to the token SDK. In this Cordapp,there are four parties: 
@@ -13,7 +10,7 @@ This sample Cordapp demonstrate some simple flows related to the token SDK. In t
 
 In this sample Cordapp, we will mimic a bike buying and selling market. 
 
-![alt text](https://github.com/corda/samples/blob/dvp-token/bikemarket-TokenSDK/diagram/pic1.png)
+![alt text](./diagram/pic1.png)
 
 From the above chat we see that Tokens are representing the ownership and status of the physical assests, such as bike frame and bike wheels. A key point to notice here is that **a bike is represented with 2 tokens (Frame and wheels)**. This is designed in the way to be flexiable to sell or total a specific part of your bike. As can see, this bike buying/selling market is capable of mimicing multiple business logics. We will be demonstrating one of the possible logic here:
 1. BikeCo manufactures the bikes
@@ -58,7 +55,7 @@ At the Buyer side, we would assume we got a recall notice and will send the phys
 ```
 flow start TotalPart part: frame, serial: F4561
 ```
-At the buyer's shell, if we do the `vaultQuery` again, we will see we now only have a wheel token(the frame token is gone). With the wheel token, we can sell this pair of wheels to the used parts agency. We will achieve it by running: 
+At the buyer's shell, if we do the [vaultQuery](https://docs.corda.net/docs/corda-os/api-vault-query.html#api-vault-query) again, we will see we now only have a wheel token(the frame token is gone). With the wheel token, we can sell this pair of wheels to the used parts agency. We will achieve it by running: 
 ```
 flow start TransferPartToken part: wheel, serial: W7894, holder: UsedPartsAgency
 ```

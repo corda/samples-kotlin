@@ -1,12 +1,8 @@
-<p align="center">
-  <img src="https://www.corda.net/wp-content/uploads/2016/11/fg005_corda_b.png" alt="Corda" width="500">
-</p>
-
 # Fungible and NonFungible RealEstate Token Sample CorDapp - Java
 
-This cordapp servers as a basic example to create, issue, move fungible tokens in Corda utilizing the TokenSDK. In this specific fungible token sample, we will not talk about the
-redeem method of the TokenSDK because the redeem process will take the physical asset off the ledger and destroy the token. Thus, this sample will be a simple walk though of the
-creation, issuance, and transfer of the tokens.
+This CorDapp serves as a basic example to create, issue, and move [Fungible](https://training.corda.net/libraries/tokens-sdk/#fungibletoken) tokens in Corda utilizing the Token SDK. In this specific fungible token sample, we will not 
+talk about the redeem method of the Token SDK because the redeem process will take the physical asset off the [ledger](https://training.corda.net/prepare-and-discover/design-corda/#orchestration-and-ledger-layers) and destroy the token. Thus, this sample will be a 
+simple walk though of the creation, issuance, and transfer of the tokens.
 
 
 
@@ -23,8 +19,6 @@ For a brief introduction to Token SDK in Corda, see https://medium.com/corda/int
 See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
 
 ## Interacting with the nodes
-
-### Shell
 
 When started via the command line, each node will display an interactive shell:
 

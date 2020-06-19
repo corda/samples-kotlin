@@ -1,9 +1,5 @@
-<p align="center">
-  <img src="https://camo.githubusercontent.com/a7b7d659d6e01a9e49ff2d9919f7a66d84aac66e/68747470733a2f2f7777772e636f7264612e6e65742f77702d636f6e74656e742f75706c6f6164732f323031362f31312f66673030355f636f7264615f622e706e67" alt="Corda" width="500">
-</p>
-
 # TokenSDK Sample - Stock Pay Dividend CorDapp - Java
-This CorDapp aims to demonstrate the usage of TokenSDK, especially the concept of EvolvableToken which represents stock.
+This CorDapp aims to demonstrate the usage of [TokenSDK](https://training.corda.net/libraries/tokens-sdk/), especially the concept of [EvolvableToken](https://training.corda.net/libraries/tokens-sdk/#evolvabletokentype) which represents stock.
 You will find the StockState extends from EvolvableToken which allows the stock details(eg. announcing dividends) to be updated without affecting the parties who own the stock.
 
 This Stock Exchange CorDapp includes:
@@ -17,7 +13,7 @@ This Stock Exchange CorDapp includes:
 See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
 
 ## Sample Overview
-![Overview flow diagram](diagrams/FlowDiagram2.png)
+![Flow diagram](./diagrams/FlowDiagram2.png)
 
 ### Keys to learn
 * Basic usage of TokenSDK

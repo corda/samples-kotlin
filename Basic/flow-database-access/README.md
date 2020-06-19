@@ -1,7 +1,8 @@
 # Flow Database Access CorDapp
 
-This CorDapp provides a simple example of how the node database can be accessed in flows. In this case, the flows
-maintain a table of cryptocurrency values in the node's database. There are three flows:
+This CorDapp provides a simple example of how the node database can be accessed in flows using a [JDBC Connection](https://docs.corda.net/docs/corda-os/api-persistence.html#jdbc-session). In this case, the flows
+maintain a table of cryptocurrency values in the node's database.
+
 
 
 ## Concepts
@@ -30,14 +31,10 @@ See https://docs.corda.net/getting-set-up.html.
 ## Usage
 
 ### Running the nodes:
-Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
-```
-./gradlew clean deployNodes
-```
-Then type: (to run the nodes)
-```
-./build/nodes/runnodes
-```
+
+See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
+
+Java use the `workflows-kotlin:deployNodes` task and `./workflows-kotlin/build/nodes/runnodes` script.
 
 ### Interacting with the node:
 
