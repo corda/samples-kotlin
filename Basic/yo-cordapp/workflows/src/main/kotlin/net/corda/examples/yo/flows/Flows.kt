@@ -36,7 +36,17 @@ class YoFlow(val target: Party) : FlowLogic<SignedTransaction>() {
         progressTracker.currentStep = CREATING
 
         val me = serviceHub.myInfo.legalIdentities.first()
-        val notary = serviceHub.networkMapCache.notaryIdentities.single()
+
+        // Obtain a reference from a notary we wish to use.
+        /**
+         *  METHOD 1: Take first notary on network, WARNING: use for test, non-prod environments, and single-notary networks only!*
+         *  METHOD 2: Explicit selection of notary by CordaX500Name - argument can by coded in flow or parsed from config (Preferred)
+         *
+         *  * - For production you always want to use Method 2 as it guarantees the expected notary is returned.
+         */
+        val notary = serviceHub.networkMapCache.notaryIdentities.single() // METHOD 1
+        // val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
+
         val command = Command(YoContract.Commands.Send(), listOf(me.owningKey))
         val state = YoState(me, target)
         val stateAndContract = StateAndContract(state, YoContract.ID)

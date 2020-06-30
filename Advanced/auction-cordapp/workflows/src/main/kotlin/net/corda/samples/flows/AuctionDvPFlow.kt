@@ -52,7 +52,18 @@ class AuctionDvPFlow(private val auctionId: UUID,
         val commandAndState = assetStateAndRef.state.data.withNewOwner(auctionState.winner!!)
 
         // Create the transaction builder.
-        val txBuilderPre = TransactionBuilder(serviceHub.networkMapCache.notaryIdentities[0])
+
+        // Obtain a reference from a notary we wish to use.
+        /**
+         *  METHOD 1: Take first notary on network, WARNING: use for test, non-prod environments, and single-notary networks only!*
+         *  METHOD 2: Explicit selection of notary by CordaX500Name - argument can by coded in flow or parsed from config (Preferred)
+         *
+         *  * - For production you always want to use Method 2 as it guarantees the expected notary is returned.
+         */
+        val notary = serviceHub.networkMapCache.notaryIdentities.single() // METHOD 1
+        // val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
+
+        val txBuilderPre = TransactionBuilder(notary)
 
         // Generate Spend for the Cash. The CashUtils generateSpend method can be used to update the transaction
         // builder with the appropriate inputs and outputs corresponding to the cash spending. A new keypair is
