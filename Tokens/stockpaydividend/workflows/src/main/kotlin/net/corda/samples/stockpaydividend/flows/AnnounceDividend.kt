@@ -47,9 +47,9 @@ class AnnounceDividend(val symbol: String,
 }
 
 @InitiatedBy(AnnounceDividend::class)
-class AnnounceDividendResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+class AnnounceDividendResponder(val counterpartySession: FlowSession) : FlowLogic<Unit>() {
     @Suspendable
-    override fun call():SignedTransaction {
+    override fun call():Unit {
         // To implement the responder flow, simply call the subflow of UpdateEvolvableTokenFlowHandler
         return subFlow(UpdateEvolvableTokenFlowHandler(counterpartySession))
     }

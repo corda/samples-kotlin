@@ -34,7 +34,7 @@ class ClaimDividendReceivable(val symbol: String) : FlowLogic<String?>() {
         val stockState: StockState = stockStateRef.state.data
 
         // Query the current Stock amount from shareholder
-        val stockAmount = serviceHub.vaultService.tokenBalance<TokenType>(stockPointer)
+        val stockAmount = serviceHub.vaultService.tokenBalance(stockPointer)
 
         // Prepare to send the stock amount to the company to request dividend issuance
         val stockToClaim = ClaimNotification(stockAmount)
