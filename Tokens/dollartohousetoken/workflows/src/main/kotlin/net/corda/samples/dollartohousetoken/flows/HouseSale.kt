@@ -3,10 +3,10 @@ package net.corda.samples.dollartohousetoken.flows
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.money.FiatCurrency.Companion.getInstance
+import com.r3.corda.lib.tokens.selection.database.selector.DatabaseTokenSelection
 import com.r3.corda.lib.tokens.workflows.flows.move.addMoveNonFungibleTokens
 import com.r3.corda.lib.tokens.workflows.flows.move.addMoveTokens
 import com.r3.corda.lib.tokens.workflows.internal.flows.distribution.UpdateDistributionListFlow
-import com.r3.corda.lib.tokens.workflows.internal.selection.TokenSelection
 import com.r3.corda.lib.tokens.workflows.types.PartyAndAmount
 import net.corda.core.contracts.Amount
 import net.corda.core.contracts.StateAndRef
@@ -103,22 +103,13 @@ class HouseSaleResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         /* Create instance of the fiat currecy token amount */
         val priceToken = Amount(price.quantity, getInstance(price.token.currencyCode))
 
-        /* Create an instance of the TokenSelection object, it is used to select the token from the vault and generate the proposal for the movement of the token
-        *  The constructor takes the service hub to perform vault query, the max-number of retries, the retry sleep interval, and the retry sleep cap interval. This
-        *  is a temporary solution till in-memory token selection in implemented.
-        * */
-        /* Create an instance of the TokenSelection object, it is used to select the token from the vault and generate the proposal for the movement of the token
-        *  The constructor takes the service hub to perform vault query, the max-number of retries, the retry sleep interval, and the retry sleep cap interval. This
-        *  is a temporary solution till in-memory token selection in implemented.
-        * */
-        val tokenSelection = TokenSelection(serviceHub, 8, 100, 2000)
-
         /*
         *  Generate the move proposal, it returns the input-output pair for the fiat currency transfer, which we need to send to the Initiator.
         * */
         val partyAndAmount = PartyAndAmount(counterpartySession.counterparty,priceToken)
         val inputsAndOutputs : Pair<List<StateAndRef<FungibleToken>>, List<FungibleToken>> =
-                tokenSelection.generateMove(runId.uuid, listOf(partyAndAmount),ourIdentity,null)
+                DatabaseTokenSelection(serviceHub).generateMove(listOf(Pair(counterpartySession.counterparty,priceToken)),ourIdentity)
+                        //.generateMove(runId.uuid, listOf(partyAndAmount),ourIdentity,null)
 
         /* Call SendStateAndRefFlow to send the inputs to the Initiator*/
         subFlow(SendStateAndRefFlow(counterpartySession, inputsAndOutputs.first))
