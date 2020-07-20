@@ -42,11 +42,14 @@ Seller will now issue some tokens to Buyer. run below command via Seller's termi
     flow start IssueHouseTokenFlow symbol: house, quantity: 50, holder: Buyer
 
 Now at Buyer's terminal, we can check the tokens by running:
-    flow start GetTokenBalance symbol: house
-
+```
+flow start GetTokenBalance symbol: house
+```
 Since Buyer now has 50 tokens, Move tokens to Friend from Buyer s terminal
 
     flow start MoveHouseTokenFlow symbol: house, holder: Friend, quantity: 23
 
 Now lets take look at the balance at both Buyer and his Friend's side 
-    flow start GetTokenBalance symbol: house
+```
+flow start GetTokenBalance symbol: house
+```
