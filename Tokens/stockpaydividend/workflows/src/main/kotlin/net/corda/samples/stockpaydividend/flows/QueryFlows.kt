@@ -39,6 +39,6 @@ class GetFiatBalance(private val currencyCode: String) : FlowLogic<Amount<TokenT
     @Throws(FlowException::class)
     override fun call(): Amount<TokenType> {
         val fiatTokenType = getInstance(currencyCode)
-        return serviceHub.vaultService.tokenBalance<TokenType>(fiatTokenType)
+        return serviceHub.vaultService.tokenBalance(fiatTokenType)
     }
 }

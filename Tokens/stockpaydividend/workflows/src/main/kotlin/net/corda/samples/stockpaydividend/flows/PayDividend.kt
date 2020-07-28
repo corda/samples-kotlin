@@ -3,8 +3,8 @@ package net.corda.samples.stockpaydividend.flows
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.TokenType
+import com.r3.corda.lib.tokens.selection.database.selector.DatabaseTokenSelection
 import com.r3.corda.lib.tokens.workflows.flows.move.addMoveTokens
-import com.r3.corda.lib.tokens.workflows.internal.selection.TokenSelection
 import com.r3.corda.lib.tokens.workflows.types.PartyAndAmount
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.requireThat
@@ -41,18 +41,8 @@ class PayDividend : FlowLogic<List<String>>() {
             val dividendState: DividendState = result.state.data
             val shareholder: Party = dividendState.shareholder
 
-            // The amount of fiat tokens to be sent to the shareholder.
-            val sendingPartyAndAmount: PartyAndAmount<TokenType> = PartyAndAmount(shareholder, dividendState.dividendAmount)
-
-            // Instantiating an instance of TokenSelection which helps retrieving required tokens easily
-            val tokenSelection: TokenSelection = TokenSelection(serviceHub, 8, 100, 200)
-
             // Generate input and output pair of moving fungible tokens
-            val fiatIoPair = tokenSelection.generateMove(
-                    runId.uuid,
-                    listOf(sendingPartyAndAmount),
-                    ourIdentity,
-                    null)
+            val fiatIoPair = DatabaseTokenSelection(serviceHub).generateMove(listOf(Pair(shareholder,dividendState.dividendAmount)),ourIdentity)
 
             // Using the notary from the previous transaction (dividend issuance)
             val notary = result.state.notary
