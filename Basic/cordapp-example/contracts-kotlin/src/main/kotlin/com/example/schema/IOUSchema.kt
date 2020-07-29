@@ -19,6 +19,11 @@ object IOUSchemaV1 : MappedSchema(
         schemaFamily = IOUSchema.javaClass,
         version = 1,
         mappedTypes = listOf(PersistentIOU::class.java)) {
+
+    override val migrationResource: String?
+        get() = "iou.changelog-master";
+
+
     @Entity
     @Table(name = "iou_states")
     class PersistentIOU(

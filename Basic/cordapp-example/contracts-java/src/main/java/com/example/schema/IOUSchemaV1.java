@@ -3,6 +3,7 @@ package com.example.schema;
 import net.corda.core.schemas.MappedSchema;
 import net.corda.core.schemas.PersistentState;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -16,6 +17,13 @@ public class IOUSchemaV1 extends MappedSchema {
     public IOUSchemaV1() {
         super(IOUSchema.class, 1, Arrays.asList(PersistentIOU.class));
     }
+
+    @Nullable
+    @Override
+    public String getMigrationResource() {
+        return "iou.changelog-master";
+    }
+
 
     @Entity
     @Table(name = "iou_states")

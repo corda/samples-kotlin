@@ -19,6 +19,11 @@ object InsuranceSchemaV1 : MappedSchema(
         version = 1,
         mappedTypes = listOf(PersistentClaim::class.java, PersistentInsurance::class.java, PersistentVehicle::class.java)) {
 
+
+    override val migrationResource: String?
+        get() = "insurance.changelog-master";
+
+
     @Entity
     @Table(name = "CLAIM_DETAIL")
     class PersistentClaim(
