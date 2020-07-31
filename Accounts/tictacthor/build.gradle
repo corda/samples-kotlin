@@ -3,9 +3,10 @@ buildscript {
     file("$projectDir/../constants.properties").withInputStream { constants.load(it) }
 
     ext {
-
         corda_release_group = constants.getProperty("cordaReleaseGroup")
+        corda_core_release_group =  constants.getProperty("cordaCoreReleaseGroup")
         corda_release_version = constants.getProperty("cordaVersion")
+        corda_core_release_version = constants.getProperty("cordaCoreVersion")
         corda_gradle_plugins_version = constants.getProperty("gradlePluginsVersion")
         kotlin_version = constants.getProperty("kotlinVersion")
         junit_version = constants.getProperty("junitVersion")
@@ -94,7 +95,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Corda dependencies.
-    cordaCompile "$corda_release_group:corda-core:$corda_release_version"
+    cordaCompile "$corda_core_release_group:corda-core:$corda_core_release_version"
     cordaCompile "$corda_release_group:corda-node-api:$corda_release_version"
     cordaRuntime "$corda_release_group:corda:$corda_release_version"
 
