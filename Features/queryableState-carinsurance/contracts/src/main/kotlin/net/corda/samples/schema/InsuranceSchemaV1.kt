@@ -2,6 +2,7 @@ package net.corda.samples.schema
 
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
+import org.hibernate.annotations.Type
 import java.io.Serializable
 import java.util.*
 import javax.persistence.*
@@ -19,10 +20,16 @@ object InsuranceSchemaV1 : MappedSchema(
         version = 1,
         mappedTypes = listOf(PersistentClaim::class.java, PersistentInsurance::class.java, PersistentVehicle::class.java)) {
 
+
+    override val migrationResource: String?
+        get() = "insurance.changelog-master";
+
+
     @Entity
     @Table(name = "CLAIM_DETAIL")
     class PersistentClaim(
             @Id @Column(name = "Id")
+            @Type(type = "uuid-char")
             val uuid:UUID,
 
             @Column(name = "claimNumber")
@@ -42,6 +49,7 @@ object InsuranceSchemaV1 : MappedSchema(
     @Table(name = "VEHICLE_DETAIL")
     class PersistentVehicle(
             @Id @Column(name = "Id")
+            @Type (type = "uuid-char")
             val uuid:UUID,
 
             @Column(name = "registrationNumber")
