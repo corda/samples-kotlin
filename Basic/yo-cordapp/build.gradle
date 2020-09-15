@@ -12,7 +12,12 @@ buildscript {
         log4j_version = constants.getProperty("log4jVersion")
         slf4j_version = constants.getProperty("slf4jVersion")
         corda_platform_version = constants.getProperty("platformVersion").toInteger()
+
+        bnd_version = '5.1.2'
+        osgi_version = '7.0.0'
+        osgi_component_annotations_version='1.4.0'
     }
+
 
     repositories {
         mavenLocal()
@@ -28,6 +33,12 @@ buildscript {
         classpath "net.corda.plugins:quasar-utils:$corda_gradle_plugins_version"
 
     }
+}
+
+plugins {
+    // Projects need to decide to apply this plugin.
+    //id "biz.aQute.bnd.builder" version "${bnd_version}" apply false
+    id "biz.aQute.bnd.builder" version "5.1.2" apply false
 }
 
 allprojects {
@@ -61,6 +72,7 @@ allprojects {
 apply plugin: 'net.corda.plugins.cordapp'
 apply plugin: 'net.corda.plugins.cordformation'
 apply plugin: 'net.corda.plugins.quasar-utils'
+
 
 sourceSets {
     main {

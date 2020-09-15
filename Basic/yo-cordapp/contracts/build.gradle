@@ -1,4 +1,5 @@
 apply plugin: 'net.corda.plugins.cordapp'
+apply plugin: 'biz.aQute.bnd.builder'
 
 cordapp {
     targetPlatformVersion corda_platform_version
@@ -13,6 +14,10 @@ cordapp {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+    // Compile as an OSGi bundle
+    compileOnly "org.osgi:osgi.annotation:$osgi_version"
+    compileOnly "org.osgi:osgi.core:$osgi_version"
 
     // Corda dependencies.
     cordaCompile "$corda_release_group:corda-core:$corda_release_version"
