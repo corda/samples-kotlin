@@ -31,11 +31,11 @@ dependencies {
     testCompile "junit:junit:$junit_version"
 
     // Corda dependencies.
-    compile "net.corda:corda-core:$corda_release_version"
-    compile "net.corda:corda-jackson:$corda_release_version"
-    compile "net.corda:corda-rpc:$corda_release_version"
+    compile "net.corda:corda-core:$corda_core_release_version"
+    compile group: corda_release_group, name: 'corda-jackson', version: corda_release_version, classifier: jdk_classifier
+    compile group: corda_release_group, name: 'corda-rpc', version: corda_release_version, classifier: jdk_classifier
     compile "net.corda:corda:$corda_release_version"
-    testCompile "net.corda:corda-node-driver:$corda_release_version"
+    testCompile group: corda_release_group, name: 'corda-node-driver', version: corda_release_version, classifier: jdk_classifier
 
     compile("org.springframework.boot:spring-boot-starter-websocket:$spring_boot_version") {
         exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"

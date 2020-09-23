@@ -1,4 +1,5 @@
 buildscript {
+    
     Properties constants = new Properties()
     file("$projectDir/../constants.properties").withInputStream { constants.load(it) }
 
@@ -10,10 +11,17 @@ buildscript {
         corda_gradle_plugins_version = constants.getProperty("gradlePluginsVersion")
         kotlin_version = constants.getProperty("kotlinVersion")
         junit_version = constants.getProperty("junitVersion")
-        quasar_version = constants.getProperty("quasarVersion")
         log4j_version = constants.getProperty("log4jVersion")
         slf4j_version = constants.getProperty("slf4jVersion")
         corda_platform_version = constants.getProperty("platformVersion")
+    }
+
+    if (JavaVersion.current().isJava8()) {
+        ext.quasar_version = constants.getProperty("quasarVersion")
+        ext.jdk_classifier = constants.getProperty("jdkClassifier")
+    } else {
+        ext.quasar_version = constants.getProperty("quasarVersion11")
+        ext.jdk_classifier = constants.getProperty("jdkClassifier11")
     }
 
     repositories {
