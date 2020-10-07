@@ -55,6 +55,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     nodeDefaults {
 
         cordapp project(':contracts-kotlin')
+	runSchemaMigration = true
     }
     node {
         name "O=Notary,L=London,C=GB"

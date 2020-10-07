@@ -2,12 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e6586186-7087-4c1c-bbdb-87caeed821d7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/clients/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/clients/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/clients/src/main/java/com/example/server/JavaClientRpc.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/clients/src/main/kotlin/com/example/server/MainController.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/clients/src/main/kotlin/com/example/server/NodeRPCConnection.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/clients/src/main/kotlin/com/example/server/Server.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Accounts/constants.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../Accounts/constants.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Accounts/supplychain/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../Accounts/supplychain/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Accounts/tictacthor/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../Accounts/tictacthor/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Accounts/worldcupticketbooking/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../Accounts/worldcupticketbooking/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced/auction-cordapp/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../Advanced/auction-cordapp/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced/constants.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../Advanced/constants.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced/negotiation-cordapp/workflows-kotlin/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../Advanced/negotiation-cordapp/workflows-kotlin/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced/obligation-cordapp/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../Advanced/obligation-cordapp/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflows-java/src/main/migration/iou.changelog-master.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflows-java/src/main/migration/iou.changelog-v1.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflows-kotlin/src/main/resources/migration/iou.changelog-v1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/workflows-kotlin/src/main/resources/migration/iou.changelog-v1.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +49,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RunManager" selected="JUnit.Run Flow Tests - Kotlin">
     <list>

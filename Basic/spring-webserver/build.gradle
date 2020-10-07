@@ -87,6 +87,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         projectCordapp {
             deploy = false
         }
+	runSchemaMigration = true
     }
     signing {
         enabled false

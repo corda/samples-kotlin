@@ -84,7 +84,7 @@ dependencies {
 
 cordapp {
     info {
-        name "CorDapp Template"
+        name "CorDapp sendfile"
         vendor "Corda Open Source"
         targetPlatformVersion corda_platform_version
         minimumPlatformVersion corda_platform_version

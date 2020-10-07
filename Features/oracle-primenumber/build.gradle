@@ -84,6 +84,7 @@ task deployNodesKotlin(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         projectCordapp {
             deploy = false
         }
+	runSchemaMigration = true
     }
     node {
         name "O=Notary,L=London,C=GB"

@@ -162,6 +162,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         cordapp("$tokens_release_group:tokens-workflows:$tokens_release_version")
         cordapp("$tokens_release_group:tokens-money:$tokens_release_version")
         cordapp("$tokens_release_group:tokens-selection:$tokens_release_version")
+	runSchemaMigration = true
 
     }
     node {

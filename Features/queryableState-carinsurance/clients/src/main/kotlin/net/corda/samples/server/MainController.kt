@@ -84,9 +84,9 @@ class MainController(rpc: NodeRPCConnection) {
 
     @PostMapping(value = ["/vehicleInsurance/claim/{policyNumber}"])
     fun claim(@RequestBody claimInfo: ClaimInfo, @PathVariable policyNumber:String):ResponseEntity<String>{
-        print("---------")
+        print("\nclaimInfo---------")
         print(claimInfo)
-        print("---------")
+        print("\npolicyNumber---------")
         print(policyNumber)
         print("---------")
         return try {
