@@ -2,8 +2,8 @@ apply plugin: 'net.corda.plugins.cordapp-cpk'
 apply plugin: 'net.corda.plugins.quasar-utils'
 
 cordapp {
-    targetPlatformVersion corda_platform_version
-    minimumPlatformVersion corda_platform_version
+    targetPlatformVersion 999
+    minimumPlatformVersion 999
     workflow {
         name "yo Flows"
         vendor "Corda Open Source"
@@ -12,6 +12,15 @@ cordapp {
     }
 }
 
+repositories {
+    mavenLocal()
+    maven {
+        url "$artifactory_contextUrl/corda-dependencies-dev"
+    }
+    maven {
+        url 'https://repository.mulesoft.org/nexus/content/repositories/public'
+    }
+}
 sourceSets {
     main {
         resources {
@@ -43,10 +52,10 @@ dependencies {
     testCompile "junit:junit:$junit_version"
 
     // Corda dependencies.
-    cordaProvided "$corda_release_group:corda-core:$corda_release_version"
+    cordaProvided "$corda_release_group:corda-core:$corda_core_release_version"
 //    cordaRuntimeOnly "$corda_release_group:corda:$corda_release_version"
 
-    testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
+    testCompile "$corda_release_group:corda-node-driver:4.5"
 
     // CorDapp dependencies.
     cordapp project(":contracts")

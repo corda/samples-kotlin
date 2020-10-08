@@ -1,8 +1,8 @@
 apply plugin: 'net.corda.plugins.cordapp-cpk'
 
 cordapp {
-    targetPlatformVersion corda_platform_version
-    minimumPlatformVersion corda_platform_version
+    targetPlatformVersion 999
+    minimumPlatformVersion 999
     contract {
         name "yo CorDapp"
         vendor "Corda Open Source"
@@ -11,11 +11,21 @@ cordapp {
     }
 }
 
+repositories {
+    mavenLocal()
+    maven {
+        url "$artifactory_contextUrl/corda-dependencies-dev"
+    }
+    maven {
+        url 'https://repository.mulesoft.org/nexus/content/repositories/public'
+    }
+}
+
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Corda dependencies.
-    cordaProvided "$corda_release_group:corda-core:$corda_release_version"
+    cordaProvided "$corda_release_group:corda-core:$corda_core_release_version"
 
     testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
 }
