@@ -57,7 +57,7 @@ flow start TotalPart part: frame, serial: F4561
 ```
 At the buyer's shell, if we do the [vaultQuery](https://docs.corda.net/docs/corda-os/api-vault-query.html#api-vault-query) again, we will see we now only have a wheel token(the frame token is gone). With the wheel token, we can sell this pair of wheels to the used parts agency. We will achieve it by running: 
 ```
-flow start TransferPartToken part: wheel, serial: W7894, holder: UsedPartsAgency
+flow start TransferPartToken part: wheels, serial: W7894, holder: UsedPartsAgency
 ```
 At the end of the flow logic, we will find the frame token is destroyed and the used parts agency holds the wheel token. 
 

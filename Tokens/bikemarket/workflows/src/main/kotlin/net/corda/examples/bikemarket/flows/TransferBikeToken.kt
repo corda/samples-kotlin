@@ -57,9 +57,10 @@ class TransferBikeToken(val frameSerial: String,
         addMoveNonFungibleTokens(txBuilder,serviceHub,wheeltokenPointer,holder)
         val ptx = serviceHub.signInitialTransaction(txBuilder)
         val stx = subFlow(CollectSignaturesFlow(ptx, listOf(session)))
-        subFlow(UpdateDistributionListFlow(stx))
         val ftx = subFlow(ObserverAwareFinalityFlow(stx, listOf(session)))
 
+        /* Distribution list is a list of identities that should receive updates. For this mechanism to behave correctly we call the UpdateDistributionListFlow flow */
+        subFlow(UpdateDistributionListFlow(ftx))
         return ("\nTransfer ownership of a bike (Frame serial#: " + this.frameSerial + ", Wheels serial#: " + this.wheelSerial + ") to "
                 + holder.name.organisation + "\nTransaction IDs: "
                 + ftx.id)

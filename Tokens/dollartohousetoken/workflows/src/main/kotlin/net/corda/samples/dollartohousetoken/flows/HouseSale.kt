@@ -83,11 +83,12 @@ class HouseSale(val houseId: String,
         /* Call the CollectSignaturesFlow to recieve signature of the buyer */
         val ftx= subFlow(CollectSignaturesFlow(initialSignedTrnx, listOf(buyerSession)))
 
-        /* Distribution list is a list of identities that should receive updates. For this mechanism to behave correctly we call the UpdateDistributionListFlow flow */
-        subFlow(UpdateDistributionListFlow(ftx))
-
         /* Call finality flow to notarise the transaction */
         val stx = subFlow(FinalityFlow(ftx, listOf(buyerSession)))
+
+        /* Distribution list is a list of identities that should receive updates. For this mechanism to behave correctly we call the UpdateDistributionListFlow flow */
+        subFlow(UpdateDistributionListFlow(stx))
+
         return ("\nThe house is sold to " + buyer.name.organisation + "\nTransaction ID: "
                 + stx.id)
     }

@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import com.r3.corda.lib.tokens.workflows.flows.rpc.MoveNonFungibleTokens
 import com.r3.corda.lib.tokens.workflows.flows.rpc.MoveNonFungibleTokensHandler
+import com.r3.corda.lib.tokens.workflows.internal.flows.distribution.UpdateDistributionListFlow
 import com.r3.corda.lib.tokens.workflows.types.PartyAndToken
 import net.corda.core.flows.*
 import net.corda.core.identity.Party
@@ -38,6 +39,8 @@ class TransferPartToken(val part: String,
             val partyAndFrameToken = PartyAndToken(holder,frametokenPointer)
 
             val stx = subFlow(MoveNonFungibleTokens(partyAndFrameToken))
+            /* Distribution list is a list of identities that should receive updates. For this mechanism to behave correctly we call the UpdateDistributionListFlow flow */
+            subFlow(UpdateDistributionListFlow(stx))
             return ("Transfer ownership of the frame (" + this.serial + ") to" + holder.name.organisation
                     + "\nTransaction ID: " + stx.id)
         }else if(part.equals("wheels")){
@@ -54,6 +57,8 @@ class TransferPartToken(val part: String,
             val partyAndWheelToken = PartyAndToken(holder, wheeltokenPointer)
 
             val stx = subFlow(MoveNonFungibleTokens(partyAndWheelToken))
+            /* Distribution list is a list of identities that should receive updates. For this mechanism to behave correctly we call the UpdateDistributionListFlow flow */
+            subFlow(UpdateDistributionListFlow(stx))
             return ("Transfer ownership of the frame (" + this.serial + ") to" + holder.name.organisation
                     + "\nTransaction ID: " + stx.id)
         }else{
