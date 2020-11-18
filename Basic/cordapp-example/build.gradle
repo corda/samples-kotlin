@@ -17,11 +17,11 @@ buildscript {
     }
 
     repositories {
-//        mavenCentral()
-//        jcenter()
-//        maven {
-//            url 'https://software.r3.com/artifactory/corda-releases'
-//        }
+        mavenCentral()
+        jcenter()
+        maven {
+            url 'https://software.r3.com/artifactory/corda-releases'
+        }
         mavenLocal()
     }
 

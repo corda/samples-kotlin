@@ -46,5 +46,10 @@
       <option name="name" value="maven5" />
       <option name="url" value="https://ci-artifactory.corda.r3cev.com/artifactory/corda-releases" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven2" />
+      <option name="name" value="maven2" />
+      <option name="url" value="https://software.r3.com/artifactory/corda" />
+    </remote-repository>
   </component>
 </project>
