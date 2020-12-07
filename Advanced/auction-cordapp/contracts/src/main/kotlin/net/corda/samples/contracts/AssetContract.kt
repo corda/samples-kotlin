@@ -2,7 +2,11 @@ package net.corda.samples.contracts
 
 import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.Contract
+import net.corda.core.contracts.Requirements.using
+import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
+import net.corda.samples.states.Asset
+import net.corda.samples.states.AuctionState
 
 // ************
 // * Contract *
@@ -17,6 +21,16 @@ class AssetContract : Contract {
     // does not throw an exception.
     override fun verify(tx: LedgerTransaction) {
         // Verification logic goes here.
+        if(tx.commands.isEmpty()){
+            throw IllegalArgumentException("One command Expected")
+        }
+        val command = tx.commands.get(0)
+        when (command.value){
+            is AssetContract.Commands.CreateAsset -> requireThat {
+                val asset = tx.outputStates.single() as Asset
+                "Asset Must Have Description" using (asset.description != "")
+            }
+        }
     }
 
     // Used to indicate the transaction's intent.
