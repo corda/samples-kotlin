@@ -1,4 +1,4 @@
-package net.corda.examples.bikemarket.flows
+package net.corda.samples.bikemarket.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.utilities.withNotary
@@ -7,13 +7,13 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.utilities.ProgressTracker
-import net.corda.examples.bikemarket.states.WheelsTokenState
+import net.corda.samples.bikemarket.states.WheelsTokenState
 
 // *********
 // * Flows *
 // *********
 @StartableByRPC
-class CreateWheelToken(private val wheelSerial: String) : FlowLogic<String>() {
+class CreateWheelToken(private val wheelsSerial: String) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
     @Suspendable
@@ -30,14 +30,14 @@ class CreateWheelToken(private val wheelSerial: String) : FlowLogic<String>() {
 
         //Create non-fungible frame token
         val uuid = UniqueIdentifier()
-        val wheel = WheelsTokenState(ourIdentity, wheelSerial,0,uuid)
+        val wheel = WheelsTokenState(ourIdentity,uuid,0, wheelsSerial)
 
         //warp it with transaction state specifying the notary
         val transactionState = wheel withNotary notary
 
         subFlow(CreateEvolvableTokens(transactionState))
 
-        return "\nCreated a wheel token for bike wheels. (Serial #" + this.wheelSerial + ")."
+        return "\nCreated a wheel token for bike wheels. (Serial #" + this.wheelsSerial + ")."
 
     }
 }

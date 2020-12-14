@@ -1,4 +1,4 @@
-package net.corda.examples.bikemarket
+package net.corda.samples.bikemarket
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.utilities.getOrThrow

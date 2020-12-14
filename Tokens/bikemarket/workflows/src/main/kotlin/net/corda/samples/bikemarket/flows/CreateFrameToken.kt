@@ -1,4 +1,4 @@
-package net.corda.examples.bikemarket.flows
+package net.corda.samples.bikemarket.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.utilities.withNotary
@@ -7,7 +7,7 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.utilities.ProgressTracker
-import net.corda.examples.bikemarket.states.FrameTokenState
+import net.corda.samples.bikemarket.states.FrameTokenState
 
 // *********
 // * Flows *
@@ -30,7 +30,7 @@ class CreateFrameToken(private val frameSerial: String) : FlowLogic<String>() {
 
         //Create non-fungible frame token
         val uuid = UniqueIdentifier()
-        val frame = FrameTokenState(ourIdentity, frameSerial,0,uuid)
+        val frame = FrameTokenState(ourIdentity, uuid,0,frameSerial)
 
         //warp it with transaction state specifying the notary
         val transactionState = frame withNotary notary

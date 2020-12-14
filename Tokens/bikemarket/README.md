@@ -31,12 +31,12 @@ if you have any questions during setup, please go to https://docs.corda.net/gett
 Once all four nodes are started up, in BikeCo's node shell, run: 
 ```
 flow start CreateFrameToken frameSerial: F4561
-flow start CreateWheelToken wheelSerial: W7894 
+flow start CreateWheelToken wheelsSerial: W7894 
 ```
 After this step, we have created 2 tokens representing the physical bike part with unique serial number(which will be unique in the manufacturing). 
 Then run:
 ```
-flow start IssueNewBike frameSerial: F4561, wheelSerial: W7894, holder: LicensedDealership
+flow start IssueNewBike frameSerial: F4561, wheelsSerial: W7894, holder: LicensedDealership
 ```
 This line of command will transfer the tokens(2 tokens together represents a single bike) to the licensed dealership. 
 
@@ -46,7 +46,7 @@ run vaultQuery contractStateType: com.r3.corda.lib.tokens.contracts.states.NonFu
 ```
 Continue to the business flow, the licensed dealership will sell the bike to the Buyer. Run: 
 ```
-flow start TransferBikeToken frameSerial: F4561, wheelSerial: W7894, holder: Buyer
+flow start TransferBikeToken frameSerial: F4561, wheelsSerial: W7894, holder: Buyer
 ```
 
 Now we can check at the Buyer's node shell to see if the buyer recieves the token by running the same `vaultQuery` we just ran at the dealership's shell. 

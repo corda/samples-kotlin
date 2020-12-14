@@ -103,16 +103,6 @@ dependencies {
     // CI dependencies
     cordapp "$confidential_id_release_group:ci-workflows:$confidential_id_release_version"
 }
-
-cordapp {
-    info {
-        name "CorDapp bikemarket"
-        vendor "Corda Open Source"
-        targetPlatformVersion corda_platform_version.toInteger()
-        minimumPlatformVersion corda_platform_version.toInteger()
-    }
-}
-
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     nodeDefaults {
         projectCordapp {

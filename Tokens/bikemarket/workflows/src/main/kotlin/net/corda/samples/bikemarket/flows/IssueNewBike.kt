@@ -1,4 +1,4 @@
-package net.corda.examples.bikemarket.flows
+package net.corda.samples.bikemarket.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
@@ -10,15 +10,15 @@ import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
 import net.corda.core.utilities.ProgressTracker
-import net.corda.examples.bikemarket.states.FrameTokenState
-import net.corda.examples.bikemarket.states.WheelsTokenState
+import net.corda.samples.bikemarket.states.FrameTokenState
+import net.corda.samples.bikemarket.states.WheelsTokenState
 
 // *********
 // * Flows *
 // *********
 @StartableByRPC
 class IssueNewBike(val frameSerial: String,
-                   val wheelSerial: String,
+                   val wheelsSerial: String,
                    val holder: Party) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
@@ -27,7 +27,7 @@ class IssueNewBike(val frameSerial: String,
         //Step 1: Frame Token
         //get frame states on ledger
         val frameStateAndRef = serviceHub.vaultService.queryBy<FrameTokenState>().states
-                .filter { it.state.data.ModelNum.equals(frameSerial) }[0]
+                .filter { it.state.data.serialNum.equals(frameSerial) }[0]
 
         //get the TokenType object
         val frametokentype = frameStateAndRef.state.data
@@ -43,7 +43,7 @@ class IssueNewBike(val frameSerial: String,
 
         //Step 2: Wheels Token
         val wheelStateAndRef = serviceHub.vaultService.queryBy<WheelsTokenState>().states
-                .filter { it.state.data.ModelNum.equals(wheelSerial) }[0]
+                .filter { it.state.data.serialNum.equals(wheelsSerial) }[0]
 
         //get the TokenType object
         val wheeltokentype: WheelsTokenState = wheelStateAndRef.state.data
@@ -61,7 +61,7 @@ class IssueNewBike(val frameSerial: String,
         //call built in flow to issue non fungible tokens
         val stx = subFlow(IssueTokens(listOf(frametoken,wheeltoken)))
 
-        return ("\nA new bike is being issued to " + holder.name.organisation + " with frame model: "
-                + this.frameSerial + "; wheels model: " + this.wheelSerial + "\nTransaction ID: " + stx.id)
+        return ("\nA new bike is being issued to " + holder.name.organisation + " with frame serial: "
+                + this.frameSerial + "; wheels serial: " + this.wheelsSerial + "\nTransaction ID: " + stx.id)
     }
 }
