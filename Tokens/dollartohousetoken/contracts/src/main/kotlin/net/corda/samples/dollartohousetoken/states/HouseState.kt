@@ -14,12 +14,13 @@ import java.util.*
 // * State *
 // *********
 @BelongsToContract(HouseContract::class)
-data class HouseState(val constructionArea: String,
-                      val additionInfo: String,
+data class HouseState(override val linearId: UniqueIdentifier,
+                      override val maintainers: List<Party>,
                       val valuationOfHouse: Amount<Currency>,
-                      val address: String,
                       val noOfBedRooms: Int,
-                      val issuer:Party,
-                      override val linearId: UniqueIdentifier,
-                      override val fractionDigits: Int = 0,
-                      override val maintainers: List<Party> = listOf(issuer)) : EvolvableTokenType()
+                      val constructionArea: String,
+                      val additionInfo: String,
+                      val address: String,
+                      val issuer:Party = maintainers.single(),
+                      override val fractionDigits: Int = 0
+                      ) : EvolvableTokenType()
