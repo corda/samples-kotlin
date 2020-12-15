@@ -1,9 +1,8 @@
-package net.corda.samples.fungiblehousetoken.flows
+package net.corda.samples.tokenizedhouse.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
-import com.r3.corda.lib.tokens.contracts.utilities.getAttachmentIdForGenericParam
 import com.r3.corda.lib.tokens.contracts.utilities.issuedBy
 import com.r3.corda.lib.tokens.workflows.flows.rpc.IssueTokens
 import net.corda.core.contracts.Amount
@@ -12,7 +11,7 @@ import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
 import net.corda.core.utilities.ProgressTracker
-import net.corda.samples.fungiblehousetoken.states.FungibleHouseTokenState
+import net.corda.samples.tokenizedhouse.states.FungibleHouseTokenState
 
 // *********
 // * Flows *

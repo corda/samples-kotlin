@@ -1,4 +1,4 @@
-package net.corda.samples.fungiblehousetoken
+package net.corda.samples.tokenizedhouse
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.utilities.getOrThrow

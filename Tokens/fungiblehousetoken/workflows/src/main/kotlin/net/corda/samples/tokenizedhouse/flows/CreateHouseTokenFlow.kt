@@ -1,21 +1,20 @@
-package net.corda.samples.fungiblehousetoken.flows
+package net.corda.samples.tokenizedhouse.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.utilities.withNotary
 import com.r3.corda.lib.tokens.workflows.flows.rpc.CreateEvolvableTokens
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.*
-import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.ProgressTracker
-import net.corda.samples.fungiblehousetoken.states.FungibleHouseTokenState
+import net.corda.samples.tokenizedhouse.states.FungibleHouseTokenState
 import java.math.BigDecimal
 
 // *********
 // * Flows *
 // *********
 @StartableByRPC
-class CreateHouseTokenFlow(val valuationOfHouse:BigDecimal,
-                           val symbol: String) : FlowLogic<String>() {
+class CreateHouseTokenFlow(val symbol: String,
+                           val valuationOfHouse:Int) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
     @Suspendable
@@ -31,7 +30,7 @@ class CreateHouseTokenFlow(val valuationOfHouse:BigDecimal,
         // val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
 
         //create token type
-        val evolvableTokenTypeHouseState = FungibleHouseTokenState(valuationOfHouse,ourIdentity,symbol,0,UniqueIdentifier())
+        val evolvableTokenTypeHouseState = FungibleHouseTokenState(valuationOfHouse,ourIdentity,UniqueIdentifier(),0,symbol)
 
         //warp it with transaction state specifying the notary
         val transactionState = evolvableTokenTypeHouseState withNotary notary

@@ -1,4 +1,4 @@
-package net.corda.samples.fungiblehousetoken.flows
+package net.corda.samples.tokenizedhouse.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
@@ -10,7 +10,7 @@ import net.corda.core.flows.*
 import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
 import net.corda.core.utilities.ProgressTracker
-import net.corda.samples.fungiblehousetoken.states.FungibleHouseTokenState
+import net.corda.samples.tokenizedhouse.states.FungibleHouseTokenState
 
 // *********
 // * Flows *
