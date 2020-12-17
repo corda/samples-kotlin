@@ -18,6 +18,7 @@ buildscript {
         //springboot
         spring_boot_version = '2.0.2.RELEASE'
         spring_boot_gradle_plugin_version = '2.0.2.RELEASE'
+
         //account
         accounts_release_group = 'com.r3.corda.lib.accounts'
         accounts_release_version = '1.0'
@@ -30,11 +31,7 @@ buildscript {
         mavenLocal()
         mavenCentral()
         jcenter()
-        maven { url 'https://software.r3.com/artifactory/corda-lib-dev' }
-        maven { url 'https://software.r3.com/artifactory/corda-lib' }
-        maven { url 'https://software.r3.com/artifactory/corda' }
-        // Corda dependencies for the patched Quasar version
-        maven { url "https://software.r3.com/artifactory/corda-dependencies" } // access to the patched Quasar version
+        maven { url 'https://software.r3.com/artifactory/corda-releases' }
     }
 
     dependencies {
@@ -54,11 +51,11 @@ allprojects {
         jcenter()
         mavenCentral()
         maven { url 'https://software.r3.com/artifactory/corda' }
-        // Can be removed post-release - used to get nightly snapshot build.
-        maven { url 'https://software.r3.com/artifactory/corda-lib' }
-        maven { url 'https://software.r3.com/artifactory/corda-lib-dev' }
         maven { url 'https://jitpack.io' }
-        maven { url "https://repo.gradle.org/gradle/libs-releases-local" }
+        //SDK lib
+        maven { url 'https://software.r3.com/artifactory/corda-lib' }
+        //Gradle Plugins
+        maven { url 'https://repo.gradle.org/gradle/libs-releases' }
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
@@ -113,15 +110,6 @@ dependencies {
     cordapp "$accounts_release_group:accounts-workflows:$accounts_release_version"
 }
 
-cordapp {
-    info {
-        name "Tic Tac Toe"
-        vendor "Corda Open Source"
-        targetPlatformVersion corda_platform_version.toInteger()
-        minimumPlatformVersion corda_platform_version.toInteger()
-    }
-}
-
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     nodeDefaults {
         projectCordapp {
@@ -132,7 +120,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         cordapp("$confidential_id_release_group:ci-workflows:$confidential_id_release_version")
         cordapp("$accounts_release_group:accounts-contracts:$accounts_release_version")
         cordapp("$accounts_release_group:accounts-workflows:$accounts_release_version")
-	runSchemaMigration = true
+	    runSchemaMigration = true
     }
     node {
         name "O=Notary,L=London,C=GB"

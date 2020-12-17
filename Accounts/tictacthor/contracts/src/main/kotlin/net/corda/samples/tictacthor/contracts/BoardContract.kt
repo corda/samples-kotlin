@@ -35,9 +35,6 @@ class BoardContract : Contract {
                 "Output board must have status GAME_IN_PROGRESS" using (outputBoardState.status == Status.GAME_IN_PROGRESS)
                 "You cannot play a game with yourself." using ((outputBoardState.playerO) != outputBoardState.playerX)
                 "Not valid starting board." using BoardUtils.checkIfValidStartBoard(outputBoardState.board)
-
-                 //Signatures
-                "Both participants must sign a StartGame transaction." using (command.signers == outputBoardState.participants.map { it.owningKey })
             }
             is Commands.SubmitTurn -> requireThat{
                 // Shape
