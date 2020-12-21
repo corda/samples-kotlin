@@ -1,8 +1,7 @@
 package net.corda.samples.secretsanta
 
-import com.google.common.collect.ImmutableList
+
 import net.corda.core.crypto.SecureHash
-import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.NetworkParameters
 import net.corda.core.transactions.SignedTransaction
 import net.corda.samples.secretsanta.contracts.SantaSessionContract
