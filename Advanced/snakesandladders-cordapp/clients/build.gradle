@@ -35,12 +35,12 @@ springBoot {
 
 task runClassicGamesClient(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'net.corda.samples.snl.webserver.Server'
+    main = 'net.corda.samples.snl.webserver.ServerKt'
     args '--server.port=50007', '--config.rpc.host=localhost', '--config.rpc.port=10006', '--config.rpc.username=user1', '--config.rpc.password=test'
 }
 
 task runMegaGamesClient(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'net.corda.samples.snl.webserver.Server'
+    main = 'net.corda.samples.snl.webserver.ServerKt'
     args '--server.port=50008', '--config.rpc.host=localhost', '--config.rpc.port=10009', '--config.rpc.username=user1', '--config.rpc.password=test'
 }
