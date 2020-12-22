@@ -1,4 +1,4 @@
-package com.flowhttp
+package net.corda.samples.flowhttp
 
 import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkParameters
@@ -20,7 +20,7 @@ class FlowTests {
     @Before
     fun setup() {
         network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
-                TestCordapp.findCordapp("com.flowhttp"))))
+                TestCordapp.findCordapp("net.corda.samples.flowhttp"))))
         a = network.createPartyNode()
         network.runNetwork()
     }

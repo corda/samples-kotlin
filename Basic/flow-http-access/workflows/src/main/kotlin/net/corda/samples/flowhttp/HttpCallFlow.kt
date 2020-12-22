@@ -1,4 +1,4 @@
-package com.flowhttp
+package net.corda.samples.flowhttp
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.flows.FlowLogic
