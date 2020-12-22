@@ -1,4 +1,4 @@
-package com.flowdb
+package net.corda.samples.flowdb
 
 import net.corda.core.node.ServiceHub
 import net.corda.core.node.services.CordaService

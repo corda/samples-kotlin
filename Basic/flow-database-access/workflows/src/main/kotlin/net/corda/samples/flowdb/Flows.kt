@@ -1,4 +1,4 @@
-package com.flowdb
+package net.corda.samples.flowdb
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.flows.FlowLogic

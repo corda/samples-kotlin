@@ -1,4 +1,4 @@
-package com.flowdb
+package net.corda.samples.flowdb
 
 import net.corda.core.utilities.getOrThrow
 import net.corda.testing.node.MockNetwork
@@ -25,7 +25,7 @@ class FlowTests {
     @Before
     fun setup() {
         network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
-                TestCordapp.findCordapp("com.flowdb"))))
+                TestCordapp.findCordapp("net.corda.samples.flowdb"))))
         a = network.createPartyNode()
         network.runNetwork()
     }
