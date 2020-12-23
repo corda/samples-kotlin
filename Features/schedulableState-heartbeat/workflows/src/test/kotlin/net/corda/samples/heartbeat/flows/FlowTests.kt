@@ -1,6 +1,7 @@
-package com.heartbeat.flows
+package net.corda.samples.heartbeat.flows
 
 import net.corda.client.rpc.notUsed
+import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkParameters
 import net.corda.testing.node.StartedMockNode
@@ -16,9 +17,14 @@ class FlowTests {
 
     @Before
     fun setup() {
-        network = MockNetwork(MockNetworkParameters(threadPerNode = true, cordappsForAllNodes = listOf(
-                TestCordapp.findCordapp("com.heartbeat.flows"),
-                TestCordapp.findCordapp("com.heartbeat.contracts"))))
+        network = MockNetwork(
+                MockNetworkParameters(threadPerNode = true, cordappsForAllNodes = listOf(
+                        TestCordapp.findCordapp("net.corda.samples.heartbeat.flows"),
+                        TestCordapp.findCordapp("net.corda.samples.heartbeat.contracts")),
+                        networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
+                )
+
+        )
         node = network.createNode()
     }
 

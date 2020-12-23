@@ -1,4 +1,4 @@
-package com.heartbeat.contracts
+package net.corda.samples.heartbeat.contracts
 
 import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.Contract
@@ -9,7 +9,7 @@ import net.corda.core.transactions.LedgerTransaction
  */
 open class HeartContract : Contract {
     companion object {
-        const val contractID = "com.heartbeat.contracts.HeartContract"
+        const val contractID = "net.corda.samples.heartbeat.contracts.HeartContract"
     }
 
     override fun verify(tx: LedgerTransaction) {

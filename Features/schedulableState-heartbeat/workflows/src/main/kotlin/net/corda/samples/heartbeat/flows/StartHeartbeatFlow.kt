@@ -1,8 +1,6 @@
-package com.heartbeat.flows
+package net.corda.samples.heartbeat.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import com.heartbeat.contracts.HeartContract
-import com.heartbeat.contracts.HeartState
 import net.corda.core.contracts.Command
 import net.corda.core.flows.FinalityFlow
 import net.corda.core.flows.FlowLogic
@@ -10,6 +8,8 @@ import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
+import net.corda.samples.heartbeat.contracts.HeartContract
+import net.corda.samples.heartbeat.states.HeartState
 
 /**
  * Creates a Heartbeat state on the ledger.

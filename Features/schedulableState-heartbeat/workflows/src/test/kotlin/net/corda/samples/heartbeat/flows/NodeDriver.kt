@@ -1,4 +1,4 @@
-package com.heartbeat.flows
+package net.corda.samples.flows
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.utilities.getOrThrow

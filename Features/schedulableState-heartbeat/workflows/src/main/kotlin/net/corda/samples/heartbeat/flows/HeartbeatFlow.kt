@@ -1,9 +1,6 @@
-package com.heartbeat.flows
+package net.corda.samples.heartbeat.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import com.heartbeat.contracts.HeartContract.Commands.Beat
-import com.heartbeat.contracts.HeartContract.Companion.contractID
-import com.heartbeat.contracts.HeartState
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateRef
 import net.corda.core.flows.FinalityFlow
@@ -13,6 +10,9 @@ import net.corda.core.flows.SchedulableFlow
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
+import net.corda.samples.heartbeat.contracts.HeartContract.Commands.Beat
+import net.corda.samples.heartbeat.contracts.HeartContract.Companion.contractID
+import net.corda.samples.heartbeat.states.HeartState
 
 /**
  * This is the flow that a Heartbeat state runs when it consumes itself to create a new Heartbeat
