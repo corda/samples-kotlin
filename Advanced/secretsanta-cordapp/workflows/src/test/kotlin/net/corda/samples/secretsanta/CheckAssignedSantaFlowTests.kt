@@ -1,6 +1,5 @@
 package net.corda.samples.secretsanta
 
-import com.google.common.collect.ImmutableList
 import net.corda.core.contracts.UniqueIdentifier.Companion.fromString
 import net.corda.core.crypto.SecureHash
 import net.corda.core.node.NetworkParameters
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.Assertions
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.ExecutionException
-import kotlin.collections.LinkedHashMap
 
 
 class CheckAssignedSantaFlowTests {
