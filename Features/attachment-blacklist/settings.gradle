@@ -1,4 +1,4 @@
-include 'workflows-kotlin'
-include 'contracts-kotlin'
-include 'clients-kotlin'
+include 'workflows'
+include 'contracts'
+include 'clients'
 
