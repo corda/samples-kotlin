@@ -16,10 +16,10 @@ accept or modify the proposal, this attempt will be rejected automatically at th
 
 ### Flows
 
-We start with the proposal flow implemented in `ProposalFlow.java`.
+We start with the proposal flow implemented in `ProposalFlow.kt`.
 
 
-The modification of the proposal is implemented in `ModificationFlow.java`.
+The modification of the proposal is implemented in `ModificationFlow.kt`.
 
 
 In the `AcceptanceFlow.java`, we receive the modified ProposalState and it's converted into a TradeState.
