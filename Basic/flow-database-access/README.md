@@ -1,21 +1,13 @@
-# Flow Database Access CorDapp
-
+# Flow Database Access CorDapp 
 This CorDapp provides a simple example of how the node database can be accessed in flows using a [JDBC Connection](https://docs.corda.net/docs/corda-os/api-persistence.html#jdbc-session). In this case, the flows
 maintain a table of cryptocurrency values in the node's database.
-
 
 
 ## Concepts
 
 ### Flows
 
-The CorDapp defines three flows:
-
-* [`AddTokenValueFlow`](./workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L16), which adds a new token to the database table with an initial value
-* [`UpdateTokenValueFlow`](./workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L37), which updates the value of an existing token in the database table
-* [`QueryTokenValueFlow`](./workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L52), which reads the value of an existing token from the database table
-
-Under the hood, the database accesses are managed by the CryptoValuesDatabaseService CordaService.
+The CorDapp defines three flows: `AddTokenValueFlow`, `UpdateTokenValueFlow`, and `QueryTokenValueFlow`. Under the hood, the database accesses are managed by the CryptoValuesDatabaseService [CordaService](https://training.corda.net/corda-details/automation/#services).
 
 Be aware that support of database accesses in flows is currently limited:
 
@@ -34,7 +26,7 @@ See https://docs.corda.net/getting-set-up.html.
 
 See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
 
-Java use the `workflows-kotlin:deployNodes` task and `./workflows-kotlin/build/nodes/runnodes` script.
+Java use the `workflows-java:deployNodes` task and `./workflows-java/build/nodes/runnodes` script.
 
 ### Interacting with the node:
 
