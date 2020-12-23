@@ -53,17 +53,22 @@ We expect to receive data from a counterparty that contains a ping, when we rece
 
 
 
-# Pre-requisites:
+## Pre-Requisites
 
-See https://docs.corda.net/getting-set-up.html.
+For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
 
-# Usage
 
-## Running the nodes:
+## Running the nodes
 
-See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
 
-Java use the `workflows-kotlin:deployNodes` task and `./workflows-kotlin/build/nodes/runnodes` script.
+Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
+```
+./gradlew clean deployNodes
+```
+Then type: (to run the nodes)
+```
+./build/nodes/runnodes
+```
 
 ## Pinging a node:
 
