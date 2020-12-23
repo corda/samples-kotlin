@@ -5,14 +5,16 @@ buildscript {
 
     ext {
         corda_release_group = constants.getProperty("cordaReleaseGroup")
+        corda_core_release_group = constants.getProperty("cordaCoreReleaseGroup")
         corda_release_version = constants.getProperty("cordaVersion")
+        corda_core_release_version = constants.getProperty("cordaCoreVersion")
         corda_gradle_plugins_version = constants.getProperty("gradlePluginsVersion")
         kotlin_version = constants.getProperty("kotlinVersion")
         junit_version = constants.getProperty("junitVersion")
         quasar_version = constants.getProperty("quasarVersion")
         log4j_version = constants.getProperty("log4jVersion")
         slf4j_version = constants.getProperty("slf4jVersion")
-        corda_platform_version = constants.getProperty("platformVersion")
+        corda_platform_version = constants.getProperty("platformVersion").toInteger()
         spring_boot_version = '2.0.2.RELEASE'
         ext.spring_boot_gradle_plugin_version = '2.0.2.RELEASE'
     }
@@ -45,15 +47,6 @@ allprojects {
         maven { url 'https://software.r3.com/artifactory/corda' }
         maven { url 'https://repo.gradle.org/gradle/libs-releases' }
     }
-
-//    configurations {
-//        compile {
-//            // We want to use SLF4J's version of these bindings: jcl-over-slf4j
-//            // Remove any transitive dependency on Apache's version.
-//            exclude group: 'commons-logging', module: 'commons-logging'
-//        }
-//    }
-
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
         kotlinOptions {
