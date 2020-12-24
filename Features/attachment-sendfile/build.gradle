@@ -86,22 +86,6 @@ dependencies {
     cordaCompile "org.slf4j:jul-to-slf4j:$slf4j_version"
 }
 
-// TODO remove these commented lines
-//cordapp {
-//    info {
-//        name "Attachment Sendfile"
-//        vendor "Corda Open Source"
-//        targetPlatformVersion corda_platform_version
-//        minimumPlatformVersion corda_platform_version
-//    }
-//}
-
-//apply plugin: 'net.corda.plugins.cordapp'
-//apply plugin: 'net.corda.plugins.quasar-utils'
-//apply plugin: 'net.corda.plugins.cordformation'
-//apply plugin: 'kotlin'
-
-
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
 
     nodeDefaults {

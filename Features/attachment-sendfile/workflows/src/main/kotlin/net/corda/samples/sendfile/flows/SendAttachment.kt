@@ -57,7 +57,7 @@ class SendAttachment(
         val path = System.getProperty("user.dir")
         println("Working Directory = $path")
 
-        val zipPath = if (unitTest!!) "../test.zip" else "../../../../test.zip"
+        val zipPath = if (unitTest!!) "../test.zip" else "../../../test.zip"
 
         //Change the path to "../test.zip" for passing the unit test.
         //because the unit test are in a different working directory than the running node.
