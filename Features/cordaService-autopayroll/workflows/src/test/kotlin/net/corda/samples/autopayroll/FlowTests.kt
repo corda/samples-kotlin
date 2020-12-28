@@ -36,7 +36,7 @@ class FlowTests {
 
     //Test #1 check if the requestState is being sent to the bank operator behind the scene.
     @Test
-    fun `dummy test`() {
+    fun `requestStateSent`() {
         val future = a.startFlow(RequestFlowInitiator("500", b.info.legalIdentities.first()))
         network.runNetwork()
         val ptx = future.get()
