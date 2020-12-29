@@ -1,3 +1,2 @@
-include 'base-kotlin'
-include 'service-kotlin'
-include 'client-kotlin'
+include 'contracts'
+include 'workflows'
