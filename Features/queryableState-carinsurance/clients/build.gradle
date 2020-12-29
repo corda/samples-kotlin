@@ -1,4 +1,3 @@
-
 repositories {
     mavenLocal()
     jcenter()
@@ -63,7 +62,8 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 
 task bootRun(type: JavaExec, dependsOn: jar) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'net.corda.samples.server.ServerKt'
+    main = 'net.corda.samples.carinsurance.server.ServerKt'
     args '--server.port=8080', '--config.rpc.host=localhost', '--config.rpc.port=10006', '--config.rpc.username=user1', '--config.rpc.password=test'
 }
 
+// Note that the bootRun task is built into gradle so there is no webserver task defined here.

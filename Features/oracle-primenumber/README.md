@@ -42,5 +42,5 @@ Go to the [CRaSH](https://docs.corda.net/docs/corda-os/shell.html) shell for Par
 
 We can then see the state wrapping the 5th prime (11) in our vault by running:
 
-    run vaultQuery contractStateType: net.corda.examples.oracle.base.contract.PrimeState
+    run vaultQuery contractStateType: net.corda.samples.oracle.base.contract.PrimeState
 
