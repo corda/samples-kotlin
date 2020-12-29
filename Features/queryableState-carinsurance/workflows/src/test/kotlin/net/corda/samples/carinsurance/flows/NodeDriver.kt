@@ -1,4 +1,4 @@
-package net.corda.samples
+package net.corda.samples.carinsurance.flows
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.utilities.getOrThrow

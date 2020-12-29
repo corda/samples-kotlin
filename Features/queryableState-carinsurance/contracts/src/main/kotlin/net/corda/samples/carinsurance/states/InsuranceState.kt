@@ -1,14 +1,13 @@
-package net.corda.samples.states
+package net.corda.samples.carinsurance.states
 
-import net.corda.samples.contracts.InsuranceContract
-import net.corda.samples.schema.InsuranceSchemaV1
 import net.corda.core.contracts.BelongsToContract
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
 import net.corda.core.schemas.QueryableState
-import java.lang.IllegalArgumentException
+import net.corda.samples.carinsurance.contracts.InsuranceContract
+import net.corda.samples.carinsurance.schema.InsuranceSchemaV1
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -20,17 +19,17 @@ import kotlin.collections.ArrayList
 data class InsuranceState(val policyNumber: String,
                           val insuredValue: Long,
                           val duration: Int,
-                          val premium:Int,
+                          val premium: Int,
                           val insurer: Party,
                           val insuree: Party,
                           val vehicleDetail: VehicleDetail,
-                          val claims:List<Claim> = listOf(),
-                          override val participants: List<AbstractParty> = listOf(insuree,insurer)) : QueryableState {
+                          val claims: List<Claim> = listOf(),
+                          override val participants: List<AbstractParty> = listOf(insuree, insurer)) : QueryableState {
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
-        if (schema is InsuranceSchemaV1){
+        if (schema is InsuranceSchemaV1) {
             var persistentClaims = ArrayList<InsuranceSchemaV1.PersistentClaim>()
-            if(claims.isNotEmpty()) {
-                for (item in claims){
+            if (claims.isNotEmpty()) {
+                for (item in claims) {
                     persistentClaims.add(InsuranceSchemaV1.PersistentClaim(
                             UUID.randomUUID(),
                             item.claimNumber,
@@ -54,9 +53,10 @@ data class InsuranceState(val policyNumber: String,
                     vDetail,
                     persistentClaims
             )
-        }else
+        } else
             throw IllegalArgumentException("Unsupported Schema")
     }
+
     override fun supportedSchemas(): Iterable<MappedSchema> = listOf(InsuranceSchemaV1)
 }
 

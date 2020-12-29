@@ -1,4 +1,4 @@
-package net.corda.samples.server
+package net.corda.samples.carinsurance.server
 
 import net.corda.client.rpc.CordaRPCClient
 import net.corda.client.rpc.CordaRPCConnection
@@ -49,8 +49,6 @@ open class NodeRPCConnection(
     fun close() {
         rpcConnection.notifyServerAndClose()
     }
-
-
 
 
 }

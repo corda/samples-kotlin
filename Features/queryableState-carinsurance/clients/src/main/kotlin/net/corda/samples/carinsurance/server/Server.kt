@@ -1,4 +1,4 @@
-package net.corda.samples.server
+package net.corda.samples.carinsurance.server
 
 import net.corda.client.jackson.JacksonSupport
 import org.springframework.beans.factory.annotation.Autowired

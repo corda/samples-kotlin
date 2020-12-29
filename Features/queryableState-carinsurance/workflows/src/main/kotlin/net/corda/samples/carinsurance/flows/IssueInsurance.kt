@@ -1,16 +1,15 @@
-package net.corda.samples.flows
+package net.corda.samples.carinsurance.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import com.google.common.collect.ImmutableList
-import net.corda.samples.contracts.InsuranceContract
-import net.corda.samples.states.InsuranceState
-import net.corda.samples.states.VehicleDetail
 import net.corda.core.flows.*
 import net.corda.core.identity.Party
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
+import net.corda.samples.carinsurance.contracts.InsuranceContract
+import net.corda.samples.carinsurance.states.InsuranceState
+import net.corda.samples.carinsurance.states.VehicleDetail
 
 
 // *********
@@ -19,11 +18,11 @@ import net.corda.core.utilities.ProgressTracker
 @InitiatingFlow
 @StartableByRPC
 class IssueInsurance(val insuranceInfo: InsuranceInfo,
-                     val insuree:Party) : FlowLogic<SignedTransaction>() {
+                     val insuree: Party) : FlowLogic<SignedTransaction>() {
     override val progressTracker = ProgressTracker()
 
     @Suspendable
-    override fun call():SignedTransaction {
+    override fun call(): SignedTransaction {
         // Initiator flow logic goes here.
 
         // Obtain a reference from a notary we wish to use.
@@ -66,7 +65,7 @@ class IssueInsurance(val insuranceInfo: InsuranceInfo,
 @InitiatedBy(IssueInsurance::class)
 class IssueInsuranceResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable
-    override fun call():SignedTransaction {
+    override fun call(): SignedTransaction {
         subFlow(object : SignTransactionFlow(counterpartySession) {
             @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {

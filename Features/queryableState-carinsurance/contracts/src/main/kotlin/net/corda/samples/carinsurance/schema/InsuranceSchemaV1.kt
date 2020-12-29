@@ -1,12 +1,12 @@
-package net.corda.samples.schema
+package net.corda.samples.carinsurance.schema
 
+//4.6 changes
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
+import org.hibernate.annotations.Type
 import java.io.Serializable
 import java.util.*
 import javax.persistence.*
-//4.6 changes
-import org.hibernate.annotations.Type
 
 /**
  * The family of schemas for IOUState.
@@ -29,7 +29,7 @@ object InsuranceSchemaV1 : MappedSchema(
     class PersistentClaim(
             @Id @Column(name = "Id")
             @Type(type = "uuid-char")
-            val uuid:UUID,
+            val uuid: UUID,
 
             @Column(name = "claimNumber")
             var claimNumber: String,
@@ -41,7 +41,7 @@ object InsuranceSchemaV1 : MappedSchema(
             var claimAmount: Int
     ) {
         // Default constructor required by hibernate.
-        constructor(): this(UUID.randomUUID(),"", "", 0)
+        constructor() : this(UUID.randomUUID(), "", "", 0)
     }
 
     @Entity
@@ -49,7 +49,7 @@ object InsuranceSchemaV1 : MappedSchema(
     class PersistentVehicle(
             @Id @Column(name = "Id")
             @Type(type = "uuid-char")
-            val uuid:UUID,
+            val uuid: UUID,
 
             @Column(name = "registrationNumber")
             val registrationNumber: String,
@@ -71,11 +71,12 @@ object InsuranceSchemaV1 : MappedSchema(
 
             @Column(name = "fuelType")
             val fuelType: String
-    ){
+    ) {
         // Default constructor required by hibernate.
         constructor(registrationNumber: String, chasisNumber: String, make: String, model: String, variant: String, color: String, fuelType: String) : this(
-                UUID.randomUUID(),registrationNumber, chasisNumber, make, model,variant,color,fuelType)
-        constructor() : this(UUID.randomUUID(),"","","","","","","")
+                UUID.randomUUID(), registrationNumber, chasisNumber, make, model, variant, color, fuelType)
+
+        constructor() : this(UUID.randomUUID(), "", "", "", "", "", "", "")
     }
 
 
@@ -85,9 +86,9 @@ object InsuranceSchemaV1 : MappedSchema(
             @Column(name = "policyNumber")
             val policyNumber: String,
             @Column(name = "insuredValue")
-            val insuredValue:Long,
+            val insuredValue: Long,
             @Column(name = "duration")
-            val duration:Int,
+            val duration: Int,
             @Column(name = "premium")
             val premium: Int,
             @OneToOne(cascade = [CascadeType.PERSIST])
@@ -96,7 +97,7 @@ object InsuranceSchemaV1 : MappedSchema(
             @OneToMany(cascade = [CascadeType.PERSIST])
             @JoinColumns(JoinColumn(name = "output_index", referencedColumnName = "output_index"), JoinColumn(name = "transaction_id", referencedColumnName = "transaction_id"))
             val claims: List<PersistentClaim>
-    ):PersistentState(),Serializable{
-        constructor(): this("", 0, 0, 0, PersistentVehicle(), listOf())
+    ) : PersistentState(), Serializable {
+        constructor() : this("", 0, 0, 0, PersistentVehicle(), listOf())
     }
 }

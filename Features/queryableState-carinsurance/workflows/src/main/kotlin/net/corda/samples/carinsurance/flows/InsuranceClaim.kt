@@ -1,16 +1,15 @@
-package net.corda.samples.flows
+package net.corda.samples.carinsurance.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.samples.contracts.InsuranceContract
-import net.corda.samples.states.Claim
-import net.corda.samples.states.InsuranceState
-import net.corda.core.contracts.StateAndRef
 import net.corda.core.flows.*
 import net.corda.core.node.services.queryBy
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
+import net.corda.samples.carinsurance.contracts.InsuranceContract
+import net.corda.samples.carinsurance.states.Claim
+import net.corda.samples.carinsurance.states.InsuranceState
 
 // *********
 // * Flows *
@@ -34,7 +33,7 @@ class InsuranceClaim(val claimInfo: ClaimInfo,
         val input = inputStateAndRef.state.data
         var claimlist = ArrayList<Claim>()
         claimlist.add(claim)
-        for (item in input.claims){
+        for (item in input.claims) {
             claimlist.add(item)
         }
 
@@ -53,7 +52,7 @@ class InsuranceClaim(val claimInfo: ClaimInfo,
         // Sign the transaction
         val stx = serviceHub.signInitialTransaction(txBuilder)
 
-        val counterpartySession  =initiateFlow(input.insuree)
+        val counterpartySession = initiateFlow(input.insuree)
         return subFlow(FinalityFlow(stx, listOf(counterpartySession)))
 
 
@@ -63,7 +62,7 @@ class InsuranceClaim(val claimInfo: ClaimInfo,
 @InitiatedBy(InsuranceClaim::class)
 class InsuranceClaimResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable
-    override fun call():SignedTransaction {
+    override fun call(): SignedTransaction {
         subFlow(object : SignTransactionFlow(counterpartySession) {
             @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {
