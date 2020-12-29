@@ -42,6 +42,6 @@ Go to the [CRaSH](https://docs.corda.net/docs/corda-os/shell.html) shell of Sell
 The state will be automatically reported to StateRegulator and NationalRegulator, even though they are not
 participants. Check this by going to the shell of either node and running:
 
-    run vaultQuery contractStateType: com.observable.states.HighlyRegulatedState
+    run vaultQuery contractStateType: net.corda.samples.observable.states.HighlyRegulatedState
 
 You will see the new `HighlyRegulatedState` in the vault of both nodes.
