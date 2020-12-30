@@ -20,7 +20,7 @@ Be aware that support of HTTP requests in flows is currently limited:
 Be careful when making HTTP calls in flows; they have to be blocking.
 In addition, if the flow fails and is restarted, the HTTP request will be replayed as-is.
 
-You'll find our HTTP request example within [HTTPCallFlow.kt](./workflows-kotlin/src/main/kotlin/com/flowhttp/HttpCallFlow.kt)
+You'll find our HTTP request example within HTTPCallFlow.kt
 
 It works mostly as you'd expect, using a request builder to make a request at a client and use the result.
 
