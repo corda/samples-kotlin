@@ -1,4 +1,4 @@
-# autopayroll -- cordaservice demo
+# Auto Payroll -- CordaService
 
 This Cordapp shows how to trigger a flow with vault update(completion of prior flows) using [CordaService](https://training.corda.net/corda-details/automation/#services) & [trackby](https://training.corda.net/corda-details/automation-solution/#track-and-notify).
 
@@ -10,7 +10,7 @@ In this Cordapp, there are four parties:
  - PetersonThomas: worker #1 will accept money
  - GeorgeJefferson: worker #2 will accept money
 
-There are two states [`PaymentRequestState`](./contracts-kotlin/src/main/kotlin/net/corda/examples/autopayroll/states/PaymentRequestState.kt) & [`MoneyState`](./contracts-kotlin/src/main/kotlin/net/corda/examples/autopayroll/states/MoneyState.kt), and two flows `RequestFlow` & `PaymentFlow`. The business logic looks like the following:
+There are two states `PaymentRequestState` & `MoneyState`, and two flows `RequestFlow` & `PaymentFlow`. The business logic looks like the following:
 ![alt text](./webpic/Business%20Logic.png)
 
 1. Finance team put in payroll request to the bank operators
@@ -19,6 +19,9 @@ There are two states [`PaymentRequestState`](./contracts-kotlin/src/main/kotlin/
 
 ## Usage
 
+## Pre-Requisites
+
+For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
 
 ### Deploy and run the node
 ```

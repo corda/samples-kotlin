@@ -1,4 +1,4 @@
-# IOU - NotaryChange Demo [<img src="../../webIDE.png" height=25 />](https://ide.corda.net/?folder=/home/coder/samples-java/Features/notarychange-iou)
+# IOU - NotaryChange 
 
 This CorDapp serves as a demo of a Notary Change Transaction in Corda which can be performed 
 using one of the Corda library flow called `NotaryChangeFlow`.
@@ -23,9 +23,10 @@ issue an IOU at a particular Notary and try to settle the IOU at a different Not
 ## Usage
 
 
-### Pre-Requisites
 
-See https://docs.corda.net/getting-set-up.html.
+## Pre-Requisites
+
+For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
 
 ### Running the CorDapp
 
