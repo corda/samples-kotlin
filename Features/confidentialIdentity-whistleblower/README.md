@@ -1,7 +1,6 @@
-# whistle blower cordapp
+# Whistleblower -- Confidential Identity 
 
 This CorDapp is a simple showcase of [confidential identities](https://docs.corda.net/docs/corda-os/api-identity.html#confidential-identities) (i.e. anonymous public keys).
-
 
 ## Concepts
 
@@ -11,17 +10,12 @@ whistle-blower and the investigator generate anonymous public keys for this tran
 who manage to get ahold of the state cannot identity the whistle-blower or investigator. This process is handled
 automatically by the `SwapIdentitiesFlow`.
 
-
-You can find the use of [`SwapIdentitiesFlow` here](./workflows-kotlin/src/main/kotlin/net/corda/examples/whistleblower/flows/BlowWhistleFlow.kt#L91).
-
-
-
 ## Usage
 
 
-### Pre-requisites:
+## Pre-Requisites
 
-See https://docs.corda.net/getting-set-up.html.
+For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
 
 
 ### Deploy and run the node
