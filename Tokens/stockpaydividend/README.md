@@ -1,6 +1,24 @@
-# TokenSDK Sample - Stock Pay Dividend CorDapp - Java
+# stock pay dividend
+
 This CorDapp aims to demonstrate the usage of [TokenSDK](https://training.corda.net/libraries/tokens-sdk/), especially the concept of [EvolvableToken](https://training.corda.net/libraries/tokens-sdk/#evolvabletokentype) which represents stock.
 You will find the StockState extends from EvolvableToken which allows the stock details(eg. announcing dividends) to be updated without affecting the parties who own the stock.
+
+## Concepts
+
+### Parties
+
+This CordApp assumes there are 4 parties:
+
+* **WayneCo** - creates and maintains the stock state and pays dividends to shareholders after some time passes.
+* **Shareholder** - receives dividends base on the owning stock.
+* **Bank** - issues fiat tokens.
+* **Observer** - monitors all the stocks by keeping a copy of of transactions whenever a stock is created or updated. (In reality, this might be a financial regulatory authority like the SEC.)
+
+
+Here's the flows that exist between these parties :
+
+![Flow diagram](./diagrams/FlowDiagram2.png)
+
 
 This Stock Exchange CorDapp includes:
 * A bank issues some money for the final settlement of the dividends.
@@ -8,12 +26,6 @@ This Stock Exchange CorDapp includes:
 * The company announces dividends for shareholders to claim before execution day
 * Shareholder retrieves the most updated stock information and then claims dividend
 * The company distribute dividends to shareholders
-
-### Running the nodes:
-See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
-
-## Sample Overview
-![Flow diagram](./diagrams/FlowDiagram2.png)
 
 ### Keys to learn
 * Basic usage of TokenSDK
@@ -29,14 +41,6 @@ which holds the underlying information of a stock like stock name, symbol, divid
 * **[DividendState](./contracts/src/main/kotlin/net/corda/samples/stockpaydividend/states/DividendState.kt)** -
 represents the dividend to be paid off by the company to the shareholder. 
 
-
-### Roles
-This CordApp assumes there are 4 parties
-* **WayneCo** - who creates and maintains the stock state and pay dividends to shareholders after time.
-* **Shareholder** - who receives dividends base on the owning stock.
-* **Bank** - who issues fiat tokens.
-* **Observer** - who monitors all the stocks by keeping a copy of of transactions whenever a stock is created or updated. 
-<br>In real life, it should be the financial regulatory authorities like SEC  
 
 ### Running the sample
 To go through the sample flow, execute the commands on the corresponding node  

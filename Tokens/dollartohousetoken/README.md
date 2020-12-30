@@ -1,14 +1,24 @@
-# NonFungible House Token DvP Sample CorDapp - Java
+# Nonfungible house token dvp sample cordapp 
 
 This CorDapp provides a basic example to create, issue and perform a DvP (Delivery vs Payment) of an [Evolvable](https://training.corda.net/libraries/tokens-sdk/#evolvabletokentype), [NonFungible](https://training.corda.net/libraries/tokens-sdk/#nonfungibletoken) token in 
 Corda utilizing the Token SDK.
 
 
-# Pre-Requisites
+## Concepts
 
-See https://docs.corda.net/getting-set-up.html.
 
-For a brief introduction to Token SDK in Corda, see https://medium.com/corda/introduction-to-token-sdk-in-corda-9b4dbcf71025 
+### Flows
+
+There are three flows that we'll primarily use in this example that you'll be building off of.
+
+1. We'll start with running `FiatCurrencyIssueFlow`.
+2. We'll then create and issue a house token using `HouseTokenCreateAndIssueFlow`.
+3. We'll then initiate the sale of the house through `HouseSaleInitiatorFlow`.
+
+
+
+## Pre-Requisites
+For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
 
 # Usage
 
