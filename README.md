@@ -24,10 +24,6 @@ The samples are divided into 5 sections with the following desciption:
 ```
 .
 ├── Accounts
-
-```
-.
-├── Accounts
 │   ├── supplychain
 │   └── tictacthor
 ├── Advanced
