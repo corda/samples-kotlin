@@ -41,7 +41,7 @@ class CreateAndIssueStock(val symbol: String,
         // Construct the output StockState
         val stockState = StockState(ourIdentity, symbol,
                 name, currency,
-                price, BigDecimal.valueOf(0),  // A newly issued stock should not have any dividend
+                price, BigDecimal.ZERO,  // A newly issued stock should not have any dividend
                 Date(), Date(),
                 UniqueIdentifier())
 

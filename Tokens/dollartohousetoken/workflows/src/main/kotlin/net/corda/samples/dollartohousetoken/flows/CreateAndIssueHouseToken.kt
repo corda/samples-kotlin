@@ -48,7 +48,7 @@ class CreateAndIssueHouseToken(val owner: Party,
 
         /* Construct the output state */
         val uuid = fromString(UUID.randomUUID().toString())
-        val houseState = HouseState(constructionArea,additionInfo,valuationOfHouse,address,noOfBedRooms,issuer, UniqueIdentifier())
+        val houseState = HouseState(UniqueIdentifier(),Arrays.asList(issuer),valuationOfHouse,noOfBedRooms,constructionArea,additionInfo,address)
 
         /* Create an instance of TransactionState using the houseState token and the notary */
         val transactionState = houseState withNotary notary

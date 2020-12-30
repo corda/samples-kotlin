@@ -80,7 +80,7 @@ node {
  */
 task runOperatorClient(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'com.tokentofriend.ClientKt'
+    main = 'net.corda.samples.tokentofriend.ClientKt'
     args 'localhost:10006', 'user1', 'test'
 }
 
@@ -89,7 +89,7 @@ task runOperatorClient(type: JavaExec, dependsOn: assemble) {
  */
 task runOperatoreServer(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'com.tokentofriend.webserver.ServerKt'
+    main = 'net.corda.samples.tokentofriend.webserver.ServerKt'
     args '--server.port=10050', '--config.rpc.host=localhost', '--config.rpc.port=10006', '--config.rpc.username=user1', '--config.rpc.password=test'
 }
 
@@ -98,6 +98,6 @@ task runOperatoreServer(type: JavaExec, dependsOn: assemble) {
  */
 task runUSWest1Server(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'com.tokentofriend.webserver.ServerKt'
+    main = 'net.corda.samples.tokentofriend.webserver.ServerKt'
     args '--server.port=10053', '--config.rpc.host=localhost', '--config.rpc.port=10015', '--config.rpc.username=user1', '--config.rpc.password=test'
 }

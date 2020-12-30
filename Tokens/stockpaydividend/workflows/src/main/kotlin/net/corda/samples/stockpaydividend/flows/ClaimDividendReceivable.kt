@@ -3,7 +3,6 @@ package net.corda.samples.stockpaydividend.flows
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import com.r3.corda.lib.tokens.contracts.types.TokenType
-import com.r3.corda.lib.tokens.workflows.types.PartyAndAmount
 import com.r3.corda.lib.tokens.workflows.utilities.tokenBalance
 import net.corda.core.contracts.*
 import net.corda.core.flows.*
@@ -18,7 +17,6 @@ import net.corda.samples.stockpaydividend.flows.utilities.QueryUtilities
 import net.corda.samples.stockpaydividend.states.DividendState
 import net.corda.samples.stockpaydividend.states.StockState
 import java.math.BigDecimal
-import java.security.PublicKey
 import java.util.*
 
 // *********
@@ -26,7 +24,7 @@ import java.util.*
 // *********
 @InitiatingFlow
 @StartableByRPC
-class ClaimDividendReceivable(val symbol: String) : FlowLogic<String?>() {
+class ClaimDividendReceivable(val symbol: String) : FlowLogic<String>() {
     @Suspendable
     override fun call(): String { // Retrieve the stock and pointer
         val stockPointer: TokenPointer<*> = QueryUtilities.queryStockPointer(symbol, serviceHub)
@@ -47,8 +45,8 @@ class ClaimDividendReceivable(val symbol: String) : FlowLogic<String?>() {
         session.send(stockToClaim)
 
         // Wait for the transaction from the company, and sign it after the checking
-        class SignTxFlow (otherPartyFlow: FlowSession,
-                          progressTracker: ProgressTracker) : SignTransactionFlow(otherPartyFlow, progressTracker) {
+        class SignTxFlow(otherPartyFlow: FlowSession,
+                         progressTracker: ProgressTracker) : SignTransactionFlow(otherPartyFlow, progressTracker) {
             @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {
                 requireThat<Any?> {
@@ -64,7 +62,7 @@ class ClaimDividendReceivable(val symbol: String) : FlowLogic<String?>() {
         val txId = subFlow(signTxFlow).id
         subFlow(ReceiveFinalityFlow(session, txId))
 
-        return "\nRequest has been sent, Please wait for the stock issuer to respond."
+        return "\nRequest has been sent, Please wait for the stock issuer to respond. $txId"
     }
 }
 
@@ -83,7 +81,7 @@ class ClaimDividendReceivableResponder(private val holderSession: FlowSession) :
         val stockStateRef: StateAndRef<StockState> = stockPointer.pointer.resolve(serviceHub) as StateAndRef<StockState>
 
         // Receives the amount that the shareholder holds
-        val claimNoticication:ClaimNotification = holderSession.receive(ClaimNotification::class.java).unwrap { it:ClaimNotification->
+        val claimNoticication:ClaimNotification = holderSession.receive(ClaimNotification::class.java).unwrap { it: ClaimNotification->
             if(holderStockState.ref.txhash != stockStateRef.ref.txhash){
                 throw FlowException("StockState does not match with the issuers. Shareholder may not have updated the newest stock state.")
             }else{
@@ -102,7 +100,7 @@ class ClaimDividendReceivableResponder(private val holderSession: FlowSession) :
 
         // Create the dividend state
         val dividendAmount: Amount<TokenType> = Amount(dividend.longValueExact(), dividendTokenType)
-        val outputDividend = DividendState(ourIdentity, holderSession.counterparty, Date(), dividendAmount, false,UniqueIdentifier())
+        val outputDividend = DividendState(ourIdentity, holderSession.counterparty, Date(), dividendAmount, false, UniqueIdentifier())
 
         // Start building transaction
         // Using the notary from the previous transaction (dividend issuance)
