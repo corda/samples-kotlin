@@ -1,21 +1,13 @@
-# Flow Database Access CorDapp
-
+# Flow Database Access CorDapp 
 This CorDapp provides a simple example of how the node database can be accessed in flows using a [JDBC Connection](https://docs.corda.net/docs/corda-os/api-persistence.html#jdbc-session). In this case, the flows
 maintain a table of cryptocurrency values in the node's database.
-
 
 
 ## Concepts
 
 ### Flows
 
-The CorDapp defines three flows:
-
-* [`AddTokenValueFlow`](./workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L16), which adds a new token to the database table with an initial value
-* [`UpdateTokenValueFlow`](./workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L37), which updates the value of an existing token in the database table
-* [`QueryTokenValueFlow`](./workflows-kotlin/src/main/kotlin/com/flowdb/Flows.kt#L52), which reads the value of an existing token from the database table
-
-Under the hood, the database accesses are managed by the CryptoValuesDatabaseService CordaService.
+The CorDapp defines three flows: `AddTokenValueFlow`, `UpdateTokenValueFlow`, and `QueryTokenValueFlow`. Under the hood, the database accesses are managed by the CryptoValuesDatabaseService [CordaService](https://training.corda.net/corda-details/automation/#services).
 
 Be aware that support of database accesses in flows is currently limited:
 
@@ -23,18 +15,23 @@ Be aware that support of database accesses in flows is currently limited:
 * The operation must be idempotent. If the flow fails and has to restart from a checkpoint, the operation will also be replayed
 
 
-## Pre-requisites:
 
-See https://docs.corda.net/getting-set-up.html.
+## Pre-Requisites
+
+For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
 
 
-## Usage
+## Running the nodes
 
-### Running the nodes:
 
-See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
-
-Java use the `workflows-kotlin:deployNodes` task and `./workflows-kotlin/build/nodes/runnodes` script.
+Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
+```
+./gradlew clean deployNodes
+```
+Then type: (to run the nodes)
+```
+./build/nodes/runnodes
+```
 
 ### Interacting with the node:
 

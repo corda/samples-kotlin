@@ -43,17 +43,23 @@ It works mostly as you'd expect, using a request builder to make a request at a 
 
 
 
-## Pre-requisites:
 
-See https://docs.corda.net/getting-set-up.html.
+## Pre-Requisites
 
-## Usage
+For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
 
-### Running the nodes:
 
-See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
+## Running the nodes
 
-Java use the `workflows-kotlin:deployNodes` task and `./workflows-kotlin/build/nodes/runnodes` script.
+
+Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
+```
+./gradlew clean deployNodes
+```
+Then type: (to run the nodes)
+```
+./build/nodes/runnodes
+```
 
 ### Interacting with the nodes:
 
