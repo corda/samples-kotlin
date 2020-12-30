@@ -11,7 +11,7 @@ This Cordapp shows how to upload and download an [attachment](https://training.c
   <img src="./attachment-sendfile/graph.png" alt="Corda" width="700">
 </p>
 
-### [Whistleblower -- Confidential Identity ](./confidentialidentity-whistleblower):
+### [Whistleblower -- Confidential Identity ](./confidentialIdentity-whistleblower):
 This CorDapp is a simple showcase of [confidential identities](https://docs.corda.net/docs/corda-os/api-identity.html#confidential-identities) (i.e. anonymous public keys).  
 
 ### [Autopayroll -- CordaService](./cordaService-autopayroll):
@@ -30,10 +30,10 @@ This CorDapp implements an [oracle service](https://training.corda.net/corda-det
 * Request the oracle's signature to prove that the number included in their transaction is actually the Nth prime number  
 
 
-### [Car Insurance -- QueryableState](./queryablestate-carinsurance):
+### [Car Insurance -- QueryableState](./queryableState-carinsurance):
 This CorDapp demonstrates [QueryableState](https://docs.corda.net/docs/corda-os/api-persistence.html) works in Corda. Corda allows developers to have the ability to expose some or all parts of their states to a custom database table using an ORM tools. To support this feature the state must implement `QueryableState`.  
 
-### [Sanctionsbody -- ReferenceStates](./referencestates-sanctionsbody):
+### [Sanctionsbody -- ReferenceStates](./referenceStates-sanctionsBody):
 This CorDapp demonstrates the use of [reference states](https://training.corda.net/corda-details/reference-states/) in a transaction and in the verification method of a contract.
 
 This CorDapp allows two nodes to enter into an IOU agreement, but enforces that both parties belong to a list of sanctioned entities. This list of sanctioned entities is taken from a referenced SanctionedEntities state.  
