@@ -1,5 +1,4 @@
-# attachzip -- attachment demo
-
+# Sendfile -- Attachment
 This Cordapp shows how to upload and download an [attachment](https://training.corda.net/corda-details/attachments/) via flow.
 
 
@@ -12,7 +11,7 @@ In this Cordapp, there are two parties:
 
 ### States
 
-You'll want to take a quick look at [InvoiceState.kt](./contracts-kotlin/src/main/kotlin/net/corda/examples/sendfile/states/InvoiceState.kt)
+You'll want to take a quick look at `InvoiceState.kt`
 
 ```kotlin
 @BelongsToContract(InvoiceContract::class)
@@ -24,7 +23,7 @@ data class InvoiceState(
 
 ### Flows
 
-There are two flows [`sendAttachment`](./workflows-kotlin/src/main/kotlin/net/corda/examples/sendfile/flows/SendAttachment.kt) and [`downloadAttachment`](./workflows-kotlin/src/main/kotlin/net/corda/examples/sendfile/flows/DownloadAttachment.kt).
+There are two flows `sendAttachment`and `downloadAttachment`.
 
 The flow logic is the following:
 
@@ -40,6 +39,10 @@ The flow logic is the following:
 
 
 ## Usage
+
+## Pre-Requisites
+
+For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
 
 ### Deploy and run the node
 ```

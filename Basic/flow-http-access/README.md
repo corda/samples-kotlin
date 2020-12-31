@@ -20,7 +20,7 @@ Be aware that support of HTTP requests in flows is currently limited:
 Be careful when making HTTP calls in flows; they have to be blocking.
 In addition, if the flow fails and is restarted, the HTTP request will be replayed as-is.
 
-You'll find our HTTP request example within [HTTPCallFlow.kt](./workflows-kotlin/src/main/kotlin/com/flowhttp/HttpCallFlow.kt)
+You'll find our HTTP request example within HTTPCallFlow.kt
 
 It works mostly as you'd expect, using a request builder to make a request at a client and use the result.
 
@@ -43,17 +43,23 @@ It works mostly as you'd expect, using a request builder to make a request at a 
 
 
 
-## Pre-requisites:
 
-See https://docs.corda.net/getting-set-up.html.
+## Pre-Requisites
 
-## Usage
+For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
 
-### Running the nodes:
 
-See https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
+## Running the nodes
 
-Java use the `workflows-kotlin:deployNodes` task and `./workflows-kotlin/build/nodes/runnodes` script.
+
+Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
+```
+./gradlew clean deployNodes
+```
+Then type: (to run the nodes)
+```
+./build/nodes/runnodes
+```
 
 ### Interacting with the nodes:
 

@@ -8,7 +8,6 @@ import net.corda.core.contracts.StateAndRef
 import net.corda.core.flows.*
 import net.corda.core.identity.Party
 import net.corda.core.node.services.IdentityService
-import net.corda.core.transactions.SignedTransaction
 import net.corda.samples.stockpaydividend.flows.utilities.QueryUtilities
 import net.corda.samples.stockpaydividend.states.StockState
 import java.math.BigDecimal
@@ -42,7 +41,7 @@ class AnnounceDividend(val symbol: String,
         // Update the stock state and send a copy to the observers eventually
         val stx = subFlow(UpdateEvolvableTokenFlow(stockStateRef, outputState, listOf(), obSessions))
         subFlow(UpdateDistributionListFlow(stx))
-        return "\nStock $symbol has changed dividend percentage to $dividendPercentage. \n"
+        return "Stock ${symbol} has changed dividend percentage to ${dividendPercentage}. ${stx.id}"
     }
 }
 

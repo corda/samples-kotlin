@@ -32,13 +32,15 @@ class GetStockBalance(val symbol: String) : FlowLogic<String?>() {
 
 @InitiatingFlow
 @StartableByRPC
-class GetFiatBalance(private val currencyCode: String) : FlowLogic<Amount<TokenType>>() {
+class GetFiatBalance(private val currencyCode: String) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
     @Suspendable
     @Throws(FlowException::class)
-    override fun call(): Amount<TokenType> {
+    override fun call(): String {
         val fiatTokenType = getInstance(currencyCode)
-        return serviceHub.vaultService.tokenBalance(fiatTokenType)
+        val amount =  serviceHub.vaultService.tokenBalance(fiatTokenType)
+        return "You currently have ${amount.quantity/100} ${amount.token.tokenIdentifier}"
+
     }
 }

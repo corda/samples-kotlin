@@ -1,4 +1,4 @@
-# corda oracle examples
+# Prime Number -- Oracle
 
 This CorDapp implements an [oracle service](https://training.corda.net/corda-details/oracles) that allows nodes to:
 
@@ -16,25 +16,31 @@ real world, oracles would instead provide and sign statements about stock prices
 
 This repo is split into three CorDapps:
 
-1. A [base CorDapp](./base-kotlin/src/main/kotlin/net/corda/examples/oracle/base/flow) which includes the state and contract definition, as well as some utility flows that need to be
+1. A base CorDapp, which includes the state and contract definition, as well as some utility flows that need to be
    shared by both the Oracle service and the client
-2. A client CorDapp which [implements a flow](./client-kotlin/src/main/kotlin/net/corda/examples/oracle/client/flow/CreatePrime.kt) to create numbers involving oracle-validated prime numbers
-3. A [service](./service-kotlin/src/main/kotlin/net/corda/examples/oracle/service) which implements the primes oracle
+2. A client CorDapp, which implements a flow to create numbers involving oracle-validated prime numbers
+3. A service, which implements the primes oracle
 
 
 ## Usage
 
 
-### Pre-requisites:
+## Pre-Requisites
 
-See https://docs.corda.net/getting-set-up.html.
+For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
 
 
-### Deploy and run the node
+### Running the CorDapp
+
+Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```
-./greadlew deployNodes
-./build/node/runnodes
+./gradlew clean deployNodes
 ```
+Then type: (to run the nodes)
+```
+./build/nodes/runnodes
+```
+
 
 Go to the [CRaSH](https://docs.corda.net/docs/corda-os/shell.html) shell for PartyA, and request the 5th prime from the oracle using the `CreatePrime` flow:
 
@@ -42,5 +48,5 @@ Go to the [CRaSH](https://docs.corda.net/docs/corda-os/shell.html) shell for Par
 
 We can then see the state wrapping the 5th prime (11) in our vault by running:
 
-    run vaultQuery contractStateType: net.corda.examples.oracle.base.contract.PrimeState
+    run vaultQuery contractStateType: net.corda.samples.oracle.base.contract.PrimeState
 

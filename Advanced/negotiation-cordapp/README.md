@@ -1,4 +1,4 @@
-# negotiation cordapp
+# Negotiation Cordapp 
 
 This CorDapp shows how multi-party negotiation is handled on the Corda ledger, in the absence of an API for user
 interaction.
@@ -16,21 +16,21 @@ accept or modify the proposal, this attempt will be rejected automatically at th
 
 ### Flows
 
-We start with the proposal flow implemented in [ProposalFlow.kt](./workflows-kotlin/src/main/kotlin/negotiation/flows/ProposalFlow.kt)
+We start with the proposal flow implemented in `ProposalFlow.kt`.
 
 
-The modification of the proposal is implemented in [ModificationFlow.kt](./workflows-kotlin/src/main/kotlin/negotiation/flows/ModificationFlow.kt).
+The modification of the proposal is implemented in `ModificationFlow.kt`.
 
 
-In the [AcceptanceFlow](./workflows-kotlin/src/main/kotlin/negotiation/flows/AcceptanceFlow.kt), we receive the modified ProposalState and it's converted into a TradeState.
+In the `AcceptanceFlow.java`, we receive the modified ProposalState and it's converted into a TradeState.
 
 
 
 ## Usage
 
-### Pre-requisites:
+### Pre-Requisites
+For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
 
-See https://docs.corda.net/getting-set-up.html.
 
 
 ### Running the nodes:
@@ -51,7 +51,7 @@ First, go the the shell of PartyA, and propose a deal with yourself as buyer and
 
 We can now look at the proposals in the PartyA's vault:
 
-    run vaultQuery contractStateType: negotiation.states.ProposalState
+    run vaultQuery contractStateType: net.corda.samples.negotiation.states.ProposalState
 
 If we note down the state's `linearId.id`, we can now modify the proposal from the shell of PartyB by running:
 
@@ -64,4 +64,4 @@ Finally, let's have PartyA accept the proposal:
 We can now see the accepted trade in our vault with the new value by running the command (note we are now querying for
 `TradeState`s, not `ProposalState`s):
 
-    run vaultQuery contractStateType: negotiation.states.TradeState
+    run vaultQuery contractStateType: net.corda.samples.negotiation.states.TradeState

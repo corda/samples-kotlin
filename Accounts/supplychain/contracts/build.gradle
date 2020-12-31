@@ -5,7 +5,7 @@ cordapp {
     targetPlatformVersion 4
     minimumPlatformVersion 4
     contract {
-        name "accounts_SupplyChain Contract"
+        name "supplychain Contract"
         vendor "Corda Open Source"
         licence "A liberal, open source licence"
         versionId 1
