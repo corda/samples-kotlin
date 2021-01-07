@@ -40,7 +40,7 @@ dependencies {
 
 
 springBoot {
-    mainClassName = "com.tokentofriend.webserver.ServerKt"
+    mainClassName = "net.corda.samples.tokentofriend.webserver.ServerKt"
 }
 
 task copyWebApp(type: Copy) {
