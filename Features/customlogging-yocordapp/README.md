@@ -19,73 +19,53 @@ In this example not only do the node logs output in json but we can add arbitrar
         logger.info("Initializing the transaction.")
 ```
 
-When we log this informational message, it gets output along with the other key value pairs we've specified.
+When we log this message, it gets output along with the other key value pairs we've specified in a JSON format:
+```
+{
+  "instant": {
+    "epochSecond": 1612982209,
+    "nanoOfSecond": 487000000
+  },
+  "thread": "Node thread-1",
+  "level": "INFO",
+  "loggerName": "net.corda",
+  "message": "Initializing the transaction.",
+  "endOfBatch": true,
+  "loggerFqcn": "org.apache.logging.slf4j.Log4jLogger",
+  "contextMap": {
+    "actor_id": "internalShell",
+    "actor_owning_identity": "O=PartyA, L=London, C=GB",
+    "actor_store_id": "NODE_CONFIG",
+    "fiber-id": "10000001",
+    "flow-id": "94543b19-b949-441e-9962-bc50dcd7ad55",
+    "initiator": "O=PartyA, L=London, C=GB",
+    "invocation_id": "a53a3a5d-b450-456e-a0f1-dfb7dcdce6dd",
+    "invocation_timestamp": "2021-02-10T18:36:49.312Z",
+    "origin": "internalShell",
+    "session_id": "e8ba737e-e809-4a14-8c3b-284b7ae5ed88",
+    "session_timestamp": "2021-02-10T18:36:49.022Z",
+    "target": "O=PartyB, L=New York, C=US",
+    "thread-id": "168"
+  },
+  "threadId": 168,
+  "threadPriority": 5
+}
+```
+
+
 This can be quite powerful if you're looking to produce a consumable output stream to a log aggregator like splunk.
 
 You can end up getting log feeds in json that look something like this:
 
 ```json
 {"instant":{"epochSecond":1612369055,"nanoOfSecond":12000000},"thread":"main","level":"INFO","loggerName":"net.corda.node.internal.Node","message":"Vendor: Corda Open Source","endOfBatch":true,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":1,"threadPriority":5}
-{"instant":{"epochSecond":1612369055,"nanoOfSecond":12000000},"thread":"main","level":"INFO","loggerName":"net.corda.node.internal.Node","message":"Release: 4.6","endOfBatch":false,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":1,"threadPriority":5}
-{"instant":{"epochSecond":1612369055,"nanoOfSecond":12000000},"thread":"main","level":"INFO","loggerName":"net.corda.node.internal.Node","message":"Platform Version: 8","endOfBatch":false,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":1,"threadPriority":5}
-{"instant":{"epochSecond":1612369055,"nanoOfSecond":12000000},"thread":"main","level":"INFO","loggerName":"net.corda.node.internal.Node","message":"Revision: 85e387ea730d9be7d6dc2b23caba1ee18305af74","endOfBatch":false,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":1,"threadPriority":5}
-{"instant":{"epochSecond":1612369055,"nanoOfSecond":13000000},"thread":"main","level":"INFO","loggerName":"net.corda.node.internal.Node","message":"PID: 94369","endOfBatch":false,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":1,"threadPriority":5}
-. . .
-
+. . .More Node Startup loggings
 
 // when our flow is run we see the log we specified
 {"instant":{"epochSecond":1612460471,"nanoOfSecond":866000000},"thread":"pool-10-thread-2","level":"INFO","loggerName":"net.corda.tools.shell.FlowShellCommand","message":"Executing command \"flow start net.corda.samples.logging.flows.YoFlow target: PartyA\",","endOfBatch":true,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":224,"threadPriority":5}
 {"instant":{"epochSecond":1612460472,"nanoOfSecond":304000000},"thread":"Node thread-1","level":"INFO","loggerName":"net.corda","message":"Initializing the transaction.","endOfBatch":true,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","threadId":166,"threadPriority":5}
 {"instant":{"epochSecond":1612460472,"nanoOfSecond":428000000},"thread":"pool-10-thread-2","level":"WARN","loggerName":"net.corda.tools.shell.utlities.StdoutANSIProgressRenderer","message":"Cannot find console appender - progre
 ```
-
-
-## Concepts
-
-In the original yo application that this sample was based on, the app sent what is essentially a "yo" state from one node to another.
-Here we're highlighting how easy it is to issue log messages with arbitrary key value pairs, we have an example of this in our YoFlow.
-
-```java
-override fun call(): SignedTransaction {
-    // note we're creating a logger first with the shared name from our other example.
-    val logger = LoggerFactory.getLogger("net.corda")
-    progressTracker.currentStep = CREATING
-    val me = ourIdentity
-
-    // here we have our first opportunity to log out the contents of the flow arguments.
-    ThreadContext.put("initiator", me.name.toString())
-    ThreadContext.put("target", target.name.toString())
-    // publish to the log with the additional context
-    logger.info("Initializing the transaction.")
-    // flush the threadContext
-    ThreadContext.removeAll(Arrays.asList("initiator", "target"))
-
-    // Obtain a reference to a notary.
-    val notary = serviceHub.networkMapCache.notaryIdentities[0]
-    val command = Command(YoContract.Commands.Send(), Arrays.asList(me.owningKey))
-    val state = YoState(me, target)
-    val stateAndContract = StateAndContract(state, YoContract.ID)
-    val utx = TransactionBuilder(notary).withItems(stateAndContract, command)
-    progressTracker.currentStep = VERIFYING
-    utx.verify(serviceHub)
-    progressTracker.currentStep = SIGNING
-    val stx = serviceHub.signInitialTransaction(utx)
-
-    // inject details to the threadcontext to be exported as json
-    ThreadContext.put("tx_id", stx.id.toString())
-    ThreadContext.put("notary", notary.name.toString())
-    // publish to the log with the additional context
-    logger.info("Finalizing the transaction.")
-    // flush the threadContext
-    ThreadContext.removeAll(Arrays.asList("tx_id", "notary"))
-    progressTracker.currentStep = FINALISING
-    val targetSession = initiateFlow(target)
-
-    return subFlow(FinalityFlow(stx, listOf(targetSession), FINALISING.childProgressTracker()))
-}
-```
-
-
 
 ## Usage
 
@@ -107,11 +87,11 @@ Then type: (to run the nodes)
 ./build/nodes/runnodes
 ```
 
-When the nodes run you'll see the log entries in json on STDOUT, and you'll also be able to see the node's json log files in each folder.
+When the nodes run you'll be able to see the node's json log files in their respesctive `logs` folders.
 This logging configuration will add a new file that you can view.
 
 ```shell
-cat ./build/nodes/PartyA/logs/node.json
+tail -f  build/nodes/PartyA/logs/node.json
 
 {"instant":{"epochSecond":1612543764,"nanoOfSecond":930000000},"thread":"main","level":"INFO","loggerName":"net.corda.cliutils.CliWrapperBase","message":"Application Args: run-migration-scripts --core-schemas --app-schemas","endOfBatch":true,"loggerFqcn":"org.apache.logging.slf4j.Log4jLogger","contextMap":{},"threadId":1,"threadPriority":5}
 {"instant":{"epochSecond":1612543766,"nanoOfSecond":300000000}
