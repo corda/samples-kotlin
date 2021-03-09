@@ -27,16 +27,17 @@ data class InsuranceState(val policyNumber: String,
                           override val participants: List<AbstractParty> = listOf(insuree, insurer)) : QueryableState {
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         if (schema is InsuranceSchemaV1) {
-            var persistentClaims = ArrayList<InsuranceSchemaV1.PersistentClaim>()
+//            var persistentClaims = listOf<InsuranceSchemaV1.PersistentClaim>()
+            val persistentClaims : MutableList<InsuranceSchemaV1.PersistentClaim> = mutableListOf()
             if (claims.isNotEmpty()) {
                 for (item in claims) {
-                    persistentClaims.add(InsuranceSchemaV1.PersistentClaim(
-                            UUID.randomUUID(),
+                    persistentClaims += (InsuranceSchemaV1.PersistentClaim(
                             item.claimNumber,
                             item.claimDescription,
                             item.claimAmount))
                 }
             }
+
             var vDetail = InsuranceSchemaV1.PersistentVehicle(vehicleDetail.registrationNumber,
                     vehicleDetail.chasisNumber,
                     vehicleDetail.make,

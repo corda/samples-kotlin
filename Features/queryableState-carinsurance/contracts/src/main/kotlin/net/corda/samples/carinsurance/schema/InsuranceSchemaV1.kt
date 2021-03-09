@@ -1,6 +1,7 @@
 package net.corda.samples.carinsurance.schema
 
 //4.6 changes
+import jdk.nashorn.internal.objects.annotations.Constructor
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
 import org.hibernate.annotations.Type
@@ -41,6 +42,9 @@ object InsuranceSchemaV1 : MappedSchema(
             var claimAmount: Int
     ) {
         // Default constructor required by hibernate.
+        constructor(claimNumber: String,claimDescription: String,claimAmount: Int) : this(
+                UUID.randomUUID(), claimNumber,claimDescription,claimAmount)
+
         constructor() : this(UUID.randomUUID(), "", "", 0)
     }
 
@@ -98,6 +102,6 @@ object InsuranceSchemaV1 : MappedSchema(
             @JoinColumns(JoinColumn(name = "output_index", referencedColumnName = "output_index"), JoinColumn(name = "transaction_id", referencedColumnName = "transaction_id"))
             val claims: List<PersistentClaim>
     ) : PersistentState(), Serializable {
-        constructor() : this("", 0, 0, 0, PersistentVehicle(), listOf())
+        constructor() : this("", 0, 0, 0, PersistentVehicle(), listOf(PersistentClaim()))
     }
 }

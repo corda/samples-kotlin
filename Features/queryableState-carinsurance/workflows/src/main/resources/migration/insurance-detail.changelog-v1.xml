@@ -17,7 +17,6 @@
             <column name="insuredvalue" type="BIGINT"/>
             <column name="id" type="NVARCHAR(64)"/>
             <column name="registrationnumber" type="NVARCHAR(64)"/>
-
         </createTable>
     </changeSet>
 </databaseChangeLog>
