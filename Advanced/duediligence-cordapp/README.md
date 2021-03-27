@@ -1,7 +1,14 @@
-# due-diligence-cordapp
-<p align="center">
-  <img src="./image.png" alt="Corda">
-</p>
+# Due Diligence Cordapp
+
+This cordapp is an example of how blockchain can work in the capital market industry. Due diligence is commonly the first step of any action in the capital market. In many of the industry, it is also required by the regulators to prevent fraudulent and risky transactions. Each firm will have its own due-diligence process and standards, but at the same time, the cost of executing due diligence is also bared by them individually.
+
+## App Design
+
+
+The above picture is a high level mock overview of a shareable due diligence DLT app. BankA will initiate the original Corporate Records auditing with an autitor. Then it will share the auditiing report with BankB to save BankB's cost on getting the same report. Wise versa, BankB can work with a different auditor and produce a different report and share with BankA. In the implmentation of this sample cordapp, we will only cover one type of the file auditing. 
+
+Notes: another key feature of this app is whitlisting trusted auditors. It is done by utilizing attachment function in Corda. More samples on how to use attachment can be found in the [Features samples folder](../../Features)
+
 
 ## Pre-running the app
 
