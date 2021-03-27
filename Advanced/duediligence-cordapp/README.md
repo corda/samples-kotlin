@@ -4,7 +4,9 @@ This cordapp is an example of how blockchain can work in the capital market indu
 
 ## App Design
 
-
+<p align="center">
+  <img src="./due-d diagram.png" alt="Corda">
+</p>
 The above picture is a high level mock overview of a shareable due diligence DLT app. BankA will initiate the original Corporate Records auditing with an autitor. Then it will share the auditiing report with BankB to save BankB's cost on getting the same report. Wise versa, BankB can work with a different auditor and produce a different report and share with BankA. In the implmentation of this sample cordapp, we will only cover one type of the file auditing. 
 
 Notes: another key feature of this app is whitlisting trusted auditors. It is done by utilizing attachment function in Corda. More samples on how to use attachment can be found in the [Features samples folder](../../Features)
