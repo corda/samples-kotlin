@@ -25,6 +25,8 @@ buildscript { //properties that you need to build the project
         mavenCentral()
         jcenter()
         maven { url 'https://software.r3.com/artifactory/corda-releases' }
+        maven { url 'https://jitpack.io' }
+
     }
 
     dependencies {
@@ -46,6 +48,7 @@ allprojects { //Properties that you need to compile your project (The applicatio
         mavenCentral()
         maven { url 'https://software.r3.com/artifactory/corda' }
         maven { url 'https://jitpack.io' }
+        //maven { url 'https://repo.sovrin.org/repository/maven-public'}
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
@@ -89,8 +92,51 @@ dependencies {
     cordaCompile "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
     cordaCompile "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaCompile "org.slf4j:jul-to-slf4j:$slf4j_version"
+
+    cordapp "com.github.hyperledger-labs.cordentity:cordentity-cordapp:v0.5.0"
+    cordapp "com.github.hyperledger-labs.cordentity:cordentity-cordapp-contracts-states:v0.5.0"
 }
 
+task prepareDockerNodes(type: net.corda.plugins.Dockerform, dependsOn: ['jar']) {dockerImage="corda/corda-zulu-java1.8-4.6:latest"
+    nodeDefaults {
+        projectCordapp {
+            deploy = true
+        }
+        cordapp project(':workflows')
+        cordapp "com.github.hyperledger-labs.cordentity:cordentity-cordapp:v0.5.1"
+        cordapp "com.github.hyperledger-labs.cordentity:cordentity-cordapp-contracts-states:v0.5.1"
+        runSchemaMigration = false //This configuration is for any CorDapps with custom schema, We will leave this as true to avoid
+        //problems for developers who are not familiar with Corda. If you are not using custom schemas, you can change
+        //it to false for quicker project compiling time.
+    }
+    node {
+        name "O=Notary,L=London,C=GB"
+        notary = [validating: true]
+        p2pPort 10002
+        rpcSettings {
+            address("localhost:10003")
+            adminAddress("localhost:10043")
+        }
+    }
+    node {
+        name "O=PartyA,L=London,C=GB"
+        p2pPort 10005
+        rpcSettings {
+            address("localhost:10006")
+            adminAddress("localhost:10046")
+        }
+        rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
+    }
+    node {
+        name "O=PartyB,L=New York,C=US"
+        p2pPort 10008
+        rpcSettings {
+            address("localhost:10009")
+            adminAddress("localhost:10049")
+        }
+        rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
+    }
+}
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     /* This property will load the CorDapps to each of the node by default, including the Notary. You can find them
      * in the cordapps folder of the node at build/nodes/Notary/cordapps. However, the notary doesn't really understand
@@ -102,6 +148,8 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
             deploy = false
         }
         cordapp project(':workflows')
+        cordapp "com.github.hyperledger-labs.cordentity:cordentity-cordapp:v0.5.1"
+        cordapp "com.github.hyperledger-labs.cordentity:cordentity-cordapp-contracts-states:v0.5.1"
         runSchemaMigration = true //This configuration is for any CorDapps with custom schema, We will leave this as true to avoid
         //problems for developers who are not familiar with Corda. If you are not using custom schemas, you can change
         //it to false for quicker project compiling time.
