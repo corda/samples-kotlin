@@ -14,7 +14,7 @@
     <remote-repository>
       <option name="id" value="maven3" />
       <option name="name" value="maven3" />
-      <option name="url" value="https://repo.gradle.org/gradle/libs-releases" />
+      <option name="url" value="https://repo.gradle.org/artifactory/libs-releases" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="MavenRepo" />

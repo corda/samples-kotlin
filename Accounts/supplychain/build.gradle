@@ -50,7 +50,7 @@ allprojects {
         //SDK lib
         maven { url 'https://software.r3.com/artifactory/corda-lib' }
         //Gradle Plugins
-        maven { url 'https://repo.gradle.org/gradle/libs-releases' }
+        maven { url 'https://repo.gradle.org/artifactory/libs-releases' }
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
