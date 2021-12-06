@@ -8,6 +8,7 @@ import com.r3.corda.lib.accounts.workflows.flows.RequestKeyForAccount
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.AnonymousParty
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import java.util.*
@@ -70,14 +71,7 @@ class SendInvoice(
         val output = InvoiceState(amount, AnonymousParty(myKey),targetAcctAnonymousParty,UUID.randomUUID())
 
         // Obtain a reference from a notary we wish to use.
-        /**
-         *  METHOD 1: Take first notary on network, WARNING: use for test, non-prod environments, and single-notary networks only!*
-         *  METHOD 2: Explicit selection of notary by CordaX500Name - argument can by coded in flow or parsed from config (Preferred)
-         *
-         *  * - For production you always want to use Method 2 as it guarantees the expected notary is returned.
-         */
-        val notary = serviceHub.networkMapCache.notaryIdentities.single() // METHOD 1
-        // val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
         val transactionBuilder = TransactionBuilder(notary)
         transactionBuilder.addOutputState(output)

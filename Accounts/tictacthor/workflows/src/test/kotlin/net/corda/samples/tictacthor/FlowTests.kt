@@ -3,16 +3,14 @@ package net.corda.samples.tictacthor
 import com.r3.corda.lib.accounts.workflows.services.AccountService
 import com.r3.corda.lib.accounts.workflows.services.KeyManagementBackedAccountService
 import net.corda.core.contracts.UniqueIdentifier
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.vault.QueryCriteria.VaultQueryCriteria
 import net.corda.samples.tictacthor.accountsUtilities.CreateNewAccount
 import net.corda.samples.tictacthor.accountsUtilities.ShareAccountTo
 import net.corda.samples.tictacthor.flows.StartGameFlow
 import net.corda.samples.tictacthor.states.BoardState
 import net.corda.testing.common.internal.testNetworkParameters
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkParameters
-import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.TestCordapp
+import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -32,7 +30,9 @@ class FlowTests {
                 TestCordapp.findCordapp("net.corda.samples.tictacthor.flows"),
                 TestCordapp.findCordapp("com.r3.corda.lib.accounts.contracts"),
                 TestCordapp.findCordapp("com.r3.corda.lib.accounts.workflows")
-        ), networkParameters = testNetworkParameters(minimumPlatformVersion = 4)))
+        ), networkParameters = testNetworkParameters(minimumPlatformVersion = 4),
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+        ))
         a = network.createPartyNode()
         b = network.createPartyNode()
         network.runNetwork()
