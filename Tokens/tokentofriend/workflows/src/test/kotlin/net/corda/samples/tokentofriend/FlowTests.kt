@@ -1,9 +1,6 @@
 package net.corda.samples.tokentofriend
 
 import com.r3.corda.lib.tokens.contracts.states.NonFungibleToken
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkParameters
-import net.corda.testing.node.TestCordapp
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -11,12 +8,13 @@ import net.corda.samples.tokentofriend.flows.CreateMyToken
 import net.corda.samples.tokentofriend.flows.IssueToken
 import net.corda.samples.tokentofriend.states.CustomTokenState
 import net.corda.core.contracts.UniqueIdentifier
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.Vault
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.utilities.getOrThrow
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.singleIdentity
-import net.corda.testing.node.StartedMockNode
+import net.corda.testing.node.*
 import java.util.*
 import kotlin.test.assertEquals
 
@@ -35,7 +33,9 @@ class FlowTests {
                 TestCordapp.findCordapp("net.corda.samples.tokentofriend.flows"),
                 TestCordapp.findCordapp("com.r3.corda.lib.tokens.contracts"),
                 TestCordapp.findCordapp("com.r3.corda.lib.tokens.workflows")
-        ), networkParameters = testNetworkParameters(minimumPlatformVersion = 4)))
+        ), networkParameters = testNetworkParameters(minimumPlatformVersion = 4),
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+        ))
         a = network.createPartyNode()
         b = network.createPartyNode()
         c = network.createPartyNode()

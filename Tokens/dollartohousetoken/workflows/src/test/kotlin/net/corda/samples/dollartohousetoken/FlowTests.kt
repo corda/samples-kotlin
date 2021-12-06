@@ -2,16 +2,14 @@ package net.corda.samples.dollartohousetoken
 
 import com.google.common.collect.ImmutableList
 import net.corda.core.contracts.Amount
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.Vault.StateStatus
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.node.services.vault.QueryCriteria.LinearStateQueryCriteria
 import net.corda.samples.dollartohousetoken.flows.CreateAndIssueHouseToken
 import net.corda.samples.dollartohousetoken.states.HouseState
 import net.corda.testing.common.internal.testNetworkParameters
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkParameters
-import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.TestCordapp
+import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -32,7 +30,9 @@ class FlowTests {
                 TestCordapp.findCordapp("net.corda.samples.dollartohousetoken.flows"),
                 TestCordapp.findCordapp("com.r3.corda.lib.tokens.contracts"),
                 TestCordapp.findCordapp("com.r3.corda.lib.tokens.workflows")
-        ), networkParameters = testNetworkParameters(minimumPlatformVersion = 4)))
+        ), networkParameters = testNetworkParameters(minimumPlatformVersion = 4),
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+        ))
         a = network!!.createPartyNode(null)
         b = network!!.createPartyNode(null)
         network!!.runNetwork()

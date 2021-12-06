@@ -9,6 +9,7 @@ import com.r3.corda.lib.tokens.workflows.internal.flows.finality.ObserverAwareFi
 import com.r3.corda.lib.tokens.workflows.utilities.getPreferredNotary
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
@@ -52,7 +53,9 @@ class TransferBikeToken(val frameSerial: String,
 
         //send tokens
         val session = initiateFlow(holder)
-        val txBuilder = TransactionBuilder(getPreferredNotary(serviceHub))
+        // Obtain a reference from a notary we wish to use.
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
+        val txBuilder = TransactionBuilder(notary)
         addMoveNonFungibleTokens(txBuilder,serviceHub,frametokenPointer,holder)
         addMoveNonFungibleTokens(txBuilder,serviceHub,wheeltokenPointer,holder)
         val ptx = serviceHub.signInitialTransaction(txBuilder)
