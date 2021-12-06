@@ -2,6 +2,7 @@ package net.corda.samples.secretsanta
 
 import net.corda.core.contracts.UniqueIdentifier.Companion.fromString
 import net.corda.core.crypto.SecureHash
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.NetworkParameters
 import net.corda.samples.secretsanta.flows.CheckAssignedSantaFlow
 import net.corda.samples.secretsanta.flows.CreateSantaSessionFlow
@@ -34,7 +35,8 @@ class CheckAssignedSantaFlowTests {
                         TestCordapp.findCordapp("net.corda.samples.secretsanta.contracts"),
                         TestCordapp.findCordapp("net.corda.samples.secretsanta.flows")
                 ),
-                        networkParameters = testNetworkParameters
+                        networkParameters = testNetworkParameters,
+                        notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
                 ))
         santa = network.createNode(MockNodeParameters())
         elf = network.createNode(MockNodeParameters())

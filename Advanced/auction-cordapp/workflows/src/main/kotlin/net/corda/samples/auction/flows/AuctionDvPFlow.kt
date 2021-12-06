@@ -3,6 +3,7 @@ package net.corda.samples.auction.flows
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Amount
 import net.corda.core.flows.*
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.Vault
 import net.corda.core.node.services.queryBy
 import net.corda.core.node.services.vault.QueryCriteria
@@ -54,14 +55,7 @@ class AuctionDvPFlow(private val auctionId: UUID,
         // Create the transaction builder.
 
         // Obtain a reference from a notary we wish to use.
-        /**
-         *  METHOD 1: Take first notary on network, WARNING: use for test, non-prod environments, and single-notary networks only!*
-         *  METHOD 2: Explicit selection of notary by CordaX500Name - argument can by coded in flow or parsed from config (Preferred)
-         *
-         *  * - For production you always want to use Method 2 as it guarantees the expected notary is returned.
-         */
-        val notary = serviceHub.networkMapCache.notaryIdentities.single() // METHOD 1
-        // val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
         val txBuilderPre = TransactionBuilder(notary)
 

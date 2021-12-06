@@ -20,7 +20,8 @@ class CreateAndShareAccountFlow(private val accountName: String) : FlowLogic<Str
     override fun call(): String {
 
         //Call inbuilt CreateAccount flow to create the AccountInfo object
-        val notary = serviceHub.networkMapCache.notaryIdentities[0]
+        //notary
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
         val oracle = serviceHub.networkMapCache
                 .getNodeByLegalName(CordaX500Name.parse("O=Oracle,L=Mumbai,C=IN"))!!.legalIdentities[0]
         val parties = serviceHub.networkMapCache.allNodes.stream()

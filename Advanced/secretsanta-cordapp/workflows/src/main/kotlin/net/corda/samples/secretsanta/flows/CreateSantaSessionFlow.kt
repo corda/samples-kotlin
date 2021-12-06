@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.Suspendable
 import com.sun.istack.Nullable
 import net.corda.core.contracts.CommandData
 import net.corda.core.flows.*
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
@@ -34,7 +35,8 @@ class CreateSantaSessionFlow(
     @Throws(FlowException::class)
     override fun call(): SignedTransaction { // run an issuance transaction for a new secret santa game
         progressTracker.currentStep = CREATING
-        val notary = serviceHub.networkMapCache.notaryIdentities[0]
+        //notary
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
         val issuer = ourIdentity
         // elves 'own' a secret santa session
         val newSantaState = SantaSessionState(playerNames, playerEmails, issuer, owner)

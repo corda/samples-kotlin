@@ -9,6 +9,7 @@ import com.sun.istack.NotNull
 import net.corda.core.contracts.ContractState
 import net.corda.core.flows.*
 import net.corda.core.identity.AbstractParty
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.samples.snl.states.BoardConfig
@@ -22,7 +23,8 @@ class CreateBoardConfig private constructor() {
         @Suspendable
         @Throws(FlowException::class)
         override fun call(): SignedTransaction {
-            val notary = serviceHub.networkMapCache.notaryIdentities[0]
+            //notary
+            val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
             val accountService: AccountService = serviceHub.cordaService(KeyManagementBackedAccountService::class.java)
             val p1accountInfo = accountService.accountInfo(player1)
             if (p1accountInfo.size == 0) throw FlowException("Player $player1 doesn't exist!")
