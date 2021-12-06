@@ -3,6 +3,7 @@ package net.corda.samples.businessmembership.flows
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.ReferencedStateAndRef
 import net.corda.core.flows.*
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
@@ -27,8 +28,10 @@ class IssuePolicy(
 
         val (insurerMembership, CareProviderMembership) = businessNetworkPartialVerification(networkId, ourIdentity, careProvider)
 
+        // Obtain a reference from a notary we wish to use.
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
-        val builder = TransactionBuilder(serviceHub.networkMapCache.notaryIdentities.first())
+        val builder = TransactionBuilder(notary)
                 .addOutputState(outputState)
                 .addCommand(InsuranceStateContract.Commands.Issue(), ourIdentity.owningKey, careProvider.owningKey)
                 .addReferenceState(ReferencedStateAndRef(insurerMembership))

@@ -6,6 +6,7 @@ import net.corda.bn.flows.ModifyBusinessIdentityFlow
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StartableByRPC
+import net.corda.core.identity.CordaX500Name
 import net.corda.samples.businessmembership.states.CareProviderIdentity
 import net.corda.samples.businessmembership.states.InsurerIdentity
 
@@ -16,7 +17,8 @@ class AssignBNIdentity (
         private val bnIdentity: String) : FlowLogic<String>() {
     @Suspendable
     override fun call(): String {
-        val notary = serviceHub.networkMapCache.notaryIdentities.first()
+        // Obtain a reference from a notary we wish to use.
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
         if (this.firmType == "InsuranceFirm"){
             val insuranceIdentity = InsurerIdentity(bnIdentity).apply {
                 if (!isValid()) {
