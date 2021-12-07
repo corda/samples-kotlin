@@ -4,11 +4,13 @@ import net.corda.samples.referencestates.states.SanctionableIOUState
 import net.corda.samples.referencestates.states.SanctionedEntities
 import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.flows.NotaryException
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.utilities.getOrThrow
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.singleIdentity
 import net.corda.testing.node.MockNetwork
+import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNetworkParameters
 import net.corda.testing.node.StartedMockNode
 import org.junit.After
@@ -29,10 +31,10 @@ class IOUFlowTests {
     fun setup() {
         network = MockNetwork(
             listOf("net.corda.samples.referencestates.contracts"), MockNetworkParameters(
-                networkParameters = testNetworkParameters(
-                    minimumPlatformVersion = 4
-                )
-            )
+                networkParameters = testNetworkParameters(minimumPlatformVersion = 4),
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+
+        )
         )
         a = network.createPartyNode()
         b = network.createPartyNode()

@@ -1,7 +1,7 @@
 package net.corda.samples.referencestates.flows
 
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.StartedMockNode
+import net.corda.core.identity.CordaX500Name
+import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -16,7 +16,11 @@ class SanctionsFlowTests {
 
     @Before
     fun setup() {
-        network = MockNetwork(listOf("net.corda.samples.referencestates.contracts"))
+        network = MockNetwork(MockNetworkParameters(
+                cordappsForAllNodes = listOf(
+                        TestCordapp.findCordapp("net.corda.samples.referencestates.contracts")),
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+        ))
         a = network.createPartyNode()
         b = network.createPartyNode()
         c = network.createPartyNode()

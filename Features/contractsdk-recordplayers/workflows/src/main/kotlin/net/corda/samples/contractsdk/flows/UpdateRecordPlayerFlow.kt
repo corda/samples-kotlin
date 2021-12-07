@@ -6,6 +6,7 @@ import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.*
 import net.corda.core.identity.AbstractParty
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.node.services.vault.QueryCriteria.LinearStateQueryCriteria
@@ -46,7 +47,8 @@ class UpdateRecordPlayerFlow(stateId: UniqueIdentifier, needleId: String, magnet
         if (ourIdentity === input.dealer) {
             throw IllegalArgumentException("Only the dealer that sold this record player can service it!")
         }
-        val notary = serviceHub.networkMapCache.notaryIdentities[0]
+        // Obtain a reference from a notary we wish to use.
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
         val command = Command(
                 RecordPlayerContract.Commands.Update(),
                 Arrays.asList(manufacturer.owningKey, dealer.owningKey)

@@ -1,8 +1,10 @@
 package net.corda.samples.carinsurance.flows
 
 import com.google.common.collect.ImmutableList
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
 import net.corda.testing.node.MockNetwork
+import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNetworkParameters
 import net.corda.testing.node.TestCordapp
 import org.junit.After
@@ -11,10 +13,12 @@ import org.junit.Before
 import org.junit.Test
 
 class FlowTests {
-    private val network = MockNetwork(MockNetworkParameters(ImmutableList.of(
+    private val network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = ImmutableList.of(
             TestCordapp.findCordapp("net.corda.samples.carinsurance.contracts"),
             TestCordapp.findCordapp("net.corda.samples.carinsurance.flows")
-    )))
+    ),
+            notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+    ))
     private val a = network.createNode()
     private val b = network.createNode()
 

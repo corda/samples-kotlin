@@ -30,7 +30,7 @@ class FlowTests {
         network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
                 TestCordapp.findCordapp("net.corda.samples.notarychange.contracts"),
                 TestCordapp.findCordapp("net.corda.samples.notarychange.flows")
-        ), notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("NotaryA", "Toronto", "CA")),
+        ), notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("NotaryA", "London", "GB")),
                 MockNetworkNotarySpec(CordaX500Name("NotaryB", "Toronto", "CA")))))
         a = network!!.createPartyNode(null)
         b = network!!.createPartyNode(null)

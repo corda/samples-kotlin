@@ -1,6 +1,7 @@
 package net.corda.samples.dockerform.flows
 
 
+import net.corda.core.identity.CordaX500Name
 import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Before
@@ -20,7 +21,9 @@ class FlowTests {
         val mockNetwork = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
                 TestCordapp.findCordapp("net.corda.samples.dockerform.contracts"),
                 TestCordapp.findCordapp("net.corda.samples.dockerform.flows")
-        )))
+        ),
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+        ))
 
 
         a = mockNetwork.createNode(MockNodeParameters())

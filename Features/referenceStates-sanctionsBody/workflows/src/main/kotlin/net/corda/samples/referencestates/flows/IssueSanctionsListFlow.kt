@@ -11,6 +11,7 @@ import net.corda.core.flows.FinalityFlow
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
@@ -57,14 +58,7 @@ object IssueSanctionsListFlow {
         @Suspendable
         override fun call(): StateAndRef<SanctionedEntities> {
             // Obtain a reference from a notary we wish to use.
-            /**
-             *  METHOD 1: Take first notary on network, WARNING: use for test, non-prod environments, and single-notary networks only!*
-             *  METHOD 2: Explicit selection of notary by CordaX500Name - argument can by coded in flows or parsed from config (Preferred)
-             *
-             *  * - For production you always want to use Method 2 as it guarantees the expected notary is returned.
-             */
-            val notary = serviceHub.networkMapCache.notaryIdentities.single() // METHOD 1
-            // val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
+            val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
 
             // Stage 1.
             progressTracker.currentStep = GENERATING_TRANSACTION

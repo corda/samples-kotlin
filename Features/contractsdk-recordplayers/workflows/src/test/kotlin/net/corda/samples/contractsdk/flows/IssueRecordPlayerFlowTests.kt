@@ -3,15 +3,13 @@ package net.corda.samples.contractsdk.flows
 import com.google.common.collect.ImmutableList
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.crypto.SecureHash
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.node.NetworkParameters
 import net.corda.core.utilities.getOrThrow
 import net.corda.samples.contractsdk.states.Needle
 import net.corda.samples.contractsdk.states.RecordPlayerState
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkParameters
-import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.TestCordapp
+import net.corda.testing.node.*
 import org.jgroups.util.Util
 import org.junit.*
 import java.time.Instant
@@ -36,7 +34,9 @@ class IssueRecordPlayerFlowTests {
 
     @Before
     fun setup() {
-        network = MockNetwork(MockNetworkParameters().withCordappsForAllNodes(ImmutableList.of(
+        network = MockNetwork(MockNetworkParameters(
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+        ).withCordappsForAllNodes(ImmutableList.of(
                 TestCordapp.findCordapp("net.corda.samples.contractsdk.contracts"),
                 TestCordapp.findCordapp("net.corda.samples.contractsdk.flows"))).withNetworkParameters(testNetworkParameters)
         )
