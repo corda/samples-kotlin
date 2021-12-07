@@ -1,16 +1,14 @@
 package net.corda.samples.auction
 
 import net.corda.core.contracts.Amount
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
 import net.corda.samples.auction.flows.CreateAssetFlow
 import net.corda.samples.auction.flows.CreateAuctionFlow
 import net.corda.samples.auction.states.Asset
 import net.corda.samples.auction.states.AuctionState
 import net.corda.testing.common.internal.testNetworkParameters
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkParameters
-import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.TestCordapp
+import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -29,8 +27,10 @@ class FlowTests {
     fun setup() {
         network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
                 TestCordapp.findCordapp("net.corda.samples.auction.contracts"),
-                TestCordapp.findCordapp("net.corda.samples.auction.flows")
-        ), networkParameters = testNetworkParameters(minimumPlatformVersion = 4)))
+                TestCordapp.findCordapp("net.corda.samples.auction.flows")),
+                networkParameters = testNetworkParameters(minimumPlatformVersion = 4),
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+        ))
         a = network.createPartyNode()
         b = network.createPartyNode()
         network.runNetwork()

@@ -15,7 +15,9 @@ import kotlin.test.assertEquals
 class PrimesClientTests {
     private val mockNet = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
             TestCordapp.findCordapp("net.corda.samples.flows"),
-            TestCordapp.findCordapp("net.corda.samples.contracts"))))
+            TestCordapp.findCordapp("net.corda.samples.contracts")),
+            notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+    ))
     private lateinit var a: StartedMockNode
 
     @Before

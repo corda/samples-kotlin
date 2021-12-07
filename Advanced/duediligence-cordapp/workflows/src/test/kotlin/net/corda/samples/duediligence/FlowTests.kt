@@ -4,6 +4,7 @@ import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.UniqueIdentifier.Companion.fromString
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.Vault.RelevancyStatus
 import net.corda.core.node.services.Vault.StateStatus
 import net.corda.core.node.services.vault.QueryCriteria
@@ -29,7 +30,9 @@ class FlowTests {
         network = MockNetwork(MockNetworkParameters(
                 cordappsForAllNodes = listOf(
                         TestCordapp.findCordapp("net.corda.samples.duediligence.contracts"),
-                        TestCordapp.findCordapp("net.corda.samples.duediligence.flows"))))
+                        TestCordapp.findCordapp("net.corda.samples.duediligence.flows")),
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+        ))
         a = network.createPartyNode()
         b = network.createPartyNode()
         network.runNetwork()

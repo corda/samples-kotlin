@@ -1,6 +1,7 @@
 package net.corda.samples.postgres.flows
 
 
+import net.corda.core.identity.CordaX500Name
 import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Before
@@ -19,8 +20,9 @@ class FlowTests {
 
         val mockNetwork = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
                 TestCordapp.findCordapp("net.corda.samples.postgres.contracts"),
-                TestCordapp.findCordapp("net.corda.samples.postgres.flows")
-        )))
+                TestCordapp.findCordapp("net.corda.samples.postgres.flows")),
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+        ))
 
 
         a = mockNetwork.createNode(MockNodeParameters())

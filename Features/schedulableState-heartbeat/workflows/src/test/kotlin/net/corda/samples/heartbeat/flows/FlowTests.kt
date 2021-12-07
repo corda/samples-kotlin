@@ -1,11 +1,9 @@
 package net.corda.samples.heartbeat.flows
 
 import net.corda.client.rpc.notUsed
+import net.corda.core.identity.CordaX500Name
 import net.corda.testing.common.internal.testNetworkParameters
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkParameters
-import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.TestCordapp
+import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -21,7 +19,8 @@ class FlowTests {
                 MockNetworkParameters(threadPerNode = true, cordappsForAllNodes = listOf(
                         TestCordapp.findCordapp("net.corda.samples.heartbeat.flows"),
                         TestCordapp.findCordapp("net.corda.samples.heartbeat.contracts")),
-                        networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
+                        networkParameters = testNetworkParameters(minimumPlatformVersion = 4),
+                        notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
                 )
 
         )

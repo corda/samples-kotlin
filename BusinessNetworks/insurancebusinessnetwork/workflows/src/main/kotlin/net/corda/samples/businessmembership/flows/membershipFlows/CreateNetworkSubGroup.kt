@@ -5,6 +5,7 @@ import net.corda.bn.flows.CreateGroupFlow
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StartableByRPC
+import net.corda.core.identity.CordaX500Name
 
 @StartableByRPC
 class CreateNetworkSubGroup(private val networkId: String,
@@ -13,7 +14,8 @@ class CreateNetworkSubGroup(private val networkId: String,
 ) : FlowLogic<String>(){
     @Suspendable
     override fun call(): String {
-        val notary = serviceHub.networkMapCache.notaryIdentities.first()
+        // Obtain a reference from a notary we wish to use.
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
         val groupId = UniqueIdentifier()
         subFlow(CreateGroupFlow(this.networkId,groupId,this.groupName,this.groupParticipants,notary))
         return "\n${this.groupName} has created under BN network (${this.networkId})"+

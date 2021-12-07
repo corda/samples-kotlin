@@ -6,6 +6,7 @@ import groovy.util.GroovyTestCase.assertEquals
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
 import net.corda.testing.node.MockNetwork
+import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNetworkParameters
 import net.corda.testing.node.TestCordapp
 import org.junit.After
@@ -16,7 +17,9 @@ class FlowTests {
     private val network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
         TestCordapp.findCordapp("net.corda.samples.autopayroll.contracts"),
         TestCordapp.findCordapp("net.corda.samples.autopayroll.flows")
-    )))
+    ),
+            notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+    ))
     private val a = network.createNode()
     private val b = network.createNode()
     private val bank = network.createNode(CordaX500Name("BankOperator", "Toronto", "CA"))

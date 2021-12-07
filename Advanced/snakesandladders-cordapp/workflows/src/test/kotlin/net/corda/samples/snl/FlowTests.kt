@@ -3,14 +3,12 @@ package net.corda.samples.snl
 import com.r3.corda.lib.accounts.contracts.states.AccountInfo
 import com.r3.corda.lib.accounts.workflows.flows.CreateAccount
 import net.corda.core.contracts.StateAndRef
+import net.corda.core.identity.CordaX500Name
 import net.corda.samples.snl.flows.CreateBoardConfig
 import net.corda.samples.snl.flows.CreateGameFlow
 import net.corda.samples.snl.states.BoardConfig
 import net.corda.testing.common.internal.testNetworkParameters
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkParameters
-import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.TestCordapp
+import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -29,7 +27,9 @@ class FlowTests {
                 TestCordapp.findCordapp("com.r3.corda.lib.accounts.contracts"),
                 TestCordapp.findCordapp("com.r3.corda.lib.accounts.workflows"),
                 TestCordapp.findCordapp("com.r3.corda.lib.ci")
-        ), networkParameters = testNetworkParameters(minimumPlatformVersion = 4)))
+        ), networkParameters = testNetworkParameters(minimumPlatformVersion = 4),
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB"))))
+        )
         a = network.createPartyNode()
         b = network.createPartyNode()
         network.runNetwork()

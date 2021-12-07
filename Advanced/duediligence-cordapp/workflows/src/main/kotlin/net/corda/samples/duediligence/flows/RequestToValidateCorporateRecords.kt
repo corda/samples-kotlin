@@ -3,6 +3,7 @@ package net.corda.samples.duediligence.flows
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.flows.*
 import net.corda.core.flows.CollectSignaturesFlow.Companion.tracker
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
@@ -19,8 +20,9 @@ class RequestToValidateCorporateRecordsInitiator(
     @Suspendable
     @Throws(FlowException::class)
     override fun call(): String {
+
         //notary
-        val notary = serviceHub.networkMapCache.notaryIdentities[0]
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
         //Initiate Corporate Records validation
         val cr = CorporateRecordsAuditRequest(

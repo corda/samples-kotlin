@@ -4,11 +4,9 @@ import net.corda.samples.negotiation.flows.AcceptanceFlow
 import net.corda.samples.negotiation.flows.ModificationFlow
 import net.corda.samples.negotiation.flows.ProposalFlow
 import net.corda.core.contracts.UniqueIdentifier
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkParameters
-import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.TestCordapp
+import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Before
 
@@ -21,7 +19,9 @@ abstract class FlowTestsBase {
     fun setup() {
         network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
                 TestCordapp.findCordapp("net.corda.samples.negotiation.flows"),
-                TestCordapp.findCordapp("net.corda.samples.negotiation.contracts"))))
+                TestCordapp.findCordapp("net.corda.samples.negotiation.contracts")),
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+                ))
         a = network.createPartyNode()
         b = network.createPartyNode()
 

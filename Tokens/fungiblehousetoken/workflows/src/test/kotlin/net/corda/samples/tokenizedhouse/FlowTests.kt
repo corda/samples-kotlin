@@ -1,14 +1,12 @@
 package net.corda.samples.tokenizedhouse
 
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
 import net.corda.samples.tokenizedhouse.flows.CreateHouseTokenFlow
 import net.corda.samples.tokenizedhouse.flows.IssueHouseTokenFlow
 import net.corda.samples.tokenizedhouse.states.FungibleHouseTokenState
 import net.corda.testing.common.internal.testNetworkParameters
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkParameters
-import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.TestCordapp
+import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -27,7 +25,9 @@ class FlowTests {
                 TestCordapp.findCordapp("net.corda.samples.tokenizedhouse.flows"),
                 TestCordapp.findCordapp("com.r3.corda.lib.tokens.contracts"),
                 TestCordapp.findCordapp("com.r3.corda.lib.tokens.workflows")
-        ), networkParameters = testNetworkParameters(minimumPlatformVersion = 4)))
+        ), networkParameters = testNetworkParameters(minimumPlatformVersion = 4),
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+        ))
         a = network!!.createPartyNode(null)
         b = network!!.createPartyNode(null)
         network!!.runNetwork()

@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateAndContract
 import net.corda.core.flows.*
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
@@ -40,8 +41,8 @@ class YoFlow(private val target: Party) : FlowLogic<SignedTransaction?>() {
         progressTracker.currentStep = CREATING
         val me = ourIdentity
 
-        // Obtain a reference to a notary.
-        val notary = serviceHub.networkMapCache.notaryIdentities[0]
+// Obtain a reference from a notary we wish to use.
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
         val command = Command(YoContract.Commands.Send(), Arrays.asList(me.owningKey))
         val state = YoState(me, target)
         val stateAndContract = StateAndContract(state, YoContract.ID)

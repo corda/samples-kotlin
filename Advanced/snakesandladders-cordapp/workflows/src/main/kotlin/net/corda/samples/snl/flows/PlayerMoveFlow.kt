@@ -34,7 +34,9 @@ class PlayerMoveFlow private constructor() {
         @Suspendable
         @Throws(FlowException::class)
         override fun call(): SignedTransaction {
-            val notary = serviceHub.networkMapCache.notaryIdentities[0]
+            //notary
+            val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
+
             val accountService: AccountService = serviceHub.cordaService(KeyManagementBackedAccountService::class.java)
 
             //Get current player account info

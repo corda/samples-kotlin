@@ -2,6 +2,7 @@ package net.corda.samples.blacklist.flows
 
 import net.corda.core.contracts.TransactionVerificationException
 import net.corda.core.crypto.SecureHash
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
@@ -9,10 +10,7 @@ import net.corda.core.utilities.getOrThrow
 import net.corda.examples.attachments.BLACKLIST_JAR_PATH
 import net.corda.examples.attachments.INCORRECT_JAR_PATH
 import net.corda.samples.blacklist.states.AgreementState
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkParameters
-import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.TestCordapp
+import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -34,7 +32,9 @@ class FlowTests {
     @Before
     fun setup() {
         network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
-                TestCordapp.findCordapp("net.corda.samples.blacklist.contracts"))))
+                TestCordapp.findCordapp("net.corda.samples.blacklist.contracts")),
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+        ))
         a = network.createNode()
         b = network.createNode()
         aIdentity = a.info.legalIdentities.first()

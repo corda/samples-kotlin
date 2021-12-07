@@ -11,6 +11,7 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.UniqueIdentifier.Companion.fromString
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StartableByRPC
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.dollartohousetoken.states.HouseState
@@ -31,17 +32,8 @@ class CreateAndIssueHouseToken(val owner: Party,
 
     @Suspendable
     override fun call():String {
-        /* Choose the notary for the transaction */
-
         // Obtain a reference from a notary we wish to use.
-        /**
-         *  METHOD 1: Take first notary on network, WARNING: use for test, non-prod environments, and single-notary networks only!*
-         *  METHOD 2: Explicit selection of notary by CordaX500Name - argument can by coded in flow or parsed from config (Preferred)
-         *
-         *  * - For production you always want to use Method 2 as it guarantees the expected notary is returned.
-         */
-        val notary = serviceHub.networkMapCache.notaryIdentities.single() // METHOD 1
-        // val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
         /* Get a reference of own identity */
         val issuer = ourIdentity
@@ -51,7 +43,7 @@ class CreateAndIssueHouseToken(val owner: Party,
         val houseState = HouseState(UniqueIdentifier(),Arrays.asList(issuer),valuationOfHouse,noOfBedRooms,constructionArea,additionInfo,address)
 
         /* Create an instance of TransactionState using the houseState token and the notary */
-        val transactionState = houseState withNotary notary
+        val transactionState = houseState withNotary notary!!
 
         /* Create the house token. TokenSDK provides the CreateEvolvableTokens flow which could be called to create an evolvable token in the ledger.*/
         subFlow(CreateEvolvableTokens(transactionState))
