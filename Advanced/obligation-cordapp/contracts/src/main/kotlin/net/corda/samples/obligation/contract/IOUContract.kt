@@ -22,7 +22,7 @@ class IOUContract : Contract {
      * function to check for a number of commands which implement this interface.
      */
     interface Commands : CommandData {
-
+        class Issue : TypeOnlyCommandData(), Commands
     }
 
     /**
@@ -30,6 +30,15 @@ class IOUContract : Contract {
      * The constraints are self documenting so don't require any additional explanation.
      */
     override fun verify(tx: LedgerTransaction) {
+        val command = tx.commands.requireSingleCommand<Commands>()
 
+        when (command.value) {
+            is Commands.Issue -> verifyIssuance(tx, command)
+            else -> throw RuntimeException("Unrecognised command in this contract.")
+        }
+    }
+
+    private fun verifyIssuance(tx: LedgerTransaction, commandData: CommandWithParties<Commands>) {
+        //todo
     }
 }
