@@ -5,7 +5,7 @@ import com.tutorial.flows.CreateAndIssueAppleStampInitiator
 import com.tutorial.flows.PackApplesInitiator
 import com.tutorial.flows.RedeemApplesInitiator
 import com.tutorial.states.AppleStamp
-import com.tutorial.states.BasketOfApple
+import com.tutorial.states.BasketOfApples
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.node.services.Vault.StateStatus
 import net.corda.core.node.services.vault.QueryCriteria
@@ -41,10 +41,10 @@ class RedeemApplesWithStampTest {
 
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
-    fun buyerRedeemBasketOfApple() {
+    fun buyerRedeemBasketOfApples() {
         //Create Basket of Apples
-        val createBasketOfApple = PackApplesInitiator("Fuji4072", 10)
-        val future: Future<SignedTransaction> = a!!.startFlow(createBasketOfApple)
+        val createBasketOfApples = PackApplesInitiator("Fuji4072", 10)
+        val future: Future<SignedTransaction> = a!!.startFlow(createBasketOfApples)
         network!!.runNetwork()
 
         //Issue Apple Stamp
@@ -63,7 +63,7 @@ class RedeemApplesWithStampTest {
         //successful query means the state is stored at node b's vault. Flow went through.
         val outputCriteria: QueryCriteria = QueryCriteria.VaultQueryCriteria().withStatus(StateStatus.UNCONSUMED)
         val state = b!!.services.vaultService
-                .queryBy(BasketOfApple::class.java, outputCriteria).states[0].state.data
+                .queryBy(BasketOfApples::class.java, outputCriteria).states[0].state.data
         assert(state.description == "Fuji4072")
     }
 }

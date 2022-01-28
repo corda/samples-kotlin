@@ -1,26 +1,24 @@
 package com.tutorial.contracts
 
 import com.tutorial.states.AppleStamp
-import com.tutorial.states.BasketOfApple
+import com.tutorial.states.BasketOfApples
 import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.Contract
-import net.corda.core.contracts.Requirements
-import net.corda.core.contracts.Requirements.using
 import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
 
-class BasketOfAppleContract : Contract {
+class BasketOfApplesContract : Contract {
     @Throws(IllegalArgumentException::class)
     override fun verify(tx: LedgerTransaction) {
         //Extract the command from the transaction.
         val commandData = tx.commands[0].value
-        val output = tx.outputsOfType(BasketOfApple::class.java)[0]
+        val output = tx.outputsOfType(BasketOfApples::class.java)[0]
 
         when (commandData) {
-            is Commands.packToBasket -> requireThat {
-                "This transaction should only output one BasketOfApple state".using(tx.outputs.size == 1)
-                "The output BasketOfApple state should have clear description of Apple product".using(output.description != "")
-                "The output BasketOfApple state should have non zero weight".using(output.weight > 0)
+            is Commands.packBasket -> requireThat {
+                "This transaction should only output one BasketOfApples state".using(tx.outputs.size == 1)
+                "The output BasketOfApples state should have clear description of Apple product".using(output.description != "")
+                "The output BasketOfApples state should have non zero weight".using(output.weight > 0)
                 null
             }
             is Commands.Redeem -> requireThat {
@@ -35,12 +33,12 @@ class BasketOfAppleContract : Contract {
 
     // Used to indicate the transaction's intent.
     interface Commands : CommandData {
-        class packToBasket : Commands
+        class packBasket : Commands
         class Redeem : Commands
     }
 
     companion object {
         // This is used to identify our contract when building a transaction.
-        const val ID = "com.tutorial.contracts.BasketOfAppleContract"
+        const val ID = "com.tutorial.contracts.BasketOfApplesContract"
     }
 }

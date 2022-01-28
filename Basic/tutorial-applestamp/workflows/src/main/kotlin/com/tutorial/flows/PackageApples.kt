@@ -1,8 +1,8 @@
 package com.tutorial.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import com.tutorial.contracts.BasketOfAppleContract.Commands.packToBasket
-import com.tutorial.states.BasketOfApple
+import com.tutorial.contracts.BasketOfApplesContract.Commands.packBasket
+import com.tutorial.states.BasketOfApples
 import net.corda.core.flows.*
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
@@ -24,12 +24,12 @@ class PackApplesInitiator(private val appleDescription: String, private val weig
         //final Party notary = getServiceHub().getNetworkMapCache().getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")); // METHOD 2
 
         //Create the output object
-        val basket = BasketOfApple(description = appleDescription, farm = ourIdentity, weight = weight)
+        val basket = BasketOfApples(description = appleDescription, farm = ourIdentity, weight = weight)
 
         //Building transaction
         val txBuilder = TransactionBuilder(notary)
                 .addOutputState(basket)
-                .addCommand(packToBasket(), ourIdentity.owningKey)
+                .addCommand(packBasket(), ourIdentity.owningKey)
 
         // Verify the transaction
         txBuilder.verify(serviceHub)

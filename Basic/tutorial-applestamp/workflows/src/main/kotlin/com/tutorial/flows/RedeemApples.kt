@@ -1,9 +1,9 @@
 package com.tutorial.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import com.tutorial.contracts.BasketOfAppleContract
+import com.tutorial.contracts.BasketOfApplesContract
 import com.tutorial.states.AppleStamp
-import com.tutorial.states.BasketOfApple
+import com.tutorial.states.BasketOfApples
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.*
@@ -38,22 +38,22 @@ class RedeemApplesInitiator(private val buyer: Party, private val stampId: Uniqu
                 .withRelevancyStatus(RelevancyStatus.RELEVANT)
         val appleStampStateAndRef: StateAndRef<*> = serviceHub.vaultService.queryBy(AppleStamp::class.java, inputCriteria).states.get(0)
 
-        //Query output basketOfApple
+        //Query output BasketOfApples
         val outputCriteria: QueryCriteria = QueryCriteria.VaultQueryCriteria()
                 .withStatus(StateStatus.UNCONSUMED)
                 .withRelevancyStatus(RelevancyStatus.RELEVANT)
-        val basketOfAppleStateAndRef: StateAndRef<*> = serviceHub.vaultService.queryBy(BasketOfApple::class.java, outputCriteria).states[0]
-        val originalBasketOfApple = basketOfAppleStateAndRef.state.data as BasketOfApple
+        val BasketOfApplesStateAndRef: StateAndRef<*> = serviceHub.vaultService.queryBy(BasketOfApples::class.java, outputCriteria).states[0]
+        val originalBasketOfApples = BasketOfApplesStateAndRef.state.data as BasketOfApples
 
         //Modify output to address the owner change
-        val output = originalBasketOfApple.changeOwner(buyer)
+        val output = originalBasketOfApples.changeOwner(buyer)
 
         //Build Transaction
         val txBuilder = TransactionBuilder(notary)
                 .addInputState(appleStampStateAndRef)
-                .addInputState(basketOfAppleStateAndRef)
-                .addOutputState(output, BasketOfAppleContract.ID)
-                .addCommand(BasketOfAppleContract.Commands.Redeem(),
+                .addInputState(BasketOfApplesStateAndRef)
+                .addOutputState(output, BasketOfApplesContract.ID)
+                .addCommand(BasketOfApplesContract.Commands.Redeem(),
                         Arrays.asList(ourIdentity.owningKey, buyer.owningKey))
 
         // Verify that the transaction is valid.
