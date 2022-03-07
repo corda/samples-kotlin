@@ -1,6 +1,6 @@
 repositories {
     mavenLocal()
-    jcenter()
+
     mavenCentral()
     maven { url 'https://dl.bintray.com/kotlin/exposed' }
     maven { url 'https://jitpack.io' }
