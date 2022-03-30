@@ -18,12 +18,19 @@ buildscript { //properties that you need to build the project
         //springboot
         spring_boot_version = '2.0.2.RELEASE'
         spring_boot_gradle_plugin_version = '2.0.2.RELEASE'
+        //re-issuance
+        reissuance_release_group = 'com.r3.corda.lib.reissuance'
+        reissuance_release_version = '1.0-GA'
+        //TokenSDK
+        confidential_id_release_group = 'com.r3.corda.lib.ci'
+        confidential_id_release_version = '1.0'
+        tokens_release_version = '1.2'
+        tokens_release_group = 'com.r3.corda.lib.tokens'
     }
 
     repositories {
         mavenLocal()
         mavenCentral()
-
         maven { url 'https://software.r3.com/artifactory/corda-releases' }
     }
 
@@ -42,9 +49,9 @@ allprojects { //Properties that you need to compile your project (The applicatio
 
     repositories {
         mavenLocal()
-
         mavenCentral()
         maven { url 'https://software.r3.com/artifactory/corda' }
+        maven { url 'https://software.r3.com/artifactory/corda-lib' }
         maven { url 'https://jitpack.io' }
     }
 
@@ -86,6 +93,15 @@ dependencies {
     // CorDapp dependencies.
     cordapp project(":workflows")
     cordapp project(":contracts")
+    cordapp "$reissuance_release_group:reissuance-cordapp-contracts:$reissuance_release_version"
+    cordapp "$reissuance_release_group:reissuance-cordapp-workflows:$reissuance_release_version"
+
+    // Token SDK dependencies.
+    cordapp "$tokens_release_group:tokens-contracts:$tokens_release_version"
+    cordapp "$tokens_release_group:tokens-workflows:$tokens_release_version"
+
+    // CI dependencies.
+    cordapp "$confidential_id_release_group:ci-workflows:$confidential_id_release_version"
 
     cordaCompile "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
     cordaCompile "org.apache.logging.log4j:log4j-web:${log4j_version}"
@@ -106,6 +122,11 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         }
         cordapp project(':contracts')
         cordapp project(':workflows')
+        cordapp "$reissuance_release_group:reissuance-cordapp-contracts:$reissuance_release_version"
+        cordapp "$reissuance_release_group:reissuance-cordapp-workflows:$reissuance_release_version"
+        cordapp "$tokens_release_group:tokens-contracts:$tokens_release_version"
+        cordapp "$tokens_release_group:tokens-workflows:$tokens_release_version"
+        cordapp "$confidential_id_release_group:ci-workflows:$confidential_id_release_version"
         runSchemaMigration = true //This configuration is for any CorDapps with custom schema, We will leave this as true to avoid
         //problems for developers who are not familiar with Corda. If you are not using custom schemas, you can change
         //it to false for quicker project compiling time.
@@ -137,55 +158,14 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         }
         rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
+    node {
+        name "O=PartyC,L=New York,C=US"
+        p2pPort 10011
+        rpcSettings {
+            address("localhost:10012")
+            adminAddress("localhost:10052")
+        }
+        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
+    }
 
 }
-
-task prepareDockerNodes(type: net.corda.plugins.Dockerform, dependsOn: ['jar']) {
-
-    dockerImage = "corda/corda-zulu-java1.8-" + corda_release_version + ":latest"
-
-    nodeDefaults {
-        projectCordapp {
-            deploy = false
-        }
-        cordapp project("contracts")
-        cordapp project("workflows")
-        runSchemaMigration = true
-        rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
-    }
-
-    node {
-        name "O=Notary,L=London,C=GB"
-        notary = [validating: false]
-        p2pPort 10001
-        p2pAddress "0.0.0.0"
-        rpcSettings {
-            address("0.0.0.0:10011")
-            adminAddress("0.0.0.0:10041")
-        }
-        sshdPort 2221
-    }
-
-    node {
-        name "O=PartyA,L=London,C=GB"
-        p2pPort 10002
-        p2pAddress "0.0.0.0"
-        rpcSettings {
-            address("0.0.0.0:10012")
-            adminAddress("0.0.0.0:10042")
-        }
-        sshdPort 2222
-    }
-
-    node {
-        name "O=PartyB,L=New York,C=US"
-        p2pPort 10003
-        p2pAddress "0.0.0.0"
-        rpcSettings {
-            address("0.0.0.0:10013")
-            adminAddress("0.0.0.0:10043")
-        }
-        sshdPort 2223
-    }
-}
-
