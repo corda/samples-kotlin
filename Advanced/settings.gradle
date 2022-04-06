@@ -1,0 +1,7 @@
+includeBuild 'auction-cordapp'
+includeBuild 'duediligence-cordapp'
+includeBuild 'negotiation-cordapp'
+includeBuild 'obligation-cordapp'
+includeBuild 'secretsanta-cordapp'
+includeBuild 'snakesandladders-cordapp'
+includeBuild 'syndicated-lending'

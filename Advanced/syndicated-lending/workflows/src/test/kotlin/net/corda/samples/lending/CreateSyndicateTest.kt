@@ -1,7 +1,5 @@
 package net.corda.samples.lending
 
-import groovy.util.GroovyTestCase
-import groovy.util.GroovyTestCase.assertEquals
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.Vault
 import net.corda.core.node.services.vault.QueryCriteria
@@ -16,6 +14,7 @@ import net.corda.samples.lending.states.SyndicateState
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.node.*
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.Future
@@ -46,7 +45,9 @@ class CreateSyndicateTest {
 
     @After
     fun tearDown() {
-        network.stopNodes()
+        if (::network.isInitialized) {
+            network.stopNodes()
+        }
     }
 
     @Test

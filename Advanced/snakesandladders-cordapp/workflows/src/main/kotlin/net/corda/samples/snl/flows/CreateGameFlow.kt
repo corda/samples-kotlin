@@ -32,22 +32,22 @@ class CreateGameFlow private constructor() {
             val p1accountInfo = accountService.accountInfo(player1)
             if (p1accountInfo.size == 0) throw FlowException("Player $player1 doesn't exist!")
             val p2accountInfo = accountService.accountInfo(player2)
-            if (p1accountInfo.size == 0) throw FlowException("Player $player2 doesn't exist!")
+            if (p1accountInfo.isEmpty()) throw FlowException("Player $player2 doesn't exist!")
             val player1: AbstractParty = subFlow(RequestKeyForAccount(p1accountInfo[0].state.data))
             val player2: AbstractParty = subFlow(RequestKeyForAccount(p2accountInfo[0].state.data))
             val gameBoard = GameBoard(UniqueIdentifier(null, UUID.randomUUID()),
                     player1, player2, this.player1, 1, 1, null, 0)
             val boardConfigList = serviceHub.vaultService.queryBy(BoardConfig::class.java).states
-            if (boardConfigList.size == 0) throw FlowException("Please create board config first")
+            if (boardConfigList.isEmpty()) throw FlowException("Please create board config first")
             val transactionBuilder = TransactionBuilder(notary)
                     .addOutputState(gameBoard)
-                    .addCommand(Create(), Arrays.asList(player1.owningKey, player2.owningKey))
+                    .addCommand(Create(), listOf(player1.owningKey, player2.owningKey))
                     .addReferenceState(ReferencedStateAndRef(boardConfigList[0]))
             transactionBuilder.verify(serviceHub)
             val selfSignedTransaction = serviceHub.signInitialTransaction(transactionBuilder, player1.owningKey)
             val player2Session = initiateFlow(p2accountInfo[0].state.data.host)
             val signedTransaction = subFlow(CollectSignaturesFlow(selfSignedTransaction, listOf(player2Session), listOf(player1.owningKey)))
-            if (!p2accountInfo[0].state.data.host.equals(ourIdentity)) {
+            if (p2accountInfo[0].state.data.host != ourIdentity) {
                 subFlow(FinalityFlow(signedTransaction, listOf(player2Session)))
                 try {
                     accountService.shareStateAndSyncAccounts(signedTransaction
@@ -73,7 +73,7 @@ class CreateGameFlow private constructor() {
                     // Custom Logic to validate transaction.
                 }
             })
-            return if (!counterpartySession.counterparty.equals(ourIdentity)) subFlow(ReceiveFinalityFlow(counterpartySession)) else null
+            return if (counterpartySession.counterparty != ourIdentity) subFlow(ReceiveFinalityFlow(counterpartySession)) else null
         }
     }
 }

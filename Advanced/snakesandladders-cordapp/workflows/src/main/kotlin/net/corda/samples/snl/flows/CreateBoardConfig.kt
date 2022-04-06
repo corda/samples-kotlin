@@ -27,9 +27,9 @@ class CreateBoardConfig private constructor() {
             val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
             val accountService: AccountService = serviceHub.cordaService(KeyManagementBackedAccountService::class.java)
             val p1accountInfo = accountService.accountInfo(player1)
-            if (p1accountInfo.size == 0) throw FlowException("Player $player1 doesn't exist!")
+            if (p1accountInfo.isEmpty()) throw FlowException("Player $player1 doesn't exist!")
             val p2accountInfo = accountService.accountInfo(player2)
-            if (p1accountInfo.size == 0) throw FlowException("Player $player2 doesn't exist!")
+            if (p1accountInfo.isEmpty()) throw FlowException("Player $player2 doesn't exist!")
             val player1: AbstractParty = subFlow(RequestKeyForAccount(p1accountInfo[0].state.data))
             val player2: AbstractParty = subFlow(RequestKeyForAccount(p2accountInfo[0].state.data))
             val ladderPositions: MutableMap<Int, Int> = LinkedHashMap()
@@ -46,15 +46,15 @@ class CreateBoardConfig private constructor() {
             snakePositions[93] = 89
             snakePositions[95] = 75
             snakePositions[99] = 21
-            val boardConfig = BoardConfig(ladderPositions, snakePositions, Arrays.asList(player1, player2))
+            val boardConfig = BoardConfig(ladderPositions, snakePositions, listOf(player1, player2))
             val transactionBuilder = TransactionBuilder(notary)
                     .addOutputState(boardConfig)
-                    .addCommand(Create(), Arrays.asList(player1.owningKey, player2.owningKey))
+                    .addCommand(Create(), listOf(player1.owningKey, player2.owningKey))
             transactionBuilder.verify(serviceHub)
             val selfSignedTransaction = serviceHub.signInitialTransaction(transactionBuilder, player1.owningKey)
             val player2Session = initiateFlow(p2accountInfo[0].state.data.host)
             var signedTransaction = subFlow(CollectSignaturesFlow(selfSignedTransaction, listOf(player2Session), setOf(player1.owningKey)))
-            return if (!p2accountInfo[0].state.data.host.equals(ourIdentity)) {
+            return if (p2accountInfo[0].state.data.host != ourIdentity) {
                 signedTransaction = subFlow(FinalityFlow(signedTransaction, listOf(player2Session)))
                 try {
                     accountService.shareStateAndSyncAccounts(signedTransaction
@@ -80,7 +80,7 @@ class CreateBoardConfig private constructor() {
                     // Custom Logic to validate transaction.
                 }
             })
-            return if (!counterpartySession.counterparty.equals(ourIdentity)) subFlow(ReceiveFinalityFlow(counterpartySession)) else null
+            return if (counterpartySession.counterparty != ourIdentity) subFlow(ReceiveFinalityFlow(counterpartySession)) else null
         }
     }
 }

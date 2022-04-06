@@ -10,10 +10,10 @@ class BoardConfigContract : Contract {
     @Throws(IllegalArgumentException::class)
     override fun verify(tx: LedgerTransaction) {
         // Contract verification logic should be implemented here
-        if (tx.outputStates.size != 1 || tx.inputStates.size != 0) throw IllegalArgumentException("Zero Input and One Output Expected")
+        if (tx.outputStates.size != 1 || tx.inputStates.isNotEmpty()) throw IllegalArgumentException("Zero Input and One Output Expected")
         if (tx.getOutput(0) !is BoardConfig) throw IllegalArgumentException("Output of type BoardConfig expected")
         val boardConfig = tx.getOutput(0) as BoardConfig
-        if (boardConfig.snakePositions == null || boardConfig.snakePositions.size == 0 || boardConfig.ladderPositions == null || boardConfig.ladderPositions.size == 0) throw IllegalArgumentException("Snake and Ladder Positions should not be empty or null")
+        if (boardConfig.snakePositions == null || boardConfig.snakePositions.isEmpty() || boardConfig.ladderPositions == null || boardConfig.ladderPositions.size == 0) throw IllegalArgumentException("Snake and Ladder Positions should not be empty or null")
     }
 
     interface Commands : CommandData {

@@ -10,7 +10,7 @@ import net.corda.samples.snl.states.BoardConfig
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.node.*
 import org.junit.After
-import org.junit.Assert
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 
@@ -37,9 +37,10 @@ class FlowTests {
 
     @After
     fun tearDown() {
-        network.stopNodes()
+        if (::network.isInitialized) {
+            network.stopNodes()
+        }
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -55,7 +56,7 @@ class FlowTests {
         network.runNetwork()
         val signedTransaction = signedTransactionCordaFuture.get()
         val boardConfig = signedTransaction.tx.getOutput(0) as BoardConfig
-        Assert.assertNotNull(boardConfig)
+        assertNotNull(boardConfig)
     }
 
 
@@ -75,6 +76,6 @@ class FlowTests {
         val signedTransactionCordaFuture1 = a.startFlow(createGameFlow)
         network.runNetwork()
         val gameId = signedTransactionCordaFuture1.get()
-        Assert.assertNotNull(gameId)
+        assertNotNull(gameId)
     }
 }

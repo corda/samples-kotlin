@@ -1,7 +1,6 @@
 package net.corda.samples.secretsanta.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import com.sun.istack.Nullable
 import net.corda.core.contracts.CommandData
 import net.corda.core.flows.*
 import net.corda.core.identity.CordaX500Name
@@ -11,6 +10,7 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.secretsanta.contracts.SantaSessionContract
 import net.corda.samples.secretsanta.states.SantaSessionState
+import org.jetbrains.annotations.Nullable
 
 
 /**

@@ -14,11 +14,11 @@ Notes: another key feature of this app is whitlisting trusted auditors. It is do
 
 ## Pre-running the app
 
-Deploying nodes: `./gradlew clean deployNodes`
+Deploying nodes: `../gradlew clean deployNodes`
 
 Starting the nodes: `./build/nodes/runnodes`
 
-Uploading whitelisted Auditors: `./gradlew uploadWhitelists`
+Uploading whitelisted Auditors: `../gradlew uploadWhitelists`
 
 
 

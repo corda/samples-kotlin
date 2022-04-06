@@ -1,6 +1,5 @@
 package net.corda.samples.obligation.flow
 
-import groovy.util.GroovyTestCase.assertEquals
 import net.corda.samples.obligation.flows.IOUIssueFlowResponder
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.TransactionVerificationException
@@ -14,7 +13,11 @@ import net.corda.testing.node.*
 import net.corda.samples.obligation.contract.IOUContract
 import net.corda.samples.obligation.flows.IOUIssueFlow
 import net.corda.samples.obligation.states.IOUState
-import org.junit.*
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
 import kotlin.test.assertFailsWith
 
 /**
@@ -26,9 +29,9 @@ import kotlin.test.assertFailsWith
  * On some machines/configurations you may have to use the "JAR manifest" option for shortening the command line.
  */
 class IOUIssueFlowTests {
-    lateinit var mockNetwork: MockNetwork
-    lateinit var a: StartedMockNode
-    lateinit var b: StartedMockNode
+    private lateinit var mockNetwork: MockNetwork
+    private lateinit var a: StartedMockNode
+    private lateinit var b: StartedMockNode
 
     @Before
     fun setup() {
@@ -46,7 +49,9 @@ class IOUIssueFlowTests {
 
     @After
     fun tearDown() {
-        mockNetwork.stopNodes()
+        if (::mockNetwork.isInitialized) {
+            mockNetwork.stopNodes()
+        }
     }
 
     /**
@@ -80,11 +85,11 @@ class IOUIssueFlowTests {
         println(ptx.tx)
         // Check the transaction is well formed...
         // No outputs, one input IOUState and a command with the right properties.
-        assert(ptx.tx.inputs.isEmpty())
-        assert(ptx.tx.outputs.single().data is IOUState)
+        assertTrue(ptx.tx.inputs.isEmpty())
+        assertTrue(ptx.tx.outputs.single().data is IOUState)
         val command = ptx.tx.commands.single()
-        assert(command.value is IOUContract.Commands.Issue)
-        assert(command.signers.toSet() == iou.participants.map { it.owningKey }.toSet())
+        assertTrue(command.value is IOUContract.Commands.Issue)
+        assertEquals(iou.participants.mapTo(HashSet()) { it.owningKey }, command.signers.toSet())
         ptx.verifySignaturesExcept(
             borrower.owningKey,
             mockNetwork.defaultNotaryNode.info.legalIdentitiesAndCerts.first().owningKey

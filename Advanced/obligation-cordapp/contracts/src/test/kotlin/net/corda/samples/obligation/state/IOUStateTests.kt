@@ -8,11 +8,11 @@ import net.corda.samples.obligation.BOB
 import net.corda.samples.obligation.MEGACORP
 import net.corda.samples.obligation.MINICORP
 import net.corda.samples.obligation.states.IOUState
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
-import java.util.*
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
+import org.junit.Assert.assertTrue
 
 /**
  * Practical exercise instructions.
@@ -118,7 +118,7 @@ class IOUStateTests {
      */
     @Test
     fun isLinearState() {
-        assert(LinearState::class.java.isAssignableFrom(IOUState::class.java))
+        assertTrue(LinearState::class.java.isAssignableFrom(IOUState::class.java))
     }
 
     /**
@@ -158,10 +158,10 @@ class IOUStateTests {
         val paidIdx = fields.indexOf(IOUState::class.java.getDeclaredField("paid"))
         val linearIdIdx = fields.indexOf(IOUState::class.java.getDeclaredField("linearId"))
 
-        assert(amountIdx < lenderIdx)
-        assert(lenderIdx < borrowerIdx)
-        assert(borrowerIdx < paidIdx)
-        assert(paidIdx < linearIdIdx)
+        assertTrue(amountIdx < lenderIdx)
+        assertTrue(lenderIdx < borrowerIdx)
+        assertTrue(borrowerIdx < paidIdx)
+        assertTrue(paidIdx < linearIdIdx)
     }
 
     /**

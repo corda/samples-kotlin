@@ -18,6 +18,7 @@ import net.corda.testing.node.StartedMockNode
 import net.corda.samples.obligation.contract.IOUContract
 import net.corda.samples.obligation.flows.IOUTransferFlow
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertFailsWith
@@ -27,10 +28,10 @@ import kotlin.test.assertFailsWith
  * Uncomment the unit tests and use the hints + unit test body to complete the Flows such that the unit tests pass.
  */
 class IOUTransferFlowTests {
-    lateinit var mockNetwork: MockNetwork
-    lateinit var a: StartedMockNode
-    lateinit var b: StartedMockNode
-    lateinit var c: StartedMockNode
+    private lateinit var mockNetwork: MockNetwork
+    private lateinit var a: StartedMockNode
+    private lateinit var b: StartedMockNode
+    private lateinit var c: StartedMockNode
 
     @Before
     fun setup() {
@@ -48,7 +49,9 @@ class IOUTransferFlowTests {
 
     @After
     fun tearDown() {
-        mockNetwork.stopNodes()
+        if (::mockNetwork.isInitialized) {
+            mockNetwork.stopNodes()
+        }
     }
 
     /**
@@ -91,14 +94,14 @@ class IOUTransferFlowTests {
         val ptx = future.getOrThrow()
         // Check the transaction is well formed...
         // One output IOUState, one input state reference and a Transfer command with the right properties.
-        assert(ptx.tx.inputs.size == 1)
-        assert(ptx.tx.outputs.size == 1)
-        assert(ptx.tx.inputs.single() == StateRef(stx.id, 0))
+        assertEquals(1, ptx.tx.inputs.size)
+        assertEquals(1, ptx.tx.outputs.size)
+        assertEquals(StateRef(stx.id, 0), ptx.tx.inputs.single())
         println("Input state ref: ${ptx.tx.inputs.single()} == ${StateRef(stx.id, 0)}")
         val outputIou = ptx.tx.outputs.single().data as IOUState
         println("Output state: $outputIou")
         val command = ptx.tx.commands.single()
-        assert(command.value == IOUContract.Commands.Transfer())
+        assertEquals(IOUContract.Commands.Transfer(), command.value)
         ptx.verifySignaturesExcept(b.info.chooseIdentityAndCert().party.owningKey, c.info.chooseIdentityAndCert().party.owningKey,
                 mockNetwork.defaultNotaryNode.info.legalIdentitiesAndCerts.first().owningKey)
     }

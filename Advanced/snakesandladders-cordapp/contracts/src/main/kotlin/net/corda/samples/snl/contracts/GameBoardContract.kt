@@ -28,14 +28,14 @@ class GameBoardContract : Contract {
     @Throws(IllegalArgumentException::class)
     private fun verifyCreate(tx: LedgerTransaction) {
         // Contract verification logic for create game should be implemented here
-        if (tx.outputStates.size != 1 || tx.inputStates.size != 0) throw IllegalArgumentException("Zero Input and One Output Expected")
+        if (tx.outputStates.size != 1 || tx.inputStates.isNotEmpty()) throw IllegalArgumentException("Zero Input and One Output Expected")
         if (tx.getOutput(0) !is GameBoard) throw IllegalArgumentException("Output of type GameBoard expected")
     }
 
     @Throws(IllegalArgumentException::class)
     private fun verifyPlay(tx: LedgerTransaction) {
         // Contract verification logic for play move should be implemented here
-        if (tx.references.size == 0 || tx.getReferenceInput(0) !is BoardConfig) {
+        if (tx.references.isEmpty() || tx.getReferenceInput(0) !is BoardConfig) {
             throw IllegalArgumentException("One reference Input of BoardConfig Expected")
         }
         if (tx.outputStates.size != 1 || tx.inputStates.size != 1) throw IllegalArgumentException("One Input and One Output Expected")
