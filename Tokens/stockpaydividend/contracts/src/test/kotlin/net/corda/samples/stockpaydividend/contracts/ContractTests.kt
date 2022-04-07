@@ -8,7 +8,7 @@ import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
 import org.junit.Test
 import java.math.BigDecimal
-import java.util.*
+import java.util.Date
 
 class ContractTests {
     private val ledgerServices = MockServices()
@@ -18,7 +18,7 @@ class ContractTests {
     @Test
     fun `multiple Output Tests`() {
         val tokenPass = StockState(Operator.party, "TT", "Test Token",
-                "USD", BigDecimal.valueOf(2.7), BigDecimal.valueOf(0.2), Date(), Date(), UniqueIdentifier()
+                "USD", BigDecimal.valueOf(2.7), BigDecimal.ZERO, Date(), Date(), UniqueIdentifier()
         )
         val tokenFail = StockState(Operator.party, "", "Test Token",
                 "USD", BigDecimal.valueOf(2.7), BigDecimal.valueOf(0.2), Date(), Date(), UniqueIdentifier()

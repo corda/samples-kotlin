@@ -14,7 +14,6 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.*
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
-import net.corda.core.node.services.Vault
 import net.corda.core.node.services.queryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
@@ -22,8 +21,8 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
 import net.corda.samples.dollartohousetoken.states.HouseState
-import org.checkerframework.common.aliasing.qual.Unique
-import java.util.*
+import java.util.Currency
+import java.util.UUID
 
 // *********
 // * Flows *
@@ -64,7 +63,7 @@ class HouseSale(val houseId: String,
         val inputs = subFlow(ReceiveStateAndRefFlow<FungibleToken>(buyerSession))
 
         // Recieve output for the fiat currency from the buyer, this would contain the transfered amount from buyer to yourself
-        val moneyReceived: List<FungibleToken> = buyerSession.receive<List<FungibleToken>>().unwrap { it -> it}
+        val moneyReceived: List<FungibleToken> = buyerSession.receive<List<FungibleToken>>().unwrap { it }
 
         /* Create a fiat currency proposal for the house token using the helper function provided by Token SDK. */
         addMoveTokens(txBuilder, inputs, moneyReceived)

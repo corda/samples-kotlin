@@ -27,7 +27,7 @@ class IssueNewBike(val frameSerial: String,
         //Step 1: Frame Token
         //get frame states on ledger
         val frameStateAndRef = serviceHub.vaultService.queryBy<FrameTokenState>().states
-                .filter { it.state.data.serialNum.equals(frameSerial) }[0]
+                .filter { it.state.data.serialNum == frameSerial }[0]
 
         //get the TokenType object
         val frametokentype = frameStateAndRef.state.data
@@ -43,7 +43,7 @@ class IssueNewBike(val frameSerial: String,
 
         //Step 2: Wheels Token
         val wheelStateAndRef = serviceHub.vaultService.queryBy<WheelsTokenState>().states
-                .filter { it.state.data.serialNum.equals(wheelsSerial) }[0]
+                .filter { it.state.data.serialNum == wheelsSerial }[0]
 
         //get the TokenType object
         val wheeltokentype: WheelsTokenState = wheelStateAndRef.state.data

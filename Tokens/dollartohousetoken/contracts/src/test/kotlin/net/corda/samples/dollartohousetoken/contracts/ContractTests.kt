@@ -8,22 +8,21 @@ import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
 import org.junit.Test
-import java.util.*
 
 class ContractTests {
     private val ledgerServices = MockServices()
-    val Operator = TestIdentity(CordaX500Name(organisation = "Alice", locality = "TestLand", country = "US"))
+    private val Operator = TestIdentity(CordaX500Name(organisation = "Alice", locality = "TestLand", country = "US"))
 
     //sample tests
     @Test
     fun `SerialNumber Cannot Be Empty`() {
         val tokenPass = HouseState(UniqueIdentifier(),
-                Arrays.asList(Operator.party),
+                listOf(Operator.party),
                 Amount.parseCurrency("1000 USD"),
                 10, "500sqft",
                 "none", "NYC")
         val tokenFail = HouseState(UniqueIdentifier(),
-                Arrays.asList(Operator.party),
+                listOf(Operator.party),
                 Amount.parseCurrency("0 USD"),
                 10, "500sqft",
                 "none", "NYC")

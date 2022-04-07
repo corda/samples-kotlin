@@ -15,7 +15,8 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.dollartohousetoken.states.HouseState
-import java.util.*
+import java.util.Currency
+import java.util.UUID
 
 // *********
 // * Flows *
@@ -40,7 +41,7 @@ class CreateAndIssueHouseToken(val owner: Party,
 
         /* Construct the output state */
         val uuid = fromString(UUID.randomUUID().toString())
-        val houseState = HouseState(UniqueIdentifier(),Arrays.asList(issuer),valuationOfHouse,noOfBedRooms,constructionArea,additionInfo,address)
+        val houseState = HouseState(UniqueIdentifier(), listOf(issuer),valuationOfHouse,noOfBedRooms,constructionArea,additionInfo,address)
 
         /* Create an instance of TransactionState using the houseState token and the notary */
         val transactionState = houseState withNotary notary!!

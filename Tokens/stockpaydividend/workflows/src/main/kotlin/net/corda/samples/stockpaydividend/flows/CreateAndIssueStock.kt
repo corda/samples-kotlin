@@ -16,7 +16,7 @@ import net.corda.core.node.services.IdentityService
 import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.stockpaydividend.states.StockState
 import java.math.BigDecimal
-import java.util.*
+import java.util.Date
 
 // *********
 // * Flows *
@@ -36,7 +36,7 @@ class CreateAndIssueStock(val symbol: String,
 
         // Sample specific - retrieving the hard-coded observers
         val identityService = serviceHub.identityService
-        val observers: List<Party> = getObserverLegalIdenties(identityService)!!
+        val observers: List<Party> = getObserverLegalIdentities(identityService)
 
         // Construct the output StockState
         val stockState = StockState(ourIdentity, symbol,
@@ -66,10 +66,10 @@ class CreateAndIssueStock(val symbol: String,
                 + price + " " + currency + "\nTransaction ID: " + stx.id)
     }
 
-    fun getObserverLegalIdenties(identityService: IdentityService): List<Party>? {
-        var observers: MutableList<Party> = ArrayList()
+    fun getObserverLegalIdentities(identityService: IdentityService): List<Party> {
+        val observers: MutableList<Party> = ArrayList()
         for (observerName in listOf("Observer")) {
-            val observerSet = identityService.partiesFromName(observerName!!, false)
+            val observerSet = identityService.partiesFromName(observerName, false)
             if (observerSet.size != 1) {
                 val errMsg = String.format("Found %d identities for the observer.", observerSet.size)
                 throw IllegalStateException(errMsg)

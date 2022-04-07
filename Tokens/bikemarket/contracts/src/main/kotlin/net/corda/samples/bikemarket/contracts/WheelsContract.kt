@@ -3,7 +3,6 @@ package net.corda.samples.bikemarket.contracts
 import com.r3.corda.lib.tokens.contracts.EvolvableTokenContract
 import net.corda.core.contracts.Contract
 import net.corda.core.transactions.LedgerTransaction
-import net.corda.samples.bikemarket.states.FrameTokenState
 import net.corda.samples.bikemarket.states.WheelsTokenState
 
 // ************
@@ -11,7 +10,7 @@ import net.corda.samples.bikemarket.states.WheelsTokenState
 // ************
 class WheelsContract: EvolvableTokenContract(), Contract{
     override fun additionalCreateChecks(tx: LedgerTransaction) {
-        val newToken = tx.outputStates.single() as WheelsTokenState
+        val newToken = tx.outputsOfType<WheelsTokenState>().single()
         newToken.apply {
             require(serialNum != "") {"serialNum cannot be empty"}
         }

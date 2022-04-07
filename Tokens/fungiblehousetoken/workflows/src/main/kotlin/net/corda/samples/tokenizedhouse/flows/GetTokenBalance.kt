@@ -23,7 +23,7 @@ class GetTokenBalance(val symbol:String) : FlowLogic<String>() {
     override fun call():String {
         //get house states on ledger with uuid as input tokenId
         val stateAndRef = serviceHub.vaultService.queryBy<FungibleHouseTokenState>()
-                .states.filter { it.state.data.symbol.equals(symbol) }[0]
+                .states.filter { it.state.data.symbol == symbol }[0]
 
         //get the Token State object
         val evolvableTokenType = stateAndRef.state.data
@@ -33,7 +33,7 @@ class GetTokenBalance(val symbol:String) : FlowLogic<String>() {
         //retrieve amount
         val amount: Amount<TokenType> = serviceHub.vaultService.tokenBalance(tokenPointer)
 
-        return "\n You currently have " + amount.quantity + " " + symbol + " Tokens issued by "+evolvableTokenType.maintainer.name.organisation+"\n";
+        return "\n You currently have " + amount.quantity + " " + symbol + " Tokens issued by "+evolvableTokenType.maintainer.name.organisation+"\n"
 
     }
 }

@@ -1,4 +1,4 @@
 #!/bin/sh
-./gradlew runOperatoreServer &
-./gradlew runUSWest1Server
+../gradlew runOperatoreServer &
+../gradlew runUSWest1Server
 

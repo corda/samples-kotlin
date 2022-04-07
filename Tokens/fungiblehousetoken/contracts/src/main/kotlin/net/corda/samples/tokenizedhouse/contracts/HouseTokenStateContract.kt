@@ -14,7 +14,7 @@ class HouseTokenStateContract : EvolvableTokenContract(), Contract {
     }
     override fun additionalCreateChecks(tx: LedgerTransaction) {
         // Write contract validation logic to be performed while creation of token
-        val outputState = tx.getOutput(0) as FungibleHouseTokenState
+        val outputState = tx.outputsOfType<FungibleHouseTokenState>()[0]
         outputState.apply {
             require(outputState.valuation > 0) {"Valuation must be greater than zero"}
         }

@@ -3,12 +3,11 @@ package net.corda.samples.stockpaydividend.states
 import com.r3.corda.lib.tokens.contracts.states.EvolvableTokenType
 import net.corda.core.contracts.BelongsToContract
 import net.corda.core.contracts.UniqueIdentifier
-import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.schemas.StatePersistable
 import net.corda.samples.stockpaydividend.contracts.StockContract
 import java.math.BigDecimal
-import java.util.*
+import java.util.Date
 
 // *********
 // * State *

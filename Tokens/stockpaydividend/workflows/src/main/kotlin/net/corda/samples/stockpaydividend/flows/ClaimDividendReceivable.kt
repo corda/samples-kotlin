@@ -17,7 +17,9 @@ import net.corda.samples.stockpaydividend.flows.utilities.QueryUtilities
 import net.corda.samples.stockpaydividend.states.DividendState
 import net.corda.samples.stockpaydividend.states.StockState
 import java.math.BigDecimal
-import java.util.*
+import java.util.Currency
+import java.util.Date
+import kotlin.math.pow
 
 // *********
 // * Flows *
@@ -28,6 +30,7 @@ class ClaimDividendReceivable(val symbol: String) : FlowLogic<String>() {
     @Suspendable
     override fun call(): String { // Retrieve the stock and pointer
         val stockPointer: TokenPointer<*> = QueryUtilities.queryStockPointer(symbol, serviceHub)
+        @Suppress("unchecked_cast")
         val stockStateRef: StateAndRef<StockState> = stockPointer.pointer.resolve(serviceHub) as StateAndRef<StockState>
         val stockState: StockState = stockStateRef.state.data
 
@@ -78,10 +81,11 @@ class ClaimDividendReceivableResponder(private val holderSession: FlowSession) :
 
         // Query the stored state of the company
         val stockPointer: TokenPointer<*> = QueryUtilities.queryStockPointer(stockState.symbol, serviceHub)
+        @Suppress("unchecked_cast")
         val stockStateRef: StateAndRef<StockState> = stockPointer.pointer.resolve(serviceHub) as StateAndRef<StockState>
 
         // Receives the amount that the shareholder holds
-        val claimNoticication:ClaimNotification = holderSession.receive(ClaimNotification::class.java).unwrap { it: ClaimNotification->
+        val claimNoticication:ClaimNotification = holderSession.receive(ClaimNotification::class.java).unwrap {
             if(holderStockState.ref.txhash != stockStateRef.ref.txhash){
                 throw FlowException("StockState does not match with the issuers. Shareholder may not have updated the newest stock state.")
             }else{
@@ -96,7 +100,8 @@ class ClaimDividendReceivableResponder(private val holderSession: FlowSession) :
         // Calculate the actual dividend paying to the shareholder
         val yield: BigDecimal = stockState.dividend.multiply(BigDecimal.valueOf(claimNoticication.amount.quantity))
         val dividend = `yield`.multiply(stockState.price).multiply(BigDecimal.valueOf(
-                Math.pow(10.0, currency.defaultFractionDigits.toDouble())))
+            10.0.pow(currency.defaultFractionDigits.toDouble())
+        ))
 
         // Create the dividend state
         val dividendAmount: Amount<TokenType> = Amount(dividend.longValueExact(), dividendTokenType)

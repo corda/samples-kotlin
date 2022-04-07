@@ -8,7 +8,6 @@ import net.corda.core.flows.*
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.tokenizedhouse.states.FungibleHouseTokenState
-import java.math.BigDecimal
 
 // *********
 // * Flows *
