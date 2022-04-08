@@ -1,6 +1,5 @@
 package net.corda.samples.supplychain.flows
 
-
 import net.corda.core.flows.*
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.accounts.workflows.accountService
@@ -11,8 +10,6 @@ import net.corda.core.identity.AnonymousParty
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
-import java.util.concurrent.atomic.AtomicReference
-import net.corda.core.node.StatesToRecord
 import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.supplychain.accountUtilities.NewKeyForAccount
 import net.corda.samples.supplychain.contracts.PaymentStateContract

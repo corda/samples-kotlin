@@ -1,9 +1,9 @@
 package net.corda.samples.tictacthor.contracts
 
-import groovy.util.GroovyTestCase.assertEquals
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.samples.tictacthor.states.BoardState
 import net.corda.testing.node.MockServices
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class StateTests {

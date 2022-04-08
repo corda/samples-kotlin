@@ -3,10 +3,7 @@ package net.corda.samples.tictacthor.contracts
 import net.corda.samples.tictacthor.states.BoardState
 import net.corda.samples.tictacthor.states.Status
 import net.corda.core.contracts.*
-import net.corda.core.identity.AnonymousParty
-import net.corda.core.identity.Party
 import net.corda.core.transactions.LedgerTransaction
-import java.util.*
 
 class BoardContract : Contract {
     companion object {
@@ -31,7 +28,7 @@ class BoardContract : Contract {
                 "The output state should be of type BoardState." using (tx.outputs[0].data is BoardState)
 
                 // Business Logic
-                val outputBoardState = tx.outputStates[0] as BoardState
+                val outputBoardState = tx.outputsOfType<BoardState>().single()
                 "Output board must have status GAME_IN_PROGRESS" using (outputBoardState.status == Status.GAME_IN_PROGRESS)
                 "You cannot play a game with yourself." using ((outputBoardState.playerO) != outputBoardState.playerX)
                 "Not valid starting board." using BoardUtils.checkIfValidStartBoard(outputBoardState.board)
@@ -44,11 +41,11 @@ class BoardContract : Contract {
                 "The output state should be of type BoardState." using (tx.outputStates.single() is BoardState)
 
                 // Business Logic
-                val inputBoardState = tx.inputStates.single() as BoardState
-                val outputBoardState = tx.outputStates.single() as BoardState
+                val inputBoardState = tx.inputsOfType<BoardState>().single()
+                val outputBoardState = tx.outputsOfType<BoardState>().single()
                 "Input board must have status GAME_IN_PROGRESS." using (inputBoardState.status == Status.GAME_IN_PROGRESS)
-                "It cannot be the same players turn both in the input board and the output board." using (inputBoardState.isPlayerXTurn.booleanValue() xor outputBoardState.isPlayerXTurn.booleanValue())
-                val playerChar = if (inputBoardState.isPlayerXTurn.booleanValue()) 'X' else 'O'
+                "It cannot be the same players turn both in the input board and the output board." using (inputBoardState.isPlayerXTurn xor outputBoardState.isPlayerXTurn)
+                val playerChar = if (inputBoardState.isPlayerXTurn) 'X' else 'O'
                 "Not valid board update." using BoardUtils.checkIfValidBoardUpdate(inputBoardState.board, outputBoardState.board, playerChar)
 
                 // Signatures
@@ -62,7 +59,7 @@ class BoardContract : Contract {
                 "The input state should be of type BoardState." using (tx.inputs[0].state.data is BoardState)
 
                 // Business Logic
-                val inputBoardState = tx.inputStates.single() as BoardState
+                val inputBoardState = tx.inputsOfType<BoardState>().single()
                 "Input board must have status GAME_OVER." using (inputBoardState.status == Status.GAME_OVER)
                 "The game must be over." using (BoardUtils.isGameOver(inputBoardState))
             }

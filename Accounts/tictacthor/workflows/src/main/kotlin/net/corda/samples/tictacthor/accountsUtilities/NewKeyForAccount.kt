@@ -1,6 +1,5 @@
 package net.corda.samples.tictacthor.accountsUtilities
 
-
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StartableByRPC

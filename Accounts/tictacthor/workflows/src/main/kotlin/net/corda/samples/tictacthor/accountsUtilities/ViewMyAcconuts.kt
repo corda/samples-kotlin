@@ -15,8 +15,8 @@ class ViewMyAccounts() : FlowLogic<List<String>>() {
     @Suspendable
     override fun call(): List<String> {
         //Create a new account
-        val aAccountsQuery = accountService.ourAccounts().map { it.state.data.name }
-        return aAccountsQuery
+        val accountsQuery = accountService.ourAccounts().map { it.state.data.name }
+        return accountsQuery
     }
 }
 

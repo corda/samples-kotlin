@@ -1,6 +1,5 @@
 package net.corda.samples.supplychain.flows
 
-
 import net.corda.core.flows.*
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.accounts.workflows.accountService
@@ -16,7 +15,6 @@ import net.corda.core.utilities.ProgressTracker.Step
 import net.corda.samples.supplychain.accountUtilities.NewKeyForAccount
 import net.corda.samples.supplychain.contracts.InternalMessageStateContract
 import net.corda.samples.supplychain.states.InternalMessageState
-
 
 @StartableByRPC
 @StartableByService
@@ -57,8 +55,8 @@ class InternalMessage(
 
         progressTracker.currentStep = GENERATING_KEYS
         //Initiator account
-        val FromAccount = accountService.accountInfo(fromWho).single().state.data
-        val newKeyForInitiator = subFlow(NewKeyForAccount(FromAccount.identifier.id))
+        val fromAccount = accountService.accountInfo(fromWho).single().state.data
+        val newKeyForInitiator = subFlow(NewKeyForAccount(fromAccount.identifier.id))
         //val newKeyForInitiator = subFlow(RequestKeyForAccount(FromAccount))
 
         //Recieving account

@@ -22,10 +22,10 @@ class InvoiceStateContract : Contract{
                 val outputs = tx.outputStates
 
                 // no inputs to the transaction
-                "No inputs should be consumed when creating a new SantaSession.".using(inputs.isEmpty())
+                "No inputs should be consumed when creating a new session.".using(inputs.isEmpty())
                 "Transaction must have exactly one output.".using(outputs.size == 1)
 
-                val output = outputs[0] as InvoiceState
+                val output = tx.outputsOfType<InvoiceState>().single()
                 // must be three or more players
                 "Invoice amount must be a valid number (Greater than zero)".using(output.amount > 0)
                 null

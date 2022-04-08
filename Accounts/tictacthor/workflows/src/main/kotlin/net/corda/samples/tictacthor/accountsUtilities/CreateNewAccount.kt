@@ -7,7 +7,6 @@ import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.utilities.getOrThrow
 
-
 @StartableByRPC
 @StartableByService
 @InitiatingFlow

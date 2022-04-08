@@ -13,7 +13,7 @@ From the above chart, you can see the flow is going back and forth between diffe
 # Setting up
 Go into the project directory and build the project
 ```
-./gradlew clean deployNodes
+../gradlew clean deployNodes
 ```
 Run the project
 ```
@@ -71,7 +71,7 @@ flow start InternalMessage fromWho: BuyerProcurement, whereTo: BuyerFinance, mes
 [Optional verification]: run ```flow start ViewInboxByAccount acctname: BuyerFinance``` at Buyer' node terminal
 
 ## Step 3: Buyer's finance team send a payment to Seller's finance team
-Navigatie to Buyer's node terminal and type in:
+Navigate to Buyer's node terminal and type in:
 ```
 flow start SendPayment whoAmI: BuyerFinance, whereTo: SellerFinance, amount: 500
 ```
