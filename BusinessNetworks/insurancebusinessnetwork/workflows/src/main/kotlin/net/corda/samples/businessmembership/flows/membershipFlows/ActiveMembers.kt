@@ -8,7 +8,7 @@ import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.CordaX500Name
 
 @StartableByRPC
-class ActiveMembers(val membershipId: UniqueIdentifier): FlowLogic<String>()  {
+class ActiveMembers(private val membershipId: UniqueIdentifier): FlowLogic<String>()  {
 
     @Suspendable
     override fun call(): String {

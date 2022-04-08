@@ -20,11 +20,10 @@ class InsuranceStateContract : Contract {
 
     override fun verify(tx: LedgerTransaction) {
         val command = tx.commands.requireSingleCommand<Commands>()
-        val output = if (tx.outputStates.isNotEmpty()) tx.outputs.single() else null
-        val outputState = output?.data as? InsuranceState
+        val output = tx.outputsOfType<InsuranceState>().single()
 
         when (command.value) {
-            is Commands.Issue -> verifyIssue(tx,outputState!!.networkId, outputState.insurer, outputState.careProvider)
+            is Commands.Issue -> verifyIssue(tx, output.networkId, output.insurer, output.careProvider)
             else -> throw IllegalArgumentException("Unsupported command ${command.value}")
         }
     }

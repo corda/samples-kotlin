@@ -33,7 +33,7 @@ The NetworkOperator will be create and primarily manage the network. As introduc
 
 Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```
-./gradlew clean deployNodes
+../gradlew clean deployNodes
 ```
 Then type: (to run the nodes)
 ```
@@ -41,7 +41,7 @@ Then type: (to run the nodes)
 ```
 #### Interacting with the CorDapp
 
-**Step 1:** Create the network in NetwprkOperator's terminal
+**Step 1:** Create the network in NetworkOperator's terminal
 ```
 flow start CreateNetwork
 ```
