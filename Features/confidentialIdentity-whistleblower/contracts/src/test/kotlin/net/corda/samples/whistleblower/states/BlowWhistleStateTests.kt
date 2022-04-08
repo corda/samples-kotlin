@@ -5,9 +5,9 @@ import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.core.TestIdentity
-import org.jgroups.util.Util
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
-
 
 class BlowWhistleStateTests {
     private val a = TestIdentity(CordaX500Name("alice", "", "GB"))
@@ -19,16 +19,16 @@ class BlowWhistleStateTests {
 
         // here, c is the bad corporation, a is the Whistleblower, and b is the investigator
         val st = BlowWhistleState(c.party, a.party.anonymise(), b.party.anonymise())
-        Util.assertEquals(a.party, st.whistleBlower)
-        Util.assertEquals(c.party, st.badCompany)
-        Util.assertEquals(b.party, st.investigator)
+        assertEquals(a.party, st.whistleBlower)
+        assertEquals(c.party, st.badCompany)
+        assertEquals(b.party, st.investigator)
     }
 
     @Test
     fun stateImplementTests() {
         val st = BlowWhistleState(c.party, a.party.anonymise(), b.party.anonymise())
-        Util.assertTrue(st is ContractState)
-        Util.assertTrue(st is LinearState)
-        Util.assertTrue(st.linearId is UniqueIdentifier)
+        assertTrue(st is ContractState)
+        assertTrue(st is LinearState)
+        assertTrue(st.linearId is UniqueIdentifier)
     }
 }

@@ -11,8 +11,6 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.dockerform.contracts.YoContract
 import net.corda.samples.dockerform.states.YoState
-import java.util.*
-
 
 // *********
 // * Flows *
@@ -43,7 +41,7 @@ class YoFlow(private val target: Party) : FlowLogic<SignedTransaction?>() {
 
 // Obtain a reference from a notary we wish to use.
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
-        val command = Command(YoContract.Commands.Send(), Arrays.asList(me.owningKey))
+        val command = Command(YoContract.Commands.Send(), listOf(me.owningKey))
         val state = YoState(me, target)
         val stateAndContract = StateAndContract(state, YoContract.ID)
         val utx = TransactionBuilder(notary).withItems(stateAndContract, command)

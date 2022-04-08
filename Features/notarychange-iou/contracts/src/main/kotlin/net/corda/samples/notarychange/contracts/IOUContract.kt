@@ -1,10 +1,8 @@
 package net.corda.samples.notarychange.contracts
 
-
 import net.corda.core.contracts.*
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.notarychange.states.IOUState
-
 
 class IOUContract : Contract {
     /**
@@ -16,7 +14,7 @@ class IOUContract : Contract {
         val cmd = tx.commands.requireSingleCommand<Commands>()
         when (cmd.value) {
             is Commands.Create -> requireThat {
-                val out: IOUState = tx.outputsOfType(IOUState::class.java)[0]
+                val out: IOUState = tx.outputsOfType<IOUState>()[0]
                 // IOU-specific constraints.
                 "The IOU's value must be non-negative.".using(out.value > 0)
             }

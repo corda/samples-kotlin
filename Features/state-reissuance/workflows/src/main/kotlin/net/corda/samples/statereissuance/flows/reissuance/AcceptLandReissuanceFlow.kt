@@ -11,7 +11,6 @@ import net.corda.core.flows.*
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.ProgressTracker
-import java.util.*
 
 @InitiatingFlow
 @StartableByRPC
@@ -27,7 +26,7 @@ class AcceptLandReissuance(private val issuer: Party,
         val stateAndRef = reissueRequestStateAndRefs.stream().filter { it.state.data.stateRefsToReissue.contains(stateRef) }
                 .findAny().orElseThrow { IllegalArgumentException("ReIssuance Request does not exist") }
 
-        return subFlow(ReissueStates<ContractState>(stateAndRef, Arrays.asList(issuer)))
+        return subFlow(ReissueStates<ContractState>(stateAndRef, listOf(issuer)))
     }
 }
 

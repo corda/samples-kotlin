@@ -1,29 +1,25 @@
 package net.corda.samples.postgres.flows
 
-
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.node.*
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.ExecutionException
 
-
 class FlowTests {
-
-    lateinit var mockNetwork: MockNetwork
-    lateinit var a: StartedMockNode
-    lateinit var b: StartedMockNode
+    private lateinit var mockNetwork: MockNetwork
+    private lateinit var a: StartedMockNode
+    private lateinit var b: StartedMockNode
 
     @Before
     fun setup() {
-
-        val mockNetwork = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
+        mockNetwork = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
                 TestCordapp.findCordapp("net.corda.samples.postgres.contracts"),
                 TestCordapp.findCordapp("net.corda.samples.postgres.flows")),
                 notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
         ))
-
 
         a = mockNetwork.createNode(MockNodeParameters())
         b = mockNetwork.createNode(MockNodeParameters())
@@ -35,20 +31,19 @@ class FlowTests {
 
     @After
     fun tearDown() {
-
-    }
-
-    @Test
-    fun `dummy test`() {
+        if (::mockNetwork.isInitialized) {
+            mockNetwork.stopNodes()
+        }
     }
 
     @Throws(ExecutionException::class, InterruptedException::class)
+    @Test
     fun dummyTest() {
         val future = a.startFlow(YoFlow(b.info.legalIdentities.first()))
         mockNetwork.runNetwork()
         val ptx = future.get()
         if (ptx != null) {
-            assert(ptx.tx.inputs.isEmpty())
+            assertTrue(ptx.tx.inputs.isEmpty())
         }
     }
 }

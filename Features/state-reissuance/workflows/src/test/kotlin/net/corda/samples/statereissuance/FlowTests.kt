@@ -4,12 +4,7 @@ import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import java.util.concurrent.Future;
-import net.corda.core.node.services.vault.QueryCriteria
-import net.corda.core.transactions.SignedTransaction
 import net.corda.core.identity.CordaX500Name
-import net.corda.core.node.services.Vault.StateStatus
-
 
 class FlowTests {
     private lateinit var network: MockNetwork
@@ -34,11 +29,12 @@ class FlowTests {
 
     @After
     fun tearDown() {
-        network.stopNodes()
+        if (::network.isInitialized) {
+            network.stopNodes()
+        }
     }
 
     @Test
-    fun `DummyTest`() {
-
+    fun dummyTest() {
     }
 }

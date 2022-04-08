@@ -18,12 +18,12 @@ class ExpiryContract : Contract {
 
     @Throws(IllegalArgumentException::class)
     override fun verify(tx: LedgerTransaction) {
-        val commandWithParties = tx.commands.requireSingleCommand(AvatarContract.Commands::class.java)
+        val commandWithParties = tx.commands.requireSingleCommand<AvatarContract.Commands>()
 
-        var expiry: Expiry = tx.outputsOfType(Expiry::class.java)[0]
+        var expiry: Expiry = tx.outputsOfType<Expiry>()[0]
         when (commandWithParties.value) {
             is AvatarContract.Commands.Transfer -> requireThat{
-                expiry = tx.inputsOfType(Expiry::class.java)[0]
+                expiry = tx.inputsOfType<Expiry>()[0]
             }
         }
 

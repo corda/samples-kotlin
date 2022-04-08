@@ -15,7 +15,7 @@ import net.corda.samples.notarychange.states.IOUState
 class SwitchNotaryFlow(private val linearId: UniqueIdentifier, private val newNotary: Party) : FlowLogic<String>() {
     private val QUERYING_VAULT = ProgressTracker.Step("Fetching IOU from node's vault.")
     private val INITITATING_TRANSACTION: ProgressTracker.Step = object : ProgressTracker.Step("Initiating Notary Change Transaction") {
-        override fun childProgressTracker(): ProgressTracker? {
+        override fun childProgressTracker(): ProgressTracker {
             return tracker()
         }
     }
@@ -30,7 +30,7 @@ class SwitchNotaryFlow(private val linearId: UniqueIdentifier, private val newNo
         progressTracker.currentStep = QUERYING_VAULT
         val queryCriteria: QueryCriteria = LinearStateQueryCriteria(null, listOf(linearId.id))
         val (states) = serviceHub.vaultService.queryBy(IOUState::class.java, queryCriteria)
-        if (states.size == 0) {
+        if (states.isEmpty()) {
             throw FlowException("No IOU found for LinearId:$linearId")
         }
         progressTracker.currentStep = INITITATING_TRANSACTION

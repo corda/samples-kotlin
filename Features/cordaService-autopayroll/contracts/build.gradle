@@ -1,8 +1,11 @@
-apply plugin: 'net.corda.plugins.cordapp'
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'net.corda.plugins.cordapp'
+}
 
 cordapp {
-    targetPlatformVersion corda_platform_version
-    minimumPlatformVersion corda_platform_version
+    targetPlatformVersion corda_platform_version.toInteger()
+    minimumPlatformVersion corda_platform_version.toInteger()
     contract {
         name "AutoPayroll Contracts"
         vendor "Corda Open Source"
@@ -12,10 +15,10 @@ cordapp {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    cordaProvided "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    testImplementation "$corda_release_group:corda-node-driver:$corda_release_version"
+    testImplementation "junit:junit:$junit_version"
 
     // Corda dependencies.
-    cordaCompile "$corda_core_release_group:corda-core:$corda_core_release_version"
-
-    testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
+    cordaProvided "$corda_core_group:corda-core:$corda_release_version"
 }

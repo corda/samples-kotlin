@@ -22,7 +22,7 @@ import net.corda.core.utilities.unwrap
  * All methods called within the [FlowLogic] sub-class need to be annotated with the @Suspendable annotation.
  */
 object GetSanctionsListFlow {
-    private val YES = "YES"
+    private const val YES = "YES"
 
     @InitiatingFlow
     @StartableByRPC

@@ -1,29 +1,29 @@
 package net.corda.samples.contractsdk.flows
 
 import com.google.common.collect.ImmutableList
-import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.node.NetworkParameters
 import net.corda.samples.contractsdk.states.Needle
 import net.corda.samples.contractsdk.states.RecordPlayerState
 import net.corda.testing.node.*
-import org.jgroups.util.Util
-import org.junit.*
 import java.time.Instant
-import java.util.*
-import kotlin.collections.LinkedHashMap
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Before
+import org.junit.Test
 
 class UpdateRecordPlayerFlowTests {
-    lateinit var network: MockNetwork
-    lateinit var manufacturerNode: StartedMockNode
-    lateinit var dealerBNode: StartedMockNode
-    lateinit var dealerCNode: StartedMockNode
-    lateinit var manufacturer: Party
-    lateinit var dealerB: Party
-    lateinit var dealerC: Party
+    private lateinit var network: MockNetwork
+    private lateinit var manufacturerNode: StartedMockNode
+    private lateinit var dealerBNode: StartedMockNode
+    private lateinit var dealerCNode: StartedMockNode
+    private lateinit var manufacturer: Party
+    private lateinit var dealerB: Party
+    private lateinit var dealerC: Party
 
-    val testNetworkParameters = NetworkParameters(4, Arrays.asList(), 10485760, 10485760 * 5, Instant.now(), 1, LinkedHashMap<String, List<SecureHash>>())
+    private val testNetworkParameters = NetworkParameters(4, emptyList(), 10485760, 10485760 * 5, Instant.now(), 1, LinkedHashMap())
 
     @Before
     fun setup() {
@@ -45,7 +45,9 @@ class UpdateRecordPlayerFlowTests {
 
     @After
     fun tearDown() {
-        network.stopNodes()
+        if (::network.isInitialized) {
+            network.stopNodes()
+        }
     }
 
     @Test
@@ -62,8 +64,8 @@ class UpdateRecordPlayerFlowTests {
         val signedTransaction = future.get()
 
         // assert our contract SDK conditions
-        Util.assertEquals(1, signedTransaction!!.tx.outputStates.size)
-        Util.assertEquals(network.notaryNodes[0].info.legalIdentities[0], signedTransaction!!.notary)
+        assertEquals(1, signedTransaction!!.tx.outputStates.size)
+        assertEquals(network.notaryNodes[0].info.legalIdentities[0], signedTransaction.notary)
     }
 
     // ensure that our linear state updates work correctly
@@ -72,7 +74,7 @@ class UpdateRecordPlayerFlowTests {
     fun flowUpdateTest() {
         val f1 = IssueRecordPlayerFlow(dealerB, "SPHERICAL")
         val future = manufacturerNode.startFlow(f1)
-        network!!.runNetwork()
+        network.runNetwork()
         val f1Output = future.get()!!.tx.outputsOfType(RecordPlayerState::class.java)[0]
 
         val f2 = UpdateRecordPlayerFlow(
@@ -85,10 +87,10 @@ class UpdateRecordPlayerFlowTests {
         val future2 = dealerBNode.startFlow(f2)
         network.runNetwork()
         val f2Output = future2.get()!!.tx.outputsOfType(RecordPlayerState::class.java)[0]
-        Util.assertEquals(Needle.SPHERICAL, f1Output.needle)
-        Util.assertEquals(Needle.DAMAGED, f2Output.needle)
-        Util.assertEquals(f1Output.magneticStrength, f2Output.magneticStrength)
-        Util.assertEquals(f1Output.songsPlayed + 5, f2Output.songsPlayed)
-        Assert.assertNotEquals(f1Output.songsPlayed.toLong(), f2Output.songsPlayed.toLong())
+        assertEquals(Needle.SPHERICAL, f1Output.needle)
+        assertEquals(Needle.DAMAGED, f2Output.needle)
+        assertEquals(f1Output.magneticStrength, f2Output.magneticStrength)
+        assertEquals(f1Output.songsPlayed + 5, f2Output.songsPlayed)
+        assertNotEquals(f1Output.songsPlayed.toLong(), f2Output.songsPlayed.toLong())
     }
 }

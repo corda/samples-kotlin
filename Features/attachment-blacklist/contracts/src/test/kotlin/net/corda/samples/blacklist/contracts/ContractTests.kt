@@ -2,8 +2,8 @@ package net.corda.samples.blacklist.contracts
 
 import net.corda.core.crypto.generateKeyPair
 import net.corda.core.identity.CordaX500Name
-import net.corda.examples.attachments.BLACKLISTED_PARTIES
-import net.corda.examples.attachments.BLACKLIST_JAR_PATH
+import net.corda.samples.blacklist.BLACKLIST_JAR_NAME
+import net.corda.samples.blacklist.BLACKLISTED_PARTIES
 import net.corda.samples.blacklist.contracts.AgreementContract.Companion.AGREEMENT_CONTRACT_ID
 import net.corda.samples.blacklist.states.AgreementState
 import net.corda.testing.core.TestIdentity
@@ -12,7 +12,8 @@ import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
 import net.corda.testing.node.makeTestIdentityService
 import org.junit.Test
-import java.io.File
+import java.io.FileNotFoundException
+import java.io.InputStream
 
 class ContractTests {
     private val ledgerServices = MockServices(listOf("net.corda.samples.blacklist.contracts"), identityService = makeTestIdentityService(), initialIdentity = TestIdentity(CordaX500Name("TestIdentity", "", "GB")))
@@ -22,18 +23,20 @@ class ContractTests {
     private val miniCorp = TestIdentity(miniCorpName)
 
     private val agreementTxt = "$megaCorpName agrees with $miniCorpName that..."
-    private val validAttachment = File(BLACKLIST_JAR_PATH)
     private val blacklistedPartyKeyPair = generateKeyPair()
     private val blacklistedPartyPubKey = blacklistedPartyKeyPair.public
     private val blacklistedPartyName = CordaX500Name(organisation = BLACKLISTED_PARTIES[0], locality = "London", country = "GB")
     private val blacklistedParty = getTestPartyAndCertificate(blacklistedPartyName, blacklistedPartyPubKey).party
 
+    private fun getValidAttachment(): InputStream {
+        return javaClass.classLoader.getResourceAsStream(BLACKLIST_JAR_NAME) ?: throw FileNotFoundException("blacklist.jar not found")
+    }
+
     @Test
     fun `agreement transaction contains one non-contract attachment`() {
         ledgerServices.ledger {
             // We upload a test attachment to the ledger.
-            val attachmentInputStream = validAttachment.inputStream()
-            val attachmentHash = attachment(attachmentInputStream)
+            val attachmentHash = attachment(getValidAttachment())
 
             transaction {
                 output(AGREEMENT_CONTRACT_ID, AgreementState(megaCorp.party, miniCorp.party, agreementTxt))
@@ -49,8 +52,7 @@ class ContractTests {
     fun `the non-contract attachment must not blacklist any of the participants`() {
         ledgerServices.ledger {
             // We upload a test attachment to the ledger.
-            val attachmentInputStream = validAttachment.inputStream()
-            val attachmentHash = attachment(attachmentInputStream)
+            val attachmentHash = attachment(getValidAttachment())
 
             transaction {
                 output(AGREEMENT_CONTRACT_ID, AgreementState(megaCorp.party, blacklistedParty, agreementTxt))

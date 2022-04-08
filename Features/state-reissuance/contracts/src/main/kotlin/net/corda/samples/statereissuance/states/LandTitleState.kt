@@ -15,9 +15,9 @@ data class LandTitleState(override val linearId: UniqueIdentifier,
                           val owner: Party,
                           override val participants: List<AbstractParty> = listOf(issuer, owner)
 ) : LinearState {
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        return if (o == null || javaClass != o.javaClass) false else linearId.equals((o as LandTitleState).linearId)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        return other is LandTitleState && linearId == other.linearId
     }
 
     override fun hashCode(): Int {

@@ -12,7 +12,6 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.notarychange.contracts.IOUContract
 import net.corda.samples.notarychange.states.IOUState
-import java.util.*
 
 class SettleFlow {
     @InitiatingFlow
@@ -25,12 +24,12 @@ class SettleFlow {
         private val VERIFYING_TRANSACTION = ProgressTracker.Step("Verifying contract constraints.")
         private val SIGNING_TRANSACTION = ProgressTracker.Step("Signing transaction with our private key.")
         private val GATHERING_SIGS: ProgressTracker.Step = object : ProgressTracker.Step("Gathering the counterparty's signature.") {
-            override fun childProgressTracker(): ProgressTracker? {
+            override fun childProgressTracker(): ProgressTracker {
                 return CollectSignaturesFlow.tracker()
             }
         }
         private val FINALISING_TRANSACTION: ProgressTracker.Step = object : ProgressTracker.Step("Obtaining notary signature and recording transaction.") {
-            override fun childProgressTracker(): ProgressTracker? {
+            override fun childProgressTracker(): ProgressTracker {
                 return FinalityFlow.tracker()
             }
         }
@@ -68,7 +67,7 @@ class SettleFlow {
             progressTracker.currentStep = QUERYING_VAULT
             val queryCriteria: QueryCriteria = LinearStateQueryCriteria(null, listOf(linearId.id))
             val (states) = serviceHub.vaultService.queryBy(IOUState::class.java, queryCriteria)
-            if (states.size == 0) {
+            if (states.isEmpty()) {
                 throw FlowException("No IOU found for LinearId:$linearId")
             }
             val iouStateStateAndRef = states[0]
@@ -78,10 +77,9 @@ class SettleFlow {
             }
             progressTracker.currentStep = GENERATING_TRANSACTION
             // Generate an unsigned transaction.
-            val me = ourIdentity
             val txCommand = Command(
                     IOUContract.Commands.Settle(),
-                    Arrays.asList(inputStateToSettle.lender.owningKey, inputStateToSettle.borrower.owningKey))
+                    listOf(inputStateToSettle.lender.owningKey, inputStateToSettle.borrower.owningKey))
             val txBuilder = TransactionBuilder(notary)
                     .addInputState(iouStateStateAndRef)
                     .addCommand(txCommand)

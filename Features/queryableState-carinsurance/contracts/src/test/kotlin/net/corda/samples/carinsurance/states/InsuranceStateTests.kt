@@ -2,14 +2,14 @@ package net.corda.samples.carinsurance.states
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.core.TestIdentity
-import org.jgroups.util.Util
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.util.*
 
 class InsuranceStateTests {
 
-    var a = TestIdentity(CordaX500Name("Alice", "", "GB"))
-    var b = TestIdentity(CordaX500Name("Bob", "", "GB"))
+    private val a = TestIdentity(CordaX500Name("Alice", "", "GB"))
+    private val b = TestIdentity(CordaX500Name("Bob", "", "GB"))
 
     @Test
     fun constructorTest() {
@@ -48,16 +48,16 @@ class InsuranceStateTests {
                 insurer,
                 insuree,
                 vd,
-                Arrays.asList(c))
+                listOf(c))
 
-        Util.assertEquals(policyNum, policyNumber)
-        Util.assertEquals(insuredValue, insuredValue1)
-        Util.assertEquals(duration, duration1)
-        Util.assertEquals(premium, premium1)
-        Util.assertEquals(insurer, insurer1)
-        Util.assertEquals(insuree, insuree1)
-        Util.assertEquals(vd, vehicleDetail)
-        Util.assertTrue(participants.contains(a.party))
-        Util.assertTrue(participants.contains(b.party))
+        assertEquals(policyNum, policyNumber)
+        assertEquals(insuredValue, insuredValue1)
+        assertEquals(duration, duration1)
+        assertEquals(premium, premium1)
+        assertEquals(insurer, insurer1)
+        assertEquals(insuree, insuree1)
+        assertEquals(vd, vehicleDetail)
+        assertTrue(participants.contains(a.party))
+        assertTrue(participants.contains(b.party))
     }
 }

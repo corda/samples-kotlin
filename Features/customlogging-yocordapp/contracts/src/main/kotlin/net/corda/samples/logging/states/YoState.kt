@@ -6,7 +6,6 @@ import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.serialization.ConstructorForDeserialization
 import net.corda.samples.logging.contracts.YoContract
-import java.util.*
 
 // *********
 // * State *
@@ -31,7 +30,7 @@ class YoState : ContractState {
     }
 
     override val participants: List<AbstractParty>
-        get() = Arrays.asList(target)
+        get() = listOf(target)
 
     override fun toString(): String {
         return origin.name.toString() + ": " + yo

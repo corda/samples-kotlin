@@ -25,7 +25,7 @@ If you have docker installed you can use our gradle tasks to generate a valid do
 
 ```bash
 # generate the docker-compose file
-./gradlew prepareDockerNodes
+../gradlew prepareDockerNodes
 
 # run our corda network
 docker-compose -f ./build/nodes/docker-compose.yml up

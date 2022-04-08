@@ -8,7 +8,7 @@ import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNetworkParameters
 import net.corda.testing.node.TestCordapp
 import org.junit.After
-import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
@@ -59,6 +59,6 @@ class FlowTests {
         val ptx = future.get()
 
         //assertion for single output
-        Assert.assertEquals(1, ptx.tx.outputStates.size.toLong())
+        assertEquals(1, ptx.tx.outputStates.size.toLong())
     }
 }

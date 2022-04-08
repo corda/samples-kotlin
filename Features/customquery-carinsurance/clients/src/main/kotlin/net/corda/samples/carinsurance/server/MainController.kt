@@ -15,9 +15,6 @@ import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-
-val SERVICE_NAMES = listOf("Notary", "Network Map Service")
-
 /**
  *  A Spring Boot Server API controller for interacting with the node via RPC.
  */

@@ -42,7 +42,7 @@ class IssueLandTitle(private val owner: Party,
         val ptx = serviceHub.signInitialTransaction(builder)
 
         // Step 7. Assuming no exceptions, we can now finalise the transaction
-        return subFlow<SignedTransaction>(FinalityFlow(ptx, listOf(initiateFlow(owner))))
+        return subFlow(FinalityFlow(ptx, listOf(initiateFlow(owner))))
     }
 }
 

@@ -5,11 +5,11 @@ import net.corda.core.crypto.SecureHash
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.utilities.NetworkHostAndPort.Companion.parse
 import net.corda.core.utilities.loggerFor
-import net.corda.examples.attachments.ATTACHMENT_EXPECTED_CONTENTS
-import net.corda.examples.attachments.ATTACHMENT_FILE_NAME
-import net.corda.examples.attachments.BLACKLIST_JAR_PATH
+import net.corda.samples.blacklist.BLACKLISTED_PARTIES
+import net.corda.samples.blacklist.BLACKLIST_JAR_NAME
+import net.corda.samples.blacklist.contracts.AgreementContract.Companion.BLACKLIST_FILE_NAME
 import org.slf4j.Logger
-import java.io.File
+import java.io.FileNotFoundException
 import java.util.jar.JarInputStream
 
 /**
@@ -31,26 +31,28 @@ private class UploadBlacklistClient {
             val rpcConnection = CordaRPCClient(nodeAddress).start("user1", "test")
             val proxy = rpcConnection.proxy
 
-            val attachmentHash = uploadAttachment(proxy, BLACKLIST_JAR_PATH)
+            val attachmentHash = uploadAttachment(proxy, BLACKLIST_JAR_NAME)
             logger.info("Blacklist uploaded to node at $nodeAddress")
 
             val attachmentJar = downloadAttachment(proxy, attachmentHash)
             logger.info("Blacklist downloaded from node at $nodeAddress")
 
-            checkAttachment(attachmentJar, ATTACHMENT_FILE_NAME, ATTACHMENT_EXPECTED_CONTENTS)
+            checkAttachment(attachmentJar, BLACKLIST_FILE_NAME, BLACKLISTED_PARTIES)
             logger.info("Attachment contents checked on node at $nodeAddress")
 
             rpcConnection.notifyServerAndClose()
         }
     }
-}
 
-/**
- * Uploads the attachment at [attachmentPath] to the node.
- */
-private fun uploadAttachment(proxy: CordaRPCOps, attachmentPath: String): SecureHash {
-    val attachmentUploadInputStream = File(attachmentPath).inputStream()
-    return proxy.uploadAttachment(attachmentUploadInputStream)
+    /**
+     * Uploads the attachment at [attachmentPath] to the node.
+     */
+    @Suppress("SameParameterValue")
+    private fun uploadAttachment(proxy: CordaRPCOps, attachmentPath: String): SecureHash {
+        val attachmentUploadInputStream = javaClass.classLoader.getResourceAsStream(attachmentPath)
+            ?: throw FileNotFoundException("$attachmentPath not found")
+        return proxy.uploadAttachment(attachmentUploadInputStream)
+    }
 }
 
 /**
@@ -64,10 +66,12 @@ private fun downloadAttachment(proxy: CordaRPCOps, attachmentHash: SecureHash): 
 /**
  * Checks the [expectedFileName] and [expectedContents] of the downloaded [attachmentJar].
  */
+@Suppress("SameParameterValue")
 private fun checkAttachment(attachmentJar: JarInputStream, expectedFileName: String, expectedContents: List<String>) {
-    var name = attachmentJar.nextEntry.name
+    var name: String? = null
     while (name != expectedFileName) {
-        name = attachmentJar.nextEntry.name
+        val jarEntry = attachmentJar.nextEntry ?: throw FileNotFoundException("$expectedFileName not found")
+        name = jarEntry.name
     }
 
     val contents = attachmentJar.bufferedReader().readLines()

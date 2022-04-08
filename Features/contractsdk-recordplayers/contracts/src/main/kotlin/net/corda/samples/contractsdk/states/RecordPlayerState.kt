@@ -8,7 +8,6 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.serialization.ConstructorForDeserialization
-import java.util.*
 
 import net.corda.samples.contractsdk.contracts.RecordPlayerContract
 
@@ -45,7 +44,7 @@ class RecordPlayerState @ConstructorForDeserialization constructor(manufacturer:
     /* This method will indicate who are the participants and required signers when
      * this state is used in a transaction. */
     override val participants: List<AbstractParty>
-        get() = Arrays.asList(manufacturer, dealer)
+        get() = listOf(manufacturer, dealer)
 
     fun update(needle: Needle?, magneticStrength: Int, coilTurns: Int, amplifierSNR: Int, songsPlayed: Int): RecordPlayerState {
         // take our params and apply them to the state object

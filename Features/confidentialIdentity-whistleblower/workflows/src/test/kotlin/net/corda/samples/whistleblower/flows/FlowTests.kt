@@ -6,6 +6,7 @@ import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNetworkParameters
 import net.corda.testing.node.TestCordapp
 import org.junit.After
+import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
 
@@ -39,8 +40,7 @@ class FlowTests {
         val future = a.startFlow(BlowWhistleFlow(b.info.legalIdentities.first(), c.info.legalIdentities.first()))
         network.runNetwork()
         val ptx = future.get()
-        assert(!ptx.tx.requiredSigningKeys.contains(a.info.legalIdentities.first().owningKey))
-        assert(!ptx.tx.requiredSigningKeys.contains(b.info.legalIdentities.first().owningKey))
-
+        assertFalse(ptx.tx.requiredSigningKeys.contains(a.info.legalIdentities.first().owningKey))
+        assertFalse(ptx.tx.requiredSigningKeys.contains(b.info.legalIdentities.first().owningKey))
     }
 }

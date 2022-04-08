@@ -25,7 +25,7 @@ For development environment setup, please refer to: [Setup Guide](https://docs.c
 
 ### Deploy and run the node
 ```
-./greadlew deployNodes
+../gradlew clean deployNodes
 ./build/node/runnodes
 ```
 

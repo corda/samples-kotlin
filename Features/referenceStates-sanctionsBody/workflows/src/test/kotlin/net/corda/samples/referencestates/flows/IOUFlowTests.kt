@@ -20,12 +20,12 @@ import java.time.Duration
 import java.time.temporal.ChronoUnit
 
 class IOUFlowTests {
-    lateinit var network: MockNetwork
-    lateinit var a: StartedMockNode
-    lateinit var b: StartedMockNode
-    lateinit var c: StartedMockNode
-    lateinit var issuer: StartedMockNode
-    lateinit var issuerParty: Party
+    private lateinit var network: MockNetwork
+    private lateinit var a: StartedMockNode
+    private lateinit var b: StartedMockNode
+    private lateinit var c: StartedMockNode
+    private lateinit var issuer: StartedMockNode
+    private lateinit var issuerParty: Party
 
     @Before
     fun setup() {
@@ -50,7 +50,9 @@ class IOUFlowTests {
 
     @After
     fun tearDown() {
-        network.stopNodes()
+        if (::network.isInitialized) {
+            network.stopNodes()
+        }
     }
 
     @Test(expected = TransactionVerificationException.ContractRejection::class)
@@ -81,7 +83,6 @@ class IOUFlowTests {
         signedTx.verifySignaturesExcept(b.info.singleIdentity().owningKey)
 
         println("@@@@@@@@@@${a.services.vaultService.queryBy(SanctionedEntities::class.java).states.firstOrNull()}")
-
     }
 
     @Test(expected = TransactionVerificationException.ContractRejection::class)
@@ -161,7 +162,6 @@ class IOUFlowTests {
         network.runNetwork()
 
         dealFuture3.getOrThrow()
-
     }
 
     private fun getSanctionsList(node: StartedMockNode, issuerOfSanctions: Party) {
@@ -215,6 +215,5 @@ class IOUFlowTests {
         network.runNetwork()
 
         dealFuture4.getOrThrow(timeout = Duration.of(30, ChronoUnit.MINUTES))
-
     }
 }

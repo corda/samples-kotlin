@@ -14,7 +14,7 @@ import net.corda.testing.node.ledger
 import org.junit.Test
 
 class IOUContractTests {
-    val DUMMY_NOTARY = TestIdentity(DUMMY_NOTARY_NAME, 20).party
+    private val DUMMY_NOTARY = TestIdentity(DUMMY_NOTARY_NAME, 20).party
 
     private val issuer = TestIdentity(CordaX500Name("SanctionsIssuer", "London", "GB"))
     private val megaCorp = TestIdentity(CordaX500Name("MegaCorp", "London", "GB"))

@@ -1,10 +1,8 @@
 package net.corda.samples.contractsdk.contracts
 
-
 import com.r3.corda.lib.contracts.contractsdk.StandardContract
 import com.r3.corda.lib.contracts.contractsdk.annotations.*
 import com.r3.corda.lib.contracts.contractsdk.verifiers.StandardCommand
-import com.r3.corda.lib.contracts.contractsdk.verifiers.StandardState
 
 import net.corda.core.contracts.*
 import net.corda.core.transactions.LedgerTransaction
@@ -40,10 +38,8 @@ class RecordPlayerContract : StandardContract(), Contract {
         class Update : Commands, StandardCommand {
             // We can add additional logic to the update command without adding extra boilerplate
             override fun verifyFurther(tx: LedgerTransaction) {
-                val inputs = tx.inputStates
-                val outputs = tx.outputStates
-                val oldRp = inputs[0] as RecordPlayerState
-                val newRp = outputs[0] as RecordPlayerState
+                val oldRp = tx.inputsOfType<RecordPlayerState>().single()
+                val newRp = tx.outputsOfType<RecordPlayerState>().single()
 
                 // We can still use Corda DSL function requireThat to replicate conditions-checks
                 requireThat {

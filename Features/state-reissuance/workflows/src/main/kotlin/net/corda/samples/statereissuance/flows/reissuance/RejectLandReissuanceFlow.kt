@@ -1,7 +1,6 @@
 package net.corda.samples.statereissuance.flows.reissuance
 
 import co.paralleluniverse.fibers.Suspendable
-import com.r3.corda.lib.reissuance.flows.ReissueStates
 import com.r3.corda.lib.reissuance.flows.RejectReissuanceRequest
 import com.r3.corda.lib.reissuance.states.ReissuanceRequest
 import net.corda.core.contracts.ContractState
@@ -12,7 +11,6 @@ import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.Party
 import net.corda.core.utilities.ProgressTracker
-import java.util.*
 
 @InitiatingFlow
 @StartableByRPC
