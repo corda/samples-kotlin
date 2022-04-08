@@ -19,7 +19,7 @@ This repository demonstrates how you can configure and use it in your own projec
 
 Configuration is essentially three small steps:
 
-- adding `maven { url 'https://software.r3.com/artifactory/corda-lib-dev' }` to `repositories.gradle`
+- adding `maven { url 'https://software.r3.com/artifactory/corda-lib-dev' }` to `settings.gradle`
 - adding `compile "com.r3.corda.lib.contracts:contract-sdk:0.9-SNAPSHOT"` to the `build.gradle` file of your contract module in your cordapp
 - adding the annotations to your apps!
 
@@ -42,7 +42,7 @@ Take a look at the small RecordPlayerContract sample in this repository to see h
 To run the cordapps, just use the gradle wrapper script the same way you normally would.
 
 ```sh
-$ ./gradlew deployNodes
+$ ../gradlew deployNodes
 $ ./build/nodes/runnodes
 
 >>> flow start net.corda.samples.contractsdk.flows.IssueRecordPlayerFlow dealer: "O=Alice Audio,L=New York,C=US", needle: spherical

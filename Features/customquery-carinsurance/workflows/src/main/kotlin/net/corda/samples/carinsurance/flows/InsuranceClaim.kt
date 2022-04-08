@@ -2,12 +2,7 @@ package net.corda.samples.carinsurance.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.flows.*
-import net.corda.core.node.services.Vault
 import net.corda.core.node.services.Vault.StateStatus
-import net.corda.core.node.services.vault.Builder
-import net.corda.core.node.services.vault.Builder.equal
-import net.corda.core.node.services.vault.CriteriaExpression
-import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.node.services.vault.QueryCriteria.VaultCustomQueryCriteria
 import net.corda.core.node.services.vault.QueryCriteria.VaultQueryCriteria
 import net.corda.core.node.services.vault.builder
@@ -19,7 +14,6 @@ import net.corda.samples.carinsurance.contracts.InsuranceContract
 import net.corda.samples.carinsurance.schema.InsuranceSchemaV1
 import net.corda.samples.carinsurance.states.Claim
 import net.corda.samples.carinsurance.states.InsuranceState
-import java.lang.reflect.Field
 
 // *********
 // * Flows *
@@ -43,7 +37,7 @@ class InsuranceClaim(val claimInfo: ClaimInfo,
         /** And you can have joint custom criteria as well. Simply add additional criteria and add it to the criteria object by using and().
           * val insuredValuecriteria = VaultCustomQueryCriteria(builder { InsuranceSchemaV1.PersistentInsurance::insuredValue.equal(insuredValue, false) })
           * **/
-        var criteria= VaultQueryCriteria(StateStatus.UNCONSUMED).and(policyNumbercriteria)
+        val criteria= VaultQueryCriteria(StateStatus.UNCONSUMED).and(policyNumbercriteria)
                 ///.and(insuredValuecriteria)
         val insuranceStateAndRefs = serviceHub.vaultService.queryBy(InsuranceState::class.java, criteria)
         /***************************************************************************************/
@@ -56,7 +50,7 @@ class InsuranceClaim(val claimInfo: ClaimInfo,
         //compose claim
         val claim = Claim(claimInfo.claimNumber, claimInfo.claimDescription, claimInfo.claimAmount)
         val input = inputStateAndRef.state.data
-        var claimlist = ArrayList<Claim>()
+        val claimlist = ArrayList<Claim>()
         claimlist.add(claim)
         for (item in input.claims) {
             claimlist.add(item)

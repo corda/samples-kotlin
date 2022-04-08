@@ -11,7 +11,6 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.notarychange.contracts.IOUContract
 import net.corda.samples.notarychange.states.IOUState
-import java.util.*
 
 class IssueFlow {
     @InitiatingFlow
@@ -24,12 +23,12 @@ class IssueFlow {
         private val VERIFYING_TRANSACTION = ProgressTracker.Step("Verifying contract constraints.")
         private val SIGNING_TRANSACTION = ProgressTracker.Step("Signing transaction with our private key.")
         private val GATHERING_SIGS: ProgressTracker.Step = object : ProgressTracker.Step("Gathering the counterparty's signature.") {
-            override fun childProgressTracker(): ProgressTracker? {
+            override fun childProgressTracker(): ProgressTracker {
                 return CollectSignaturesFlow.tracker()
             }
         }
         private val FINALISING_TRANSACTION: ProgressTracker.Step = object : ProgressTracker.Step("Obtaining notary signature and recording transaction.") {
-            override fun childProgressTracker(): ProgressTracker? {
+            override fun childProgressTracker(): ProgressTracker {
                 return FinalityFlow.tracker()
             }
         }
@@ -77,7 +76,7 @@ class IssueFlow {
             val iouState = IOUState(iouValue, me, otherParty, UniqueIdentifier())
             val txCommand = Command(
                     IOUContract.Commands.Create(),
-                    Arrays.asList(iouState.lender.owningKey, iouState.borrower.owningKey))
+                    listOf(iouState.lender.owningKey, iouState.borrower.owningKey))
             val txBuilder = TransactionBuilder(notary!!)
                     .addOutputState(iouState)
                     .addCommand(txCommand)
@@ -97,12 +96,12 @@ class IssueFlow {
             // Send the state to the counterparty, and receive it back with their signature.
             val otherPartySession = initiateFlow(otherParty)
             val fullySignedTx = subFlow(
-                    CollectSignaturesFlow(partSignedTx, Arrays.asList(otherPartySession), CollectSignaturesFlow.tracker()))
+                    CollectSignaturesFlow(partSignedTx, listOf(otherPartySession), CollectSignaturesFlow.tracker()))
 
             // Stage 5.
             progressTracker.currentStep = FINALISING_TRANSACTION
             // Notarise and record the transaction in both parties' vaults.
-            return subFlow(FinalityFlow(fullySignedTx, Arrays.asList(otherPartySession))).toString() + ", IOU created with linearId: " + iouState.linearId.toString()
+            return subFlow(FinalityFlow(fullySignedTx, listOf(otherPartySession))).toString() + ", IOU created with linearId: " + iouState.linearId.toString()
         }
     }
 

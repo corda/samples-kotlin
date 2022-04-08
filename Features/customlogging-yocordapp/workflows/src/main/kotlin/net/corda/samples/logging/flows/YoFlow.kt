@@ -13,8 +13,6 @@ import net.corda.samples.logging.contracts.YoContract
 import net.corda.samples.logging.states.YoState
 import org.apache.logging.log4j.ThreadContext
 import org.slf4j.LoggerFactory
-import java.util.*
-
 
 // *********
 // * Flows *
@@ -51,11 +49,11 @@ class YoFlow(private val target: Party) : FlowLogic<SignedTransaction?>() {
         // publish to the log with the additional context
         logger.info("Initializing the transaction.")
         // flush the threadContext
-        ThreadContext.removeAll(Arrays.asList("initiator", "target"))
+        ThreadContext.removeAll(listOf("initiator", "target"))
 
         // Obtain a reference from a notary we wish to use.
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
-        val command = Command(YoContract.Commands.Send(), Arrays.asList(me.owningKey))
+        val command = Command(YoContract.Commands.Send(), listOf(me.owningKey))
         val state = YoState(me, target)
         val stateAndContract = StateAndContract(state, YoContract.ID)
         val utx = TransactionBuilder(notary).withItems(stateAndContract, command)
@@ -70,7 +68,7 @@ class YoFlow(private val target: Party) : FlowLogic<SignedTransaction?>() {
         // publish to the log with the additional context
         logger.info("Finalizing the transaction.")
         // flush the threadContext
-        ThreadContext.removeAll(Arrays.asList("tx_id", "notary"))
+        ThreadContext.removeAll(listOf("tx_id", "notary"))
         progressTracker.currentStep = FINALISING
         val targetSession = initiateFlow(target)
 

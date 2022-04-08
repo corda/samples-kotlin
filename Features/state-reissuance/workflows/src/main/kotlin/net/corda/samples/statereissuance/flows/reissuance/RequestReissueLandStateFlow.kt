@@ -10,7 +10,6 @@ import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.Party
 import net.corda.samples.statereissuance.contracts.LandTitleContract
 import net.corda.samples.statereissuance.states.LandTitleState
-import java.util.*
 
 @InitiatingFlow
 @StartableByRPC
@@ -24,7 +23,7 @@ class RequestReissueLandState(val issuer: Party,
         val stateAndRef = landTitleStateAndRefs.stream().filter { it.state.data.linearId == plotIdentifier }
                 .findAny().orElseThrow { IllegalArgumentException("Land Not Found") }
 
-        return subFlow(RequestReissuance<LandTitleState>(issuer, Arrays.asList(stateAndRef.ref), LandTitleContract.Commands.Issue(),
+        return subFlow(RequestReissuance<LandTitleState>(issuer, listOf(stateAndRef.ref), LandTitleContract.Commands.Issue(),
                 listOf(), null)
         )
     }

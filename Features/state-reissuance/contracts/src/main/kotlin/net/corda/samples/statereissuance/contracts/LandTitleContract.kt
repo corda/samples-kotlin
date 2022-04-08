@@ -31,24 +31,25 @@ class LandTitleContract : Contract {
         // Land Title Issue Contract Verification Logic goes here
         if (tx.outputStates.size != 1) throw IllegalArgumentException("One Output Expected")
         val command = tx.getCommand<CommandData>(0)
-        if (!command.signers.contains((tx.getOutput(0) as LandTitleState).issuer.owningKey))
+        if (!command.signers.contains(tx.outputsOfType<LandTitleState>()[0].issuer.owningKey)) {
             throw IllegalArgumentException("Issuer Signature Required")
+        }
     }
 
     private fun verifyTransfer(tx: LedgerTransaction) {
         // Land Title Transfer Contract Verification Logic goes here
         val command = tx.getCommand<CommandData>(0)
-        val landTitleState = tx.getInput(0) as LandTitleState
+        val landTitleState = tx.inputsOfType<LandTitleState>().single()
         if (!command.signers.contains(landTitleState.issuer.owningKey) && (landTitleState.owner != null && command.signers.contains(landTitleState.owner.owningKey)))
-            throw java.lang.IllegalArgumentException("Issuer and Owner must Sign")
+            throw IllegalArgumentException("Issuer and Owner must Sign")
     }
 
     private fun verifyExit(tx: LedgerTransaction) {
         // Land Title Exit Contract Verification Logic goes here
-        if (tx.outputStates.size != 0) throw java.lang.IllegalArgumentException("Zero Output Expected")
+        if (tx.outputStates.isNotEmpty()) throw java.lang.IllegalArgumentException("Zero Output Expected")
         if (tx.inputStates.size != 1) throw java.lang.IllegalArgumentException("One Input Expected")
         val command = tx.getCommand<CommandData>(0)
-        if (!command.signers.contains((tx.getInput(0) as LandTitleState).issuer.owningKey)) throw java.lang.IllegalArgumentException("Issuer Signature Required")
+        if (!command.signers.contains((tx.inputsOfType<LandTitleState>()[0]).issuer.owningKey)) throw IllegalArgumentException("Issuer Signature Required")
     }
 
     interface Commands : CommandData {

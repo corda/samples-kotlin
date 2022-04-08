@@ -16,7 +16,6 @@ import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.contractsdk.contracts.RecordPlayerContract
 import net.corda.samples.contractsdk.states.Needle
 import net.corda.samples.contractsdk.states.RecordPlayerState
-import java.util.*
 import java.util.stream.Collectors
 
 // ******************
@@ -37,7 +36,7 @@ class UpdateRecordPlayerFlow(stateId: UniqueIdentifier, needleId: String, magnet
     @Suspendable
     @Throws(FlowException::class)
     override fun call(): SignedTransaction {
-        val listOfLinearIds = Arrays.asList(stateId.id)
+        val listOfLinearIds = listOf(stateId.id)
         val queryCriteria: QueryCriteria = LinearStateQueryCriteria(null, listOfLinearIds)
         val (states) = serviceHub.vaultService.queryBy(RecordPlayerState::class.java, queryCriteria)
         val inputStateAndRef = states[0] as StateAndRef<*>
@@ -51,7 +50,7 @@ class UpdateRecordPlayerFlow(stateId: UniqueIdentifier, needleId: String, magnet
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
         val command = Command(
                 RecordPlayerContract.Commands.Update(),
-                Arrays.asList(manufacturer.owningKey, dealer.owningKey)
+                listOf(manufacturer.owningKey, dealer.owningKey)
         )
 
         // Create a new TransactionBuilder object.

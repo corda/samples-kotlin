@@ -2,7 +2,6 @@ package net.corda.samples.autopayroll
 
 import net.corda.samples.autopayroll.flows.RequestFlowInitiator
 import net.corda.samples.autopayroll.flows.RequestFlowResponder
-import groovy.util.GroovyTestCase.assertEquals
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
 import net.corda.testing.node.MockNetwork
@@ -10,6 +9,7 @@ import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNetworkParameters
 import net.corda.testing.node.TestCordapp
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
@@ -39,7 +39,7 @@ class FlowTests {
 
     //Test #1 check if the requestState is being sent to the bank operator behind the scene.
     @Test
-    fun `requestStateSent`() {
+    fun requestStateSent() {
         val future = a.startFlow(RequestFlowInitiator("500", b.info.legalIdentities.first()))
         network.runNetwork()
         val ptx = future.get()

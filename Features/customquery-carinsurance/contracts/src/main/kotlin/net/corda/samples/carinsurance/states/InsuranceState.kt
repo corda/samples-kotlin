@@ -8,9 +8,6 @@ import net.corda.core.schemas.PersistentState
 import net.corda.core.schemas.QueryableState
 import net.corda.samples.carinsurance.contracts.InsuranceContract
 import net.corda.samples.carinsurance.schema.InsuranceSchemaV1
-import java.util.*
-import kotlin.collections.ArrayList
-
 
 // *********
 // * State *
@@ -38,7 +35,7 @@ data class InsuranceState(val policyNumber: String,
                 }
             }
 
-            var vDetail = InsuranceSchemaV1.PersistentVehicle(vehicleDetail.registrationNumber,
+            val vDetail = InsuranceSchemaV1.PersistentVehicle(vehicleDetail.registrationNumber,
                     vehicleDetail.chasisNumber,
                     vehicleDetail.make,
                     vehicleDetail.model,
@@ -60,4 +57,3 @@ data class InsuranceState(val policyNumber: String,
 
     override fun supportedSchemas(): Iterable<MappedSchema> = listOf(InsuranceSchemaV1)
 }
-

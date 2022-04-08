@@ -1,11 +1,14 @@
 package net.corda.samples.sendfile.flows
 
+import java.io.FileNotFoundException
+import java.nio.file.Paths
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNetworkParameters
 import net.corda.testing.node.TestCordapp
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -18,6 +21,10 @@ class FlowTests {
     ))
     private val a = network.createNode()
     private val b = network.createNode()
+
+    private val testZip = Paths.get(
+        (this::class.java.classLoader.getResource("test.zip") ?: throw FileNotFoundException("test.zip not found")
+    ).toURI()).toAbsolutePath()
 
     init {
         listOf(a, b).forEach {
@@ -36,16 +43,16 @@ class FlowTests {
     //because the unit test are in a different working directory than the running node.
     @Test
     fun `attachment list has more than one element`() {
-        val future = a.startFlow(SendAttachment(b.info.legalIdentities.first(), true))
+        val future = a.startFlow(SendAttachment(b.info.legalIdentities.first(), testZip.toString()))
         network.runNetwork()
         val ptx = future.get()
-        assert(ptx.tx.attachments.size > 1)
+        assertTrue(ptx.tx.attachments.size > 1)
     }
 
     //Test #2 test successful download of the attachment by the receiving node.
     @Test
     fun `attachment downloaded by buyer`() {
-        val future = a.startFlow(SendAttachment(b.info.legalIdentities.first(), true))
+        val future = a.startFlow(SendAttachment(b.info.legalIdentities.first(), testZip.toString()))
         network.runNetwork()
         val future1 = b.startFlow(DownloadAttachment(a.info.legalIdentities.first(), "file.zip"))
         network.runNetwork()

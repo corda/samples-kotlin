@@ -4,9 +4,9 @@ import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.SchedulableState
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.core.TestIdentity
-import org.jgroups.util.Util
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
-
 
 class HeartStateTests {
     private val a = TestIdentity(CordaX500Name("Alice", "", "GB"))
@@ -15,14 +15,14 @@ class HeartStateTests {
     @Test
     fun constructorTest() {
         val st = HeartState(a.party)
-        Util.assertTrue(st.participants.contains(a.party))
-        Util.assertFalse(st.participants.contains(b.party))
+        assertTrue(st.participants.contains(a.party))
+        assertFalse(st.participants.contains(b.party))
     }
 
     @Test
     fun stateImplementsContractStateTest() {
         val st = HeartState(a.party)
-        Util.assertTrue(st is ContractState)
-        Util.assertTrue(st is SchedulableState)
+        assertTrue(st is ContractState)
+        assertTrue(st is SchedulableState)
     }
 }

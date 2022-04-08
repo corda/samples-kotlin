@@ -3,16 +3,16 @@ package net.corda.samples.referencestates.flows
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.node.*
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class SanctionsFlowTests {
-    lateinit var network: MockNetwork
-    lateinit var a: StartedMockNode
-    lateinit var b: StartedMockNode
-    lateinit var c: StartedMockNode
+    private lateinit var network: MockNetwork
+    private lateinit var a: StartedMockNode
+    private lateinit var b: StartedMockNode
+    private lateinit var c: StartedMockNode
 
     @Before
     fun setup() {
@@ -32,7 +32,9 @@ class SanctionsFlowTests {
 
     @After
     fun tearDown() {
-        network.stopNodes()
+        if (::network.isInitialized) {
+            network.stopNodes()
+        }
     }
 
     @Test
@@ -57,7 +59,6 @@ class SanctionsFlowTests {
         network.runNetwork()
 
         assertEquals(issueListFuture.get().state.data, getListFuture.get().single().state.data)
-
     }
 
 
@@ -77,9 +78,9 @@ class SanctionsFlowTests {
         val updateListFuture = a.startFlow(updateFlow)
         network.runNetwork()
 
-        assertTrue {
+        assertTrue(
             c.info.legalIdentities.first() in updateListFuture.get().state.data.badPeople
-        }
+        )
 
         val getUpdatedListFlow = GetSanctionsListFlow.Initiator(a.info.legalIdentities.first())
         val getUpdatedListFuture = b.startFlow(getUpdatedListFlow)

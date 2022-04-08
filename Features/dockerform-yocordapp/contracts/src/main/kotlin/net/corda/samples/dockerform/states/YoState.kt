@@ -32,9 +32,9 @@ class YoState : ContractState {
     }
 
     override val participants: List<AbstractParty>
-        get() = Arrays.asList(target)
+        get() = listOf(target)
 
     override fun toString(): String {
-        return origin.name.toString() + ": " + yo
+        return "${origin.name}: $yo"
     }
 }

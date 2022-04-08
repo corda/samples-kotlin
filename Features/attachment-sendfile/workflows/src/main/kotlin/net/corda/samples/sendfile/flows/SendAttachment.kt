@@ -13,6 +13,7 @@ import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.sendfile.contracts.InvoiceContract
 import net.corda.samples.sendfile.states.InvoiceState
 import java.io.File
+import java.nio.file.Paths
 
 
 // *********
@@ -22,7 +23,7 @@ import java.io.File
 @StartableByRPC
 class SendAttachment(
         private val receiver: Party,
-        private val unitTest: Boolean
+        private val zipPath: String
 ) : FlowLogic<SignedTransaction>() {
     companion object {
         object GENERATING_TRANSACTION : ProgressTracker.Step("Generating transaction")
@@ -36,9 +37,8 @@ class SendAttachment(
         )
     }
 
-    constructor(receiver: Party) : this(receiver, unitTest = false)
-
     override val progressTracker = tracker()
+
     @Suspendable
     override fun call():SignedTransaction {
         // Obtain a reference from a notary we wish to use.
@@ -49,16 +49,12 @@ class SendAttachment(
 
         //upload attachment via private method
         val path = System.getProperty("user.dir")
-        println("Working Directory = $path")
+        logger.info("Working Directory = {}}", path)
 
-        val zipPath = if (unitTest!!) "../test.zip" else "../../../test.zip"
-
-        //Change the path to "../test.zip" for passing the unit test.
-        //because the unit test are in a different working directory than the running node.
         val attachmenthash = SecureHash.parse(uploadAttachment(zipPath,
                 serviceHub,
                 ourIdentity,
-                "testzip"))
+                Paths.get(zipPath).fileName.toString()))
 
         progressTracker.currentStep = GENERATING_TRANSACTION
         //build transaction

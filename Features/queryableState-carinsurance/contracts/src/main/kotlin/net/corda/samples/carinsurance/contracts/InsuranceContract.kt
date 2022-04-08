@@ -27,7 +27,7 @@ class InsuranceContract : Contract {
                 "Transaction must have no input states." using (inputs.isEmpty())
             }
             is Commands.AddClaim -> requireThat {
-                "Insurance transaction must have input states, the insurance police" using (!inputs.isEmpty())
+                "Insurance transaction must have input states, the insurance police" using (inputs.isNotEmpty())
             }
         }
     }

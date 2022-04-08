@@ -18,7 +18,7 @@ made against the insurance. We use them to demonstrate _One-to-Many_ relationshi
 
 A spring boot client is provided with the cordapp, which exposes two REST endpoints
 (see `Controller` in the clients module) to trigger the flows.
-Use the command `./gradlew bootRun` in the project root folder to run the [Spring Boot
+Use the command `../gradlew bootRun` in the project root folder to run the [Spring Boot
 Server](https://spring.io/projects/spring-boot#overview).
 
 ### Flows
@@ -41,7 +41,7 @@ For development environment setup, please refer to: [Setup Guide](https://docs.c
 
 Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```
-./gradlew clean deployNodes
+../gradlew clean deployNodes
 ```
 Then type: (to run the nodes)
 ```

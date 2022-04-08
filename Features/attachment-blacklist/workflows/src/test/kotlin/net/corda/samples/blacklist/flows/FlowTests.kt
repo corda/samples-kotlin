@@ -7,17 +7,18 @@ import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.getOrThrow
-import net.corda.examples.attachments.BLACKLIST_JAR_PATH
-import net.corda.examples.attachments.INCORRECT_JAR_PATH
+import net.corda.samples.blacklist.BLACKLIST_JAR_NAME
 import net.corda.samples.blacklist.states.AgreementState
 import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import java.io.File
+import java.io.FileNotFoundException
+import java.io.InputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class FlowTests {
     private lateinit var network: MockNetwork
@@ -28,6 +29,10 @@ class FlowTests {
     private lateinit var agreementTxt: String
     private lateinit var blacklistAttachment: SecureHash
     private lateinit var incorrectAttachment: SecureHash
+
+    private fun getAttachment(resourceName: String): InputStream {
+        return javaClass.classLoader.getResourceAsStream(resourceName) ?: throw FileNotFoundException("$resourceName not found")
+    }
 
     @Before
     fun setup() {
@@ -44,16 +49,14 @@ class FlowTests {
 
         // We upload the valid attachment to the first node, who will propagate it to the other node as part of the
         // flow.
-        val attachmentInputStream = File(BLACKLIST_JAR_PATH).inputStream()
         a.transaction {
-            blacklistAttachment = a.services.attachments.importAttachment(attachmentInputStream, "user", "blacklist")
+            blacklistAttachment = a.services.attachments.importAttachment(getAttachment(BLACKLIST_JAR_NAME), "user", "blacklist")
         }
 
         // We upload the invalid attachment to the first node, who will propagate it to the other node as part of the
         // flow.
-        val incorrectAttachmentInputStream = File(INCORRECT_JAR_PATH).inputStream()
         a.transaction {
-            incorrectAttachment = a.services.attachments.importAttachment(incorrectAttachmentInputStream, "user", "blacklist")
+            incorrectAttachment = a.services.attachments.importAttachment(getAttachment("invalid.jar"), "user", "blacklist")
         }
 
         b.registerInitiatedFlow(AgreeFlow::class.java)
@@ -63,7 +66,9 @@ class FlowTests {
 
     @After
     fun tearDown() {
-        network.stopNodes()
+        if (::network.isInitialized) {
+            network.stopNodes()
+        }
     }
 
     @Test
@@ -101,7 +106,7 @@ class FlowTests {
             // Checks on the blacklist.
             val attachments = recordedTx.tx.attachments
             assertEquals(2, attachments.size)
-            assert(attachments.contains(blacklistAttachment))
+            assertTrue(attachments.contains(blacklistAttachment))
         }
     }
 

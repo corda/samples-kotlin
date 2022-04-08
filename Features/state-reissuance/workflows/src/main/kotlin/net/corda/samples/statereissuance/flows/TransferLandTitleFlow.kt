@@ -11,8 +11,6 @@ import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
 import net.corda.samples.statereissuance.contracts.LandTitleContract
 import net.corda.samples.statereissuance.states.LandTitleState
-import java.util.*
-
 
 @InitiatingFlow
 @StartableByRPC
@@ -47,10 +45,10 @@ class TransferLandTitle(private val plotIdentifier: UniqueIdentifier,
         val newOwnerSession = initiateFlow(owner)
         newOwnerSession.send("not-signer")
 
-        val stx = subFlow(CollectSignaturesFlow(ptx, Arrays.asList(issuerSession)))
+        val stx = subFlow(CollectSignaturesFlow(ptx, listOf(issuerSession)))
 
         // Step 7. Assuming no exceptions, we can now finalise the transaction
-        return subFlow<SignedTransaction>(FinalityFlow(stx, listOf(issuerSession,newOwnerSession)))
+        return subFlow(FinalityFlow(stx, listOf(issuerSession,newOwnerSession)))
     }
 }
 

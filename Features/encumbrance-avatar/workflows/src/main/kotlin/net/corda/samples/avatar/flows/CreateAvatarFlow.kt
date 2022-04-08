@@ -11,7 +11,6 @@ import net.corda.samples.avatar.states.Expiry
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
 
 @InitiatingFlow
 @StartableByRPC
@@ -46,6 +45,6 @@ class CreateAvatar(private val avatarId: String, expiryAfterMinutes: Long) : Flo
             .setTimeWindow(Instant.now(), Duration.ofSeconds(10))
         txBuilder.verify(serviceHub)
         val signedTransaction = serviceHub.signInitialTransaction(txBuilder)
-        return subFlow(FinalityFlow(signedTransaction, Arrays.asList()))
+        return subFlow(FinalityFlow(signedTransaction, emptyList()))
     }
 }

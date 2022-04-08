@@ -1,8 +1,11 @@
-apply plugin: 'net.corda.plugins.cordapp'
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'net.corda.plugins.cordapp'
+}
 
 cordapp {
-    targetPlatformVersion corda_platform_version
-    minimumPlatformVersion corda_platform_version
+    targetPlatformVersion corda_platform_version.toInteger()
+    minimumPlatformVersion corda_platform_version.toInteger()
 
     contract {
         name "Attachment Blacklist"
@@ -12,24 +15,26 @@ cordapp {
     }
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
-    kotlinOptions {
-        languageVersion = "1.2"
-        apiVersion = "1.2"
-        jvmTarget = "1.8"
-        javaParameters = true   // Useful for reflection.
+configurations {
+    testArtifacts {
+        canBeResolved = false
     }
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    cordaProvided "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    testImplementation "$corda_release_group:corda-node-driver:$corda_release_version"
+    testImplementation "junit:junit:$junit_version"
 
     // Corda dependencies.
-    cordaCompile "$corda_release_group:corda-core:$corda_release_version"
-    testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
+    cordaProvided "$corda_core_group:corda-core:$corda_release_version"
 }
 
-jar {
-    // CorDapps do not configure a Node's logging.
-    exclude '**/log4j2*.xml'
+def testJar = tasks.register('testJar', Jar) {
+    archiveClassifier = 'tests'
+    from sourceSets.test.output
+}
+
+artifacts {
+    testArtifacts testJar
 }

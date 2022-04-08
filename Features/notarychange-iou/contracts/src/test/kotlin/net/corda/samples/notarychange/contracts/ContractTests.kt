@@ -8,7 +8,6 @@ import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
 import org.junit.Test
 
-
 class ContractTests {
     private val ledgerServices = MockServices()
     private val megaCorp = TestIdentity(CordaX500Name("MegaCorp", "London", "GB"))

@@ -33,7 +33,7 @@ performing the DVP for the NFT against the tokens.
 
 Build and run the CorDapp using below command. This will deploy three nodes - buyer, seller and notary.
 ```
-./gradlew clean deployNodes
+../gradlew clean deployNodes
 ./build/nodes/runnodes
 ```
 

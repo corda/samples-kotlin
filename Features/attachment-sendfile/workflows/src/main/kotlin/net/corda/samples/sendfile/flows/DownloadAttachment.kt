@@ -30,6 +30,7 @@ class DownloadAttachment(
     }
 
     override val progressTracker = tracker()
+
     @Suspendable
     override fun call():String {
         progressTracker.currentStep = RETRIEVING_ID
@@ -40,7 +41,7 @@ class DownloadAttachment(
         val state = serviceHub.vaultService.queryBy(
                 contractStateType = InvoiceState::class.java,
                 criteria = criteria
-        ).states.get(0).state.data.invoiceAttachmentID
+        ).states[0].state.data.invoiceAttachmentID
 
         progressTracker.currentStep = DOWNLOAD_ATTACHMENT
         val content = serviceHub.attachments.openAttachment(SecureHash.parse(state))!!

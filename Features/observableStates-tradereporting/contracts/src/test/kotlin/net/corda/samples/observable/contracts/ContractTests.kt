@@ -9,8 +9,8 @@ import org.junit.Test
 
 class ContractTests {
     private val ledgerServices = MockServices()
-    val partya = TestIdentity(CordaX500Name(organisation = "Alice", locality = "TestLand", country = "US"))
-    var partyb = TestIdentity(CordaX500Name("Bob", "TestLand", "US"))
+    private val partya = TestIdentity(CordaX500Name(organisation = "Alice", locality = "TestLand", country = "US"))
+    private val partyb = TestIdentity(CordaX500Name("Bob", "TestLand", "US"))
 
     @Test
     fun `No Negative PayCheck Value`() {
