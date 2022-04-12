@@ -37,7 +37,9 @@ abstract class FlowTestsBase {
 
     @After
     fun tearDown() {
-        network.stopNodes()
+        if (::network.isInitialized) {
+            network.stopNodes()
+        }
     }
 
     fun nodeACreatesProposal(isBuyer: Boolean, amount: Int, counterparty: Party): UniqueIdentifier {

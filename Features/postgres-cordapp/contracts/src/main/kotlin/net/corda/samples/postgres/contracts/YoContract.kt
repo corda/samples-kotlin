@@ -7,7 +7,6 @@ import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.postgres.states.YoState
 
-
 // ************
 // * Contract *
 // ************

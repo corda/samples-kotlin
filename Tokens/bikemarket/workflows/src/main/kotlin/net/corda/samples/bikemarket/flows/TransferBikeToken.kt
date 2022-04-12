@@ -6,13 +6,10 @@ import com.r3.corda.lib.tokens.workflows.flows.move.addMoveNonFungibleTokens
 import com.r3.corda.lib.tokens.workflows.internal.flows.distribution.UpdateDistributionListFlow
 import com.r3.corda.lib.tokens.workflows.internal.flows.finality.ObserverAwareFinalityFlow
 import com.r3.corda.lib.tokens.workflows.internal.flows.finality.ObserverAwareFinalityFlowHandler
-import com.r3.corda.lib.tokens.workflows.utilities.getPreferredNotary
-import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
-import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.bikemarket.states.FrameTokenState
@@ -33,7 +30,7 @@ class TransferBikeToken(val frameSerial: String,
         //Step 1: Frame Token
         //get frame states on ledger
         val frameStateAndRef = serviceHub.vaultService.queryBy<FrameTokenState>().states
-                .filter { it.state.data.serialNum.equals(frameSerial) }[0]
+                .filter { it.state.data.serialNum == frameSerial }[0]
 
         //get the TokenType object
         val frametokentype = frameStateAndRef.state.data
@@ -43,7 +40,7 @@ class TransferBikeToken(val frameSerial: String,
 
         //Step 2: Wheels Token
         val wheelStateAndRef = serviceHub.vaultService.queryBy<WheelsTokenState>().states
-                .filter { it.state.data.serialNum.equals(wheelsSerial) }[0]
+                .filter { it.state.data.serialNum == wheelsSerial }[0]
 
         //get the TokenType object
         val wheeltokentype: WheelsTokenState = wheelStateAndRef.state.data
@@ -73,7 +70,7 @@ class TransferBikeToken(val frameSerial: String,
 @InitiatedBy(TransferBikeToken::class)
 class TransferBikeTokenResponder(val flowSession: FlowSession) : FlowLogic<Unit>() {
     @Suspendable
-    override fun call(): Unit {
+    override fun call() {
         subFlow(ObserverAwareFinalityFlowHandler(flowSession))
     }
 }

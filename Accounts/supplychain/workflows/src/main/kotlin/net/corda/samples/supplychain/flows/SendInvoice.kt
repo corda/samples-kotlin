@@ -1,6 +1,5 @@
 package net.corda.samples.supplychain.flows
 
-
 import net.corda.core.flows.*
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.accounts.workflows.accountService

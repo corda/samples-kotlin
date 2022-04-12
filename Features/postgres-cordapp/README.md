@@ -19,7 +19,7 @@ docker run --name postgres_for_corda -e POSTGRES_PASSWORD=test -d -p 5432:5432 p
 # run sql scripts locally on the postgres instance to configure it for use
 cat config.sql | docker exec -i postgres_for_corda psql -h localhost -p 5432 -U postgres
 
-./gradlew deployNodes
+../gradlew deployNodes
 
 ./build/nodes/runnodes
 ```

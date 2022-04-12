@@ -19,7 +19,7 @@ Oracle node is used to obtain the player dice rolls.
 # Setting up
 Go into the project directory and build the project
 ```
-./gradlew clean deployNodes
+../gradlew clean deployNodes
 ```
 Run the project
 ```
@@ -30,9 +30,9 @@ Now, you should have four Corda terminals opened automatically.
 
 Run the below command to start clients:
 
-``` ./gradlew runClassicGamesClient```
+``` ../gradlew runClassicGamesClient```
 
-``` ./gradlew runMegaGamesClient```
+``` ../gradlew runMegaGamesClient```
 
 The clients can be accessed at http://localhost:50007 and http://localhost:50008 for Classic Games and Mega Games respectively.
 

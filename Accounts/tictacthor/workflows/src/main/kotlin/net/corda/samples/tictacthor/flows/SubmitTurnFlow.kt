@@ -16,7 +16,6 @@ import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
-import java.util.concurrent.atomic.AtomicReference
 
 /*
 This flow attempts submit a turn in the game.

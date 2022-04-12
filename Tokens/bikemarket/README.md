@@ -23,7 +23,7 @@ Through out the sample, we will see how to create, transacte, and redeem a token
 ## Running the sample
 Deploy and run the nodes by:
 ```
-./gradlew deployNodes
+../gradlew deployNodes
 ./build/nodes/runnodes
 ```
 if you have any questions during setup, please go to https://docs.corda.net/getting-set-up.html for detailed setup instructions.

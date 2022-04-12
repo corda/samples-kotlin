@@ -2,10 +2,8 @@ package net.corda.samples.stockpaydividend.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
-import com.r3.corda.lib.tokens.contracts.types.TokenType
 import com.r3.corda.lib.tokens.money.FiatCurrency.Companion.getInstance
 import com.r3.corda.lib.tokens.workflows.utilities.tokenBalance
-import net.corda.core.contracts.Amount
 import net.corda.core.flows.FlowException
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow

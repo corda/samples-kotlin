@@ -11,8 +11,6 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.postgres.contracts.YoContract
 import net.corda.samples.postgres.states.YoState
-import java.util.*
-
 
 // *********
 // * Flows *
@@ -34,7 +32,6 @@ class YoFlow(private val target: Party) : FlowLogic<SignedTransaction?>() {
         fun tracker() = ProgressTracker(CREATING, SIGNING, VERIFYING, FINALISING)
     }
 
-
     @Suspendable
     @Throws(FlowException::class)
     override fun call(): SignedTransaction {
@@ -43,7 +40,7 @@ class YoFlow(private val target: Party) : FlowLogic<SignedTransaction?>() {
 
         // Obtain a reference from a notary we wish to use.
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
-        val command = Command(YoContract.Commands.Send(), Arrays.asList(me.owningKey))
+        val command = Command(YoContract.Commands.Send(), listOf(me.owningKey))
         val state = YoState(me, target)
         val stateAndContract = StateAndContract(state, YoContract.ID)
         val utx = TransactionBuilder(notary).withItems(stateAndContract, command)
@@ -57,7 +54,6 @@ class YoFlow(private val target: Party) : FlowLogic<SignedTransaction?>() {
 
         return subFlow(FinalityFlow(stx, listOf(targetSession), FINALISING.childProgressTracker()))
     }
-
 }
 
 @InitiatedBy(YoFlow::class)

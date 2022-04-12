@@ -9,7 +9,6 @@ import com.sun.istack.NotNull
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.ReferencedStateAndRef
-import net.corda.core.crypto.TransactionSignature
 import net.corda.core.flows.*
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.CordaX500Name
@@ -41,7 +40,7 @@ class PlayerMoveFlow private constructor() {
 
             //Get current player account info
             val currentPlayerAccountInfo = accountService.accountInfo(player)
-            if (currentPlayerAccountInfo.size == 0) throw FlowException("Player $player doesn't exist!")
+            if (currentPlayerAccountInfo.isEmpty()) throw FlowException("Player $player doesn't exist!")
             val currPlayer: AbstractParty = subFlow(RequestKeyForAccount(currentPlayerAccountInfo[0].state.data))
 
             // Get game board
@@ -49,7 +48,7 @@ class PlayerMoveFlow private constructor() {
                     null, StateStatus.UNCONSUMED, null)
             val gameBoardList = serviceHub.vaultService
                     .queryBy(GameBoard::class.java, linearStateQueryCriteria).states
-            if (gameBoardList.size == 0) throw FlowException("Game doesn't exist!")
+            if (gameBoardList.isEmpty()) throw FlowException("Game doesn't exist!")
             val gameBoard = gameBoardList[0].state.data
             if (gameBoard.winner != null) {
                 throw FlowException("This Game is Over")
@@ -68,7 +67,7 @@ class PlayerMoveFlow private constructor() {
             })
             val otherPlayer: AbstractParty = subFlow(RequestKeyForAccount(otherPlayerAccountInfo.get()))
             val boardConfigList = serviceHub.vaultService.queryBy(BoardConfig::class.java).states
-            if (boardConfigList.size == 0) throw FlowException("Board config missing")
+            if (boardConfigList.isEmpty()) throw FlowException("Board config missing")
             val boardConfig = boardConfigList[0].state.data
 
             // Calculate Player Position
@@ -100,8 +99,7 @@ class PlayerMoveFlow private constructor() {
             val transactionBuilder = TransactionBuilder(notary)
                     .addInputState(gameBoardList[0])
                     .addOutputState(outputGameBoard)
-                    .addCommand(PlayMove(diceRolled), Arrays.asList(currPlayer.owningKey,
-                            otherPlayer.owningKey))
+                    .addCommand(PlayMove(diceRolled), listOf(currPlayer.owningKey, otherPlayer.owningKey))
                     .addReferenceState(ReferencedStateAndRef(boardConfigList[0]))
             transactionBuilder.verify(serviceHub)
             val selfSignedTransaction = serviceHub.signInitialTransaction(transactionBuilder, currPlayer.owningKey)
@@ -109,15 +107,14 @@ class PlayerMoveFlow private constructor() {
                     .getNodeByLegalName(CordaX500Name.parse("O=Oracle,L=Mumbai,C=IN"))!!.legalIdentities[0]
 
             val ftx = selfSignedTransaction.buildFilteredTransaction(Predicate { o: Any? ->
-                (o is Command<*> && (o as Command<*>).signers.contains(oracle.owningKey)
-                        && (o as Command<*>).value is PlayMove)
+                (o is Command<*> && o.signers.contains(oracle.owningKey) && o.value is PlayMove)
             })
 
             val oracleSignature = subFlow(OracleSignatureFlow(oracle, ftx))!!
             val selfAndOracleSignedTransaction = selfSignedTransaction.withAdditionalSignature(oracleSignature)
             val otherPlayerSession = initiateFlow(otherPlayerAccountInfo.get().host)
             var signedTransaction = subFlow(CollectSignaturesFlow(selfAndOracleSignedTransaction, listOf(otherPlayerSession), listOf(currPlayer.owningKey)))
-            if (!otherPlayerAccountInfo.get().host.equals(ourIdentity)) {
+            if (otherPlayerAccountInfo.get().host != ourIdentity) {
                 signedTransaction = subFlow(FinalityFlow(signedTransaction, listOf(otherPlayerSession)))
                 try {
                     accountService.shareStateAndSyncAccounts(signedTransaction
@@ -143,7 +140,7 @@ class PlayerMoveFlow private constructor() {
                     // Custom Logic to validate transaction.
                 }
             })
-            return if (!counterpartySession.counterparty.equals(ourIdentity)) subFlow(ReceiveFinalityFlow(counterpartySession)) else null
+            return if (counterpartySession.counterparty != ourIdentity) subFlow(ReceiveFinalityFlow(counterpartySession)) else null
         }
     }
 }

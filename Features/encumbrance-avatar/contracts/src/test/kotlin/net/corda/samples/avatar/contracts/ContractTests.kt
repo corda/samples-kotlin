@@ -14,8 +14,8 @@ import java.time.temporal.ChronoUnit
 
 class ContractTests {
     private val ledgerServices: MockServices = MockServices(listOf("net.corda.samples.avatar"))
-    var seller = TestIdentity(CordaX500Name("Alice", "TestLand", "US"))
-    var buyer = TestIdentity(CordaX500Name("Alice", "TestLand", "US"))
+    private val seller = TestIdentity(CordaX500Name("Alice", "TestLand", "US"))
+    private val buyer = TestIdentity(CordaX500Name("Alice", "TestLand", "US"))
 
     @Test
     fun thereMustBeTwoOutputs() {

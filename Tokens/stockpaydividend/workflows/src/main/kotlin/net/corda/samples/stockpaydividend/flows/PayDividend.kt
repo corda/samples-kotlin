@@ -2,10 +2,8 @@ package net.corda.samples.stockpaydividend.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
-import com.r3.corda.lib.tokens.contracts.types.TokenType
 import com.r3.corda.lib.tokens.selection.database.selector.DatabaseTokenSelection
 import com.r3.corda.lib.tokens.workflows.flows.move.addMoveTokens
-import com.r3.corda.lib.tokens.workflows.types.PartyAndAmount
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
@@ -17,7 +15,6 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.stockpaydividend.contracts.DividendContract
 import net.corda.samples.stockpaydividend.states.DividendState
-import java.util.*
 import java.util.stream.Collectors
 
 // *********
@@ -34,8 +31,7 @@ class PayDividend : FlowLogic<List<String>>() {
         //Query the vault for any unconsumed DividendState
         val stateAndRefs: List<StateAndRef<DividendState>> = serviceHub.vaultService.queryBy<DividendState>().states
 
-        val transactions: List<SignedTransaction> = ArrayList()
-        var notes: MutableList<String> = ArrayList()
+        val notes: MutableList<String> = ArrayList()
         //For each queried unpaid DividendState, pay off the dividend with the corresponding amount.
         for (result in stateAndRefs) {
             val dividendState: DividendState = result.state.data
@@ -68,9 +64,9 @@ class PayDividend : FlowLogic<List<String>>() {
 
             // Ask the shareholder to sign the transaction
             val stx = subFlow(CollectSignaturesFlow(ptx, listOf(holderSession)))
-            val fstx = subFlow<SignedTransaction>(FinalityFlow(stx, sessions))
+            val fstx = subFlow(FinalityFlow(stx, sessions))
             notes.add("\nPaid to " + dividendState.shareholder.name.organisation
-                    .toString() + " " + (dividendState.dividendAmount.quantity / 100).toString() + " "
+                    + " " + (dividendState.dividendAmount.quantity / 100).toString() + " "
                     + dividendState.dividendAmount.token.tokenIdentifier + "\nTransaction ID: " + fstx.id)
         }
         return notes
@@ -89,7 +85,7 @@ class PayDividendResponder(val counterpartySession: FlowSession) : FlowLogic<Sig
                 requireThat<Any?> {
                     // Any checkings that the DividendContract is be not able to validate.
                     val outputFiats = stx.tx.outputsOfType(FungibleToken::class.java)
-                    val holderFiats = outputFiats.stream().filter { fiat: FungibleToken -> fiat.holder.equals(ourIdentity) }.collect(Collectors.toList())
+                    val holderFiats = outputFiats.stream().filter { fiat: FungibleToken -> fiat.holder == ourIdentity }.collect(Collectors.toList())
                     "One FungibleToken output should be held by Shareholder".using(holderFiats.size == 1)
                 }
             }

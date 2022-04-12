@@ -9,7 +9,7 @@ import net.corda.testing.driver.NodeHandle
 import net.corda.testing.driver.driver
 import org.junit.Test
 import java.util.concurrent.Future
-import kotlin.test.assertEquals
+import org.junit.Assert.assertEquals
 
 class DriverBasedTest {
     private val bankA = TestIdentity(CordaX500Name("BankA", "", "GB"))

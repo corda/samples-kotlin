@@ -21,15 +21,13 @@ class OracleSignatureFlow(private val oracle: Party, private val ftx: FilteredTr
 class OracleSignatureFlowHandler(private val requestSession: FlowSession) : FlowLogic<Unit>() {
     @Suspendable
     @Throws(FlowException::class)
-    override fun call(): Unit {
+    override fun call() {
         val transaction = requestSession.receive(FilteredTransaction::class.java).unwrap{ it-> it }
-        var signature: TransactionSignature? = null
-        signature = try {
+        val signature = try {
             serviceHub.cordaService(DiceRollService::class.java).sign(transaction)
         } catch (e: Exception) {
-            throw FlowException(e)
+            throw FlowException(e.message, e)
         }
         requestSession.send(signature)
-        return
     }
 }

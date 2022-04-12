@@ -1,3 +1,3 @@
 #!/bin/sh
-./gradlew bootRunDevRel &
-./gradlew bootRunSOE
+../gradlew bootRunDevRel &
+../gradlew bootRunSOE

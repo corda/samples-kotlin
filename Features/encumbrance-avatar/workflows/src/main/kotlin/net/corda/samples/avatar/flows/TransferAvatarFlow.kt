@@ -14,10 +14,6 @@ import net.corda.samples.avatar.states.Avatar
 import net.corda.samples.avatar.states.Expiry
 import java.time.Duration
 import java.time.Instant
-import java.util.*
-import java.util.function.Predicate
-import java.util.function.Supplier
-
 
 @InitiatingFlow
 @StartableByRPC
@@ -32,17 +28,17 @@ class TransferAvatar(private val avatarId: String, private val buyer: String) :
         //get avatar from db
         val avatarPage: Vault.Page<Avatar> = serviceHub.vaultService.queryBy(Avatar::class.java)
         val avatarStateAndRef: StateAndRef<Avatar> =
-            avatarPage.states.stream().filter(Predicate<StateAndRef<Avatar>> { (state): StateAndRef<Avatar> ->
+            avatarPage.states.stream().filter { (state): StateAndRef<Avatar> ->
                 state.data.avatarId.equals(this.avatarId, true)
-            }).findAny()
-                .orElseThrow(Supplier { CordaRuntimeException("No avatar found with avatar id as : $avatarId") })
+            }.findAny()
+                .orElseThrow { CordaRuntimeException("No avatar found with avatar id as : $avatarId") }
 
         //get expiry from db
         val expiryPage: Vault.Page<Expiry> = serviceHub.vaultService.queryBy(Expiry::class.java)
         val expiryStateAndRef: StateAndRef<Expiry> =
-            expiryPage.states.stream().filter(Predicate<StateAndRef<Expiry>> { (state): StateAndRef<Expiry> ->
+            expiryPage.states.stream().filter { (state): StateAndRef<Expiry> ->
                 state.data.avatarId.equals(avatarId, true)
-            }).findAny().orElseThrow(Supplier { CordaRuntimeException("No expiry found with avatar id as $avatarId") })
+            }.findAny().orElseThrow { CordaRuntimeException("No expiry found with avatar id as $avatarId") }
 
         //change owner
         val avatar = Avatar(buyerParty, avatarId)
@@ -55,13 +51,13 @@ class TransferAvatar(private val avatarId: String, private val buyer: String) :
             .addOutputState(avatar, AvatarContract.AVATAR_CONTRACT_ID, notary, 1)
             .addOutputState(expiry, ExpiryContract.EXPIRY_CONTRACT_ID, notary, 0)
             .addCommand(
-                AvatarContract.Commands.Transfer(), Arrays.asList(
+                AvatarContract.Commands.Transfer(), listOf(
                     buyerParty.owningKey,
                     avatarStateAndRef.state.data.owner.owningKey
                 )
             )
             .addCommand(
-                ExpiryContract.Commands.Pass(), Arrays.asList(
+                ExpiryContract.Commands.Pass(), listOf(
                     buyerParty.owningKey,
                     expiryStateAndRef.state.data.owner.owningKey
                 )

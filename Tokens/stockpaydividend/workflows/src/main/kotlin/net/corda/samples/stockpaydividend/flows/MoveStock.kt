@@ -34,7 +34,7 @@ class MoveStock(val symbol: String,
 
         //Use built-in flow for move tokens to the recipient
         //Use built-in flow for move tokens to the recipient
-        val stx = subFlow<SignedTransaction>(MoveFungibleTokens(amount, recipient))
+        val stx = subFlow(MoveFungibleTokens(amount, recipient))
         return ("\nIssued " + quantity + " " + symbol + " stocks to "
                 + recipient.name.organisation + ".\nTransaction ID: " + stx.id)    }
 }

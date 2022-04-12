@@ -27,7 +27,7 @@ interact with it via a web browser. To run the finished application, you have tw
 
 Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```
-./gradlew clean deployNodes
+../gradlew clean deployNodes
 ```
 Then type: (to run the nodes)
 ```
@@ -37,15 +37,15 @@ Then type: (to run the nodes)
 ### Starting the webserver
 Once the nodes are up, we will start the webservers next. This app consists of three nodes and one notary, so we will be starting 3 webservers separately. First, lets start PartyA's webserver. Open a new tab of the terminal (make sure you are still in the project directory) and run:
 ```
-./gradlew runPartyAServer
+../gradlew runPartyAServer
 ```
 repeat the same for PartyB and PartyC, run each of the commands in a new tab:
 ```
-./gradlew runPartyBServer
+../gradlew runPartyBServer
 ```
 and
 ```
-./gradlew runPartyCServer
+../gradlew runPartyCServer
 ```
 
 ### Interacting with the CorDapp

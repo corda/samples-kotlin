@@ -3,8 +3,8 @@ package net.corda.samples.negotiation
 import net.corda.samples.negotiation.states.ProposalState
 import net.corda.core.node.services.queryBy
 import net.corda.testing.internal.chooseIdentity
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import kotlin.test.assertEquals
 
 class ProposalFlowTests: FlowTestsBase() {
 

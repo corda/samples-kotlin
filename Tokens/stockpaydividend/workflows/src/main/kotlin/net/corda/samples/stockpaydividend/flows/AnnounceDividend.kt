@@ -11,7 +11,7 @@ import net.corda.core.node.services.IdentityService
 import net.corda.samples.stockpaydividend.flows.utilities.QueryUtilities
 import net.corda.samples.stockpaydividend.states.StockState
 import java.math.BigDecimal
-import java.util.*
+import java.util.Date
 
 // *********
 // * Flows *
@@ -33,7 +33,7 @@ class AnnounceDividend(val symbol: String,
 
         // Get predefined observers
         val identityService = serviceHub.identityService
-        val observers: List<Party> = getObserverLegalIdenties(identityService)!!
+        val observers: List<Party> = getObserverLegalIdentities(identityService)
         val obSessions: MutableList<FlowSession> = ArrayList()
         for (observer in observers) {
             obSessions.add(initiateFlow(observer))
@@ -41,23 +41,23 @@ class AnnounceDividend(val symbol: String,
         // Update the stock state and send a copy to the observers eventually
         val stx = subFlow(UpdateEvolvableTokenFlow(stockStateRef, outputState, listOf(), obSessions))
         subFlow(UpdateDistributionListFlow(stx))
-        return "Stock ${symbol} has changed dividend percentage to ${dividendPercentage}. ${stx.id}"
+        return "Stock $symbol has changed dividend percentage to $dividendPercentage. ${stx.id}"
     }
 }
 
 @InitiatedBy(AnnounceDividend::class)
 class AnnounceDividendResponder(val counterpartySession: FlowSession) : FlowLogic<Unit>() {
     @Suspendable
-    override fun call():Unit {
+    override fun call() {
         // To implement the responder flow, simply call the subflow of UpdateEvolvableTokenFlowHandler
         return subFlow(UpdateEvolvableTokenFlowHandler(counterpartySession))
     }
 }
 
-fun getObserverLegalIdenties(identityService: IdentityService): List<Party>? {
-    var observers: MutableList<Party> = ArrayList()
+fun getObserverLegalIdentities(identityService: IdentityService): List<Party> {
+    val observers: MutableList<Party> = ArrayList()
     for (observerName in listOf("Observer", "Shareholder")) {
-        val observerSet = identityService.partiesFromName(observerName!!, false)
+        val observerSet = identityService.partiesFromName(observerName, false)
         if (observerSet.size != 1) {
             val errMsg = String.format("Found %d identities for the observer.", observerSet.size)
             throw IllegalStateException(errMsg)

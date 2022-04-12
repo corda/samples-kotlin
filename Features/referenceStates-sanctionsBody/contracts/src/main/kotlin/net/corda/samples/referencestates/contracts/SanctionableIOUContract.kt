@@ -23,8 +23,7 @@ import net.corda.core.transactions.LedgerTransaction
  */
 class SanctionableIOUContract : Contract {
     companion object {
-        @JvmStatic
-        val IOU_CONTRACT_ID = "net.corda.samples.referencestates.contracts.SanctionableIOUContract"
+        const val IOU_CONTRACT_ID = "net.corda.samples.referencestates.contracts.SanctionableIOUContract"
     }
 
     /**
@@ -35,11 +34,11 @@ class SanctionableIOUContract : Contract {
         val command = tx.commands.requireSingleCommand<Commands.Create>()
 
 
-        require(tx.referenceInputRefsOfType(SanctionedEntities::class.java).singleOrNull() != null) {
+        require(tx.referenceInputRefsOfType<SanctionedEntities>().singleOrNull() != null) {
             "All transactions require a list of sanctioned entities"
         }
 
-        val sanctionedEntities = tx.referenceInputRefsOfType(SanctionedEntities::class.java).single().state.data
+        val sanctionedEntities = tx.referenceInputRefsOfType<SanctionedEntities>().single().state.data
         require(sanctionedEntities.issuer.name == command.value.sanctionsBody.name) {
             "${sanctionedEntities.issuer.name.organisation} is an invalid issuer of sanctions lists for this contracts"
         }

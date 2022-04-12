@@ -8,8 +8,8 @@ import net.corda.core.node.services.queryBy
 import net.corda.testing.internal.chooseIdentity
 import org.junit.Test
 import java.util.concurrent.ExecutionException
-import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import org.junit.Assert.assertEquals
 
 class AcceptanceFlowTests: FlowTestsBase() {
     @Test

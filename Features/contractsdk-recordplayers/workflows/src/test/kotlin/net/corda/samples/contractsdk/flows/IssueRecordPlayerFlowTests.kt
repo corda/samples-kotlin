@@ -2,7 +2,6 @@ package net.corda.samples.contractsdk.flows
 
 import com.google.common.collect.ImmutableList
 import net.corda.core.contracts.UniqueIdentifier
-import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.node.NetworkParameters
@@ -10,11 +9,12 @@ import net.corda.core.utilities.getOrThrow
 import net.corda.samples.contractsdk.states.Needle
 import net.corda.samples.contractsdk.states.RecordPlayerState
 import net.corda.testing.node.*
-import org.jgroups.util.Util
-import org.junit.*
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Before
+import org.junit.Test
 import java.time.Instant
-import java.util.*
-import kotlin.collections.LinkedHashMap
 
 /**
  * Practical exercise instructions Flows part 1.
@@ -22,15 +22,15 @@ import kotlin.collections.LinkedHashMap
  */
 class IssueRecordPlayerFlowTests {
 
-    lateinit var network: MockNetwork
-    lateinit var manufacturerNode: StartedMockNode
-    lateinit var dealerBNode: StartedMockNode
-    lateinit var dealerCNode: StartedMockNode
-    lateinit var manufacturer: Party
-    lateinit var dealerB: Party
-    lateinit var dealerC: Party
+    private lateinit var network: MockNetwork
+    private lateinit var manufacturerNode: StartedMockNode
+    private lateinit var dealerBNode: StartedMockNode
+    private lateinit var dealerCNode: StartedMockNode
+    private lateinit var manufacturer: Party
+    private lateinit var dealerB: Party
+    private lateinit var dealerC: Party
 
-    val testNetworkParameters = NetworkParameters(4, Arrays.asList(), 10485760, 10485760 * 5, Instant.now(), 1, LinkedHashMap<String, List<SecureHash>>())
+    private val testNetworkParameters = NetworkParameters(4, emptyList(), 10485760, 10485760 * 5, Instant.now(), 1, LinkedHashMap())
 
     @Before
     fun setup() {
@@ -52,7 +52,9 @@ class IssueRecordPlayerFlowTests {
 
     @After
     fun tearDown() {
-        network.stopNodes()
+        if (::network.isInitialized) {
+            network.stopNodes()
+        }
     }
 
     @Test
@@ -65,9 +67,9 @@ class IssueRecordPlayerFlowTests {
         val signedTransaction = future.get()
 
         if (signedTransaction != null) {
-            Util.assertEquals(1, signedTransaction.tx.outputStates.size)
+            assertEquals(1, signedTransaction.tx.outputStates.size)
         }
-        Util.assertEquals(network.notaryNodes[0].info.legalIdentities[0], signedTransaction?.notary)
+        assertEquals(network.notaryNodes[0].info.legalIdentities[0], signedTransaction?.notary)
     }
 
     @Test
@@ -80,7 +82,7 @@ class IssueRecordPlayerFlowTests {
         val ptx = future.getOrThrow()
 
         val (_, contract) = ptx!!.tx.outputs.single()
-        Util.assertEquals("net.corda.samples.contractsdk.contracts.RecordPlayerContract", contract)
+        assertEquals("net.corda.samples.contractsdk.contracts.RecordPlayerContract", contract)
     }
 
     @Test
@@ -94,9 +96,9 @@ class IssueRecordPlayerFlowTests {
         val output = signedTransaction!!.tx.outputsOfType(RecordPlayerState::class.java)[0]
 
         // get some random data from the output to verify
-        Util.assertEquals(st.manufacturer, output.manufacturer)
-        Util.assertEquals(st.dealer, output.dealer)
-        Assert.assertNotEquals(st.dealer, output.manufacturer)
-        Util.assertEquals(st.needle, output.needle)
+        assertEquals(st.manufacturer, output.manufacturer)
+        assertEquals(st.dealer, output.dealer)
+        assertNotEquals(st.dealer, output.manufacturer)
+        assertEquals(st.needle, output.needle)
     }
 }

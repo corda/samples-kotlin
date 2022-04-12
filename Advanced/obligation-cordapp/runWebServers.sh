@@ -1,4 +1,4 @@
 #!/bin/sh
-./gradlew runPartyAServer &
-./gradlew runPartyBServer &
-./gradlew runPartyCServer &
+../gradlew runPartyAServer &
+../gradlew runPartyBServer &
+../gradlew runPartyCServer &

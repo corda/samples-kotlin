@@ -5,16 +5,13 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.samples.businessmembership.states.InsuranceState
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
+import net.corda.testing.node.ledger
 import org.junit.Test
-import java.util.Arrays
-import net.corda.testing.node.*
-
 
 class ContractTests {
-    private val ledgerServices = MockServices(
-            Arrays.asList("net.corda.samples.businessmembership.contracts"))
-    var alice = TestIdentity(CordaX500Name("Alice", "TestLand", "US"))
-    var bob = TestIdentity(CordaX500Name("Bob", "TestLand", "US"))
+    private val ledgerServices = MockServices(listOf("net.corda.samples.businessmembership.contracts"))
+    private val alice = TestIdentity(CordaX500Name("Alice", "TestLand", "US"))
+    private val bob = TestIdentity(CordaX500Name("Bob", "TestLand", "US"))
 
     @Test
     fun failsDueToParticipantsAreNotNetworkMembers() {

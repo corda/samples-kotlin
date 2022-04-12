@@ -12,7 +12,6 @@ import net.corda.samples.carinsurance.contracts.InsuranceContract
 import net.corda.samples.carinsurance.states.InsuranceState
 import net.corda.samples.carinsurance.states.VehicleDetail
 
-
 // *********
 // * Flows *
 // *********

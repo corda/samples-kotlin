@@ -12,11 +12,12 @@ import org.junit.Test
 
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Future
+import org.junit.Assert.assertEquals
 
 class FlowTests {
-    private var network: MockNetwork? = null
-    private var a: StartedMockNode? = null
-    private var b: StartedMockNode? = null
+    private lateinit var network: MockNetwork
+    private lateinit var a: StartedMockNode
+    private lateinit var b: StartedMockNode
 
     @Before
     fun setup() {
@@ -27,32 +28,34 @@ class FlowTests {
                 TestCordapp.findCordapp("net.corda.samples.businessmembership.flows"),
                 TestCordapp.findCordapp("net.corda.bn.flows"),
                 TestCordapp.findCordapp("net.corda.bn.states"))))
-        a = network!!.createPartyNode(null)
-        b = network!!.createPartyNode(null)
-        network!!.runNetwork()
+        a = network.createPartyNode(null)
+        b = network.createPartyNode(null)
+        network.runNetwork()
     }
 
     @After
     fun tearDown() {
-        network!!.stopNodes()
+        if (::network.isInitialized) {
+            network.stopNodes()
+        }
     }
 
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
     fun createNetworkTest() {
         val flow = CreateNetwork()
-        val future: Future<String> = a!!.startFlow(flow)
-        network!!.runNetwork()
+        val future: Future<String> = a.startFlow(flow)
+        network.runNetwork()
         val resString: String = future.get()
         println(resString)
         val subString = resString.indexOf("NetworkID: ")
         val networkId = resString.substring(subString + 11)
         println("-$networkId-")
         val inputCriteria: QueryCriteria = QueryCriteria.LinearStateQueryCriteria().withStatus(Vault.StateStatus.UNCONSUMED)
-        val (_, networkId1) = a!!.services.vaultService
+        val (_, networkId1) = a.services.vaultService
                 .queryBy(MembershipState::class.java, inputCriteria).states[0].state.data
         println(networkId1)
-        assert(networkId1 == networkId)
+        assertEquals(networkId, networkId1)
     }
 
 }

@@ -20,7 +20,7 @@ See https://docs.corda.net/getting-set-up.html.
 
 Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```
-./gradlew clean deployNodes
+../gradlew clean deployNodes
 ```
 Then type: (to run the nodes)
 ```

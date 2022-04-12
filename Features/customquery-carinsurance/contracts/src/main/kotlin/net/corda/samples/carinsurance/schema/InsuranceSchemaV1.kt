@@ -1,13 +1,20 @@
 package net.corda.samples.carinsurance.schema
 
 //4.6 changes
-import jdk.nashorn.internal.objects.annotations.Constructor
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
 import org.hibernate.annotations.Type
 import java.io.Serializable
-import java.util.*
-import javax.persistence.*
+import javax.persistence.CascadeType
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.JoinColumns
+import javax.persistence.OneToMany
+import javax.persistence.OneToOne
+import javax.persistence.Table
+import java.util.UUID
 
 /**
  * The family of schemas for IOUState.
@@ -22,8 +29,8 @@ object InsuranceSchemaV1 : MappedSchema(
         version = 1,
         mappedTypes = listOf(PersistentClaim::class.java, PersistentInsurance::class.java, PersistentVehicle::class.java)) {
 
-    override val migrationResource: String?
-        get() = "insurance.changelog-master";
+    override val migrationResource: String
+        get() = "insurance.changelog-master"
 
     @Entity
     @Table(name = "CLAIM_DETAIL")

@@ -5,6 +5,5 @@ import org.junit.Test
 class StateTests {
     @Test
     fun hasFieldOfCorrectType() {
-
     }
 }

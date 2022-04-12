@@ -11,8 +11,8 @@ import org.junit.Test
 
 class ContractTests {
     private val ledgerServices = MockServices()
-    val Operator = TestIdentity(CordaX500Name(organisation = "Alice", locality = "TestLand", country = "US"))
-    var Operator2 = TestIdentity(CordaX500Name("Bob", "TestLand", "US"))
+    private val Operator = TestIdentity(CordaX500Name(organisation = "Alice", locality = "TestLand", country = "US"))
+    private var Operator2 = TestIdentity(CordaX500Name("Bob", "TestLand", "US"))
 
     @Test
     fun `Game Can Only Created When Two Different Player Presented`() {

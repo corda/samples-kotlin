@@ -1,6 +1,5 @@
 package net.corda.samples.supplychain
 
-
 import com.r3.corda.lib.accounts.workflows.services.AccountService
 import com.r3.corda.lib.accounts.workflows.services.KeyManagementBackedAccountService
 import net.corda.core.identity.CordaX500Name
@@ -12,9 +11,10 @@ import net.corda.samples.supplychain.states.InvoiceState
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.node.*
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Future
 
@@ -40,23 +40,25 @@ class FlowTests {
 
     @After
     fun tearDown() {
-        network.stopNodes()
+        if (::network.isInitialized) {
+            network.stopNodes()
+        }
     }
 
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
-    fun AccountCreation() {
+    fun accountCreation() {
         val createAcct = CreateNewAccount("TestAccountA")
         val future: Future<String> = a.startFlow(createAcct)
         network.runNetwork()
         val accountService: AccountService = a.services.cordaService(KeyManagementBackedAccountService::class.java)
         val myAccount = accountService.accountInfo("TestAccountA")
-        assert(myAccount.size != 0)
+        assertTrue(myAccount.isNotEmpty())
     }
 
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
-    fun InvoiceFlowTest() {
+    fun invoiceFlowTest() {
         val createAcct = CreateNewAccount("TestAccountA")
         val future: Future<String> = a.startFlow(createAcct)
         network.runNetwork()
@@ -77,10 +79,9 @@ class FlowTests {
         val accountService: AccountService = b.services.cordaService(KeyManagementBackedAccountService::class.java)
         val (_, _, identifier) = accountService.accountInfo("TestAccountB")[0].state.data
         val criteria = VaultQueryCriteria()
-                .withExternalIds(Arrays.asList(identifier.id))
+                .withExternalIds(listOf(identifier.id))
         val storedState = b.services.vaultService.queryBy(InvoiceState::class.java, criteria).states[0].state.data
-        assert(storedState.amount == 20)
+        assertEquals(20, storedState.amount)
     }
-
 
 }

@@ -43,11 +43,11 @@ class TransferPartToken(val part: String,
             subFlow(UpdateDistributionListFlow(stx))
             return ("Transfer ownership of the frame (" + this.serial + ") to" + holder.name.organisation
                     + "\nTransaction ID: " + stx.id)
-        }else if(part.equals("wheels")){
+        }else if(part == "wheels"){
             val wheelsSerial = serial
             //transfer wheel token
             val wheelStateAndRef = serviceHub.vaultService.queryBy<WheelsTokenState>().states
-                    .filter { it.state.data.serialNum.equals(wheelsSerial) }[0]
+                    .filter { it.state.data.serialNum == wheelsSerial }[0]
 
             //get the TokenType object
             val wheeltokentype: WheelsTokenState = wheelStateAndRef.state.data
@@ -72,7 +72,7 @@ class TransferPartTokenResponder(val counterpartySession: FlowSession) : FlowLog
     @Suspendable
     override fun call() {
         // Responder flow logic goes here.
-        subFlow(MoveNonFungibleTokensHandler(counterpartySession));
+        subFlow(MoveNonFungibleTokensHandler(counterpartySession))
     }
 }
 

@@ -11,6 +11,7 @@ import net.corda.samples.blacklist.states.AgreementState
 open class AgreementContract : Contract {
     companion object {
         const val AGREEMENT_CONTRACT_ID = "net.corda.samples.blacklist.contracts.AgreementContract"
+        const val BLACKLIST_FILE_NAME = "blacklist.txt"
         val BLACKLIST_JAR_HASH = SecureHash.parse("4CEC607599723D7E0393EB5F05F24562732CD1B217DEAEDEABD4C25AFE5B333A")
     }
 
@@ -33,29 +34,34 @@ open class AgreementContract : Contract {
         "The jar's hash should be correct" using (attachment.id == BLACKLIST_JAR_HASH)
 
         // We extract the blacklisted company names from the JAR.
-        val attachmentJar = attachment.openAsJAR()
-        while (attachmentJar.nextEntry.name != "blacklist.txt") {
-            // Calling `attachmentJar.nextEntry` causes us to scroll through the JAR.
-        }
-        val blacklistedCompanies = mutableListOf<String>()
-        val bufferedReader = attachmentJar.bufferedReader()
-        var company = bufferedReader.readLine()
-        while (company != null) {
-            blacklistedCompanies.add(company)
-            company = bufferedReader.readLine()
-        }
+        attachment.openAsJAR().use { attachmentJar ->
+            while (true) {
+                // Calling `attachmentJar.nextEntry` causes us to scroll through the JAR.
+                val jarEntry = attachmentJar.nextEntry ?: throw IllegalArgumentException("blacklist.txt not found.")
+                if (jarEntry.name == BLACKLIST_FILE_NAME) {
+                    break
+                }
+            }
+            val blacklistedCompanies = mutableSetOf<String>()
+            val bufferedReader = attachmentJar.bufferedReader()
+            var company = bufferedReader.readLine()
+            while (company != null) {
+                blacklistedCompanies.add(company)
+                company = bufferedReader.readLine()
+            }
 
-        // Constraints on the blacklisted parties.
-        val agreement = tx.outputsOfType<AgreementState>().single()
-        val participants = agreement.participants
-        val participantsOrgs = participants.map { it.name.organisation }
-        val overlap = blacklistedCompanies.toSet().intersect(participantsOrgs)
-        "The agreement involved blacklisted parties: $overlap" using (overlap.isEmpty())
+            // Constraints on the blacklisted parties.
+            val agreement = tx.outputsOfType<AgreementState>().single()
+            val participants = agreement.participants
+            val participantsOrgs = participants.mapTo(HashSet()) { it.name.organisation }
+            val overlap = blacklistedCompanies.intersect(participantsOrgs)
+            "The agreement involved blacklisted parties: $overlap" using (overlap.isEmpty())
 
-        // Constraints on the signers.
-        val command = tx.commands.single()
-        val participantKeys = participants.map { it.owningKey }
-        "All the parties to the agreement are signers" using (command.signers.containsAll(participantKeys))
+            // Constraints on the signers.
+            val command = tx.commands.single()
+            val participantKeys = participants.map { it.owningKey }
+            "All the parties to the agreement are signers" using (command.signers.containsAll(participantKeys))
+        }
     }
 
     interface Commands {

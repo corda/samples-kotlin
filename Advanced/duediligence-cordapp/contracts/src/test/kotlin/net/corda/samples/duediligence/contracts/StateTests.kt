@@ -2,8 +2,8 @@ package net.corda.samples.duediligence.contracts
 
 import net.corda.core.identity.Party
 import net.corda.samples.duediligence.states.CorporateRecordsAuditRequest
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import kotlin.test.assertEquals
 
 class StateTests {
     @Test

@@ -30,7 +30,7 @@ If you've never built a cordapp before you may need to configure gradle and java
 To run the corda nodes you just need to run the `deployNodes` gradle task and the nodes will be available for you to run directly.
 
 ```
-./gradlew deployNodes
+../gradlew deployNodes
 ./build/nodes/runnodes
 ```
 
@@ -40,7 +40,7 @@ Run the `runSantaServer` Gradle task. By default, it connects to the node with R
 the username `user1` and the password `test`, and serves the webserver on port `localhost:10056`.
 
 ```
-./gradlew runSantaServer
+../gradlew runSantaServer
 ```
 
 The frontend will be visible on [localhost:10056](http://localhost:10056)

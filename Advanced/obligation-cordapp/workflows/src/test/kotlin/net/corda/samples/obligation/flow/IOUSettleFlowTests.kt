@@ -18,20 +18,23 @@ import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
 import net.corda.samples.obligation.contract.IOUContract
 import net.corda.samples.obligation.flows.*
-import org.junit.*
-import java.util.*
-import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import java.util.Currency
 
 /**
  * Practical exercise instructions Flows part 3.
  * Uncomment the unit tests and use the hints + unit test body to complete the FLows such that the unit tests pass.
  */
 class IOUSettleFlowTests {
-    lateinit var mockNetwork: MockNetwork
-    lateinit var a: StartedMockNode
-    lateinit var b: StartedMockNode
-    lateinit var c: StartedMockNode
+    private lateinit var mockNetwork: MockNetwork
+    private lateinit var a: StartedMockNode
+    private lateinit var b: StartedMockNode
+    private lateinit var c: StartedMockNode
 
     @Before
     fun setup() {
@@ -49,7 +52,9 @@ class IOUSettleFlowTests {
 
     @After
     fun tearDown() {
-        mockNetwork.stopNodes()
+        if (::mockNetwork.isInitialized) {
+            mockNetwork.stopNodes()
+        }
     }
 
     /**
@@ -100,8 +105,8 @@ class IOUSettleFlowTests {
         // One output IOUState, one input IOUState reference, input and output cash
         a.transaction {
             val ledgerTx = settleResult.toLedgerTransaction(a.services, false)
-            assert(ledgerTx.inputs.size == 2)
-            assert(ledgerTx.outputs.size == 2)
+            assertTrue(ledgerTx.inputs.size == 2)
+            assertTrue(ledgerTx.outputs.size == 2)
             val outputIou = ledgerTx.outputs.map { it.data }.filterIsInstance<IOUState>().single()
             assertEquals(
                     outputIou,
@@ -119,7 +124,7 @@ class IOUSettleFlowTests {
                     outputCashSum,
                     (inputIou.amount - inputIou.paid - outputIou.paid))
             val command = ledgerTx.commands.requireSingleCommand<IOUContract.Commands>()
-            assert(command.value == IOUContract.Commands.Settle())
+            assertEquals(IOUContract.Commands.Settle(), command.value)
             // Check the transaction has been signed by the borrower.
             settleResult.verifySignaturesExcept(b.info.chooseIdentityAndCert().party.owningKey,
                     mockNetwork.defaultNotaryNode.info.legalIdentitiesAndCerts.first().owningKey)

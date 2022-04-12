@@ -1,7 +1,6 @@
 package net.corda.samples.tictacthor.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import com.r3.corda.lib.accounts.contracts.states.AccountInfo
 import com.r3.corda.lib.accounts.workflows.accountService
 import com.r3.corda.lib.accounts.workflows.flows.RequestKeyForAccount
 import net.corda.samples.tictacthor.accountsUtilities.NewKeyForAccount
@@ -13,12 +12,10 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.*
 import net.corda.core.identity.AnonymousParty
 import net.corda.core.identity.CordaX500Name
-import net.corda.core.node.StatesToRecord
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
-import java.util.concurrent.atomic.AtomicReference
 
 /*
 This flow starts a game with another node by creating an new BoardState.

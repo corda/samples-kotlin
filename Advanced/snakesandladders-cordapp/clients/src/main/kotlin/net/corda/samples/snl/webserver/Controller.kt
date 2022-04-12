@@ -1,15 +1,11 @@
 package net.corda.samples.snl.webserver
 
 import net.corda.core.internal.toX500Name
-import net.corda.core.messaging.startFlow
-import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.NodeInfo
 import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.asn1.x500.style.BCStyle
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 

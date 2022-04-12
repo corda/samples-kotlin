@@ -13,6 +13,5 @@ import java.util.*
 class GameBoard(override val linearId: UniqueIdentifier, val player1: AbstractParty, val player2: AbstractParty,
                 val currentPlayer: String, val player1Pos: Int, val player2Pos: Int, val winner: String?, val lastRoll: Int) : LinearState {
     override val participants: List<AbstractParty>
-        get() = Arrays.asList(player1, player2)
-
+        get() = listOf(player1, player2)
 }

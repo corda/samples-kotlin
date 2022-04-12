@@ -1,6 +1,5 @@
 package net.corda.samples.tictacthor.accountsUtilities
 
-
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.accounts.workflows.accountService
 import net.corda.samples.tictacthor.states.BoardState

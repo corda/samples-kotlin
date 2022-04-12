@@ -2,15 +2,13 @@ package net.corda.samples.bikemarket.contracts
 
 import com.r3.corda.lib.tokens.contracts.EvolvableTokenContract
 import net.corda.core.contracts.Contract
-import net.corda.core.contracts.Requirements
-import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.bikemarket.states.FrameTokenState
 
 
 class FrameContract : EvolvableTokenContract(), Contract {
     override fun additionalCreateChecks(tx: LedgerTransaction) {
-        val newToken = tx.outputStates.single() as FrameTokenState
+        val newToken = tx.outputsOfType<FrameTokenState>().single()
         newToken.apply {
             require(serialNum != "") {"serialNum cannot be empty"}
         }

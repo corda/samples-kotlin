@@ -22,7 +22,7 @@ class QueyGameInfo(private val gameId: String) : FlowLogic<GameInfo>() {
                 null, StateStatus.UNCONSUMED, null)
         val gameBoardList = serviceHub.vaultService
                 .queryBy(GameBoard::class.java, linearStateQueryCriteria).states
-        if (gameBoardList.size == 0) throw FlowException("Game doesn't exist!")
+        if (gameBoardList.isEmpty()) throw FlowException("Game doesn't exist!")
         val gameBoard = gameBoardList[0].state.data
         val accountService: AccountService = serviceHub.cordaService(KeyManagementBackedAccountService::class.java)
         val player1 = accountService.accountInfo(gameBoard.player1.owningKey)!!.state.data.name

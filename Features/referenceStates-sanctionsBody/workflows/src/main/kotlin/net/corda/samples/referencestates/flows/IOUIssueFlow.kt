@@ -130,7 +130,7 @@ object IOUIssueFlow {
         @Suspendable
         fun getSanctionsList(sanctionsBody: Party): StateAndRef<SanctionedEntities>? {
             return serviceHub.vaultService.queryBy(SanctionedEntities::class.java)
-                .states.filter { it.state.data.issuer == sanctionsBody }.singleOrNull()
+                .states.singleOrNull { it.state.data.issuer == sanctionsBody }
         }
 
         @Suspendable
@@ -153,14 +153,13 @@ object IOUIssueFlow {
             }
             val txId = subFlow(signTransactionFlow).id
 
-            val recordedTx = subFlow(
+            return subFlow(
                 ReceiveFinalityFlow(
                     otherPartySession,
                     expectedTxId = txId,
                     statesToRecord = StatesToRecord.ALL_VISIBLE
                 )
             )
-            return recordedTx
         }
     }
 

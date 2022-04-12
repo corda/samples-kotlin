@@ -7,12 +7,12 @@ This CorDapp recreates the game of Tic Tac Toe via Corda. It primarilly demonstr
 ## Running the sample
 Deploy and run the nodes by:
 ```
-./gradlew deployNodes
+../gradlew deployNodes
 ./build/nodes/runnodes
 ```
 Then you will need to also start the spring server for the Cordapp by running the following commands seperately: 
-`./gradlew bootRunDevRel`will have the DevRel server running on 8080 port 
-, and `./gradlew bootRunSOE`will start the Solution Engineering server on 8090 port
+`../gradlew bootRunDevRel`will have the DevRel server running on 8080 port 
+, and `../gradlew bootRunSOE`will start the Solution Engineering server on 8090 port
 
 ## Operating the Cordapp
 Now go to postman and excute the following in order: (All of the API are POST request!)

@@ -6,28 +6,25 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.samples.notarychange.contracts.IOUContract
-import java.util.*
-
 
 /**
  * The state object recording IOU agreements between two parties.
+ * @param value the value of the IOU.
+ * @param lender the party issuing the IOU.
+ * @param borrower the party receiving and approving the IOU.
  *
  * A state must implement [ContractState] or one of its descendants.
  */
 @BelongsToContract(IOUContract::class)
-class IOUState
-/**
- * @param value the value of the IOU.
- * @param lender the party issuing the IOU.
- * @param borrower the party receiving and approving the IOU.
- */(val value: Int,
+class IOUState(
+    val value: Int,
     val lender: Party,
     val borrower: Party,
     override val linearId: UniqueIdentifier) : LinearState {
     override val participants: List<AbstractParty>
-        get() = Arrays.asList(lender, borrower)
+        get() = listOf(lender, borrower)
 
     override fun toString(): String {
-        return String.format("IOUState(value=%s, lender=%s, borrower=%s, linearId=%s)", value, lender, borrower, linearId)
+        return "IOUState(value=$value, lender=$lender, borrower=$borrower, linearId=$linearId)"
     }
 }

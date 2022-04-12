@@ -46,14 +46,14 @@ For development environment setup, please refer to: [Setup Guide](https://docs.c
 
 ### Deploy and run the node
 ```
-./greadlew deployNodes
+../gradlew clean deployNodes
 ./build/node/runnodes
 ```
 if you have any questions during setup, please go to https://docs.corda.net/getting-set-up.html for detailed setup instructions.
 
 Once all three nodes are started up, in Seller's node shell, run:
 ```
-flow start SendAttachment receiver: Buyer
+flow start SendAttachment receiver: Buyer, zipPath: /path/to/test.zip
 ```
 After this call, we already finished
 1. uploading a zip file to Seller's node
@@ -71,4 +71,3 @@ This command is telling the node to retrieve attachment from the transaction tha
 
 * This uploaded file is hardcoded into the flow.
 * The transaction retrieving is also hardcoded to retrieve the first state that being stored in the vault.
-

@@ -26,12 +26,12 @@ class InsuranceClaim(val claimInfo: ClaimInfo,
         // to fetch the desired Insurance state from the vault. This filtered state would be used as input to the
         // transaction.
         val insuranceStateAndRefs = serviceHub.vaultService.queryBy<InsuranceState>().states
-        val inputStateAndRef = insuranceStateAndRefs.filter { it.state.data.policyNumber.equals(policyNumber) }[0]
+        val inputStateAndRef = insuranceStateAndRefs.filter { it.state.data.policyNumber == policyNumber }[0]
 
         //compose claim
         val claim = Claim(claimInfo.claimNumber, claimInfo.claimDescription, claimInfo.claimAmount)
         val input = inputStateAndRef.state.data
-        var claimlist = ArrayList<Claim>()
+        val claimlist = ArrayList<Claim>()
         claimlist.add(claim)
         for (item in input.claims) {
             claimlist.add(item)

@@ -43,8 +43,8 @@ Before attempting to reach any agreements, you must upload the blacklist as an a
 be able to *initiate* an agreement. The blacklist can be uploaded via [RPC](https://docs.corda.net/docs/corda-os/api-rpc.html#api-rpc-operations) by running the following command from the
 project's root folder:
 
-* Unix/Mac OSX: ` ./gradlew uploadBlacklist`
-* Windows: `gradlew uploadBlacklist`
+* Unix/Mac OSX: ` ../gradlew uploadBlacklist`
+* Windows: `..\gradlew uploadBlacklist`
 
 Or by running the `Upload blacklist` run configuration from IntelliJ.
 

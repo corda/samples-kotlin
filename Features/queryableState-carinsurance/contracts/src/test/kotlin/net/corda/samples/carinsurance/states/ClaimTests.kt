@@ -1,6 +1,6 @@
 package net.corda.samples.carinsurance.states
 
-import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ClaimTests {
@@ -11,8 +11,8 @@ class ClaimTests {
     @Test
     fun constructorTest() {
         val (claimNumber1, claimDescription, claimAmount1) = Claim(claimNumber, desc, claimAmount)
-        Assert.assertEquals(claimNumber, claimNumber1)
-        Assert.assertEquals(desc, claimDescription)
-        Assert.assertEquals(claimAmount.toLong(), claimAmount1.toLong())
+        assertEquals(claimNumber, claimNumber1)
+        assertEquals(desc, claimDescription)
+        assertEquals(claimAmount.toLong(), claimAmount1.toLong())
     }
 }

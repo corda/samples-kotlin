@@ -17,11 +17,10 @@ class DiceRollerFlow(private val player: String, private val oracle: Party) : Fl
 class DiceRollerFlowHandler(private val requestSession: FlowSession) : FlowLogic<Unit>() {
     @Suspendable
     @Throws(FlowException::class)
-    override fun call(): Unit {
-        val player = requestSession.receive(String::class.java).unwrap{ it -> it }
+    override fun call() {
+        val player = requestSession.receive(String::class.java).unwrap { it }
         val service: DiceRollService = serviceHub.cordaService(DiceRollService::class.java)
         val roll: Int = service.diceRoll(player)
         requestSession.send(roll)
-        return
     }
 }

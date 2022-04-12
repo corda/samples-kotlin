@@ -26,7 +26,7 @@ class MoveHouseTokenFlow(val symbol: String,
     override fun call():String {
         //get house states on ledger with uuid as input tokenId
         val stateAndRef = serviceHub.vaultService.queryBy<FungibleHouseTokenState>()
-                .states.filter { it.state.data.symbol.equals(symbol) }[0]
+                .states.filter { it.state.data.symbol == symbol }[0]
 
         //get the RealEstateEvolvableTokenType object
         val evolvableTokenType = stateAndRef.state.data

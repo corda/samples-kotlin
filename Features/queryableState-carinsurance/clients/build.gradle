@@ -1,16 +1,7 @@
-repositories {
-    mavenLocal()
-
-    mavenCentral()
-    maven { url 'https://dl.bintray.com/kotlin/exposed' }
-    maven { url 'https://jitpack.io' }
-    maven { url 'https://software.r3.com/artifactory/corda-releases' }
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'io.spring.dependency-management'
 }
-
-apply plugin: 'kotlin'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'net.corda.plugins.cordformation'
-apply plugin: 'net.corda.plugins.quasar-utils'
 
 sourceSets {
     main {
@@ -28,39 +19,26 @@ dependencyManagement {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testCompile "junit:junit:$junit_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Corda dependencies.
-    compile "net.corda:corda-core:$corda_release_version"
-    compile "net.corda:corda-jackson:$corda_release_version"
-    compile "net.corda:corda-rpc:$corda_release_version"
-    compile "net.corda:corda:$corda_release_version"
-    testCompile "net.corda:corda-node-driver:$corda_release_version"
+    implementation "net.corda:corda-core:$corda_release_version"
+    implementation "net.corda:corda-jackson:$corda_release_version"
+    implementation "net.corda:corda-rpc:$corda_release_version"
 
-    compile("org.springframework.boot:spring-boot-starter-websocket:$spring_boot_version") {
+    implementation("org.springframework.boot:spring-boot-starter-websocket:$spring_boot_version") {
         exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
     }
-    compile "org.springframework.boot:spring-boot-starter-log4j2:$spring_boot_version"
-    compile "org.apache.logging.log4j:log4j-web:$log4j_version"
+    implementation "org.springframework.boot:spring-boot-starter-log4j2:$spring_boot_version"
+    implementation "org.apache.logging.log4j:log4j-web:$log4j_version"
 
-    cordapp project(":workflows")
-    cordapp project(":contracts")
-
+    implementation project(':workflows')
+    implementation project(':contracts')
 }
 
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
-    kotlinOptions {
-        languageVersion = "1.2"
-        apiVersion = "1.2"
-        jvmTarget = "1.8"
-        javaParameters = true   // Useful for reflection.
-    }
-}
-
-task bootRun(type: JavaExec, dependsOn: jar) {
+tasks.register('bootRun', JavaExec) {
+    dependsOn assemble
     classpath = sourceSets.main.runtimeClasspath
     main = 'net.corda.samples.carinsurance.server.ServerKt'
     args '--server.port=8080', '--config.rpc.host=localhost', '--config.rpc.port=10006', '--config.rpc.username=user1', '--config.rpc.password=test'

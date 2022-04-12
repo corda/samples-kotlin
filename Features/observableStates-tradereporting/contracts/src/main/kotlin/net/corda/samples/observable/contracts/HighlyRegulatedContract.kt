@@ -15,10 +15,10 @@ class HighlyRegulatedContract : Contract {
     override fun verify(tx: LedgerTransaction) {
         // Verification logic goes here.
         val cmd = tx.commands.requireSingleCommand<Commands>()
-        val output = tx.outputsOfType(HighlyRegulatedState::class.java)[0]
+        val output = tx.outputsOfType<HighlyRegulatedState>()[0]
         when(cmd.value){
             is Commands.Trade -> requireThat {
-                "The Buyer and the seller cannot be the same entity." using (!output.buyer.equals(output.seller))
+                "The Buyer and the seller cannot be the same entity." using (output.buyer != output.seller)
             }
         }
     }

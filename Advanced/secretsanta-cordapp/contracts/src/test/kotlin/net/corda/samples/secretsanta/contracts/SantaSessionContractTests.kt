@@ -1,6 +1,5 @@
 package net.corda.samples.secretsanta.contracts
 
-import junit.framework.TestCase
 import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.Contract
 import net.corda.core.contracts.TypeOnlyCommandData
@@ -8,10 +7,10 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.samples.secretsanta.states.SantaSessionState
 import net.corda.testing.contracts.DummyState
 import net.corda.testing.core.TestIdentity
-import net.corda.testing.dsl.TransactionDSL
-import net.corda.testing.dsl.TransactionDSLInterpreter
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.util.*
@@ -46,15 +45,15 @@ class SantaSessionContractTests {
 
     @Test
     fun SantaSessionContractImplementsContract() {
-        assert(SantaSessionContract() is Contract)
+        assertTrue(SantaSessionContract() is Contract)
     }
 
     @Test
     fun constructorTest() {
         val st = SantaSessionState(playerNames, playerEmails, santa.party, elf.party)
-        TestCase.assertEquals(santa.party, st.issuer)
-        TestCase.assertEquals(playerNames, st.playerNames)
-        TestCase.assertEquals(playerEmails, st.playerEmails)
+        assertEquals(santa.party, st.issuer)
+        assertEquals(playerNames, st.playerNames)
+        assertEquals(playerEmails, st.playerEmails)
     }
 
     // TODO
@@ -68,14 +67,14 @@ class SantaSessionContractTests {
                 // Has an input, will fail.
                 input(SantaSessionContract.ID, t1)
                 output(SantaSessionContract.ID, t2)
-                command(Arrays.asList(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
+                command(listOf(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
                 this.fails()
 
             }
             transaction {
                 // Has no input, will verify.
                 output(SantaSessionContract.ID, st)
-                command(Arrays.asList(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
+                command(listOf(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
                 this.verifies()
             }
         }
@@ -88,14 +87,14 @@ class SantaSessionContractTests {
                 // Has two outputs, will fail.
                 output(SantaSessionContract.ID, st)
                 output(SantaSessionContract.ID, st)
-                command(Arrays.asList(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
+                command(listOf(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
                 this.fails()
 
             }
             transaction {
                 // Has one output, will verify.
                 output(SantaSessionContract.ID, st)
-                command(Arrays.asList(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
+                command(listOf(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
                 this.verifies()
             }
         }
@@ -107,8 +106,8 @@ class SantaSessionContractTests {
             transaction {
                 output(SantaSessionContract.ID, st)
                 // Has two commands, will fail.
-                command(Arrays.asList(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
-                command(Arrays.asList(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
+                command(listOf(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
+                command(listOf(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
                 this.fails()
             }
             transaction {
@@ -127,13 +126,13 @@ class SantaSessionContractTests {
             transaction{
                 // Has wrong output type, will fail.
                 output(SantaSessionContract.ID, DummyState())
-                command(Arrays.asList(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
+                command(listOf(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
                 this.fails()
             }
             transaction {
                 // Has correct output type, will verify.
                 output(SantaSessionContract.ID, st)
-                command(Arrays.asList(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
+                command(listOf(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
                 this.verifies()
 
             }
@@ -146,14 +145,14 @@ class SantaSessionContractTests {
             transaction {
                 // Has wrong command type, will fail.
                 output(SantaSessionContract.ID, st)
-                command(Arrays.asList(santa.publicKey), Commands.DummyCommand())
+                command(listOf(santa.publicKey), Commands.DummyCommand())
                 this.fails()
 
             }
             transaction {
                 // Has correct command type, will verify.
                 output(SantaSessionContract.ID, st)
-                command(Arrays.asList(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
+                command(listOf(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
                 this.verifies()
 
             }
@@ -169,13 +168,13 @@ class SantaSessionContractTests {
             transaction {
                 // Has three players SantaSessionState, will verify.
                 output(SantaSessionContract.ID, threePlayerSantaState)
-                command(Arrays.asList(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
+                command(listOf(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
                 this.verifies()
             }
             transaction {
                 // Has over three players SantaSessionState, will verify.
                 output(SantaSessionContract.ID, st)
-                command(Arrays.asList(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
+                command(listOf(santa.publicKey, elf.publicKey), SantaSessionContract.Commands.Issue())
                 this.verifies()
 
             }

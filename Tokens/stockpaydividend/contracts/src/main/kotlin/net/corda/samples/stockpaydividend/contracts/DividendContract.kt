@@ -4,6 +4,7 @@ import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.Contract
 import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
+import net.corda.core.identity.AbstractParty
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.stockpaydividend.states.DividendState
 import java.security.PublicKey
@@ -20,7 +21,7 @@ class DividendContract : Contract {
     // A transaction is valid if the verify() function of the contract of all the transaction's input and output states
     // does not throw an exception.
     override fun verify(tx: LedgerTransaction) {
-        val command  = tx.commands.requireSingleCommand<DividendContract.Commands>()
+        val command  = tx.commands.requireSingleCommand<Commands>()
         val requiredSigners = command.signers
 
         when(command.value){
@@ -36,28 +37,28 @@ class DividendContract : Contract {
     private fun verifyCreate(tx: LedgerTransaction, requiredSigners: List<PublicKey>) {
         requireThat {
             // Add any validations that may fit
-            val outputDividends: List<DividendState> = tx.outputsOfType(DividendState::class.java)
-            "There must be one output dividend.".using(outputDividends.size == 1)
+            val outputDividends = tx.outputsOfType<DividendState>()
+            "There must be exactly one output dividend.".using(outputDividends.size == 1)
             val outputDividend = outputDividends[0]
             "Company and shareholder of the dividend should not be the same.".using(outputDividend.shareholder != outputDividend.company)
-            "Both stock shareholder and company must sign the dividend receivable transaction.".using(requiredSigners.containsAll(keysFromParticipants(outputDividend)!!))
+            "Both stock shareholder and company must sign the dividend receivable transaction.".using(requiredSigners.containsAll(keysFromParticipants(outputDividend)))
         }
     }
 
     private fun verifyPay(tx: LedgerTransaction, requiredSigners: List<PublicKey>) {
         requireThat{
-            val inputDividends: List<DividendState> = tx.inputsOfType(DividendState::class.java)
+            val inputDividends = tx.inputsOfType<DividendState>()
             "There must be one input dividend.".using(inputDividends.size == 1)
-            val outputDividends: List<DividendState> = tx.outputsOfType(DividendState::class.java)
+            val outputDividends = tx.outputsOfType<DividendState>()
             "There should be no output dividends.".using(outputDividends.isEmpty())
             val inputDividend = inputDividends[0]
-            "Both stock shareholder and company must sign the dividend receivable transaction.".using(requiredSigners.containsAll(keysFromParticipants(inputDividend)!!))
+            "Both stock shareholder and company must sign the dividend receivable transaction.".using(requiredSigners.containsAll(keysFromParticipants(inputDividend)))
         }
     }
 
 
-    private fun keysFromParticipants(dividend: DividendState): Set<PublicKey?>? {
-        return dividend.participants.map { it.owningKey }.toSet()
+    private fun keysFromParticipants(dividend: DividendState): Set<PublicKey?> {
+        return dividend.participants.mapTo(LinkedHashSet(), AbstractParty::owningKey)
     }
 
     // Used to indicate the transaction's intent.
