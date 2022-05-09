@@ -29,7 +29,7 @@ import net.corda.samples.example.states.IOUState
 object ExampleFlow {
     @InitiatingFlow
     @StartableByRPC
-    class Initiator(val iouValue: Int,
+    class Initiator(val iou: IOUState,
                     val otherParty: Party) : FlowLogic<SignedTransaction>() {
         /**
          * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -77,10 +77,10 @@ object ExampleFlow {
             // Stage 1.
             progressTracker.currentStep = GENERATING_TRANSACTION
             // Generate an unsigned transaction.
-            val iouState = IOUState(iouValue, serviceHub.myInfo.legalIdentities.first(), otherParty)
-            val txCommand = Command(IOUContract.Commands.Create(), iouState.participants.map { it.owningKey })
+//            val iouState = IOUState(iouValue, serviceHub.myInfo.legalIdentities.first(), otherParty)
+            val txCommand = Command(IOUContract.Commands.Create(), iou.participants.map { it.owningKey })
             val txBuilder = TransactionBuilder(notary)
-                    .addOutputState(iouState, IOUContract.ID)
+                    .addOutputState(iou, IOUContract.ID)
                     .addCommand(txCommand)
 
             // Stage 2.
