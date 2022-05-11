@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b7dca983-4c90-400c-88a7-f2f2d63bde2f" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workflows/src/main/kotlin/net/corda/samples/example/flows/ExampleFlow.kt" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/src/main/kotlin/net/corda/samples/example/flows/ExampleFlow.kt" afterDir="false" />
     </list>
@@ -48,6 +49,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
     <property name="show.unlinked.gradle.project.popup" value="true" />
   </component>
   <component name="RunManager" selected="Gradle.IOUFlowTests">
@@ -127,6 +129,12 @@
       <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Gradle.ContractTests" />
+      <item itemvalue="Gradle.DriverBasedTest" />
+      <item itemvalue="Gradle.IOUFlowTests" />
+      <item itemvalue="Gradle.StateTests" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.IOUFlowTests" />
@@ -151,25 +159,29 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state width="1521" height="278" key="GridCell.Tab.0.bottom" timestamp="1608593370371">
-      <screen x="1920" y="23" width="1920" height="1057" />
+    <state x="1693" y="298" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1652271850180">
+      <screen x="0" y="23" width="3440" height="1333" />
     </state>
-    <state width="1521" height="278" key="GridCell.Tab.0.bottom/0.23.1920.979/1920.23.1920.1057/-1680.23.1680.1027@1920.23.1920.1057" timestamp="1608593370371" />
-    <state width="1521" height="278" key="GridCell.Tab.0.center" timestamp="1608593370370">
-      <screen x="1920" y="23" width="1920" height="1057" />
+    <state x="1693" y="298" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.3440.1333@0.23.3440.1333" timestamp="1652271850180" />
+    <state width="2232" height="659" key="GridCell.Tab.0.bottom" timestamp="1652271657063">
+      <screen x="0" y="23" width="3440" height="1333" />
     </state>
-    <state width="1521" height="278" key="GridCell.Tab.0.center/0.23.1920.979/1920.23.1920.1057/-1680.23.1680.1027@1920.23.1920.1057" timestamp="1608593370370" />
-    <state width="1521" height="278" key="GridCell.Tab.0.left" timestamp="1608593370369">
-      <screen x="1920" y="23" width="1920" height="1057" />
+    <state width="2232" height="659" key="GridCell.Tab.0.bottom/0.23.3440.1333@0.23.3440.1333" timestamp="1652271657063" />
+    <state width="2232" height="659" key="GridCell.Tab.0.center" timestamp="1652271657062">
+      <screen x="0" y="23" width="3440" height="1333" />
     </state>
-    <state width="1521" height="278" key="GridCell.Tab.0.left/0.23.1920.979/1920.23.1920.1057/-1680.23.1680.1027@1920.23.1920.1057" timestamp="1608593370369" />
-    <state width="1521" height="278" key="GridCell.Tab.0.right" timestamp="1608593370370">
-      <screen x="1920" y="23" width="1920" height="1057" />
+    <state width="2232" height="659" key="GridCell.Tab.0.center/0.23.3440.1333@0.23.3440.1333" timestamp="1652271657062" />
+    <state width="2232" height="659" key="GridCell.Tab.0.left" timestamp="1652271657062">
+      <screen x="0" y="23" width="3440" height="1333" />
     </state>
-    <state width="1521" height="278" key="GridCell.Tab.0.right/0.23.1920.979/1920.23.1920.1057/-1680.23.1680.1027@1920.23.1920.1057" timestamp="1608593370370" />
-    <state x="2671" y="288" width="586" height="490" key="find.popup" timestamp="1608591473495">
-      <screen x="1920" y="23" width="1920" height="1057" />
+    <state width="2232" height="659" key="GridCell.Tab.0.left/0.23.3440.1333@0.23.3440.1333" timestamp="1652271657062" />
+    <state width="2232" height="659" key="GridCell.Tab.0.right" timestamp="1652271657062">
+      <screen x="0" y="23" width="3440" height="1333" />
     </state>
-    <state x="2671" y="288" width="586" height="490" key="find.popup/0.23.1920.979/1920.23.1920.1057/-1680.23.1680.1027@1920.23.1920.1057" timestamp="1608591473495" />
+    <state width="2232" height="659" key="GridCell.Tab.0.right/0.23.3440.1333@0.23.3440.1333" timestamp="1652271657062" />
+    <state x="1738" y="275" key="SettingsEditor" timestamp="1652271790912">
+      <screen x="0" y="23" width="3440" height="1333" />
+    </state>
+    <state x="1738" y="275" key="SettingsEditor/0.23.3440.1333@0.23.3440.1333" timestamp="1652271790912" />
   </component>
 </project>
