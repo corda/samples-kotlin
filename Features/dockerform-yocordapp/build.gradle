@@ -2,13 +2,6 @@ import static org.gradle.jvm.toolchain.JavaLanguageVersion.of
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import net.corda.plugins.Dockerform
 
-buildscript {
-    configurations.classpath {
-        // FORCE Gradle to use latest SNAPSHOT plugins.
-        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-    }
-}
-
 plugins {
     id 'org.jetbrains.kotlin.jvm' apply false
     id 'net.corda.plugins.cordformation'
@@ -16,13 +9,6 @@ plugins {
 }
 
 subprojects { //Properties that you need to compile your project (The application)
-    buildscript {
-        configurations.classpath {
-            // FORCE Gradle to use latest SNAPSHOT plugins.
-            resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-        }
-    }
-
     pluginManager.withPlugin('java') {
         java {
             toolchain {
