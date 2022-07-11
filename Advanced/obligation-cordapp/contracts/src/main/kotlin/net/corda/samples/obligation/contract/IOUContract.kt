@@ -35,7 +35,6 @@ class IOUContract : Contract {
      * The constraints are self documenting so don't require any additional explanation.
      */
     override fun verify(tx: LedgerTransaction) {
-
         val command = tx.commands.requireSingleCommand<Commands>()
         when (command.value) {
             is Commands.Issue -> requireThat {

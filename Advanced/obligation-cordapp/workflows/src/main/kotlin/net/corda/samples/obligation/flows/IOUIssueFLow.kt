@@ -17,15 +17,26 @@ import net.corda.samples.obligation.contract.IOUContract
  * Notarisation (if required) and commitment to the ledger is handled by the [FinalityFlow].
  * The flow returns the [SignedTransaction] that was committed to the ledger.
  */
+/*
+@InitiatingFlow
+@StartableByRPC
+class DeterministicOutput() : FlowLogic<SignedTransaction>() {
+    @Suspendable
+    override fun call(): SignedTransaction {
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
+        val builder = TransactionBuilder(
+            notary = notary
+        )
+    }
+}*/
+
 @InitiatingFlow
 @StartableByRPC
 class IOUIssueFlow(val state: IOUState): FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call(): SignedTransaction {
-
         // Step 1. Get a reference to the notary service on our network and our key pair.
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
-
         // Step 2. Create a new issue command.
         // Remember that a command is a CommandData object and a list of CompositeKeys
         val issueCommand = Command(IOUContract.Commands.Issue(), state.participants.map { it.owningKey })
