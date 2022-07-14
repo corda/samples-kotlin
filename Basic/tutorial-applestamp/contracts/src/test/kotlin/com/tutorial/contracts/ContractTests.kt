@@ -1,14 +1,13 @@
 package com.tutorial.contracts
 
 import com.tutorial.states.AppleStamp
+import com.tutorial.states.TemplateState
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
 import org.junit.Test
-import com.tutorial.states.TemplateState
-import net.corda.core.contracts.UniqueIdentifier
-import java.security.PublicKey
 import java.util.*
 
 class ContractTests {
@@ -39,7 +38,7 @@ class ContractTests {
     }
 
     @Test
-    fun stampIssuanceCanOnlyHaveOneOutput(){
+    fun stampIssuanceCanOnlyHaveOneOutput() {
         val stamp = AppleStamp("FUji4072", alice.party, bob.party, UniqueIdentifier())
         val stamp2 = AppleStamp("HoneyCrispy7864", alice.party, bob.party, UniqueIdentifier())
 
@@ -63,7 +62,7 @@ class ContractTests {
     }
 
     @Test
-    fun StampMustHaveDescription(){
+    fun StampMustHaveDescription() {
         val stamp = AppleStamp("", alice.party, bob.party, UniqueIdentifier())
         val stamp2 = AppleStamp("FUji4072", alice.party, bob.party, UniqueIdentifier())
 
@@ -84,9 +83,6 @@ class ContractTests {
             }
         }
     }
-
-
-
 
 
 }

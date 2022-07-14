@@ -19,11 +19,17 @@ class FarmerSelfCreateBasketOfApplesTest {
     private var network: MockNetwork? = null
     private var a: StartedMockNode? = null
     private var b: StartedMockNode? = null
+
     @Before
     fun setup() {
-        network = MockNetwork(MockNetworkParameters().withCordappsForAllNodes(ImmutableList.of(
-                TestCordapp.findCordapp("com.tutorial.contracts"),
-                TestCordapp.findCordapp("com.tutorial.flows"))))
+        network = MockNetwork(
+            MockNetworkParameters().withCordappsForAllNodes(
+                ImmutableList.of(
+                    TestCordapp.findCordapp("com.tutorial.contracts"),
+                    TestCordapp.findCordapp("com.tutorial.flows")
+                )
+            )
+        )
         a = network!!.createPartyNode(null)
         b = network!!.createPartyNode(null)
         network!!.runNetwork()
@@ -43,7 +49,7 @@ class FarmerSelfCreateBasketOfApplesTest {
         //successful query means the state is stored at node b's vault. Flow went through.
         val inputCriteria: QueryCriteria = QueryCriteria.VaultQueryCriteria().withStatus(StateStatus.UNCONSUMED)
         val state = a!!.services.vaultService
-                .queryBy(BasketOfApples::class.java, inputCriteria).states[0].state.data
+            .queryBy(BasketOfApples::class.java, inputCriteria).states[0].state.data
         println("-------------------------")
         println(state.owner)
         println("-------------------------")

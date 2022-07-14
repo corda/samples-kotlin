@@ -13,12 +13,12 @@ import net.corda.core.node.services.Vault.StateStatus
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
-import java.security.PublicKey
 import java.util.*
 
 @InitiatingFlow
 @StartableByRPC
-class RedeemApplesInitiator(private val buyer: Party, private val stampId: UniqueIdentifier) : FlowLogic<SignedTransaction>() {
+class RedeemApplesInitiator(private val buyer: Party, private val stampId: UniqueIdentifier) :
+    FlowLogic<SignedTransaction>() {
 
     @Suspendable
     override fun call(): SignedTransaction {
@@ -33,16 +33,18 @@ class RedeemApplesInitiator(private val buyer: Party, private val stampId: Uniqu
 
         //Query the AppleStamp
         val inputCriteria = QueryCriteria.LinearStateQueryCriteria()
-                .withUuid(listOf(UUID.fromString(stampId.toString())))
-                .withStatus(StateStatus.UNCONSUMED)
-                .withRelevancyStatus(RelevancyStatus.RELEVANT)
-        val appleStampStateAndRef: StateAndRef<*> = serviceHub.vaultService.queryBy(AppleStamp::class.java, inputCriteria).states.get(0)
+            .withUuid(listOf(UUID.fromString(stampId.toString())))
+            .withStatus(StateStatus.UNCONSUMED)
+            .withRelevancyStatus(RelevancyStatus.RELEVANT)
+        val appleStampStateAndRef: StateAndRef<*> =
+            serviceHub.vaultService.queryBy(AppleStamp::class.java, inputCriteria).states.get(0)
 
         //Query output BasketOfApples
         val outputCriteria: QueryCriteria = QueryCriteria.VaultQueryCriteria()
-                .withStatus(StateStatus.UNCONSUMED)
-                .withRelevancyStatus(RelevancyStatus.RELEVANT)
-        val BasketOfApplesStateAndRef: StateAndRef<*> = serviceHub.vaultService.queryBy(BasketOfApples::class.java, outputCriteria).states[0]
+            .withStatus(StateStatus.UNCONSUMED)
+            .withRelevancyStatus(RelevancyStatus.RELEVANT)
+        val BasketOfApplesStateAndRef: StateAndRef<*> =
+            serviceHub.vaultService.queryBy(BasketOfApples::class.java, outputCriteria).states[0]
         val originalBasketOfApples = BasketOfApplesStateAndRef.state.data as BasketOfApples
 
         //Modify output to address the owner change
@@ -50,11 +52,13 @@ class RedeemApplesInitiator(private val buyer: Party, private val stampId: Uniqu
 
         //Build Transaction
         val txBuilder = TransactionBuilder(notary)
-                .addInputState(appleStampStateAndRef)
-                .addInputState(BasketOfApplesStateAndRef)
-                .addOutputState(output, BasketOfApplesContract.ID)
-                .addCommand(BasketOfApplesContract.Commands.Redeem(),
-                        Arrays.asList(ourIdentity.owningKey, buyer.owningKey))
+            .addInputState(appleStampStateAndRef)
+            .addInputState(BasketOfApplesStateAndRef)
+            .addOutputState(output, BasketOfApplesContract.ID)
+            .addCommand(
+                BasketOfApplesContract.Commands.Redeem(),
+                Arrays.asList(ourIdentity.owningKey, buyer.owningKey)
+            )
 
         // Verify that the transaction is valid.
         txBuilder.verify(serviceHub)
@@ -65,7 +69,8 @@ class RedeemApplesInitiator(private val buyer: Party, private val stampId: Uniqu
         // Send the state to the counterparty, and receive it back with their signature.
         val otherPartySession = initiateFlow(buyer)
         val fullySignedTx = subFlow(
-                CollectSignaturesFlow(partSignedTx, Arrays.asList(otherPartySession)))
+            CollectSignaturesFlow(partSignedTx, Arrays.asList(otherPartySession))
+        )
 
         // Notarise and record the transaction in both parties' vaults.
         return subFlow(FinalityFlow(fullySignedTx, Arrays.asList(otherPartySession)))

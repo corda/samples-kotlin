@@ -1,15 +1,18 @@
 package com.tutorial
 
-import net.corda.testing.node.*
+import com.tutorial.flows.Initiator
+import com.tutorial.states.TemplateState
+import net.corda.core.node.services.Vault.StateStatus
+import net.corda.core.node.services.vault.QueryCriteria
+import net.corda.core.transactions.SignedTransaction
+import net.corda.testing.node.MockNetwork
+import net.corda.testing.node.MockNetworkParameters
+import net.corda.testing.node.StartedMockNode
+import net.corda.testing.node.TestCordapp
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import com.tutorial.states.TemplateState
-import java.util.concurrent.Future;
-import net.corda.core.node.services.vault.QueryCriteria
-import net.corda.core.transactions.SignedTransaction
-import com.tutorial.flows.Initiator
-import net.corda.core.node.services.Vault.StateStatus
+import java.util.concurrent.Future
 
 
 class FlowTests {
@@ -19,10 +22,14 @@ class FlowTests {
 
     @Before
     fun setup() {
-        network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
-                TestCordapp.findCordapp("com.tutorial.contracts"),
-                TestCordapp.findCordapp("com.tutorial.flows")
-        )))
+        network = MockNetwork(
+            MockNetworkParameters(
+                cordappsForAllNodes = listOf(
+                    TestCordapp.findCordapp("com.tutorial.contracts"),
+                    TestCordapp.findCordapp("com.tutorial.flows")
+                )
+            )
+        )
         a = network.createPartyNode()
         b = network.createPartyNode()
         network.runNetwork()
@@ -32,6 +39,7 @@ class FlowTests {
     fun tearDown() {
         network.stopNodes()
     }
+
     @Test
     fun `DummyTest`() {
         val flow = Initiator(b.info.legalIdentities[0])
