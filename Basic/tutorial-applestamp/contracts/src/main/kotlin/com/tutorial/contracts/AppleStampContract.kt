@@ -3,7 +3,6 @@ package com.tutorial.contracts
 import com.tutorial.states.AppleStamp
 import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.Contract
-import net.corda.core.contracts.Requirements
 import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
 
@@ -23,10 +22,10 @@ class AppleStampContract : Contract {
                 "The output AppleStamp state should have clear description of the type of redeemable goods".using(output.stampDesc != "")
                 null
             }
-            is BasketOfApplesContract.Commands.Redeem-> requireThat {
+            is BasketOfApplesContract.Commands.Redeem -> requireThat {
                 //Transaction verification will happen in BasketOfApples Contract
             }
-    }
+        }
     }
 
     // Used to indicate the transaction's intent.

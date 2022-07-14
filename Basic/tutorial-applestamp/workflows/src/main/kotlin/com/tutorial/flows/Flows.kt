@@ -1,27 +1,16 @@
 package com.tutorial.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.core.flows.*
-import net.corda.core.utilities.ProgressTracker
-import net.corda.core.flows.FinalityFlow
-
-import net.corda.core.flows.CollectSignaturesFlow
-
-import net.corda.core.transactions.SignedTransaction
-
-import java.util.stream.Collectors
-
-import net.corda.core.flows.FlowSession
-
-import net.corda.core.identity.Party
-
 import com.tutorial.contracts.TemplateContract
-
-import net.corda.core.transactions.TransactionBuilder
-
 import com.tutorial.states.TemplateState
 import net.corda.core.contracts.requireThat
+import net.corda.core.flows.*
 import net.corda.core.identity.AbstractParty
+import net.corda.core.identity.Party
+import net.corda.core.transactions.SignedTransaction
+import net.corda.core.transactions.TransactionBuilder
+import net.corda.core.utilities.ProgressTracker
+import java.util.stream.Collectors
 
 
 // *********
@@ -47,8 +36,8 @@ class Initiator(private val receiver: Party) : FlowLogic<SignedTransaction>() {
 
         // Step 3. Create a new TransactionBuilder object.
         val builder = TransactionBuilder(notary)
-                .addCommand(TemplateContract.Commands.Create(), listOf(sender.owningKey, receiver.owningKey))
-                .addOutputState(output)
+            .addCommand(TemplateContract.Commands.Create(), listOf(sender.owningKey, receiver.owningKey))
+            .addOutputState(output)
 
         // Step 4. Verify and sign it with our KeyPair.
         builder.verify(serviceHub)
@@ -56,7 +45,8 @@ class Initiator(private val receiver: Party) : FlowLogic<SignedTransaction>() {
 
 
         // Step 6. Collect the other party's signature using the SignTransactionFlow.
-        val otherParties: MutableList<Party> = output.participants.stream().map { el: AbstractParty? -> el as Party? }.collect(Collectors.toList())
+        val otherParties: MutableList<Party> =
+            output.participants.stream().map { el: AbstractParty? -> el as Party? }.collect(Collectors.toList())
         otherParties.remove(ourIdentity)
         val sessions = otherParties.stream().map { el: Party? -> initiateFlow(el!!) }.collect(Collectors.toList())
 
@@ -73,7 +63,7 @@ class Responder(val counterpartySession: FlowSession) : FlowLogic<SignedTransact
     override fun call(): SignedTransaction {
         val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-               //Addition checks
+                //Addition checks
             }
         }
         val txId = subFlow(signTransactionFlow).id

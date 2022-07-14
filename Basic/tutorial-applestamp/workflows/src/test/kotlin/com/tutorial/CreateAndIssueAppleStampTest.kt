@@ -25,9 +25,14 @@ class CreateAndIssueAppleStampTest {
 
     @Before
     fun setup() {
-        network = MockNetwork(MockNetworkParameters().withCordappsForAllNodes(ImmutableList.of(
-                TestCordapp.findCordapp("com.tutorial.contracts"),
-                TestCordapp.findCordapp("com.tutorial.flows"))))
+        network = MockNetwork(
+            MockNetworkParameters().withCordappsForAllNodes(
+                ImmutableList.of(
+                    TestCordapp.findCordapp("com.tutorial.contracts"),
+                    TestCordapp.findCordapp("com.tutorial.flows")
+                )
+            )
+        )
         a = network!!.createPartyNode(null)
         b = network!!.createPartyNode(null)
         network!!.runNetwork()
@@ -47,21 +52,22 @@ class CreateAndIssueAppleStampTest {
         //successful query means the state is stored at node b's vault. Flow went through.
         val inputCriteria: QueryCriteria = QueryCriteria.VaultQueryCriteria().withStatus(StateStatus.UNCONSUMED)
         val state = b!!.services.vaultService
-                .queryBy(TemplateState::class.java, inputCriteria).states[0].state.data
+            .queryBy(TemplateState::class.java, inputCriteria).states[0].state.data
     }
 
     @Test
     fun CreateAndIssueAppleStampTest() {
         val flow1 = CreateAndIssueAppleStampInitiator(
-                "HoneyCrispy 4072", b!!.info.legalIdentities[0])
+            "HoneyCrispy 4072", b!!.info.legalIdentities[0]
+        )
         val future1: Future<SignedTransaction> = a!!.startFlow(flow1)
         network!!.runNetwork()
 
         //successful query means the state is stored at node b's vault. Flow went through.
         val inputCriteria: QueryCriteria = QueryCriteria.VaultQueryCriteria()
-                .withStatus(StateStatus.UNCONSUMED)
+            .withStatus(StateStatus.UNCONSUMED)
         val state = b!!.services.vaultService
-                .queryBy(AppleStamp::class.java, inputCriteria).states[0].state.data
+            .queryBy(AppleStamp::class.java, inputCriteria).states[0].state.data
         assert(state.stampDesc == "HoneyCrispy 4072")
     }
 }

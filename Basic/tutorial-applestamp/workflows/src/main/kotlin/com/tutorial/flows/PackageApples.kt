@@ -3,14 +3,17 @@ package com.tutorial.flows
 import co.paralleluniverse.fibers.Suspendable
 import com.tutorial.contracts.BasketOfApplesContract.Commands.packBasket
 import com.tutorial.states.BasketOfApples
-import net.corda.core.flows.*
-import net.corda.core.identity.Party
+import net.corda.core.flows.FinalityFlow
+import net.corda.core.flows.FlowLogic
+import net.corda.core.flows.InitiatingFlow
+import net.corda.core.flows.StartableByRPC
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 
 @InitiatingFlow
 @StartableByRPC
-class PackApplesInitiator(private val appleDescription: String, private val weight: Int) : FlowLogic<SignedTransaction>(){
+class PackApplesInitiator(private val appleDescription: String, private val weight: Int) :
+    FlowLogic<SignedTransaction>() {
 
     @Suspendable
     override fun call(): SignedTransaction {
@@ -28,8 +31,8 @@ class PackApplesInitiator(private val appleDescription: String, private val weig
 
         //Building transaction
         val txBuilder = TransactionBuilder(notary)
-                .addOutputState(basket)
-                .addCommand(packBasket(), ourIdentity.owningKey)
+            .addOutputState(basket)
+            .addCommand(packBasket(), ourIdentity.owningKey)
 
         // Verify the transaction
         txBuilder.verify(serviceHub)

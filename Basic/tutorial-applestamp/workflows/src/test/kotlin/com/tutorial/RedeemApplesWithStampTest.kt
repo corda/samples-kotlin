@@ -6,7 +6,6 @@ import com.tutorial.flows.PackApplesInitiator
 import com.tutorial.flows.RedeemApplesInitiator
 import com.tutorial.states.AppleStamp
 import com.tutorial.states.BasketOfApples
-import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.node.services.Vault.StateStatus
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
@@ -24,11 +23,17 @@ class RedeemApplesWithStampTest {
     private var network: MockNetwork? = null
     private var a: StartedMockNode? = null
     private var b: StartedMockNode? = null
+
     @Before
     fun setup() {
-        network = MockNetwork(MockNetworkParameters().withCordappsForAllNodes(ImmutableList.of(
-                TestCordapp.findCordapp("com.tutorial.contracts"),
-                TestCordapp.findCordapp("com.tutorial.flows"))))
+        network = MockNetwork(
+            MockNetworkParameters().withCordappsForAllNodes(
+                ImmutableList.of(
+                    TestCordapp.findCordapp("com.tutorial.contracts"),
+                    TestCordapp.findCordapp("com.tutorial.flows")
+                )
+            )
+        )
         a = network!!.createPartyNode(null)
         b = network!!.createPartyNode(null)
         network!!.runNetwork()
@@ -49,7 +54,8 @@ class RedeemApplesWithStampTest {
 
         //Issue Apple Stamp
         val issueAppleStamp = CreateAndIssueAppleStampInitiator(
-                "Fuji4072", b!!.info.legalIdentities[0])
+            "Fuji4072", b!!.info.legalIdentities[0]
+        )
         val future1: Future<SignedTransaction> = a!!.startFlow(issueAppleStamp)
         network!!.runNetwork()
         val issuedStamp = future1.get().tx.outputStates[0] as AppleStamp
@@ -63,7 +69,7 @@ class RedeemApplesWithStampTest {
         //successful query means the state is stored at node b's vault. Flow went through.
         val outputCriteria: QueryCriteria = QueryCriteria.VaultQueryCriteria().withStatus(StateStatus.UNCONSUMED)
         val state = b!!.services.vaultService
-                .queryBy(BasketOfApples::class.java, outputCriteria).states[0].state.data
+            .queryBy(BasketOfApples::class.java, outputCriteria).states[0].state.data
         assert(state.description == "Fuji4072")
     }
 }

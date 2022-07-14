@@ -13,7 +13,8 @@ import java.util.*
 
 @InitiatingFlow
 @StartableByRPC
-class CreateAndIssueAppleStampInitiator(private val stampDescription: String, private val holder: Party) : FlowLogic<SignedTransaction>(){
+class CreateAndIssueAppleStampInitiator(private val stampDescription: String, private val holder: Party) :
+    FlowLogic<SignedTransaction>() {
 
     @Suspendable
     override fun call(): SignedTransaction {
@@ -32,9 +33,11 @@ class CreateAndIssueAppleStampInitiator(private val stampDescription: String, pr
 
         //Compositing the transaction
         val txBuilder = TransactionBuilder(notary)
-                .addOutputState(newStamp)
-                .addCommand(AppleStampContract.Commands.Issue(),
-                        listOf(ourIdentity.owningKey, holder.owningKey))
+            .addOutputState(newStamp)
+            .addCommand(
+                AppleStampContract.Commands.Issue(),
+                listOf(ourIdentity.owningKey, holder.owningKey)
+            )
 
         // Verify that the transaction is valid.
         txBuilder.verify(serviceHub)
@@ -47,7 +50,8 @@ class CreateAndIssueAppleStampInitiator(private val stampDescription: String, pr
         // Send the state to the counterparty, and receive it back with their signature.
         val otherPartySession = initiateFlow(holder)
         val fullySignedTx = subFlow(
-                CollectSignaturesFlow(partSignedTx, Arrays.asList(otherPartySession)))
+            CollectSignaturesFlow(partSignedTx, Arrays.asList(otherPartySession))
+        )
 
         // Notarise and record the transaction in both parties' vaults.
         return subFlow(FinalityFlow(fullySignedTx, Arrays.asList(otherPartySession)))

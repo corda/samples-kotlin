@@ -16,7 +16,7 @@ class StateTests {
     }
 
     @Test
-    fun AppleStampStateHasFieldOfCorrectType(){
+    fun AppleStampStateHasFieldOfCorrectType() {
         AppleStamp::class.java.getDeclaredField("stampDesc")
         assert(AppleStamp::class.java.getDeclaredField("stampDesc").type == String::class.java)
 

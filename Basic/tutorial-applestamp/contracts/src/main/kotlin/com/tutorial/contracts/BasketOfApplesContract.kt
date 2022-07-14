@@ -24,7 +24,9 @@ class BasketOfApplesContract : Contract {
             is Commands.Redeem -> requireThat {
                 val input = tx.inputsOfType(AppleStamp::class.java)[0]
                 "This transaction should consume two states".using(tx.inputStates.size == 2)
-                "The issuer of the Apple stamp should be the producing farm of this basket of apple".using(input.issuer.equals(output.farm))
+                "The issuer of the Apple stamp should be the producing farm of this basket of apple".using(
+                    input.issuer.equals(output.farm)
+                )
                 "The basket of apple has to weight more than 0".using(output.weight > 0)
                 null
             }
