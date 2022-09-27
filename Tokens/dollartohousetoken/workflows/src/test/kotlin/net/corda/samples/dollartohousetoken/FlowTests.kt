@@ -7,7 +7,6 @@ import net.corda.core.node.services.Vault.StateStatus
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.node.services.vault.QueryCriteria.LinearStateQueryCriteria
 import net.corda.samples.dollartohousetoken.flows.CreateAndIssueHouseToken
-import net.corda.samples.dollartohousetoken.states.HouseState
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.node.*
 import org.junit.After

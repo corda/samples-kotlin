@@ -1,11 +1,12 @@
 package net.corda.samples.dollartohousetoken.flows
-
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.money.FiatCurrency.Companion.getInstance
 import com.r3.corda.lib.tokens.selection.database.selector.DatabaseTokenSelection
 import com.r3.corda.lib.tokens.workflows.flows.move.addMoveNonFungibleTokens
 import com.r3.corda.lib.tokens.workflows.flows.move.addMoveTokens
+import com.r3.corda.lib.tokens.workflows.flows.redeem.RedeemTokensFlow
+import com.r3.corda.lib.tokens.workflows.flows.redeem.addTokensToRedeem
 import com.r3.corda.lib.tokens.workflows.internal.flows.distribution.UpdateDistributionListFlow
 import com.r3.corda.lib.tokens.workflows.types.PartyAndAmount
 import net.corda.core.contracts.Amount
@@ -14,15 +15,13 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.*
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
-import net.corda.core.node.services.Vault
 import net.corda.core.node.services.queryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
-import net.corda.samples.dollartohousetoken.states.HouseState
-import org.checkerframework.common.aliasing.qual.Unique
+import net.corda.samples.dollartohousetoken.states.CarState
 import java.util.*
 
 // *********
@@ -30,8 +29,8 @@ import java.util.*
 // *********
 @InitiatingFlow
 @StartableByRPC
-class HouseSale(val houseId: String,
-                val buyer: Party) : FlowLogic<String>() {
+class CarSale(val carId: String,
+              val buyer: Party) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
     @Suspendable
@@ -39,26 +38,20 @@ class HouseSale(val houseId: String,
         // Obtain a reference from a notary we wish to use.
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
-        val uuid = UUID.fromString(houseId)
-
-        /* Fetch the house state from the vault using the vault query */
-        val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(UniqueIdentifier.fromString(houseId)))
-        val houseStateAndRef = serviceHub.vaultService.queryBy<HouseState>(criteria = inputCriteria).states.single()
-        val houseState = houseStateAndRef.state.data
+        /* Fetch the car state from the vault using the vault query */
+        val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(UniqueIdentifier.fromString(carId)))
+        val carStateAndRef = serviceHub.vaultService.queryBy<CarState>(criteria = inputCriteria).states.single()
+        val carState = carStateAndRef.state.data
 
         /* Build the transaction builder */
         val txBuilder = TransactionBuilder(notary)
 
-        /* Create a move token proposal for the house token using the helper function provided by Token SDK. This would create the movement proposal and would
-         * be committed in the ledgers of parties once the transaction in finalized.
-        **/
-        addMoveNonFungibleTokens(txBuilder, serviceHub, houseState.toPointer(houseState.javaClass), buyer)
+        /* Create a move token proposal */
+        addMoveNonFungibleTokens(txBuilder, serviceHub, carState.toPointer(carState.javaClass), buyer)
 
-        /* Initiate a flow session with the buyer to send the house valuation and transfer of the fiat currency */
+        /* Initiate a flow session with the buyer */
         val buyerSession = initiateFlow(buyer)
-
-        // Send the house valuation to the buyer.
-        buyerSession.send(houseState.valuationOfHouse)
+        buyerSession.send(carState.carValue)
 
         // Recieve inputStatesAndRef for the fiat currency exchange from the buyer, these would be inputs to the fiat currency exchange transaction.
         val inputs = subFlow(ReceiveStateAndRefFlow<FungibleToken>(buyerSession))
@@ -77,20 +70,17 @@ class HouseSale(val houseId: String,
 
         /* Call finality flow to notarise the transaction */
         val stx = subFlow(FinalityFlow(ftx, listOf(buyerSession)))
-
-        /* Distribution list is a list of identities that should receive updates. For this mechanism to behave correctly we call the UpdateDistributionListFlow flow */
         subFlow(UpdateDistributionListFlow(stx))
-
-        return ("\nThe house is sold to " + buyer.name.organisation + "\nTransaction ID: "
+        return ("\nThe car is sold to " + buyer.name.organisation + "\nTransaction ID: "
                 + stx.id)
     }
 }
 
-@InitiatedBy(HouseSale::class)
-class HouseSaleResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+@InitiatedBy(CarSale::class)
+class CarSaleResponder(val counterpartySession: FlowSession) : FlowLogic<String>() {
     @Suspendable
-    override fun call():SignedTransaction {
-        /* Recieve the valuation of the house */
+    override fun call():String {
+        /* Recieve the valuation of the car */
         val price = counterpartySession.receive<Amount<Currency>>().unwrap { it }
 
         /* Create instance of the fiat currecy token amount */
@@ -102,7 +92,7 @@ class HouseSaleResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         val partyAndAmount = PartyAndAmount(counterpartySession.counterparty,priceToken)
         val inputsAndOutputs : Pair<List<StateAndRef<FungibleToken>>, List<FungibleToken>> =
                 DatabaseTokenSelection(serviceHub).generateMove(listOf(Pair(counterpartySession.counterparty,priceToken)),ourIdentity)
-                        //.generateMove(runId.uuid, listOf(partyAndAmount),ourIdentity,null)
+        //.generateMove(runId.uuid, listOf(partyAndAmount),ourIdentity,null)
 
         /* Call SendStateAndRefFlow to send the inputs to the Initiator*/
         subFlow(SendStateAndRefFlow(counterpartySession, inputsAndOutputs.first))
@@ -115,6 +105,9 @@ class HouseSaleResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
             override fun checkTransaction(stx: SignedTransaction) { // Custom Logic to validate transaction.
             }
         })
-        return subFlow(ReceiveFinalityFlow(counterpartySession))
+
+        subFlow(ReceiveFinalityFlow(counterpartySession))
+
+        return "$ourIdentity"
     }
 }

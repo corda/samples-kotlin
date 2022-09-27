@@ -3,7 +3,6 @@ package net.corda.samples.dollartohousetoken.contracts
 import net.corda.core.contracts.Amount
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
-import net.corda.samples.dollartohousetoken.states.HouseState
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
