@@ -18,7 +18,8 @@ import java.util.*
 // *********
 @StartableByRPC
 class CreateCarToken(val carValue: Amount<Currency>, val mileage: Int,
-                     val brand: String
+                     val brand: String,
+                     val total: Int
 ) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
@@ -30,16 +31,20 @@ class CreateCarToken(val carValue: Amount<Currency>, val mileage: Int,
         /* Get a reference of own identity */
         val issuer = ourIdentity
 
-        /* Construct the Car state */
-        val carState = CarState(UniqueIdentifier(),Arrays.asList(issuer),carValue,mileage,brand)
+        for (i in  1..total) {
+            /* Construct the Car state */
+            val carState = CarState(UniqueIdentifier(),Arrays.asList(issuer),carValue,mileage,brand)
 
-        /* Create an instance of TransactionState using the carState token and the notary */
-        val transactionState = carState withNotary notary!!
+            /* Create an instance of TransactionState using the carState token and the notary */
+            val transactionState = carState withNotary notary!!
 
-        /* Create the car token.*/
-        subFlow(CreateEvolvableTokens(transactionState))
+            /* Create the car token.*/
+            subFlow(CreateEvolvableTokens(transactionState))
+        }
 
-        return ("\nThe non-fungible car token is created with ID: " + carState.linearId + ". (This is what you will use in next step)"
+
+
+        return ("\nThe non-fungible car token is created with ID: "
                 )
     }
 }
