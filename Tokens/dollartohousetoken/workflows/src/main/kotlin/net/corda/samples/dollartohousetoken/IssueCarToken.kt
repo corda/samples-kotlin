@@ -9,19 +9,20 @@ import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
+import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.samples.dollartohousetoken.states.CarState
 
 @StartableByRPC
-class IssueCarToken(val owner: Party, val brand: String) : FlowLogic<String>() {
+class IssueCarToken(val owner: Party, val carId: String) : FlowLogic<String>() {
 
     @Suspendable
     override fun call(): String {
         val issuer = ourIdentity
 
-        val stateAndRef  = serviceHub.vaultService.queryBy<CarState>()
-                .states.filter { it.state.data.brand.equals(brand) }[0]
-
-        val carState = stateAndRef.state.data
+        /* Fetch the car state from the vault using the vault query */
+        val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(UniqueIdentifier.fromString(carId)))
+        val carStateAndRef = serviceHub.vaultService.queryBy<CarState>(criteria = inputCriteria).states.single()
+        val carState = carStateAndRef.state.data
 
         val issuedCarToken = carState.toPointer(carState.javaClass) issuedBy issuer
 

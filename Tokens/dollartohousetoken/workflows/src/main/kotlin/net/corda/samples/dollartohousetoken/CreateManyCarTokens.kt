@@ -33,7 +33,6 @@ class CreateManyCarTokens(
         for (i in  1..total) {
 
             val brand =   brands.randomOrNull();
-            randomValue = rand(1000, 5000)
             /* Construct the Car state */
             val carState = CarState(UniqueIdentifier(), Arrays.asList(issuer), carValue,mileage, brand!!)
 
