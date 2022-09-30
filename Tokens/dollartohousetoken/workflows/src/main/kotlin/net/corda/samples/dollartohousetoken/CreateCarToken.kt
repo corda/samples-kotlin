@@ -18,8 +18,7 @@ import java.util.*
 // *********
 @StartableByRPC
 class CreateCarToken(val carValue: Amount<Currency>, val mileage: Int,
-                     val brand: String,
-                     val total: Int
+                     val brand: String
 ) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
