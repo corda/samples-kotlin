@@ -17,9 +17,8 @@ import java.util.*
 
 @StartableByRPC
 class CreateManyCarTokens(
-        val carValue: Amount<Currency>, val mileage: Int,
-        val total: Int
-) : FlowLogic<String>(){
+        val carValue: Amount<Currency>, val total: Int
+) : FlowLogic<String>() {
 
     val brands = listOf("VW", "Mercedes", "BMW", "Ferrari")
     val random = Random()
@@ -30,11 +29,11 @@ class CreateManyCarTokens(
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
         val issuer = ourIdentity
 
-        for (i in  1..total) {
+        for (i in 1..total) {
 
-            val brand =   brands.randomOrNull();
+            val brand = brands.randomOrNull();
             /* Construct the Car state */
-            val carState = CarState(UniqueIdentifier(), Arrays.asList(issuer), carValue,mileage, brand!!)
+            val carState = CarState(UniqueIdentifier(), Arrays.asList(issuer), carValue, rand(100, 10000), brand!!)
 
             /* Create an instance of TransactionState using the carState token and the notary */
             val transactionState = carState withNotary notary!!
@@ -46,7 +45,7 @@ class CreateManyCarTokens(
         return "Tokens created"
     }
 
-    fun rand(from: Int, to: Int) : Int {
+    fun rand(from: Int, to: Int): Int {
         return random.nextInt(to - from) + from
     }
 }
