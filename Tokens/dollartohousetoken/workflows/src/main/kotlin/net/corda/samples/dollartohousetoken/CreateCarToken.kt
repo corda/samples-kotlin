@@ -39,6 +39,6 @@ class CreateCarToken(val carValue: Amount<Currency>, val mileage: Int,
         /* Create the car token.*/
         subFlow(CreateEvolvableTokens(transactionState))
 
-        return ("\nThe non-fungible car token is created with ID: ")
+        return ("\nThe non-fungible car token is created with ID: ${carState.linearId}")
     }
 }

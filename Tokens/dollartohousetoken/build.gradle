@@ -108,8 +108,28 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         projectCordapp {
             deploy = false
         }
-        cordapp("$tokens_release_group:tokens-contracts:$tokens_release_version")
-        cordapp("$tokens_release_group:tokens-workflows:$tokens_release_version")
+        cordapp("$tokens_release_group:tokens-contracts:$tokens_release_version"){
+            config '''
+            stateSelection {
+                inMemory {
+                       indexingStrategy: ["external_id"|"public_key"|"token_only"]
+                       cacheSize: 1024
+                }
+            }
+        '''
+        }
+
+        cordapp("$tokens_release_group:tokens-workflows:$tokens_release_version"){
+            config '''
+            stateSelection {
+                inMemory {
+                       indexingStrategy: ["external_id"|"public_key"|"token_only"]
+                       cacheSize: 1024
+                }
+            }
+        '''
+        }
+
         cordapp project(':contracts')
         cordapp project(':workflows')
 	runSchemaMigration = true
@@ -142,15 +162,15 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         }
         rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
-    node {
-        name "O=PartyC,L=Mumbai,C=IN"
-        p2pPort 10012
-        rpcSettings {
-            address("localhost:10013")
-            adminAddress("localhost:10052")
-        }
-        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
-    }
+//    node {
+//        name "O=PartyC,L=Mumbai,C=IN"
+//        p2pPort 10012
+//        rpcSettings {
+//            address("localhost:10013")
+//            adminAddress("localhost:10052")
+//        }
+//        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
+//    }
 }
 
 task installQuasar(type: Copy) {
