@@ -48,11 +48,47 @@ and
 ./gradlew runPartyCServer
 ```
 
-### Interacting with the CorDapp
+### Interacting with the CorDapp in the browser
 
 Once all the three servers have started up (look for `Webserver started up in XXX sec` in the terminal), you can interact with the app via a web browser.
 * From a Node Driver configuration, look for `Starting webserver on address localhost:100XX` for the addresses.
 
 * From the terminal: Node A: `localhost:10009`, Node B: `localhost:10012`, Node C: `localhost:10015`.
 
-To access the front-end gui for each node, navigate to `localhost:XXXX/web/iou/`
+To access the front-end gui for each node, navigate to `localhost:XXXX`
+
+1. Navigate to Node A in the browser: `localhost:10009`. Click on the `Create IOU` button:
+
+![](screenshots/create-iou-partyA.png)
+
+2. Fill in the fields as shown in the screenshot below:
+
+![](screenshots/fill-in-fields-partyA.png)
+
+3. After a couple of seconds, you should see a popup with a `Transaction id` - which means the issue flow has successfully completed.
+4. Click out of the popup and refresh the browser page for Party A node. You should see that the IOU we just created is now visible under the `Recorded IOUs` section:  
+
+![](screenshots/recorded-ious-partyA.png)
+
+5. Go to the browser page for Party B node. If you refresh the page, you should see that the same IOU we just created also under the `Recorded IOUs` section.
+6. However, if you navigate to the browser page for Party C node, this IOU is not visible. This is because the transaction was only between Party A and Party B. Therefore, Party C does not have the IOU state recorded in its vault.
+
+### Interaction with the CorDapp in the terminal
+
+Let's take a look at the IOU states we just created, in the terminal.
+
+1. Navigate to Party A's Corda Interactive Shell in the terminal and type:
+```
+run vaultQuery contractStateType: net.corda.samples.obligation.states
+```
+
+The output of this vault query returns the IOU state which we just created.
+
+2. Navigate to Party B's Corda Interactive Shell in the terminal and type:
+```
+run vaultQuery contractStateType: net.corda.samples.obligation.states
+```
+
+You should see exactly the same IOU state as the output.
+
+3. And now if you type in the same vault query command into Party C's Corda Interactive Shell, it should return nothing as Party C's vault does not include the IOU State we just created. This is the expected behaviour as information is only shared on a need-to-know basis in Corda.
