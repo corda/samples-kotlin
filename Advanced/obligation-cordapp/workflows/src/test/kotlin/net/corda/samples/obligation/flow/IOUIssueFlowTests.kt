@@ -1,6 +1,5 @@
 package net.corda.samples.obligation.flow
 
-import groovy.util.GroovyTestCase.assertEquals
 import net.corda.samples.obligation.flows.IOUIssueFlowResponder
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.TransactionVerificationException
@@ -15,6 +14,7 @@ import net.corda.samples.obligation.contract.IOUContract
 import net.corda.samples.obligation.flows.IOUIssueFlow
 import net.corda.samples.obligation.states.IOUState
 import org.junit.*
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 /**
