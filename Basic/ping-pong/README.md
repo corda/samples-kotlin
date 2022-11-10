@@ -2,7 +2,7 @@
 
 This CorDapp allows a node to ping any other node on the network that also has this CorDapp installed.
 
-It demonstrates how to use Corda for messaging and passing data using a [flow](https://docs.corda.net/docs/corda-os/flow-state-machines.html#flow-sessions) without saving any states or using any contracts.
+It demonstrates how to use Corda for messaging and passing data using a flow that initiates a [communication session](https://docs.r3.com/en/platform/corda/4.9/community/api-flows.html#create-communication-sessions-with-initiateflow) without saving any states or using any contracts.
 
 
 ### Concepts
@@ -88,8 +88,8 @@ Since we are not using any start or transaction, if we want to see the trace of 
 
 Run the following command from the root of the project:
 
-* Unix/Mac OSX: `./gradlew pingPartyBJava -Paddress="[your RPC address]" -PnodeName="[name of node to ping]"`
-* Windows: `gradlew pingPartyBJava -Paddress="[your RPC address]" -PnodeName="[name of node to ping]"`
+* Unix/Mac OSX: `./gradlew pingPartyBKotlin -Paddress="[your RPC address]" -PnodeName="[name of node to ping]"`
+* Windows: `gradlew pingPartyBKotlin -Paddress="[your RPC address]" -PnodeName="[name of node to ping]"`
 
 For example, if your node has the RPC address `localhost:10006`, you'd ping party B from a
 Unix/Mac OSX machine by running:
@@ -98,5 +98,5 @@ Unix/Mac OSX machine by running:
 
 You should see the following message, indicating that PartyB responded to your ping:
 
-    Successfully pinged O=PartyB,L=New York,C=US..
+    Successfully pinged O=PartyB,L=New York,C=US.
 
