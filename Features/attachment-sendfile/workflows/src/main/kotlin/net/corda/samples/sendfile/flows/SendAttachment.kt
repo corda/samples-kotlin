@@ -62,10 +62,10 @@ class SendAttachment(
 
         progressTracker.currentStep = GENERATING_TRANSACTION
         //build transaction
-        val ouput = InvoiceState(attachmenthash.toString(), participants = listOf(ourIdentity, receiver))
+        val output = InvoiceState(attachmenthash.toString(), participants = listOf(ourIdentity, receiver))
         val commandData = InvoiceContract.Commands.Issue()
         transactionBuilder.addCommand(commandData, ourIdentity.owningKey, receiver.owningKey)
-        transactionBuilder.addOutputState(ouput, InvoiceContract.ID)
+        transactionBuilder.addOutputState(output, InvoiceContract.ID)
         transactionBuilder.addAttachment(attachmenthash)
         transactionBuilder.verify(serviceHub)
 
@@ -73,7 +73,7 @@ class SendAttachment(
         progressTracker.currentStep = PROCESS_TRANSACTION
         val signedTransaction = serviceHub.signInitialTransaction(transactionBuilder)
 
-        //conter parties signing
+        //counter parties signing
         progressTracker.currentStep = FINALISING_TRANSACTION
 
         val session = initiateFlow(receiver)
@@ -90,12 +90,12 @@ private fun uploadAttachment(
         whoAmI: Party,
         filename: String
 ): String {
-    val attachmenthash = service.attachments.importAttachment(
+    val attachmentHash = service.attachments.importAttachment(
             File(path).inputStream(),
             whoAmI.toString(),
             filename)
 
-    return attachmenthash.toString();
+    return attachmentHash.toString();
 }
 
 @InitiatedBy(SendAttachment::class)
