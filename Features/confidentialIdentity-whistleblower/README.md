@@ -32,7 +32,7 @@ Then type: (to run the nodes)
 
 We will interact with this CorDapp via the nodes' interactive shells.
 
-First, go the shell of BraveEmployee, and report BadCompany to the TradeBody by running:
+First, go to the shell of BraveEmployee, and report BadCompany to the TradeBody by running:
 
     flow start BlowWhistleFlow badCompany: BadCompany, investigator: TradeBody
 
