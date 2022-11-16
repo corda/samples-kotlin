@@ -5,7 +5,9 @@ This CorDapp allows nodes to reach agreement over arbitrary strings of text, but
 
 ## Concepts
 
-The blacklist takes the form of a jar including a single file, `blacklist.txt`. `blacklist.txt` lists the following
+The blacklist takes the form of a jar including a single file, `blacklist.txt`. 
+
+`blacklist.txt` lists the following
 parties as being banned from entering into agreements:
 
 * Crossland Savings
@@ -25,12 +27,12 @@ check that the parties to the `AgreementState` are not blacklisted. There aren't
 
 ## Pre-Requisites
 
-For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
 
 
 ### Deploy and run the node
 ```
-./greadlew deployNodes
+./greadlew clean build deployNodes
 ./build/node/runnodes
 ```
 
@@ -60,7 +62,7 @@ the shell of Monogram Bank:
 
     start ProposeFlow agreementTxt: "A and B agree Y", counterparty: "Hiseville Deposit Bank", untrustedPartiesAttachment: "4CEC607599723D7E0393EB5F05F24562732CD1B217DEAEDEABD4C25AFE5B333A"
 
-If you now run `run vaultQuery contractStateType: net.corda.examples.attachments.states.AgreementState` on either the
+If you now run `run vaultQuery contractStateType: net.corda.samples.blacklist.states.AgreementState` on either the
 Monogram Bank or Hiseville Deposit Bank node, you should see the agreement stored:
 
     data: !<net.corda.examples.attachments.state.AgreementState>
