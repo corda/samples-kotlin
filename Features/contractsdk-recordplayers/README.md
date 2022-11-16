@@ -39,22 +39,22 @@ Take a look at the RecordPlayerContract sample in this repository to see how thi
 
 ## Usage
 
-To run the CorDapp, use the gradle wrapper script the same way you normally would.
+To run the CorDapp, open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 
-```sh
-$ ./gradlew clean build deployNodes
-$ ./build/nodes/runnodes
+```
+./gradlew clean build deployNodes
+./build/nodes/runnodes
 ```
 In the Manufacturer's interactive shell, type:
 ```
->>> flow start net.corda.samples.contractsdk.flows.IssueRecordPlayerFlow dealer: "O=Alice Audio,L=New York,C=US", needle: spherical
+flow start net.corda.samples.contractsdk.flows.IssueRecordPlayerFlow dealer: "O=Alice Audio,L=New York,C=US", needle: spherical
 
 # you can get your state id with a quick vault query
->>> run vaultQuery contractStateType: net.corda.samples.contractsdk.states.RecordPlayerState
+run vaultQuery contractStateType: net.corda.samples.contractsdk.states.RecordPlayerState
 ```
 
 ```
->>> flow start net.corda.samples.contractsdk.flows.UpdateRecordPlayerFlow stateId: < Place State ID here >, needleId: spherical, magneticStrength: 100, coilTurns: 100, amplifierSNR: 10000, songsPlayed: 100
+flow start net.corda.samples.contractsdk.flows.UpdateRecordPlayerFlow stateId: < Place State ID here >, needleId: spherical, magneticStrength: 100, coilTurns: 100, amplifierSNR: 10000, songsPlayed: 100
 ```
 
 ## Additional Information
