@@ -1,13 +1,13 @@
 # Whistleblower -- Confidential Identity 
 
-This CorDapp is a simple showcase of [confidential identities](https://docs.corda.net/docs/corda-os/api-identity.html#confidential-identities) (i.e. anonymous public keys).
+This CorDapp is a simple showcase of [confidential identities](https://docs.r3.com/en/platform/corda/4.9/community/api-identity.html#confidential-identities) (i.e. anonymous public keys).
 
 ## Concepts
 
 
 A node (the *whistle-blower*) can whistle-blow on a company to another node (the *investigator*). Both the
 whistle-blower and the investigator generate anonymous public keys for this transaction, meaning that any third-parties
-who manage to get ahold of the state cannot identity the whistle-blower or investigator. This process is handled
+who manage to get a hold of the state cannot identify the whistle-blower or investigator. This process is handled
 automatically by the `SwapIdentitiesFlow`.
 
 ## Usage
@@ -15,13 +15,13 @@ automatically by the `SwapIdentitiesFlow`.
 
 ## Pre-Requisites
 
-For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
 
 
 ### Deploy and run the node
 Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```
-./gradlew clean deployNodes
+./gradlew clean build deployNodes
 ```
 Then type: (to run the nodes)
 ```
@@ -30,9 +30,9 @@ Then type: (to run the nodes)
 
 ### Interacting with the nodes:
 
-We will interact with this CorDapp via the nodes' [CRaSH](https://docs.corda.net/docs/corda-os/shell.html) shells.
+We will interact with this CorDapp via the nodes' interactive shells.
 
-First, go the the shell of BraveEmployee, and report BadCompany to the TradeBody by running:
+First, go the shell of BraveEmployee, and report BadCompany to the TradeBody by running:
 
     flow start BlowWhistleFlow badCompany: BadCompany, investigator: TradeBody
 
