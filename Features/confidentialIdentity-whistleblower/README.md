@@ -36,9 +36,11 @@ First, go to the shell of BraveEmployee, and report BadCompany to the TradeBody 
 
     flow start BlowWhistleFlow badCompany: BadCompany, investigator: TradeBody
 
-To see the whistle-blowing case stored on the whistle-blowing node, run:
+To see the whistle-blowing case stored on the BraveEmployee node, run:
 
-    run vaultQuery contractStateType: net.corda.examples.whistleblower.states.BlowWhistleState
+    run vaultQuery contractStateType: net.corda.samples.whistleblower.states.BlowWhistleState
+
+You should see something similar to the following:
 
     [ {
       "badCompany" : "C=KE,L=Eldoret,O=BadCompany",
@@ -51,5 +53,5 @@ To see the whistle-blowing case stored on the whistle-blowing node, run:
       "participants" : [ "8Kqd4oWdx4KQGHGKubAvzAFiUG2JjhHxM2chUs4BTHHNHnUCgf6ngCAjmCu", "8Kqd4oWdx4KQGHGGdcHPVdafymUrBvXo6KimREJhttHNhY3JVBKgTCKod1X" ]
     } ]
 
-We can also see the whistle-blowing case stored on the investigator node.
+We can also see the whistle-blowing case stored on the TradeBody node.
 

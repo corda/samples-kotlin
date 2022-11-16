@@ -41,14 +41,14 @@ class BlowWhistleContractTests {
                 // Has an input, will fail.
                 output(BLOW_WHISTLE_CONTRACT_ID, st)
                 output(BLOW_WHISTLE_CONTRACT_ID, st)
-                command(Arrays.asList(a.publicKey, b.publicKey), BlowWhistleContract.Commands.BlowWhistleCmd())
+                command(listOf(a.publicKey, b.publicKey), BlowWhistleContract.Commands.BlowWhistleCmd())
                 fails()
             }
 
             transaction {
                 // Has no input, will verify.
                 output(BLOW_WHISTLE_CONTRACT_ID, st)
-                command(Arrays.asList(a.publicKey, b.publicKey), BlowWhistleContract.Commands.BlowWhistleCmd())
+                command(listOf(a.publicKey, b.publicKey), BlowWhistleContract.Commands.BlowWhistleCmd())
                 verifies()
             }
         }

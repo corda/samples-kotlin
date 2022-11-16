@@ -67,7 +67,7 @@ class BlowWhistleFlow(private val badCompany: Party, private val investigator: P
         val command = Command(BlowWhistleContract.Commands.BlowWhistleCmd(), listOf(anonymousMe.owningKey, anonymousInvestigator.owningKey))
 
         // Obtain a reference from a notary we wish to use.
-        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=Nakuru,C=KE")) // METHOD 2
 
         val txBuilder = TransactionBuilder(notary)
                 .addOutputState(output, BLOW_WHISTLE_CONTRACT_ID)
