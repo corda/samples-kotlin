@@ -5,19 +5,19 @@ using one of the Corda library flow called `NotaryChangeFlow`.
 
 ## Concepts
 
-Notary is a critical component of a Corda network. It helps prevent double-spending 
-attempts in a Corda network. Thus all states issued in Corda are tied to a Notary. 
-Any transaction involving the update of a state must be notarised from the Notary 
-that the state is tied to, since other notaries wouldn't have seen any previous 
-transaction involving the state would not be able to prevent a double spending 
+[Notary](https://docs.r3.com/en/platform/corda/4.9/community/key-concepts-notaries.html) is a critical component of a Corda network. It helps prevent double-spending 
+attempts in a Corda network. Thus, all states issued in Corda are tied to a Notary. 
+Any transaction involving the update of a state must be notarised by the Notary 
+that the state is tied to. Since other notaries wouldn't have seen any previous 
+transactions involving the state, they would not be able to prevent a double-spending 
 attempt.
 
-However, a need to spend a state at a notary other than the one its tied to 
-become unavoidable at times. Thus Corda provides `NotaryChangeFlow` to cater to such 
+However, a need to spend a state at a Notary other than the one it's tied to 
+can be unavoidable at times. For this reason, Corda provides `NotaryChangeFlow` to cater to such 
 needs.
 
-This demo uses the IOU Demo to demonstrate a Notary Change Transaction. Here we would 
-issue an IOU at a particular Notary and try to settle the IOU at a different Notary.
+This demo uses an IOU demo to demonstrate a Notary Change Transaction. Here we would 
+issue an IOU at a particular Notary and try to settle the IOU using a different Notary.
 
 
 ## Usage
@@ -26,7 +26,7 @@ issue an IOU at a particular Notary and try to settle the IOU at a different Not
 
 ## Pre-Requisites
 
-For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
 
 ### Running the CorDapp
 
@@ -40,9 +40,6 @@ Then type: (to run the nodes)
 ./build/nodes/runnodes
 ```
 This should bring up 4 nodes (PartyA, PartyB, NotaryA and NotaryB) in 4 different terminals.
-
-If you have any questions during setup, please go to 
-https://docs.corda.net/getting-set-up.html for detailed setup instructions.
 
 To issue an IOU go to PartyA terminal and run:
 ```
