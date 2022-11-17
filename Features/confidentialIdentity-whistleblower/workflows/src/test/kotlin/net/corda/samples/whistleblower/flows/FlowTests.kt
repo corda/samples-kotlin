@@ -14,7 +14,7 @@ class FlowTests {
             TestCordapp.findCordapp("net.corda.samples.whistleblower.contracts"),
             TestCordapp.findCordapp("net.corda.samples.whistleblower.flows")
     ),
-            notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
+            notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","Nakuru","KE")))
     ))
     private val a = network.createNode()
     private val b = network.createNode()
