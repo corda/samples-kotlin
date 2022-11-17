@@ -1,17 +1,18 @@
 # Sendfile -- Attachment
-This Cordapp shows how to upload and download an [attachment](https://training.corda.net/corda-details/attachments/) via flow.
+This CorDapp shows how to upload and download an [attachment](https://training.corda.net/corda-details/attachments/) via flow.
 
 
 ## Concepts
 
-In this Cordapp, there are two parties:
+In this CorDapp, there are two parties:
 * Seller: sends an invoice (with attachment) to Buyer
-* Buyer: receive the the invoice and be able to download the attached zip file to their local machine
+* Buyer: receives the invoice and downloads the attached zip file to their local machine
 
 
 ### States
 
 You'll want to take a quick look at `InvoiceState.kt`
+(path: `contracts/src/main/kotlin/net/corda/samples/sendfile/states/InvoiceState.kt`)
 
 ```kotlin
 @BelongsToContract(InvoiceContract::class)
@@ -29,41 +30,40 @@ The flow logic is the following:
 
 * `sendAttachment`: send and sync the attachment between parties
   1. Uploading attachment from local
-  2. Attaching the accachmentID to the transaction
+  2. Attaching the attachmentID to the transaction
   3. Storing the attached file into attachment service at the counterparty's node (Automatically check if it already exists or not. If it does, do nothing; if not, download the attached file from the conterparty.)
 
-* `downloadAttchment`: save the attachment file from node's serviceHub to local
+* `downloadAttachment`: save the attachment file from node's serviceHub to local
   1. signing the attachment service in the node to download the file via attachmentID
 
-![alt text](./graph.png)
+![Flow Logic - sendAttachment and downloadAttachment](./graph.png)
 
 
 ## Usage
 
 ## Pre-Requisites
 
-For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
 
 ### Deploy and run the node
 ```
-./greadlew deployNodes
+./gradlew clean build deployNodes
 ./build/node/runnodes
 ```
-if you have any questions during setup, please go to https://docs.corda.net/getting-set-up.html for detailed setup instructions.
 
-Once all three nodes are started up, in Seller's node shell, run:
+Once all 3 nodes have started up, run the following command in the Seller's interactive node shell:
 ```
 flow start SendAttachment receiver: Buyer
 ```
-After this call, we already finished
-1. uploading a zip file to Seller's node
-2. sending the zip file to Buyer's node
+Upon completion of this flow, we have now successfully:
+1. uploaded a zip file to Seller's node
+2. sent the zip file to Buyer's node
 
-Now, lets move to Buyer's node shell, and run:
+Now, lets move to Buyer's interactive node shell, and run:
 ```
 flow start DownloadAttachment sender: Seller, path: file.zip
 ```
-This command is telling the node to retrieve attachment from the transaction that is sent by `Seller`and download it as `file.zip` at the node root direction （⚠️ attachZIP/build/nodes/Buyer)
+This command is telling the node to retrieve the attachment from the transaction that is sent by `Seller` and download it as `file.zip` at the node root direction. (path: `build/nodes/Buyer/file.zip`)
 
 
 
