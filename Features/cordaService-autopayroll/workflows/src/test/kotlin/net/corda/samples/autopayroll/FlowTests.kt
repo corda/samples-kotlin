@@ -2,7 +2,6 @@ package net.corda.samples.autopayroll
 
 import net.corda.samples.autopayroll.flows.RequestFlowInitiator
 import net.corda.samples.autopayroll.flows.RequestFlowResponder
-import groovy.util.GroovyTestCase.assertEquals
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
 import net.corda.testing.node.MockNetwork
@@ -10,6 +9,7 @@ import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNetworkParameters
 import net.corda.testing.node.TestCordapp
 import org.junit.After
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
@@ -49,7 +49,7 @@ class FlowTests {
         }.forEach {
             val txHash = (it as SignedTransaction).id
             println("$txHash == ${ptx.id}")
-            assertEquals(ptx.id, txHash)
+            Assert.assertEquals(ptx.id, txHash)
         }
     }
 
