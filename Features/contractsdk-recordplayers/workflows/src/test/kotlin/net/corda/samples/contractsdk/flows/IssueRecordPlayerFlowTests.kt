@@ -10,7 +10,6 @@ import net.corda.core.utilities.getOrThrow
 import net.corda.samples.contractsdk.states.Needle
 import net.corda.samples.contractsdk.states.RecordPlayerState
 import net.corda.testing.node.*
-import org.jgroups.util.Util
 import org.junit.*
 import java.time.Instant
 import java.util.*
@@ -65,9 +64,9 @@ class IssueRecordPlayerFlowTests {
         val signedTransaction = future.get()
 
         if (signedTransaction != null) {
-            Util.assertEquals(1, signedTransaction.tx.outputStates.size)
+            Assert.assertEquals(1, signedTransaction.tx.outputStates.size)
         }
-        Util.assertEquals(network.notaryNodes[0].info.legalIdentities[0], signedTransaction?.notary)
+        Assert.assertEquals(network.notaryNodes[0].info.legalIdentities[0], signedTransaction?.notary)
     }
 
     @Test
@@ -80,7 +79,7 @@ class IssueRecordPlayerFlowTests {
         val ptx = future.getOrThrow()
 
         val (_, contract) = ptx!!.tx.outputs.single()
-        Util.assertEquals("net.corda.samples.contractsdk.contracts.RecordPlayerContract", contract)
+        Assert.assertEquals("net.corda.samples.contractsdk.contracts.RecordPlayerContract", contract)
     }
 
     @Test
@@ -94,9 +93,9 @@ class IssueRecordPlayerFlowTests {
         val output = signedTransaction!!.tx.outputsOfType(RecordPlayerState::class.java)[0]
 
         // get some random data from the output to verify
-        Util.assertEquals(st.manufacturer, output.manufacturer)
-        Util.assertEquals(st.dealer, output.dealer)
+        Assert.assertEquals(st.manufacturer, output.manufacturer)
+        Assert.assertEquals(st.dealer, output.dealer)
         Assert.assertNotEquals(st.dealer, output.manufacturer)
-        Util.assertEquals(st.needle, output.needle)
+        Assert.assertEquals(st.needle, output.needle)
     }
 }

@@ -8,7 +8,6 @@ import net.corda.core.node.NetworkParameters
 import net.corda.samples.contractsdk.states.Needle
 import net.corda.samples.contractsdk.states.RecordPlayerState
 import net.corda.testing.node.*
-import org.jgroups.util.Util
 import org.junit.*
 import java.time.Instant
 import java.util.*
@@ -62,8 +61,8 @@ class UpdateRecordPlayerFlowTests {
         val signedTransaction = future.get()
 
         // assert our contract SDK conditions
-        Util.assertEquals(1, signedTransaction!!.tx.outputStates.size)
-        Util.assertEquals(network.notaryNodes[0].info.legalIdentities[0], signedTransaction!!.notary)
+        Assert.assertEquals(1, signedTransaction!!.tx.outputStates.size)
+        Assert.assertEquals(network.notaryNodes[0].info.legalIdentities[0], signedTransaction!!.notary)
     }
 
     // ensure that our linear state updates work correctly
@@ -85,10 +84,10 @@ class UpdateRecordPlayerFlowTests {
         val future2 = dealerBNode.startFlow(f2)
         network.runNetwork()
         val f2Output = future2.get()!!.tx.outputsOfType(RecordPlayerState::class.java)[0]
-        Util.assertEquals(Needle.SPHERICAL, f1Output.needle)
-        Util.assertEquals(Needle.DAMAGED, f2Output.needle)
-        Util.assertEquals(f1Output.magneticStrength, f2Output.magneticStrength)
-        Util.assertEquals(f1Output.songsPlayed + 5, f2Output.songsPlayed)
+        Assert.assertEquals(Needle.SPHERICAL, f1Output.needle)
+        Assert.assertEquals(Needle.DAMAGED, f2Output.needle)
+        Assert.assertEquals(f1Output.magneticStrength, f2Output.magneticStrength)
+        Assert.assertEquals(f1Output.songsPlayed + 5, f2Output.songsPlayed)
         Assert.assertNotEquals(f1Output.songsPlayed.toLong(), f2Output.songsPlayed.toLong())
     }
 }

@@ -24,16 +24,8 @@ import java.util.stream.Collectors
 // ******************
 @InitiatingFlow
 @StartableByRPC
-class UpdateRecordPlayerFlow(stateId: UniqueIdentifier, needleId: String, magneticStrength: Int, coilTurns: Int, amplifierSNR: Int, songsPlayed: Int) : FlowLogic<SignedTransaction?>() {
+class UpdateRecordPlayerFlow(private val stateId: UniqueIdentifier, private val needleId: String, private val magneticStrength: Int, private val coilTurns: Int, private val amplifierSNR: Int, private val songsPlayed: Int) : FlowLogic<SignedTransaction?>() {
     override val progressTracker = ProgressTracker()
-    var needleId: String? = null
-    var needle: Needle? = null
-    var magneticStrength: Int
-    var coilTurns: Int
-    var amplifierSNR: Int
-    var songsPlayed: Int
-    var stateId: UniqueIdentifier
-
     @Suspendable
     @Throws(FlowException::class)
     override fun call(): SignedTransaction {
@@ -44,6 +36,14 @@ class UpdateRecordPlayerFlow(stateId: UniqueIdentifier, needleId: String, magnet
         val input = (states[0] as StateAndRef<*>).state.data as RecordPlayerState
         val manufacturer = input.manufacturer
         val dealer = input.dealer
+        val needle = when (needleId) {
+            "spherical" -> Needle.SPHERICAL
+            "elliptical" -> Needle.ELLIPTICAL
+            "damaged" -> Needle.DAMAGED
+            else -> {
+                throw IllegalArgumentException("Invalid needle state given.")
+            }
+        }
         if (ourIdentity === input.dealer) {
             throw IllegalArgumentException("Only the dealer that sold this record player can service it!")
         }
@@ -76,23 +76,4 @@ class UpdateRecordPlayerFlow(stateId: UniqueIdentifier, needleId: String, magnet
         return subFlow(FinalityFlow(stx, sessions))
     }
 
-    /*
-     * A new record player is issued only from the manufacturer to an exclusive dealer.
-     * Most of the settings are default
-     */
-    init {
-        if (needleId.toLowerCase() == "elliptical") {
-            needle = Needle.ELLIPTICAL
-        }
-        needle = if (needleId.toLowerCase() == "damaged") {
-            Needle.DAMAGED
-        } else {
-            throw IllegalArgumentException("Invalid needle state given.")
-        }
-        this.stateId = stateId
-        this.magneticStrength = magneticStrength
-        this.coilTurns = coilTurns
-        this.amplifierSNR = amplifierSNR
-        this.songsPlayed = songsPlayed
-    }
 }
