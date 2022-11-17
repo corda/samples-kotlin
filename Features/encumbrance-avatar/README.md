@@ -4,28 +4,31 @@
 
 # Corda encumbrance sample
 
-Corda supports the idea of "Linked States", using the TransactionState.encumbrance property. When building a transaction, a state x can
-point to other state y by specifying the index of y's state in the transaction output index.
-In this situation x is linked to y, i.e. x is dependent on y. x cannot be consumed unless you consume y.
-Hence if you want to consume x, y should also be present in the input of this transaction.
-Hence y's contract is also always run, when x is about to be consumed.
-In this situation, x is the encumbered state, and y is the encumbrance.
-At present, if you do not specify any encumbrance, it defaults to NULL.
+Corda supports the idea of "Linked States", using the [TransactionState.encumbrance](https://docs.r3.com/en/platform/corda/4.9/community/key-concepts-contracts.html#encumbrances) property. When building a transaction, a state `x` can
+point to other state `y` by specifying the index of `y`'s state in the transaction output index.
 
-There are many use cases which can use encumbrance like -
+In this situation `x` is linked to `y`, i.e. `x` is dependent on `y`. `x` cannot be consumed unless you consume `y`.
+
+If you want to consume `x`, `y` should also be present in the input of this transaction.
+Hence `y`'s contract is also always run, when `x` is about to be consumed.
+
+In this situation, `x` is the encumbered state, and `y` is the encumbrance.
+At present, if you do not specify any encumbrance, it defaults to `NULL`.
+
+There are many use-cases which can use encumbrance like:
 1. Cross chain Atomic Swaps
-2. Layer 2 games like https://github.com/akichidis/lightning-chess etc.
+2. Layer 2 games (e.g. [Lightening Chess](https://github.com/akichidis/lightning-chess))
 
 ## About this sample
 
-This is a basic sample which shows how you can use encumbrance in Corda. For this sample, we will have an Avatar
+This is a sample which shows how you can use encumbrance in Corda. For this sample, we will have an Avatar
 created on Corda. We will transfer this Avatar from one party to the other within a specified time limit.
 After this time window, the Avatar will be expired and you cannot transfer it to anyone.
 
-Avatar state is locked up by the Expiry state which suggests that the Avatar will expire after a certain time,
+Avatar state is locked up by Expiry state which suggests that Avatar will expire after a certain time,
 and cannot be transferred to anyone after that.
 
-This sample can be extended further, where the Avatar can be represented as a NFT using Corda's Token SDK, and
+This sample can be extended further, where the Avatar can be represented as a NFT using Corda's [Token SDK](https://github.com/corda/token-sdk), and
 can be traded and purchased by a buyer on the exchange. The tokens can be locked up using an encumbrance before
 performing the DVP for the NFT against the tokens.
 
@@ -49,13 +52,13 @@ Confirm if PartyB owns the Avatar
 
       run vaultQuery contractStateType : net.corda.samples.avatar.states.Avatar
 
-Note
-As you can see in both the flows, Avatar is encumbered by Expiry. But Encumbrances should form a complete directed cycle,
+Note:
+As you can see in both the `CreateAvatar` and `TransferAvatar` flows, Avatar is encumbered by Expiry. But Encumbrances should form a complete directed cycle,
 otherwise one can spend the "encumbrance" (Expiry) state, which would freeze the "encumbered" (Avatar) state for ever.
 That's why we also make Expiry dependent on Avatar. (See how we have added encumbrance index's to the output states in
 both the flows.)
 
-To read more about encumbrance visit the docs site. https://training.corda.net/corda-details/reference-states/#encumbrances
+Read more about Encumbrances [here](https://docs.r3.com/en/platform/corda/4.9/community/key-concepts-contracts.html#encumbrances).
 
 ## Reminder
 
