@@ -2,16 +2,16 @@
 
 ## Custom Logging
 
-This is a modified version of the original yo cordapp with some additions to use custom log4j2 configurations.
+This is a modified version of the original yo CorDapp with some additions to use custom log4j2 configurations.
 
 
 The primary example we've implemented here is json logging which is configured in `config/dev/log4j2.xml`.
 
 This gives us the ability to use Log4j thread contexts to log arbitrary objects or data points in json format.
 
-In this example not only do the node logs output in json but we can add arbitrary key value pairs as well.
+In this example not only do the node logs output in json, but we can add arbitrary key value pairs as well.
 
-```java
+```kotlin
         // here we have our first opportunity to log out the contents of the flow arguments.
         ThreadContext.put("initiator", me.name.toString())
         ThreadContext.put("target", target.name.toString())
@@ -72,14 +72,15 @@ You can end up getting log feeds in json that look something like this:
 
 ### Pre-Requisites
 
-See https://docs.corda.net/getting-set-up.html.
+
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
 
 
 ### Running the CorDapp
 
 Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```
-./gradlew clean deployNodes
+./gradlew clean build deployNodes
 ```
 Then type: (to run the nodes)
 
@@ -109,12 +110,12 @@ Yo to another node:
 ```
 
 Where `NODE_NAME` is 'PartyA' or 'PartyB'. The space after the `:` is required. You are not required to use the full
-X500 name in the node shell. Note you can't sent a Yo! to yourself because that's not cool!
+X500 name in the node shell. Note you can't send a Yo! to yourself because that's not cool!
 
 To see all the Yo's! other nodes have sent you in your vault (you do not store the Yo's! you send yourself), run:
 
 ```
-    run vaultQuery contractStateType: YoState
+    run vaultQuery contractStateType: net.corda.samples.logging.states.YoState
 ```
 
 ### Other ways to use this log configuration
@@ -124,7 +125,7 @@ The above method will run all nodes together but if you're running your corda no
 You can do that by just running the jar directly:
 
 ```shell
-java -Dlog4j.configurationFile=logging-cordapp/build/resources/main/log4j2.xml -jar corda.jar
+java -Dlog4j.configurationFile=logging-CorDapp/build/resources/main/log4j2.xml -jar corda.jar
 ```
 
 > notice that all we're doing is adding this param to the command we'd otherwise use to run corda in order to specify the log file.
