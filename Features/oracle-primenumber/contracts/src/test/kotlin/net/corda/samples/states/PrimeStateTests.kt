@@ -2,7 +2,6 @@ package net.corda.samples.states
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.core.TestIdentity
-import org.jgroups.util.Util
 import org.junit.Assert
 import org.junit.Test
 
@@ -14,6 +13,6 @@ class PrimeStateTests {
     fun constructorTest() {
         val st = PrimeState(1, 5, a.party)
         Assert.assertEquals(a.party, st.requester)
-        Util.assertTrue(st.participants.contains(a.party))
+        Assert.assertTrue(st.participants.contains(a.party))
     }
 }

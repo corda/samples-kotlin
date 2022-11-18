@@ -8,7 +8,7 @@ import net.corda.samples.states.PrimeState
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
-import org.jgroups.util.Util
+import org.junit.Assert
 import org.junit.Test
 import java.util.*
 
@@ -29,13 +29,13 @@ class PrimeContractTests {
 
     @Test
     fun contractImplementsContract() {
-        assert(PrimeContract() is Contract)
+        Assert.assertTrue(PrimeContract() is Contract)
     }
 
     @Test
     fun constructorTest() {
-        Util.assertEquals(1, st.n)
-        Util.assertEquals(5, st.nthPrime)
+        Assert.assertEquals(1, st.n)
+        Assert.assertEquals(5, st.nthPrime)
     }
 
     @Test
