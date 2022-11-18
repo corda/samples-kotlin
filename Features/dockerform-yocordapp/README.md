@@ -1,27 +1,27 @@
-# net.corda.samples.dockerform-yocordapp
+# Dockerform-yoCorDapp
 
-This time we've taken the original yo cordapp and modified it to demonstrate an example of how you can use dockerForm to bootstrap a corda network on a single machine.
+This time we've taken the original yo CorDapp and modified it to demonstrate an example of how you can use dockerForm to bootstrap a corda network on a single machine.
 
-For the purposes of this example, we'll use the yo cordapp as a base to create a clear example for how to use the dockerForm gradle build task in a normal cordapp setup.
+For the purposes of this example, we'll use the yo CorDapp as a base to create a clear example for how to use the dockerForm gradle build task in a normal CorDapp setup.
 
-> Note this is generally intended to be used on localhost.
+> Note: this is generally intended to be used on localhost.
 
 
 ## Concepts
 
-In the original yo application, the app sent what is essentially a nudge from one endpoint and another.
+In the original yo CorDapp, the app sent what is essentially a nudge from one endpoint and another.
 
-In corda, we can use abstractions to accomplish the same thing.
+In Corda, we can use abstractions to accomplish the same thing.
 
 
-We define a state (the yo to be shared), define a contract (the way to make sure the yo is legit), and define the flow (the control flow of our cordapp).
+We define a state (the yo to be shared), define a contract (the way to make sure the yo is legit), and define the flow (the control flow of our CorDapp).
 
 
 ## Usage
 
 ### Quick Start with Docker
 
-If you have docker installed you can use our gradle tasks to generate a valid docker compose file for your node configuration.
+If you have [Docker](https://docs.docker.com/get-docker/) installed you can use our gradle tasks to generate a valid docker compose file for your node configuration.
 
 ```bash
 # generate the docker-compose file
@@ -33,7 +33,9 @@ docker-compose -f ./build/nodes/docker-compose.yml up
 
 #### Sending a Yo
 
-We will interact with the nodes via their specific shells. When the nodes are up and running, use the following command to send a Yo to another node:
+We will interact with the nodes via their specific shells. 
+
+When the nodes are up and running, open a terminal in the root directory and type the following command to send a Yo to another node:
 
 ```sh
 # find the ssh port for PartyA using docker ps
@@ -69,7 +71,7 @@ Once this runs on your machine you've got everything you would need to run corda
 To see all the Yo's other nodes have sent you in your vault you can run a vault query from the Corda shell:
 
 ```bash
-run vaultQuery contractStateType: net.corda.examples.yo.states.YoState
+run vaultQuery contractStateType: net.corda.samples.dockerform.states.YoState
 ```
 
 As a quick note you can shut down your docker containers with the following command
