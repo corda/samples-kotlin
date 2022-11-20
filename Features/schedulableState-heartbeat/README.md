@@ -1,5 +1,5 @@
 # Heartbeat -- Schedulablestate
-This CorDapp is a simple showcase of [scheduled activities](https://docs.corda.net/docs/corda-os/event-scheduling.html#how-to-implement-scheduled-events) (i.e. activities started by a node at a specific time without
+This CorDapp is a simple showcase of [flow watch](https://docs.r3.com/en/platform/corda/4.9/community/shell.html#command-2) (i.e. activities started by a node at a specific time without
 direct input from the node owner).
 
 
@@ -21,14 +21,13 @@ In this way, calling the `StartHeartbeatFlow` creates an endless chain of `Heart
 
 ## Pre-Requisites
 
-For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
-
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
 
 ### Running the CorDapp
 
 Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```
-./gradlew clean deployNodes
+./gradlew clean build deployNodes
 ```
 Then type: (to run the nodes)
 ```
@@ -38,7 +37,7 @@ Then type: (to run the nodes)
 
 ## Interacting with the nodes:
 
-Go to the [CRaSH](https://docs.corda.net/docs/corda-os/shell.html) shell for PartyA, and run the `StartHeatbeatFlow`:
+Go to the interactive node shell for PartyA, and run the `StartHeatbeatFlow`:
 
     start StartHeartbeatFlow
 
