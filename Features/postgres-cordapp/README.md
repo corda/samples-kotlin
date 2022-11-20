@@ -1,17 +1,17 @@
 #  Postgres Cordapp
 
 This application will demonstrate to you how to run corda with a postgres or other custom database.
-The cordapp being used is another copy of the yo cordapp, as the majority of the work here is in simply configuring the sql database connection.
+The CorDapp being used is another copy of the yo CorDapp, as the majority of the work here is in simply configuring the SQL database connection.
 
 ## Pre-Requisites
 
-See https://docs.corda.net/getting-set-up.html.
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
 
 ## Usage
 
 ### Running the sample
 
-Start with provisioning the database:
+To start with provisioning the database, open a new terminal in the root directory of this project and type:
 
 ```sh
 docker run --name postgres_for_corda -e POSTGRES_PASSWORD=test -d -p 5432:5432 postgres:11
@@ -59,7 +59,7 @@ docker exec -i postgres_for_corda psql -U postgres -p 5432 -h localhost postgres
 docker exec -i postgres_for_corda psql -U postgres -p 5432 -h localhost postgres -c "\dg"
 ```
 
-### Connencting to your database with dbeaver
+### Connecting to your database with dbeaver
 
 You can connect to your db with all kinds of tools like dbeaver, just open up a new connection, specify `postgreSQL` in the search bar.
 
@@ -84,5 +84,5 @@ You may run into some errors about node identity when running 'deployNodes', thi
 
 ## Additional Resources
 
-- https://www.corda.net/blog/cordapp-database-setup-development-perspective/
-- https://medium.com/corda/cordapp-database-setup-production-perspective-2c400e60fae5
+- [CorDapp Database Setup-Development Perspective](https://www.corda.net/blog/CorDapp-database-setup-development-perspective/)
+- [CorDapp Database Setup-Production Perspective](https://medium.com/corda/CorDapp-database-setup-production-perspective-2c400e60fae5)
