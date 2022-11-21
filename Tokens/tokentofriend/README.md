@@ -6,11 +6,13 @@ We have built a front end interface to make the interaction easier. Clone the ap
 <p align="center">
   <img src="./diagram.png" alt="Corda" width="600">
 </p>
- 
- 
- ## Running the applications 
+
+## Pre-Requisites
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+  
+## Running the application
  ```
- ./gradlew deployNodes
+ ./gradlew clean build deployNodes
  ./build/nodes/runnodes
  ```
  
@@ -28,12 +30,12 @@ We have built a front end interface to make the interaction easier. Clone the ap
  
  Go to that storage node terminal: 
  ```
- flow start QueryToken uuid: xxx-xxxx-xxxx-xxxx-xx, recipientEmai: 2@gmail.com
+ flow start QueryToken uuid: xxx-xxxx-xxxx-xxxx-xx, recipientEmail: 2@gmail.com
  ```
  
 You should discover the message that was attached in the token. 
 
-## Runing in webapp
+## Running in webapp
 Open a new window and run the blow code for token issuance
 ```
 ./gradlew runOperatoreServer
@@ -42,7 +44,7 @@ To retrieve the token, because most people will run the app locally, by default 
 ```
 ./gradlew runUSWest1Server
 ```
-After both servers started, go to localhost:10050 to issue a token and localhost:10053 to experience the retrieve. (The reason it is two different site is that communiticating among multiple local server is prohibit by CORS policy. In production environment, we do not need to go to a different site for retrieve.)
+After both servers started, go to localhost:10050 to issue a token and localhost:10053 to experience the retrieve. (The reason it is two different site is that communicating among multiple local server is prohibited by CORS policy. In production environment, we do not need to go to a different site for retrieve.)
 
 
 
