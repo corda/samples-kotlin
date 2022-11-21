@@ -18,10 +18,10 @@ class ContractTests {
     @Test
     fun `multiple Output Tests`() {
         val tokenPass = StockState(Operator.party, "TT", "Test Token",
-                "USD", BigDecimal.valueOf(2.7), BigDecimal.valueOf(0.2), Date(), Date(), UniqueIdentifier()
+                "USD", BigDecimal.valueOf(2.7), BigDecimal.valueOf(0), Date(), Date(), UniqueIdentifier()
         )
         val tokenFail = StockState(Operator.party, "", "Test Token",
-                "USD", BigDecimal.valueOf(2.7), BigDecimal.valueOf(0.2), Date(), Date(), UniqueIdentifier()
+                "USD", BigDecimal.valueOf(2.7), BigDecimal.valueOf(0.7), Date(), Date(), UniqueIdentifier()
         )
         ledgerServices.ledger {
             transaction {
