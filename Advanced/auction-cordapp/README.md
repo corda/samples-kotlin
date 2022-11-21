@@ -1,7 +1,7 @@
 # Auction CorDapp
 
 This CorDapp serves as a demo of building an auction application on Corda. It leverages
-different features of Corda like [SchedulableState](https://docs.corda.net/docs/corda-os/event-scheduling.html#how-to-implement-scheduled-events), [StatePointer](https://docs.corda.net/docs/corda-os/api-states.html#state-pointers) and [OwnableState](https://docs.corda.net/docs/corda-os/api-states.html#ownablestate). It also demonstrate
+different features of Corda like [SchedulableState](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#the-queryablestate-and-schedulablestate-interfaces), [StatePointer](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#state-pointers) and [OwnableState](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#ownablestate). It also demonstrates
 how to perform a DvP (Delivery vs Payment) transaction on Corda.
 
 It has a full-functional client included and an angular UI to interact with the nodes.
@@ -48,12 +48,12 @@ internally triggers two flows:
     flow can also be triggered to  exit an auction which did not receive any bid till its deadline.
 
 ## Pre-requisites:
-See https://docs.corda.net/getting-set-up.html.
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
 
 ## Running the nodes:
 Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```
-./gradlew clean deployNodes
+./gradlew clean build deployNodes
 ```
 Then type: (to run the nodes)
 ```
@@ -71,14 +71,14 @@ The client can be accessed at http://localhost:8085/
 
 ## Usage
 
-1. Click on the "Setup Demo Data" button to create somde demo data to play with or you
-may use the skip button if you wish to setup the deata yourself.
+1. Click on the "Setup Demo Data" button to create some demo data to play with, or you
+may use the skip button if you wish to set up the data yourself.
 ![Setup Data](./snaps/setup.png)
 
 2. The demo data setup would have created some assets from each of the parties. The assets
 can be found under MyAssets Section. These assets could be put on auction. New assets can
-be create using the create asset button.
-The drop down at the top right corner can be used to toggle between parties.
+be created using the create asset button.
+The drop-down in top right corner can be used to toggle between parties.
 The balance next to it indicates the current active parties cash balance. Cash can be 
 issued using the Issue Cash Button.
 ![Landing Page](./snaps/landing.png)
@@ -96,7 +96,7 @@ available in the `Active Auction` section.
 
 6. What for the auction to end.
 
-7. Once the auction is ended its ready to be settled. Settlement can be initiated by the 
+7. Once the auction is ended, it's ready to be settled. Settlement can be initiated by the 
 highest bidder. Considering PartyC is the highest bidder, switch to PartyC.
 
 8. Issue cash equivalent or greater than the highest bid amount for PartyC to pay for 
@@ -107,7 +107,7 @@ highest bidder. Considering PartyC is the highest bidder, switch to PartyC.
 ![Pay and Settle](./snaps/Settle.png) 
 
 
-Notice the below things that would happed on auction settlement:
+Notice the below things that would happen on auction settlement:
 
 - Auctioned Assets ownership would be transferred to the highest bidder. The asset would 
 now appear in the auction winners asset list (My Assets section).
