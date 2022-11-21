@@ -1,7 +1,7 @@
-# Nonfungible house token dvp sample cordapp 
+# Non-Fungible House Token DvP Sample CorDapp 
 
-This CorDapp provides a basic example to create, issue and perform a DvP (Delivery vs Payment) of an [Evolvable](https://training.corda.net/libraries/tokens-sdk/#evolvabletokentype), [NonFungible](https://training.corda.net/libraries/tokens-sdk/#nonfungibletoken) token in 
-Corda utilizing the Token SDK.
+This CorDapp provides a basic example to create, issue and perform a DvP (Delivery vs Payment) of an [Evolvable](https://training.corda.net/libraries/token-sdk/token-introduction/#evolvabletokentype), [NonFungible](https://training.corda.net/libraries/token-sdk/token-introduction/#nonfungibletoken) token in 
+Corda utilizing the [Token SDK](https://github.com/corda/token-sdk).
 
 
 ## Concepts
@@ -18,14 +18,13 @@ There are three flows that we'll primarily use in this example that you'll be bu
 
 
 ## Pre-Requisites
-For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
-
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
 # Usage
 
 ## Running the nodes
 Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```
-./gradlew clean deployNodes
+./gradlew clean build deployNodes
 ```
 Then type: (to run the nodes)
 ```
@@ -52,19 +51,19 @@ We can now go to the shell of PartyC and check the amount of USD issued. Since f
     
 Once we have the USD issued to PartyC, we can Create and Issue the HouseToken to PartyB. Goto PartyA's shell to create and issue the house token.
     
-    start CreateAndIssueHouseToken owner: PartyB, valuationOfHouse: 10000 USD, noOfBedRooms: 2, constructionArea: 1000sqft, additionInfo: NA, address: Mumbai
+    flow start CreateAndIssueHouseToken owner: PartyB, valuationOfHouse: 10000 USD, noOfBedRooms: 2, constructionArea: 1000sqft, additionInfo: NA, address: Mumbai
     
 We can now check the issued house token in PartyB's vault. Since we issued it as a [NonFungible](https://training.corda.net/libraries/tokens-sdk/#nonfungibletoken) token we can query the vault for non-fungible tokens.
     
     run vaultQuery contractStateType: com.r3.corda.lib.tokens.contracts.states.NonFungibleToken
     
-Note that HouseState token is an evolvable token which is a [LinearState](https://docs.corda.net/docs/corda-os/api-states.html#linearstate), thus we can check PartyB's vault to view the [EvolvableToken](https://training.corda.net/libraries/tokens-sdk/#evolvabletokentype)
+Note that HouseState token is an evolvable token which is a [LinearState](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#linearstate), thus we can check PartyB's vault to view the [EvolvableToken](https://training.corda.net/libraries/tokens-sdk/#evolvabletokentype)
 
     run vaultQuery contractStateType: net.corda.samples.dollartohousetoken.states.HouseState
     
-Note the linearId of the HouseState token from the previous step, we will need it to perform our DvP opearation. Goto PartyB's shell to initiate the token sale.
+Note the linearId of the HouseState token from the previous step, we will need it to perform our DvP operation. Go to PartyB's shell to initiate the token sale.
     
-    start HouseSale houseId: <XXXX-XXXX-XXXX-XXXXX>, buyer: PartyC
+    flow start HouseSale houseId: <XXXX-XXXX-XXXX-XXXXX>, buyer: PartyC
     
 We could now verify that the non-fungible token has been transferred to PartyC and some 100,000 USD from PartyC's vault has been transferred to PartyB. Run the below commands in PartyB and PartyC's shell to verify the same
     
