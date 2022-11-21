@@ -1,6 +1,6 @@
-# Fungible House token sample CorDapp
+# Fungible House Token Sample CorDapp
 
-This CorDapp serves as a basic example to create, issue, and move [Fungible](https://training.corda.net/libraries/tokens-sdk/#fungibletoken) tokens in Corda utilizing the Token SDK. In this specific fungible token sample, we will not talk about the redeem method of the Token SDK because the redeem process will take the physical asset off the ledger and destroy the token. Thus, this sample will be a simple walk though of the creation, issuance, and transfer of the tokens.
+This CorDapp serves as a basic example to create, issue, and move [Fungible](https://training.corda.net/libraries/tokens-sdk/#fungibletoken) tokens in Corda utilizing the [Token SDK](https://github.com/corda/token-sdk). In this specific fungible token sample, we will not talk about the redeem method of the Token SDK because the redeem process will take the physical asset off the ledger and destroy the token. Thus, this sample will be a simple walk through of the creation, issuance, and transfer of the tokens.
 
 Quick blog about TokenSDK see [here](https://medium.com/corda/introduction-to-token-sdk-in-corda-9b4dbcf71025)
 
@@ -20,7 +20,7 @@ There are a few flows that enable this project. We will create a resource (in th
 
 ## Pre-Requisites
 
-For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
 
 # Usage
 
@@ -29,7 +29,7 @@ For development environment setup, please refer to: [Setup Guide](https://docs.c
 
 Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```
-./gradlew clean deployNodes
+./gradlew clean build deployNodes
 ```
 Then type: (to run the nodes)
 ```
@@ -49,25 +49,24 @@ You can use this shell to interact with your node.
 
 ### Fungible Tokens
 
-Create house on the ledger using Seller's terminal
+Create house on the ledger using Seller's interactive node shell, by typing:
 
     flow start CreateHouseTokenFlow symbol: house, valuationOfHouse: 100000
 
 This will create a linear state of type HouseTokenState in Seller's vault
 
-Seller will now issue some tokens to Buyer. run below command via Seller's terminal.
+Seller will now issue some tokens to Buyer. run below command via Seller's interactive node shell:
 
     flow start IssueHouseTokenFlow symbol: house, quantity: 50, holder: Buyer
 
 Now at Buyer's terminal, we can check the tokens by running:
-```
-flow start GetTokenBalance symbol: house
-```
-Since Buyer now has 50 tokens, Move tokens to Friend from Buyer s terminal
+   
+    flow start GetTokenBalance symbol: house
+
+Since Buyer now has 50 tokens, move tokens to Friend from Buyer's terminal
 
     flow start MoveHouseTokenFlow symbol: house, holder: Friend, quantity: 23
 
-Now lets take look at the balance at both Buyer and his Friend's side 
-```
-flow start GetTokenBalance symbol: house
-```
+Now lets take look at the balance at both Buyer and their Friend's side 
+    
+    flow start GetTokenBalance symbol: house
