@@ -1,9 +1,9 @@
 package net.corda.samples.tictacthor.contracts
 
-import groovy.util.GroovyTestCase.assertEquals
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.samples.tictacthor.states.BoardState
 import net.corda.testing.node.MockServices
+import org.junit.Assert
 import org.junit.Test
 
 class StateTests {
@@ -14,6 +14,6 @@ class StateTests {
         // Does the message field exist?
         BoardState::class.java.getDeclaredField("playerO")
         // Is the message field of the correct type?
-        assertEquals(BoardState::class.java.getDeclaredField("playerO").type, UniqueIdentifier::class.java)
+        Assert.assertEquals(BoardState::class.java.getDeclaredField("playerO").type, UniqueIdentifier::class.java)
     }
 }
