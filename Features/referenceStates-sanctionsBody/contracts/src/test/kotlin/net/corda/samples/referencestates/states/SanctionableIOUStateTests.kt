@@ -5,7 +5,7 @@ import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.core.TestIdentity
-import org.jgroups.util.Util
+import org.junit.Assert
 import org.junit.Test
 
 class SanctionableIOUStateTests {
@@ -19,13 +19,13 @@ class SanctionableIOUStateTests {
         val borrower = b.party
         val uid = UniqueIdentifier()
         val st = SanctionableIOUState(value, lender, borrower, uid)
-        Util.assertTrue(st is ContractState)
-        Util.assertTrue(st is LinearState)
-        Util.assertEquals(value, st.value)
-        Util.assertEquals(lender, st.lender)
-        Util.assertEquals(borrower, st.borrower)
-        Util.assertEquals(uid, st.linearId)
-        Util.assertTrue(st.participants.contains(a.party))
-        Util.assertTrue(st.participants.contains(b.party))
+        Assert.assertTrue(st is ContractState)
+        Assert.assertTrue(st is LinearState)
+        Assert.assertEquals(value, st.value)
+        Assert.assertEquals(lender, st.lender)
+        Assert.assertEquals(borrower, st.borrower)
+        Assert.assertEquals(uid, st.linearId)
+        Assert.assertTrue(st.participants.contains(a.party))
+        Assert.assertTrue(st.participants.contains(b.party))
     }
 }
