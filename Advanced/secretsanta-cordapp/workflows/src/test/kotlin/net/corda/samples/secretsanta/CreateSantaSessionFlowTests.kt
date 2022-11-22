@@ -9,7 +9,8 @@ import net.corda.samples.secretsanta.contracts.SantaSessionContract
 import net.corda.samples.secretsanta.flows.CreateSantaSessionFlow
 import net.corda.samples.secretsanta.states.SantaSessionState
 import net.corda.testing.node.*
-import org.jgroups.util.Util
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -57,9 +58,9 @@ class CreateSantaSessionFlowTests {
         val future = santa!!.startFlow<SignedTransaction>(f1)
         network!!.runNetwork()
         val signedTransaction = future.get()
-        Util.assertEquals(1, signedTransaction.tx.outputStates.size)
+        assertEquals(1, signedTransaction.tx.outputStates.size)
         // ensure correct notary is used
-        Util.assertEquals(network!!.notaryNodes[0].info.legalIdentities[0], signedTransaction.notary)
+        assertEquals(network!!.notaryNodes[0].info.legalIdentities[0], signedTransaction.notary)
     }
 
     @Test
@@ -69,10 +70,10 @@ class CreateSantaSessionFlowTests {
         val future = santa!!.startFlow<SignedTransaction>(f1)
         network!!.runNetwork()
         val signedTransaction = future.get()
-        Util.assertEquals(1, signedTransaction.tx.outputStates.size)
+        assertEquals(1, signedTransaction.tx.outputStates.size)
         val output = signedTransaction.tx.outputsOfType(SantaSessionState::class.java)[0]
         // get some random data from the output to verify
-        Util.assertEquals(playerNames, output.playerNames)
+        assertEquals(playerNames, output.playerNames)
     }
 
     @Test
@@ -82,15 +83,15 @@ class CreateSantaSessionFlowTests {
         val future = santa!!.startFlow<SignedTransaction>(f1)
         network!!.runNetwork()
         val signedTransaction = future.get()
-        Util.assertEquals(1, signedTransaction.tx.outputStates.size)
+        assertEquals(1, signedTransaction.tx.outputStates.size)
         val (_, _, notary) = signedTransaction.tx.outputs[0]
         // ensure correct notary is used is used
-        Util.assertEquals(network!!.notaryNodes[0].info.legalIdentities[0], notary)
+        assertEquals(network!!.notaryNodes[0].info.legalIdentities[0], notary)
         val output = signedTransaction.tx.outputsOfType(SantaSessionState::class.java)[0]
         // checking player names, emails, and assignments.
-        Util.assertEquals(playerNames, output.playerNames)
-        Util.assertEquals(playerEmails, output.playerEmails)
-        Util.assertEquals(playerEmails.size, output.getAssignments()!!.size)
+        assertEquals(playerNames, output.playerNames)
+        assertEquals(playerEmails, output.playerEmails)
+        assertEquals(playerEmails.size, output.getAssignments()!!.size)
     }
 
     @Test
@@ -100,9 +101,9 @@ class CreateSantaSessionFlowTests {
         val future = santa!!.startFlow<SignedTransaction>(f1)
         network!!.runNetwork()
         val signedTransaction = future.get()
-        Util.assertEquals(1, signedTransaction.tx.outputStates.size)
+        assertEquals(1, signedTransaction.tx.outputStates.size)
         val (_, contract) = signedTransaction.tx.outputs[0]
-        Util.assertEquals("net.corda.samples.secretsanta.contracts.SantaSessionContract", contract)
+        assertEquals("net.corda.samples.secretsanta.contracts.SantaSessionContract", contract)
     }
 
     @Test
@@ -112,7 +113,7 @@ class CreateSantaSessionFlowTests {
         val future = santa!!.startFlow<SignedTransaction>(f1)
         network!!.runNetwork()
         val signedTransaction = future.get()
-        Util.assertEquals(1, signedTransaction.tx.commands.size)
+        assertEquals(1, signedTransaction.tx.commands.size)
         val (value) = signedTransaction.tx.commands[0]
         assert(value is SantaSessionContract.Commands.Issue)
     }
@@ -124,11 +125,11 @@ class CreateSantaSessionFlowTests {
         val future = santa!!.startFlow<SignedTransaction>(f1)
         network!!.runNetwork()
         val signedTransaction = future.get()
-        Util.assertEquals(1, signedTransaction.tx.commands.size)
+        assertEquals(1, signedTransaction.tx.commands.size)
         val (_, signers) = signedTransaction.tx.commands[0]
-        Util.assertEquals(2, signers.size)
-        Util.assertTrue(signers.contains(santa!!.info.legalIdentities[0].owningKey))
-        Util.assertTrue(signers.contains(elf!!.info.legalIdentities[0].owningKey))
+        assertEquals(2, signers.size)
+        assertTrue(signers.contains(santa!!.info.legalIdentities[0].owningKey))
+        assertTrue(signers.contains(elf!!.info.legalIdentities[0].owningKey))
     }
 
     @Test
@@ -138,10 +139,10 @@ class CreateSantaSessionFlowTests {
         val future = santa!!.startFlow<SignedTransaction>(f1)
         network!!.runNetwork()
         val signedTransaction = future.get()
-        Util.assertEquals(0, signedTransaction.tx.inputs.size)
-        Util.assertEquals(1, signedTransaction.tx.outputs.size)
+        assertEquals(0, signedTransaction.tx.inputs.size)
+        assertEquals(1, signedTransaction.tx.outputs.size)
         // The single attachment is the contract attachment.
-        Util.assertEquals(1, signedTransaction.tx.attachments.size)
+        assertEquals(1, signedTransaction.tx.attachments.size)
         Assertions.assertNull(signedTransaction.tx.timeWindow)
     }
 }

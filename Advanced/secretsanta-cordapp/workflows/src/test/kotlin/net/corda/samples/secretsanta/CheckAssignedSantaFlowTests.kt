@@ -8,7 +8,7 @@ import net.corda.samples.secretsanta.flows.CheckAssignedSantaFlow
 import net.corda.samples.secretsanta.flows.CreateSantaSessionFlow
 import net.corda.samples.secretsanta.states.SantaSessionState
 import net.corda.testing.node.*
-import org.jgroups.util.Util
+import kotlin.test.assertEquals
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -79,23 +79,23 @@ class CheckAssignedSantaFlowTests {
         val future2 = santa!!.startFlow<SantaSessionState>(f2)
         network!!.runNetwork()
         val f2Output = future2.get()
-        Util.assertEquals(playerNames, f1Output.playerNames)
-        Util.assertEquals(playerNames, f2Output.playerNames)
+        assertEquals(playerNames, f1Output.playerNames)
+        assertEquals(playerNames, f2Output.playerNames)
 
         // ensure these states are really the same
-        Util.assertEquals(f1Output.playerNames, f2Output.playerNames)
-        Util.assertEquals(f1Output.playerEmails, f2Output.playerEmails)
-        Util.assertEquals(f1Output.getAssignments(), f2Output.getAssignments())
+        assertEquals(f1Output.playerNames, f2Output.playerNames)
+        assertEquals(f1Output.playerEmails, f2Output.playerEmails)
+        assertEquals(f1Output.getAssignments(), f2Output.getAssignments())
         assert(f1Output.playerNames.contains("david"))
         assert(f1Output.playerNames.contains("olivia"))
         assert(!f1Output.playerNames.contains("derek"))
         assert(f2Output.playerNames.contains("david"))
         assert(f2Output.playerNames.contains("olivia"))
         assert(!f2Output.playerNames.contains("derek"))
-        Util.assertEquals(f1Output.getAssignments()!!["david"], f2Output.getAssignments()!!["david"])
-        Util.assertEquals(f1Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["peter"])
+        assertEquals(f1Output.getAssignments()!!["david"], f2Output.getAssignments()!!["david"])
+        assertEquals(f1Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["peter"])
         Assertions.assertNotEquals(f1Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["david"])
-        Util.assertEquals(f1Output.linearId, f2Output.linearId)
+        assertEquals(f1Output.linearId, f2Output.linearId)
     }
 
     @Test
@@ -112,23 +112,23 @@ class CheckAssignedSantaFlowTests {
         network!!.runNetwork()
         val f2Output = future2.get()
         val f3Output = future3.get()
-        Util.assertEquals(playerNames, f1Output.playerNames)
-        Util.assertEquals(playerNames, f2Output.playerNames)
+        assertEquals(playerNames, f1Output.playerNames)
+        assertEquals(playerNames, f2Output.playerNames)
 
         // ensure these states are really the same
-        Util.assertEquals(f2Output.playerNames, f3Output.playerNames)
-        Util.assertEquals(f2Output.playerEmails, f3Output.playerEmails)
-        Util.assertEquals(f2Output.getAssignments(), f3Output.getAssignments())
+        assertEquals(f2Output.playerNames, f3Output.playerNames)
+        assertEquals(f2Output.playerEmails, f3Output.playerEmails)
+        assertEquals(f2Output.getAssignments(), f3Output.getAssignments())
         assert(f2Output.playerNames.contains("david"))
         assert(f2Output.playerNames.contains("olivia"))
         assert(!f2Output.playerNames.contains("derek"))
         assert(f3Output.playerNames.contains("david"))
         assert(f3Output.playerNames.contains("olivia"))
         assert(!f3Output.playerNames.contains("derek"))
-        Util.assertEquals(f3Output.getAssignments()!!["david"], f2Output.getAssignments()!!["david"])
-        Util.assertEquals(f3Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["peter"])
+        assertEquals(f3Output.getAssignments()!!["david"], f2Output.getAssignments()!!["david"])
+        assertEquals(f3Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["peter"])
         Assertions.assertNotEquals(f3Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["david"])
-        Util.assertEquals(f3Output.linearId, f2Output.linearId)
+        assertEquals(f3Output.linearId, f2Output.linearId)
     }
 
     // ensure we can create and query a santa session
@@ -146,22 +146,22 @@ class CheckAssignedSantaFlowTests {
         val future2 = santa!!.startFlow<SantaSessionState>(f2)
         network!!.runNetwork()
         val f2Output = future2.get()
-        Util.assertEquals(playerNames, f1Output.playerNames)
-        Util.assertEquals(playerNames, f2Output.playerNames)
+        assertEquals(playerNames, f1Output.playerNames)
+        assertEquals(playerNames, f2Output.playerNames)
 
         // ensure these states are really the same
-        Util.assertEquals(f1Output.playerNames, f2Output.playerNames)
-        Util.assertEquals(f1Output.playerEmails, f2Output.playerEmails)
-        Util.assertEquals(f1Output.getAssignments(), f2Output.getAssignments())
+        assertEquals(f1Output.playerNames, f2Output.playerNames)
+        assertEquals(f1Output.playerEmails, f2Output.playerEmails)
+        assertEquals(f1Output.getAssignments(), f2Output.getAssignments())
         assert(f1Output.playerNames.contains("david"))
         assert(f1Output.playerNames.contains("olivia"))
         assert(!f1Output.playerNames.contains("derek"))
         assert(f2Output.playerNames.contains("david"))
         assert(f2Output.playerNames.contains("olivia"))
         assert(!f2Output.playerNames.contains("derek"))
-        Util.assertEquals(f1Output.getAssignments()!!["david"], f2Output.getAssignments()!!["david"])
-        Util.assertEquals(f1Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["peter"])
+        assertEquals(f1Output.getAssignments()!!["david"], f2Output.getAssignments()!!["david"])
+        assertEquals(f1Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["peter"])
         Assertions.assertNotEquals(f1Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["david"])
-        Util.assertEquals(f1Output.linearId, f2Output.linearId)
+        assertEquals(f1Output.linearId, f2Output.linearId)
     }
 }
