@@ -1,6 +1,6 @@
 # Superyacht CorDapp
 
-This superyacht-cordapp application allows the creation, issuance, and purchase of yachts. 
+This Superyacht CorDapp allows the creation, issuance, and purchase of yachts on the ledger.
 This example also integrates TokenSDK to issue fiat currency to the buyer so that they can purchase the desired yacht. 
 
 There are 4 main parties in this example:
