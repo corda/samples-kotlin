@@ -1,4 +1,4 @@
-# Obligation Cordap
+# Obligation Cordapp
 
 This Cordapp is the complete implementation of our signature IOU (I-owe-you) demonstration.
 
@@ -14,9 +14,11 @@ The first flows are the ones that issue the original cash and assets. You can fi
 The next flow is the one that transfers ownership of that asset over to another party. That can be found in `IOUTransferFlow.kt`.
 
 
-Finally, once we have the ability to transfer assets, we just need to settle up. That functiionality can be found here in `IOUSettleFlow.kt`
+Finally, once we have the ability to transfer assets, we just need to settle up. That functionality can be found here in `IOUSettleFlow.kt`
 
 
+## Pre-Requisites
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
 
 ## Usage
 
@@ -27,7 +29,7 @@ interact with it via a web browser. To run the finished application, you have tw
 
 Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```
-./gradlew clean deployNodes
+./gradlew clean build deployNodes
 ```
 Then type: (to run the nodes)
 ```
@@ -79,14 +81,14 @@ Let's take a look at the IOU states we just created, in the terminal.
 
 1. Navigate to Party A's Corda Interactive Shell in the terminal and type:
 ```
-run vaultQuery contractStateType: net.corda.samples.obligation.states
+run vaultQuery contractStateType: net.corda.samples.obligation.states.IOUState
 ```
 
 The output of this vault query returns the IOU state which we just created.
 
 2. Navigate to Party B's Corda Interactive Shell in the terminal and type:
 ```
-run vaultQuery contractStateType: net.corda.samples.obligation.states
+run vaultQuery contractStateType: net.corda.samples.obligation.states.IOUState
 ```
 
 You should see exactly the same IOU state as the output.

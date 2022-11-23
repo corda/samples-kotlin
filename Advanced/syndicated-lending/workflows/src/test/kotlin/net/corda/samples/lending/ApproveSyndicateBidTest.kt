@@ -1,6 +1,5 @@
 package net.corda.samples.lending
 
-import groovy.util.GroovyTestCase
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.Vault
 import net.corda.core.node.services.vault.QueryCriteria
@@ -14,6 +13,7 @@ import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Before
+import org.junit.Assert
 import org.junit.Test
 import java.util.concurrent.Future
 
@@ -76,7 +76,7 @@ class ApproveSyndicateBidTest {
         network.runNetwork()
         val loanBidApproved =
             bankA.services.vaultService.queryBy(LoanBidState::class.java, inputCriteria).states[0].state.data
-        GroovyTestCase.assertEquals("APPROVED", loanBidApproved.status)
+        Assert.assertEquals("APPROVED", loanBidApproved.status)
 
         //lead bank create Syndication
         val approveLoanBidID = loanBidApproved.linearId

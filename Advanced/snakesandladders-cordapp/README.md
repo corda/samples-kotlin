@@ -2,12 +2,12 @@
 
 This sample implements a simple Snakes And Ladder Game on Corda.
 
-Its a simple game which has a board with numbers from 1 to 100. Each player starts at 1. 
-Players takes turn to roll a dice and move as many places as they rolled. If a player lands on a number 
-with a ladder thay climb up using the ladder or if they land in a number with a snake they move down on the board.
+It's a simple game which has a board with numbers from 1 to 100. Each player starts at 1. 
+Players take turn to roll a die and move as many places as they rolled. If a player lands on a number 
+with a ladder they climb up using the ladder or if they land in a number with a snake they move down on the board.
 The player who reach 100 first wins.
 
-The cordapp runs  a network having 4 nodes, 
+The CorDapp runs  a network having 4 nodes, 
 1. Classis Games
 2. Mega Games
 3. Oracle
@@ -16,10 +16,14 @@ The cordapp runs  a network having 4 nodes,
 Each player can create an account to participate. Players can either be on the same node or different nodes. 
 Oracle node is used to obtain the player dice rolls.
 
-# Setting up
+## Pre-Requisites
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+
+
+## Running the nodes
 Go into the project directory and build the project
 ```
-./gradlew clean deployNodes
+./gradlew clean build deployNodes
 ```
 Run the project
 ```
@@ -34,11 +38,11 @@ Run the below command to start clients:
 
 ``` ./gradlew runMegaGamesClient```
 
-The clients can be accessed at http://localhost:50007 and http://localhost:50008 for Classic Games and Mega Games respectively.
+The clients can be accessed at [http://localhost:50007](http://localhost:50007) and [http://localhost:50008](http://localhost:50008) for Classic Games and Mega Games respectively.
 
 # Running the Sample CorDapp
 
-1. Goto http://localhost:50007/
+1. Go to [http://localhost:50007](http://localhost:50007)
 2. Click the "Create Game Account" to create account for players. Create two accounts say "Player1" and "Player2".
     ![Create Player](./snaps/Create_Player.png)
 3. To State the Game enter the player's name in Player 1 and Player 2 field and click on "Start Game" button.

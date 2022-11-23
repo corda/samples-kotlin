@@ -2,7 +2,7 @@
 
 # Corda Secret Santa
 
-This is an imlementation of Secret Santa using Corda as a tool to store multiple game states.
+This is an implementation of Secret Santa using Corda as a tool to store multiple game states.
 
 It has a material-ui frontend that lets users create and self-service their own secret santa games. The frontend is implemented in ReactJS and the backend is implemented with a Spring Boot server and some corda flows.
 
@@ -16,12 +16,12 @@ There's essentially five processes you'll need to be aware of.
 
 - Three Corda nodes, a notary, santa, and an elf
 - The backend webserver that runs the REST endpoints for the corda nodes
-- The frontend webserver, a react app that sends requests to the backend.
+- The frontend webserver, a React app that sends requests to the backend.
 
 
 #### Pre-Requisites
 
-If you've never built a cordapp before you may need to configure gradle and java in order for this code example to run. See [our setup guide](https://docs.corda.net/getting-set-up.html).
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
 
 
 ### Running these services
@@ -30,7 +30,7 @@ If you've never built a cordapp before you may need to configure gradle and java
 To run the corda nodes you just need to run the `deployNodes` gradle task and the nodes will be available for you to run directly.
 
 ```
-./gradlew deployNodes
+./gradlew clea build deployNodes
 ./build/nodes/runnodes
 ```
 
@@ -54,7 +54,7 @@ The API endpoints are defined in `clients/src/main/java/com/secretsanta/webserve
 
 #### The frontend webserver
 
-The react server can be started by going to `clients/src/main/webapp`, running `npm install` and then `npm start`.
+The React server can be started by going to `clients/src/main/webapp`, running `npm install` and then `npm start`.
 
 ```
 cd clients/src/main/webapp
@@ -62,7 +62,9 @@ npm install
 npm start
 ```
 
-The frontend will be visible on [localhost:8888](http://localhost:8888)
+(Note: You might have to use node v16 and run *npm install --legacy-peer-deps* in order to get this running)
+
+The frontend will be visible on [localhost:3000](http://localhost:3000)
 
 #### Configuring Email with SendGrid
 
@@ -81,5 +83,5 @@ I've included some simple postman tests to run against the santa server that wil
 
 #### Running tests inside IntelliJ
 
-There are unit tests for the corda state, contract, and tests for both flows used here. You'll find them inside of the various test folders.
+There are unit tests for the corda state, contract, and tests for both flows used here. You'll find them inside the various test folders.
 

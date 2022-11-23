@@ -11,10 +11,10 @@ import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.samples.duediligence.flows.RequestToValidateCorporateRecordsInitiator
 import net.corda.samples.duediligence.states.CorporateRecordsAuditRequest
 import net.corda.testing.node.*
-import org.jgroups.util.Util
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import kotlin.test.assertEquals
 import java.util.*
 import java.util.concurrent.Future
 
@@ -63,6 +63,6 @@ class FlowTests {
                 .withRelevancyStatus(RelevancyStatus.RELEVANT)
         val (state) = a.services.vaultService.queryBy<ContractState>(ContractState::class.java, inputCriteria).states.get(0)
         val result = state.data as CorporateRecordsAuditRequest
-        Util.assertEquals(result.linearId, id)
+        assertEquals(result.linearId, id)
     }
 }
