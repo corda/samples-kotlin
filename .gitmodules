@@ -1,0 +1,3 @@
+[submodule "Advanced/superyacht-cordapp"]
+	path = Advanced/superyacht-cordapp
+	url = https://github.com/ja9-look/superyacht-cordapp
