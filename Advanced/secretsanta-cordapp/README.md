@@ -21,7 +21,7 @@ There's essentially five processes you'll need to be aware of.
 
 #### Pre-Requisites
 
-If you've never built a CorDapp before you may need to configure gradle and java in order for this code example to run. See [our setup guide](https://docs.corda.net/getting-set-up.html).
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
 
 
 ### Running these services

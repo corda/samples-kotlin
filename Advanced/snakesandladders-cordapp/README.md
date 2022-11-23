@@ -16,7 +16,11 @@ The CorDapp runs  a network having 4 nodes,
 Each player can create an account to participate. Players can either be on the same node or different nodes. 
 Oracle node is used to obtain the player dice rolls.
 
-# Setting up
+## Pre-Requisites
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+
+
+## Running the nodes
 Go into the project directory and build the project
 ```
 ./gradlew clean build deployNodes

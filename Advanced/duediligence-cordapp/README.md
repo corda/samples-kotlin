@@ -12,7 +12,10 @@ The above picture is a high level mock overview of a shareable due diligence DLT
 Note: another key feature of this app is whitelisting trusted auditors. It is done by utilizing attachment function in Corda. More samples on how to use attachment can be found in the [Features samples folder](../../Features)
 
 
-## Pre-running the app
+## Pre-Requisites
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+
+## Running the nodes
 
 Deploying nodes: `./gradlew clean build deployNodes`
 
