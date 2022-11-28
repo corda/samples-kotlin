@@ -20,7 +20,7 @@ Example use of an apple stamp: "One stamp can be exchanged for a basket of Honey
 
 ## Pre-Requisites
 
-For development environment setup, please refer to: [Setup Guide](https://docs.corda.net/getting-set-up.html).
+For development environment setup, please refer to: [Setup Guide](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html).
 
 
 ## Running the nodes
