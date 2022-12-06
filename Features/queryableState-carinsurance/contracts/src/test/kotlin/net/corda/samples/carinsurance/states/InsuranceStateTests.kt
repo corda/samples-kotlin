@@ -2,8 +2,8 @@ package net.corda.samples.carinsurance.states
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.core.TestIdentity
-import org.jgroups.util.Util
 import org.junit.Test
+import org.junit.Assert
 import java.util.*
 
 class InsuranceStateTests {
@@ -50,14 +50,14 @@ class InsuranceStateTests {
                 vd,
                 Arrays.asList(c))
 
-        Util.assertEquals(policyNum, policyNumber)
-        Util.assertEquals(insuredValue, insuredValue1)
-        Util.assertEquals(duration, duration1)
-        Util.assertEquals(premium, premium1)
-        Util.assertEquals(insurer, insurer1)
-        Util.assertEquals(insuree, insuree1)
-        Util.assertEquals(vd, vehicleDetail)
-        Util.assertTrue(participants.contains(a.party))
-        Util.assertTrue(participants.contains(b.party))
+        Assert.assertEquals(policyNum, policyNumber)
+        Assert.assertEquals(insuredValue, insuredValue1)
+        Assert.assertEquals(duration, duration1)
+        Assert.assertEquals(premium, premium1)
+        Assert.assertEquals(insurer, insurer1)
+        Assert.assertEquals(insuree, insuree1)
+        Assert.assertEquals(vd, vehicleDetail)
+        Assert.assertTrue(participants.contains(a.party))
+        Assert.assertTrue(participants.contains(b.party))
     }
 }
