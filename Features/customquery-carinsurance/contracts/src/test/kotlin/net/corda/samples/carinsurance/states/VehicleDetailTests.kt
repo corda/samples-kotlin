@@ -2,8 +2,8 @@ package net.corda.samples.carinsurance.states
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.core.TestIdentity
-import org.jgroups.util.Util
 import org.junit.Test
+import org.junit.Assert
 
 class VehicleDetailTests {
 
@@ -29,12 +29,12 @@ class VehicleDetailTests {
                 color,
                 fuelType)
 
-        Util.assertEquals(registrationNumber, registrationNumber1)
-        Util.assertEquals(chassisNum, chasisNumber)
-        Util.assertEquals(make, make1)
-        Util.assertEquals(model, model1)
-        Util.assertEquals(variant, variant1)
-        Util.assertEquals(color, color1)
-        Util.assertEquals(fuelType, fuelType1)
+        Assert.assertEquals(registrationNumber, registrationNumber1)
+        Assert.assertEquals(chassisNum, chasisNumber)
+        Assert.assertEquals(make, make1)
+        Assert.assertEquals(model, model1)
+        Assert.assertEquals(variant, variant1)
+        Assert.assertEquals(color, color1)
+        Assert.assertEquals(fuelType, fuelType1)
     }
 }
