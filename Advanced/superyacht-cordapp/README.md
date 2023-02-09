@@ -14,7 +14,7 @@ There are 4 main parties in this example:
 * `YachtState`: This is an [OwnableState](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#ownablestate) and a [LinearState](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#linearstate) that represents a Yacht that can be issued by the Yacht Issuer to the Yacht Owner (Party A).
 
 ## Contract
-* `YachtContract`: This is used to govern the evolution of a `YachtState`. This file includes validation rules governing the `Create` and `Purchase` command for IOUState
+* `YachtContract`: This is used to govern the evolution of a `YachtState`. This file includes validation rules governing the `Create` and `Purchase` command for YachtState
 
 ## Flows
 * `IssueFiatCurrencyFlow`: This flow is used by the Bank to create and to issue a [Fiat Currency Token](https://github.com/corda/token-sdk/blob/master/workflows/src/main/kotlin/com/r3/corda/lib/tokens/money/FiatCurrency.kt) to the Yacht Buyer (Party B). It takes 3 arguments as the parameters: `currency` (String), `amount` (Long), and `recipient` (Party).
