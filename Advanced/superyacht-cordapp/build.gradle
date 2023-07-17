@@ -26,7 +26,7 @@ buildscript { //properties that you need to build the project
     repositories {
         mavenLocal()
         mavenCentral()
-        maven { url 'https://software.r3.com/artifactory/corda-releases' }
+        maven { url 'https://download.corda.net/maven/corda-releases' }
         maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-lib' }
     }
 
@@ -46,7 +46,7 @@ allprojects { //Properties that you need to compile your project (The applicatio
     repositories {
         mavenLocal()
         mavenCentral()
-        maven { url 'https://software.r3.com/artifactory/corda' }
+        maven { url 'https://download.corda.net/maven/corda-dependencies' }
         maven { url 'https://jitpack.io' }
         maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-lib' }
     }

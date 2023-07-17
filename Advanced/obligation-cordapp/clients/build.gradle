@@ -5,7 +5,7 @@ repositories {
     mavenCentral()
     maven { url 'https://dl.bintray.com/kotlin/exposed' }
     maven { url 'https://jitpack.io' }
-    maven { url 'https://software.r3.com/artifactory/corda-releases' }
+    maven { url 'https://download.corda.net/maven/corda-releases' }
 }
 
 apply plugin: 'kotlin'

@@ -19,7 +19,7 @@ This repository demonstrates how you can configure and use it in your own projec
 
 Configuration requires three steps:
 
-1. Adding `maven { url 'https://software.r3.com/artifactory/corda-lib-dev' }` to `repositories.gradle`
+1. Adding `maven { url 'https://download.corda.net/maven/corda-lib-dev' }` to `repositories.gradle`
 2. Adding `compile "com.r3.corda.lib.contracts:contract-sdk:0.9-SNAPSHOT"` to the `build.gradle` file of your contract module in your cordapp 
 3. Adding the annotations to your CorDapp
 
