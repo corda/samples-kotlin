@@ -35,7 +35,7 @@ object IOUSchemaV1 : MappedSchema(
             @Column(name = "borrower")
             var borrowerName: String,
 
-            @Column(name = "value")
+            @Column(name = "_value")
             var value: Int,
 
             @Column(name = "linear_id")

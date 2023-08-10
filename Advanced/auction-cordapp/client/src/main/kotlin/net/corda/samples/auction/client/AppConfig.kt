@@ -48,7 +48,7 @@ open class AppConfig : WebMvcConfigurer{
     @Bean
     open fun mappingJackson2HttpMessageConverter(): MappingJackson2HttpMessageConverter {
         val mapper = JacksonSupport.createDefaultMapper(partyAProxy())
-        mapper.registerModule(KotlinModule())
+        mapper.registerModule(KotlinModule.Builder().build())
         val converter = MappingJackson2HttpMessageConverter()
         converter.objectMapper = mapper
         return converter

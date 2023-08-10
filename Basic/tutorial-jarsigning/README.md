@@ -48,7 +48,7 @@ cordapp {
 In the terminal, create a private key in JKS format (replace the X500 name with yours, and use the same [password] value for both storepass and keypass):
 
 ```
-keytool -keystore jarSignKeystore.jks -keyalg RSA -genkey -dname "OU=, O=, L=, C=" -storepass [password] -keypass [password] -alias cordapp-signer
+keytool -keystore jarSignKeystore.jks -keyalg RSA -genkey -dname "OU=Web, O=NewCorp, L=New Corp, C=GB" -storepass [password] -keypass [password] -alias cordapp-signer
 ```
 
 Migrate the JKS key to PKCS12 format. You will be prompted for 2 passwords, use the same value that you used to create the JKS key for both values:

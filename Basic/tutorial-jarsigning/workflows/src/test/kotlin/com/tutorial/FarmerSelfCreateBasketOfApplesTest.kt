@@ -1,6 +1,5 @@
 package com.tutorial
 
-import com.google.common.collect.ImmutableList
 import com.tutorial.flows.PackApplesInitiator
 import com.tutorial.states.BasketOfApples
 import net.corda.core.node.services.Vault.StateStatus
@@ -21,7 +20,7 @@ class FarmerSelfCreateBasketOfApplesTest {
     private var b: StartedMockNode? = null
     @Before
     fun setup() {
-        network = MockNetwork(MockNetworkParameters().withCordappsForAllNodes(ImmutableList.of(
+        network = MockNetwork(MockNetworkParameters().withCordappsForAllNodes(listOf(
                 TestCordapp.findCordapp("com.tutorial.contracts"),
                 TestCordapp.findCordapp("com.tutorial.flows"))))
         a = network!!.createPartyNode(null)
@@ -37,7 +36,7 @@ class FarmerSelfCreateBasketOfApplesTest {
     @Test
     fun createBasketOfApples() {
         val flow1 = PackApplesInitiator("Fuji4072", 10)
-        val future: Future<SignedTransaction> = a!!.startFlow(flow1)
+        a!!.startFlow(flow1)
         network!!.runNetwork()
 
         //successful query means the state is stored at node b's vault. Flow went through.

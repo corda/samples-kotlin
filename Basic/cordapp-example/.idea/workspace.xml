@@ -1,10 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="b7dca983-4c90-400c-88a7-f2f2d63bde2f" name="Default Changelist" comment="">
+    <list default="true" id="77727b19-f21a-4be5-9bad-b30c19bf0416" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../constants.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../constants.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workflows/src/main/kotlin/net/corda/samples/example/flows/ExampleFlow.kt" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/src/main/kotlin/net/corda/samples/example/flows/ExampleFlow.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clients/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/clients/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/constants.properties" beforeDir="false" afterPath="$PROJECT_DIR$/constants.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contracts/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflows/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../opentelemetry-cordapp-example/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../opentelemetry-cordapp-example/build.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,7 +55,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
   </component>
-  <component name="ProjectId" id="1lz4lWv4H22IlHPKK2iwpzrMZW7" />
+  <component name="ProjectId" id="2TmzRSyVICFS1y2DazvbDeqCumO" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -48,48 +64,24 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
-    <property name="show.unlinked.gradle.project.popup" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/build.gradle" />
+    <property name="project.structure.last.edited" value="SDKs" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.152439" />
   </component>
   <component name="RunManager" selected="Gradle.IOUFlowTests">
-    <configuration name="ContractTests" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;net.corda.samples.example.contracts.ContractTests&quot;" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":contracts:test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="DriverBasedTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;net.corda.samples.example.DriverBasedTest&quot;" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":workflows:integrationTest" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
-      <method v="2" />
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
     <configuration name="IOUFlowTests" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
@@ -107,81 +99,37 @@
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="StateTests" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;net.corda.samples.example.contracts.StateTests&quot;" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":contracts:test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
-      <method v="2" />
+    <configuration name="Server" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="cordapp-example.clients.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="net.corda.samples.example.webserver.Server" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
-    <list>
-      <item itemvalue="Gradle.ContractTests" />
-      <item itemvalue="Gradle.DriverBasedTest" />
-      <item itemvalue="Gradle.IOUFlowTests" />
-      <item itemvalue="Gradle.StateTests" />
-    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.IOUFlowTests" />
-        <item itemvalue="Gradle.DriverBasedTest" />
-        <item itemvalue="Gradle.ContractTests" />
-        <item itemvalue="Gradle.StateTests" />
       </list>
     </recent_temporary>
   </component>
-  <component name="SpellCheckerSettings" BundledDictionaries="0" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" Dictionaries="0" CorrectionsLimit="5" DefaultDictionary="application-level" UseSingleDictionary="true" />
-  <component name="SvnConfiguration">
-    <configuration />
-  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="b7dca983-4c90-400c-88a7-f2f2d63bde2f" name="Default Changelist" comment="" />
-      <created>1608586738487</created>
+      <changelist id="77727b19-f21a-4be5-9bad-b30c19bf0416" name="Default Changelist" comment="" />
+      <created>1691663036156</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1608586738487</updated>
+      <updated>1691663036156</updated>
+      <workItem from="1691663037759" duration="564000" />
     </task>
     <servers />
   </component>
-  <component name="WindowStateProjectService">
-    <state x="1693" y="298" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1652271850180">
-      <screen x="0" y="23" width="3440" height="1333" />
-    </state>
-    <state x="1693" y="298" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.3440.1333@0.23.3440.1333" timestamp="1652271850180" />
-    <state width="2232" height="659" key="GridCell.Tab.0.bottom" timestamp="1652271657063">
-      <screen x="0" y="23" width="3440" height="1333" />
-    </state>
-    <state width="2232" height="659" key="GridCell.Tab.0.bottom/0.23.3440.1333@0.23.3440.1333" timestamp="1652271657063" />
-    <state width="2232" height="659" key="GridCell.Tab.0.center" timestamp="1652271657062">
-      <screen x="0" y="23" width="3440" height="1333" />
-    </state>
-    <state width="2232" height="659" key="GridCell.Tab.0.center/0.23.3440.1333@0.23.3440.1333" timestamp="1652271657062" />
-    <state width="2232" height="659" key="GridCell.Tab.0.left" timestamp="1652271657062">
-      <screen x="0" y="23" width="3440" height="1333" />
-    </state>
-    <state width="2232" height="659" key="GridCell.Tab.0.left/0.23.3440.1333@0.23.3440.1333" timestamp="1652271657062" />
-    <state width="2232" height="659" key="GridCell.Tab.0.right" timestamp="1652271657062">
-      <screen x="0" y="23" width="3440" height="1333" />
-    </state>
-    <state width="2232" height="659" key="GridCell.Tab.0.right/0.23.3440.1333@0.23.3440.1333" timestamp="1652271657062" />
-    <state x="1738" y="275" key="SettingsEditor" timestamp="1652271790912">
-      <screen x="0" y="23" width="3440" height="1333" />
-    </state>
-    <state x="1738" y="275" key="SettingsEditor/0.23.3440.1333@0.23.3440.1333" timestamp="1652271790912" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
 </project>

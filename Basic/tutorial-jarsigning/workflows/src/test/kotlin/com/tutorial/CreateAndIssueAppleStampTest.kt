@@ -1,6 +1,5 @@
 package com.tutorial
 
-import com.google.common.collect.ImmutableList
 import com.tutorial.flows.CreateAndIssueAppleStampInitiator
 import com.tutorial.flows.Initiator
 import com.tutorial.states.AppleStamp
@@ -25,7 +24,7 @@ class CreateAndIssueAppleStampTest {
 
     @Before
     fun setup() {
-        network = MockNetwork(MockNetworkParameters().withCordappsForAllNodes(ImmutableList.of(
+        network = MockNetwork(MockNetworkParameters().withCordappsForAllNodes(listOf(
                 TestCordapp.findCordapp("com.tutorial.contracts"),
                 TestCordapp.findCordapp("com.tutorial.flows"))))
         a = network!!.createPartyNode(null)
@@ -41,12 +40,12 @@ class CreateAndIssueAppleStampTest {
     @Test
     fun dummyTest() {
         val flow = Initiator(b!!.info.legalIdentities[0])
-        val future: Future<SignedTransaction> = a!!.startFlow(flow)
+        a!!.startFlow(flow)
         network!!.runNetwork()
 
         //successful query means the state is stored at node b's vault. Flow went through.
         val inputCriteria: QueryCriteria = QueryCriteria.VaultQueryCriteria().withStatus(StateStatus.UNCONSUMED)
-        val state = b!!.services.vaultService
+        b!!.services.vaultService
                 .queryBy(TemplateState::class.java, inputCriteria).states[0].state.data
     }
 
@@ -54,7 +53,7 @@ class CreateAndIssueAppleStampTest {
     fun CreateAndIssueAppleStampTest() {
         val flow1 = CreateAndIssueAppleStampInitiator(
                 "HoneyCrispy 4072", b!!.info.legalIdentities[0])
-        val future1: Future<SignedTransaction> = a!!.startFlow(flow1)
+        a!!.startFlow(flow1)
         network!!.runNetwork()
 
         //successful query means the state is stored at node b's vault. Flow went through.
