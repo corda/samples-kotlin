@@ -21,6 +21,7 @@ buildscript { //properties that you need to build the project
         corda_platform_version = constants.getProperty("platformVersion").toInteger()
         hibernate_version = constants.getProperty("hibernateVersion")
         rxjava_version = constants.getProperty("rxJavaVersion")
+        snappy_version = constants.getProperty("snappyVersion")
         //springboot
         spring_boot_version = '2.0.2.RELEASE'
         spring_boot_gradle_plugin_version = '2.0.2.RELEASE'
@@ -64,6 +65,11 @@ allprojects { //Properties that you need to compile your project (The applicatio
         }
     }
 
+    java {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
 //    tasks.withType(Jar).all {
 //        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 //    }
@@ -86,10 +92,7 @@ sourceSets {
         }
     }
 }
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-}
+
 //Module dependencis
 dependencies {
     // Corda dependencies.
