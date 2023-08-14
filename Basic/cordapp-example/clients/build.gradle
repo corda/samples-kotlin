@@ -1,6 +1,6 @@
 import org.gradle.api.JavaVersion
 
-//apply plugin: 'org.springframework.boot'
+apply plugin: 'org.springframework.boot'
 
 sourceSets {
     main {
@@ -30,9 +30,9 @@ dependencies {
 }
 
 
-//springBoot {
-//    mainClassName = "net.corda.samples.example.webserver.ServerKt"
-//}
+springBoot {
+    mainClassName = "net.corda.samples.example.webserver.ServerKt"
+}
 
 /* The Client is the communication channel between the external and the node. This task will help you immediately
  * execute your rpc methods in the main method of the client.kt. You can somewhat see this as a quick test of making
