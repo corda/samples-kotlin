@@ -1,6 +1,5 @@
 package com.tutorial
 
-import com.google.common.collect.ImmutableList
 import com.tutorial.flows.CreateAndIssueAppleStampInitiator
 import com.tutorial.flows.PackApplesInitiator
 import com.tutorial.flows.RedeemApplesInitiator
@@ -18,6 +17,7 @@ import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Future
+import java.util.List
 
 class RedeemApplesWithStampTest {
     private var network: MockNetwork? = null
@@ -28,7 +28,7 @@ class RedeemApplesWithStampTest {
     fun setup() {
         network = MockNetwork(
             MockNetworkParameters().withCordappsForAllNodes(
-                ImmutableList.of(
+                List.of(
                     TestCordapp.findCordapp("com.tutorial.contracts"),
                     TestCordapp.findCordapp("com.tutorial.flows")
                 )

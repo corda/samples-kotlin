@@ -1,6 +1,5 @@
 package com.tutorial
 
-import com.google.common.collect.ImmutableList
 import com.tutorial.flows.CreateAndIssueAppleStampInitiator
 import com.tutorial.flows.Initiator
 import com.tutorial.states.AppleStamp
@@ -16,6 +15,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.Future
+import java.util.List
 
 class CreateAndIssueAppleStampTest {
 
@@ -27,7 +27,7 @@ class CreateAndIssueAppleStampTest {
     fun setup() {
         network = MockNetwork(
             MockNetworkParameters().withCordappsForAllNodes(
-                ImmutableList.of(
+                List.of(
                     TestCordapp.findCordapp("com.tutorial.contracts"),
                     TestCordapp.findCordapp("com.tutorial.flows")
                 )
