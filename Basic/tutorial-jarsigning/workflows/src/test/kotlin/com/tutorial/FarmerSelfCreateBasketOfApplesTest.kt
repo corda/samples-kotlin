@@ -1,6 +1,5 @@
 package com.tutorial
 
-import com.google.common.collect.ImmutableList
 import com.tutorial.flows.PackApplesInitiator
 import com.tutorial.states.BasketOfApples
 import net.corda.core.node.services.Vault.StateStatus
@@ -14,6 +13,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.Future
+import java.util.List
 
 class FarmerSelfCreateBasketOfApplesTest {
     private var network: MockNetwork? = null
@@ -21,7 +21,7 @@ class FarmerSelfCreateBasketOfApplesTest {
     private var b: StartedMockNode? = null
     @Before
     fun setup() {
-        network = MockNetwork(MockNetworkParameters().withCordappsForAllNodes(ImmutableList.of(
+        network = MockNetwork(MockNetworkParameters().withCordappsForAllNodes(List.of(
                 TestCordapp.findCordapp("com.tutorial.contracts"),
                 TestCordapp.findCordapp("com.tutorial.flows"))))
         a = network!!.createPartyNode(null)
