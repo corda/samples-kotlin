@@ -61,7 +61,7 @@ class CryptoValuesDatabaseService(services: ServiceHub) : DatabaseService(servic
      * Initialises the table of crypto values.
      */
     private fun setUpStorage() {
-        val query = "create table if not exists $TABLE_NAME (token varchar(64), value int) "
+        val query = "create table if not exists $TABLE_NAME (token varchar(64), _value int) "
 
         executeUpdate(query, emptyMap())
         log.info("Created crypto_values table.")
