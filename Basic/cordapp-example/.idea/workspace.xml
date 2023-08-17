@@ -4,19 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="80d585a8-cd3c-411e-bc85-15ff2a461d40" name="Default Changelist" comment="ENT-10338 - cleanup">
+    <list default="true" id="77727b19-f21a-4be5-9bad-b30c19bf0416" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/../constants.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../constants.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../opentelemetry-cordapp-example/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../opentelemetry-cordapp-example/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ping-pong/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../ping-pong/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ping-pong/client/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../ping-pong/client/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ping-pong/client/src/main/kotlin/net/corda/samples/pingpong/Client.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../ping-pong/client/src/main/kotlin/net/corda/samples/pingpong/Client.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ping-pong/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../ping-pong/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../tutorial-jarsigning/contracts/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../tutorial-jarsigning/contracts/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../tutorial-jarsigning/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../tutorial-jarsigning/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clients/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/clients/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/constants.properties" beforeDir="false" afterPath="$PROJECT_DIR$/constants.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contracts/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflows/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../opentelemetry-cordapp-example/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../opentelemetry-cordapp-example/build.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,19 +55,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
   </component>
-  <component name="MarkdownSettingsMigration">
-    <option name="stateVersion" value="1" />
-  </component>
-  <component name="ProjectId" id="2TnH85fVtkTKl6hGHXgBk30I6Dh" />
+  <component name="ProjectId" id="2TmzRSyVICFS1y2DazvbDeqCumO" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../opentelemetry-cordapp-example/build.gradle" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/build.gradle" />
+    <property name="project.structure.last.edited" value="SDKs" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.152439" />
   </component>
   <component name="RunManager" selected="Gradle.IOUFlowTests">
     <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
@@ -76,29 +82,6 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
-    </configuration>
-    <configuration name="ContractTests" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":contracts:test" />
-            <option value="--tests" />
-            <option value="&quot;net.corda.samples.example.contracts.ContractTests&quot;" />
-          </list>
-        </option>
-        <option name="vmOptions" value="" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
     </configuration>
     <configuration name="IOUFlowTests" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
@@ -121,27 +104,6 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="StateTests" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;net.corda.samples.example.contracts.StateTests&quot;" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":contracts:test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
-    </configuration>
     <configuration name="Server" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <module name="cordapp-example.clients.main" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="net.corda.samples.example.webserver.Server" />
@@ -149,84 +111,25 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <list>
-      <item itemvalue="Gradle.ContractTests" />
-      <item itemvalue="Gradle.IOUFlowTests" />
-      <item itemvalue="Gradle.StateTests" />
-      <item itemvalue="Spring Boot.Server" />
-    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.IOUFlowTests" />
-        <item itemvalue="Gradle.StateTests" />
-        <item itemvalue="Gradle.ContractTests" />
       </list>
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="80d585a8-cd3c-411e-bc85-15ff2a461d40" name="Default Changelist" comment="" />
-      <created>1691671762454</created>
+      <changelist id="77727b19-f21a-4be5-9bad-b30c19bf0416" name="Default Changelist" comment="" />
+      <created>1691663036156</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1691671762454</updated>
-      <workItem from="1691671763773" duration="8481000" />
-      <workItem from="1691683782451" duration="1200000" />
-      <workItem from="1691685406033" duration="1512000" />
-      <workItem from="1691687056773" duration="180000" />
-      <workItem from="1691687288978" duration="3271000" />
-      <workItem from="1691691245215" duration="530000" />
-      <workItem from="1691691790873" duration="167000" />
-      <workItem from="1691692146369" duration="386000" />
-      <workItem from="1691692547561" duration="207000" />
-      <workItem from="1691692785645" duration="34000" />
-      <workItem from="1691693332941" duration="4105000" />
-      <workItem from="1691752639419" duration="7004000" />
-      <workItem from="1692014820441" duration="14998000" />
-      <workItem from="1692085997937" duration="14266000" />
-      <workItem from="1692108279649" duration="5481000" />
-      <workItem from="1692181722273" duration="17675000" />
+      <updated>1691663036156</updated>
+      <workItem from="1691663037759" duration="564000" />
     </task>
-    <task id="LOCAL-00001" summary="ENT-10338 - Fix for the test">
-      <created>1691694351660</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1691694351660</updated>
-    </task>
-    <task id="LOCAL-00002" summary="ENT-10338 - cleanup">
-      <created>1692029157080</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1692029157080</updated>
-    </task>
-    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-    <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="ENT-10338 - Fix for the test" />
-    <MESSAGE value="ENT-10338 - cleanup" />
-    <option name="LAST_COMMIT_MESSAGE" value="ENT-10338 - cleanup" />
-  </component>
-  <component name="XSLT-Support.FileAssociations.UIState">
-    <expand />
-    <select />
   </component>
 </project>
