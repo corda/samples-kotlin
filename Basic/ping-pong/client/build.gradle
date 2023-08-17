@@ -31,4 +31,5 @@ task pingPartyBKotlin(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'net.corda.samples.pingpong.ClientKt'
     args 'localhost:10006', 'O=PartyB,L=New York,C=US'
+    jvmArgs '--add-opens', 'java.base/java.time=ALL-UNNAMED', '--add-opens', 'java.base/java.io=ALL-UNNAMED'
 }
