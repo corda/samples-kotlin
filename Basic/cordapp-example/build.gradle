@@ -61,8 +61,8 @@ allprojects { //Properties that you need to compile your project (The applicatio
 
     repositories {
         mavenLocal()
-
         mavenCentral()
+
         maven { url 'https://download.corda.net/maven/corda-releases' }
         maven { url 'https://download.corda.net/maven/corda-dependencies' }
         maven { url 'https://download.corda.net/maven/corda-dev' }
@@ -82,10 +82,6 @@ allprojects { //Properties that you need to compile your project (The applicatio
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-
-//    tasks.withType(Jar).all {
-//        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-//    }
 
     jar {
         // This makes the JAR's SHA-256 hash repeatable.
