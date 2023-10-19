@@ -18,6 +18,7 @@ buildscript { //properties that you need to build the project
         slf4j_version = constants.getProperty("slf4jVersion")
         corda_platform_version = constants.getProperty("platformVersion").toInteger()
         hibernate_version = constants.getProperty("hibernateVersion")
+        persistence_version = constants.getProperty("persistenceVersion")
         //springboot
         spring_boot_version = '2.5.15'
         spring_boot_gradle_plugin_version = '2.5.15'
@@ -123,7 +124,6 @@ dependencies {
     cordaProvided "org.slf4j:jul-to-slf4j:$slf4j_version"
     cordaDriver "net.corda:corda-shell:4.9"
     cordaDriver "net.corda:corda-opentelemetry-driver:$corda_core_release_version"
-
 }
 
 cordapp {

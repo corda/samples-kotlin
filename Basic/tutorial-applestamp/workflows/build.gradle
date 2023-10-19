@@ -41,6 +41,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testImplementation "junit:junit:$junit_version"
+    testRuntimeOnly "org.iq80.snappy:snappy:$snappy_version"
 
     // Corda dependencies.
     cordaProvided "$corda_core_release_group:corda-core:$corda_core_release_version"
@@ -49,8 +50,6 @@ dependencies {
 
     // CorDapp dependencies.
     cordapp project(":contracts")
-
-    testRuntimeOnly "org.iq80.snappy:snappy:$snappy_version"
 }
 
 task integrationTest(type: Test, dependsOn: []) {

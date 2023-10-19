@@ -108,8 +108,6 @@ cordapp {
     targetPlatformVersion corda_platform_version.toInteger()
 }
 
-
-
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     /* This property will load the CorDapps to each of the node by default, including the Notary. You can find them
      * in the cordapps folder of the node at build/nodes/Notary/cordapps. However, the notary doesn't really understand

@@ -1,5 +1,3 @@
-import org.gradle.api.JavaVersion
-
 apply plugin: 'org.springframework.boot'
 
 sourceSets {

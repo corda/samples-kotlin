@@ -18,8 +18,6 @@ cordapp {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation "junit:junit:$junit_version"
 
     // Corda dependencies.
     cordaProvided "$corda_core_release_group:corda-core:$corda_core_release_version"
@@ -31,6 +29,8 @@ dependencies {
     // OkHTTP: A simple HTTP library.
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testImplementation "junit:junit:$junit_version"
     testImplementation "$corda_release_group:corda-node-driver:$corda_release_version"
     testImplementation "org.apache.logging.log4j:log4j-slf4j-impl:$log4j_version"
 }
@@ -43,4 +43,3 @@ jar {
 test {
     jvmArgs = rootProject.ext.testJvmArgs
 }
-
