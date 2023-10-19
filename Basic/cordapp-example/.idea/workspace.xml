@@ -5,21 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="77727b19-f21a-4be5-9bad-b30c19bf0416" name="Default Changelist" comment="Updated to use Corda 4.12-HC01">
-      <change afterPath="$PROJECT_DIR$/../flow-database-access/repositories.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workflows/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../flow-database-access/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-database-access/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../flow-database-access/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-database-access/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../flow-database-access/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-database-access/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../flow-database-access/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-database-access/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../flow-database-access/gradlew" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-database-access/gradlew" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../flow-database-access/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-database-access/gradlew.bat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../flow-database-access/workflows/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-database-access/workflows/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../flow-database-access/workflows/src/main/kotlin/net/corda/samples/flowdb/CryptoValuesDatabaseService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-database-access/workflows/src/main/kotlin/net/corda/samples/flowdb/CryptoValuesDatabaseService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../flow-http-access/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-http-access/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../flow-http-access/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-http-access/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../flow-http-access/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-http-access/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../flow-http-access/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-http-access/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../flow-http-access/gradlew" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-http-access/gradlew" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../flow-http-access/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-http-access/gradlew.bat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../flow-http-access/workflows/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../flow-http-access/workflows/build.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
