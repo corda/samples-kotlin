@@ -9,10 +9,7 @@ sourceSets {
         }
     }
 }
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-}
+
 dependencies {
     // Corda dependencies.
     implementation "$corda_core_release_group:corda-core:$corda_core_release_version"
