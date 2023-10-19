@@ -1,7 +1,5 @@
 package net.corda.samples.example.webserver
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import net.corda.client.jackson.JacksonSupport.createNonRpcMapper
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startTrackedFlow
@@ -11,7 +9,6 @@ import net.corda.samples.example.flows.ExampleFlow.Initiator
 import net.corda.samples.example.states.IOUState
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
