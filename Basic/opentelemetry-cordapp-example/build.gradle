@@ -25,6 +25,7 @@ buildscript { //properties that you need to build the project
         open_telemetry_version = constants.getProperty("openTelemetryVersion")
         rxjava_version = constants.getProperty("rxJavaVersion")
         snappy_version = constants.getProperty("snappyVersion")
+        corda_shell_version = constants.getProperty("cordaShellVersion")
 
         testJvmArgs = ['--add-opens', 'java.base/java.time=ALL-UNNAMED', '--add-opens', 'java.base/java.io=ALL-UNNAMED',
                        '--add-opens', 'java.base/java.util=ALL-UNNAMED', '--add-opens', 'java.base/java.net=ALL-UNNAMED',
@@ -123,8 +124,7 @@ dependencies {
     cordaProvided "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
     cordaProvided "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaProvided "org.slf4j:jul-to-slf4j:$slf4j_version"
-    cordaDriver "net.corda:corda-shell:4.9"
-    cordaDriver "net.corda:corda-opentelemetry-driver:$corda_core_release_version"
+    cordaDriver "net.corda:corda-shell:$corda_shell_version"
 }
 
 cordapp {

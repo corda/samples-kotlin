@@ -16,6 +16,7 @@ buildscript { //properties that you need to build the project
         quasar_version = constants.getProperty("quasarVersion")
         log4j_version = constants.getProperty("log4jVersion")
         slf4j_version = constants.getProperty("slf4jVersion")
+        corda_shell_version = constants.getProperty("cordaShellVersion")
         corda_platform_version = constants.getProperty("platformVersion").toInteger()
         //springboot
         spring_boot_version = '2.5.15'
@@ -93,7 +94,7 @@ dependencies {
     cordaProvided "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
     cordaProvided "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaProvided "org.slf4j:jul-to-slf4j:$slf4j_version"
-    cordaDriver "net.corda:corda-shell:4.9"
+    cordaDriver "net.corda:corda-shell:$corda_shell_version"
 }
 
 cordapp {

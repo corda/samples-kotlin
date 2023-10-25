@@ -16,6 +16,7 @@ buildscript { //properties that you need to build the project
         quasar_version = constants.getProperty("quasarVersion")
         log4j_version = constants.getProperty("log4jVersion")
         slf4j_version = constants.getProperty("slf4jVersion")
+        corda_shell_version = constants.getProperty("cordaShellVersion")
         corda_platform_version = constants.getProperty("platformVersion").toInteger()
         okhttp_version = '3.5.0'
         testJvmArgs = ['--add-opens', 'java.base/java.time=ALL-UNNAMED', '--add-opens', 'java.base/java.io=ALL-UNNAMED',
@@ -50,6 +51,7 @@ allprojects { //Properties that you need to compile your project (The applicatio
 
         mavenCentral()
         maven { url 'https://download.corda.net/maven/corda-dev' }
+        maven { url 'https://download.corda.net/maven/corda-releases' }
         maven { url 'https://download.corda.net/maven/corda-dependencies' }
         maven { url 'https://download.corda.net/maven/corda-releases' }
         maven { url 'https://jitpack.io' }
@@ -101,7 +103,7 @@ dependencies {
     cordaProvided "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
     cordaProvided "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaProvided "org.slf4j:jul-to-slf4j:$slf4j_version"
-    cordaDriver "net.corda:corda-shell:4.9"
+    cordaDriver "net.corda:corda-shell:$corda_shell_version"
 
 }
 
