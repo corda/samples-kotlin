@@ -48,6 +48,7 @@ allprojects { //Properties that you need to compile your project (The applicatio
         mavenCentral()
         maven { url 'https://download.corda.net/maven/corda-dependencies' }
         maven { url 'https://download.corda.net/maven/corda-dev' }
+        maven { url 'https://download.corda.net/maven/corda-releases' }
         maven { url 'https://jitpack.io' }
     }
 
@@ -93,7 +94,6 @@ dependencies {
     cordaProvided "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaProvided "org.slf4j:jul-to-slf4j:$slf4j_version"
     cordaDriver "net.corda:corda-shell:4.9"
-    cordaDriver "net.corda:corda-opentelemetry-driver:$corda_core_release_version"
 }
 
 cordapp {

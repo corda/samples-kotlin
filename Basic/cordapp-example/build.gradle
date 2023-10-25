@@ -115,7 +115,6 @@ dependencies {
     cordaProvided "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaProvided "org.slf4j:jul-to-slf4j:$slf4j_version"
     cordaDriver "net.corda:corda-shell:4.9"
-    cordaDriver "net.corda:corda-opentelemetry-driver:$corda_core_release_version"
 }
 
 cordapp {
