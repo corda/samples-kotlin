@@ -44,18 +44,8 @@ buildscript { //properties that you need to build the project
 }
 
 allprojects { //Properties that you need to compile your project (The application)
-    apply from: "${rootProject.projectDir}/repositories.gradle"
+    apply from: "${rootProject.projectDir}/../repositories.gradle"
     apply plugin: 'org.jetbrains.kotlin.jvm'
-
-    repositories {
-        mavenLocal()
-
-        mavenCentral()
-        maven { url 'https://download.corda.net/maven/corda-dependencies' }
-        maven { url 'https://download.corda.net/maven/corda-dev' }
-        maven { url 'https://download.corda.net/maven/corda-releases' }
-        maven { url 'https://jitpack.io' }
-    }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
         compilerOptions {
