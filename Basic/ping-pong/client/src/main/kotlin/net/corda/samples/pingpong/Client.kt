@@ -14,7 +14,7 @@ val RPC_USERNAME = "user1"
 val RPC_PASSWORD = "test"
 
 fun main(args: Array<String>) {
-    require(args.size == 2) { "Usage: RpcClient <node address> <counterpartyName>" }
+    require(args.size >= 2) { "Usage: RpcClient <node address> <counterpartyName>" }
     println(args[0])
     println(args[1])
     val rpcAddressString = args[0]

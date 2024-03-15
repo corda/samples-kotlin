@@ -1,4 +1,6 @@
-apply plugin: 'kotlin'
+import static org.gradle.api.JavaVersion.VERSION_11
+
+apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'net.corda.plugins.cordapp'
 
 cordapp {
@@ -19,30 +21,27 @@ sourceSets {
     }
 }
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testCompile "junit:junit:$junit_version"
-    testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
-
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testImplementation "junit:junit:$junit_version"
+    testImplementation "$corda_release_group:corda-node-driver:$corda_release_version"
 
     // Corda dependencies.
-    cordaCompile "$corda_core_release_group:corda-core:$corda_core_release_version"
+    cordaProvided "$corda_core_release_group:corda-core:$corda_core_release_version"
 
+    cordaProvided "$corda_release_group:corda-finance-contracts:$corda_release_version"
+    cordaProvided  "$corda_release_group:corda:$corda_release_version"
+    cordaProvided "$corda_core_release_group:corda-core-test-utils:$corda_core_release_version"
+    cordaProvided "$corda_core_release_group:corda-test-utils:$corda_core_release_version"
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Corda dependencies.
-    cordaCompile "$corda_release_group:corda-core:$corda_release_version"
+    cordaProvided "$corda_release_group:corda-core:$corda_release_version"
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
-    kotlinOptions {
-        languageVersion = "1.2"
-        apiVersion = "1.2"
-        jvmTarget = "1.8"
-        javaParameters = true   // Useful for reflection.
-    }
+test {
+    jvmArgs = rootProject.ext.testJvmArgs
 }

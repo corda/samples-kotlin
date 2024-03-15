@@ -9,23 +9,34 @@ cordapp {
         licence "Apache License, Version 2.0"
         versionId 1
     }
+
     signing {
         enabled true
         options {
             Properties constants = new Properties()
             file("$projectDir/../gradle.properties").withInputStream { constants.load(it) }
-            keystore getProperty('jar.sign.keystore')
-            alias "cordapp-signer"
-            storepass getProperty('jar.sign.password')
-            keypass getProperty('jar.sign.password')
-            storetype "PKCS12"
+            keyStore=getProperty('jar.sign.keystore')
+            alias="cordapp-signer"
+            storePassword=getProperty('jar.sign.password')
+            keyPassword=getProperty('jar.sign.password')
+            storeType="PKCS12"
         }
     }
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     // Corda dependencies.
-    cordaCompile "$corda_core_release_group:corda-core:$corda_core_release_version"
-    testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
+    cordaProvided "$corda_core_release_group:corda-core:$corda_core_release_version"
+    testImplementation "$corda_release_group:corda-node-driver:$corda_release_version"
+
+    cordaProvided "$corda_core_release_group:corda-core-test-utils:$corda_core_release_version"
+    cordaProvided "$corda_core_release_group:corda-test-utils:$corda_core_release_version"
+//    cordaProvided "$corda_release_group:corda-node-driver:$corda_release_version"
+
+    testImplementation "junit:junit:$junit_version"
+}
+
+test {
+    jvmArgs = rootProject.ext.testJvmArgs
 }

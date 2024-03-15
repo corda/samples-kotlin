@@ -38,7 +38,7 @@ class Controller(rpc: NodeRPCConnection) {
         private val logger = LoggerFactory.getLogger(RestController::class.java)
     }
     @Bean
-    open fun mappingJackson2HttpMessageConverter(@Autowired rpcConnection: NodeRPCConnection): MappingJackson2HttpMessageConverter {
+    fun mappingJackson2HttpMessageConverter(@Autowired rpcConnection: NodeRPCConnection): MappingJackson2HttpMessageConverter {
         val mapper = JacksonSupport.createDefaultMapper(rpcConnection.proxy)
         val converter = MappingJackson2HttpMessageConverter()
         converter.objectMapper = mapper

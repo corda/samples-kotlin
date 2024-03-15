@@ -1,6 +1,5 @@
 package com.tutorial
 
-import com.google.common.collect.ImmutableList
 import com.tutorial.flows.CreateAndIssueAppleStampInitiator
 import com.tutorial.flows.PackApplesInitiator
 import com.tutorial.flows.RedeemApplesInitiator
@@ -28,7 +27,7 @@ class RedeemApplesWithStampTest {
     fun setup() {
         network = MockNetwork(
             MockNetworkParameters().withCordappsForAllNodes(
-                ImmutableList.of(
+                listOf(
                     TestCordapp.findCordapp("com.tutorial.contracts"),
                     TestCordapp.findCordapp("com.tutorial.flows")
                 )
@@ -49,7 +48,7 @@ class RedeemApplesWithStampTest {
     fun buyerRedeemBasketOfApples() {
         //Create Basket of Apples
         val createBasketOfApples = PackApplesInitiator("Fuji4072", 10)
-        val future: Future<SignedTransaction> = a!!.startFlow(createBasketOfApples)
+        a!!.startFlow(createBasketOfApples)
         network!!.runNetwork()
 
         //Issue Apple Stamp
@@ -63,7 +62,7 @@ class RedeemApplesWithStampTest {
 
         //Redeem Basket of Apples with stamp
         val redeemApples = RedeemApplesInitiator(b!!.info.legalIdentities[0], id)
-        val future2: Future<SignedTransaction> = a!!.startFlow(redeemApples)
+        a!!.startFlow(redeemApples)
         network!!.runNetwork()
 
         //successful query means the state is stored at node b's vault. Flow went through.

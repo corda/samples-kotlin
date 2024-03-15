@@ -30,7 +30,7 @@ class CryptoValuesDatabaseService(services: ServiceHub) : DatabaseService(servic
      * Updates the value of a crypto token in the table of crypto values.
      */
     fun updateTokenValue(token: String, value: Int) {
-        val query = "update $TABLE_NAME set value = ? where token = ?"
+        val query = "update $TABLE_NAME set token_value = ? where token = ?"
 
         val params = mapOf(1 to value, 2 to token)
 
@@ -42,11 +42,11 @@ class CryptoValuesDatabaseService(services: ServiceHub) : DatabaseService(servic
      * Retrieves the value of a crypto token in the table of crypto values.
      */
     fun queryTokenValue(token: String): Int {
-        val query = "select value from $TABLE_NAME where token = ?"
+        val query = "select token_value from $TABLE_NAME where token = ?"
 
         val params = mapOf(1 to token)
 
-        val results = executeQuery(query, params) { it -> it.getInt("value") }
+        val results = executeQuery(query, params) { it -> it.getInt("token_value") }
 
         if (results.isEmpty()) {
             throw IllegalArgumentException("Token $token not present in database.")
@@ -61,11 +61,7 @@ class CryptoValuesDatabaseService(services: ServiceHub) : DatabaseService(servic
      * Initialises the table of crypto values.
      */
     private fun setUpStorage() {
-        val query = """
-            create table if not exists $TABLE_NAME(
-                token varchar(64),
-                value int
-            )"""
+        val query = "create table if not exists $TABLE_NAME (token varchar(64), token_value int) "
 
         executeUpdate(query, emptyMap())
         log.info("Created crypto_values table.")

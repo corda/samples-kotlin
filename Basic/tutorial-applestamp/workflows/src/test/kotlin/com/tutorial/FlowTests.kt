@@ -43,11 +43,11 @@ class FlowTests {
     @Test
     fun `DummyTest`() {
         val flow = Initiator(b.info.legalIdentities[0])
-        val future: Future<SignedTransaction> = a.startFlow(flow)
+        a.startFlow(flow)
         network.runNetwork()
 
         //successful query means the state is stored at node b's vault. Flow went through.
         val inputCriteria: QueryCriteria = QueryCriteria.VaultQueryCriteria().withStatus(StateStatus.UNCONSUMED)
-        val state = b.services.vaultService.queryBy(TemplateState::class.java, inputCriteria).states[0].state.data
+        b.services.vaultService.queryBy(TemplateState::class.java, inputCriteria).states[0].state.data
     }
 }
