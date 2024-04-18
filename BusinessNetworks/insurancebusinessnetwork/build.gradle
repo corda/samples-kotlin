@@ -92,7 +92,7 @@ dependencies {
     cordapp("net.corda.bn:business-networks-contracts:$corda_bn_extension_version")
     cordapp("net.corda.bn:business-networks-workflows:$corda_bn_extension_version")
 
-    cordaCompile "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
+    cordaCompile "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j_version}"
     cordaCompile "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaCompile "org.slf4j:jul-to-slf4j:$slf4j_version"
     cordaDriver "net.corda:corda-shell:4.9"

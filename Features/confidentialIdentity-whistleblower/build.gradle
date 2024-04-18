@@ -56,7 +56,7 @@ allprojects {
         kotlinOptions {
             languageVersion = "1.2"
             apiVersion = "1.2"
-            jvmTarget = "1.8"
+            jvmTarget = "1.9"
             javaParameters = true   // Useful for reflection.
         }
     }
@@ -102,7 +102,7 @@ dependencies {
     cordapp project(":workflows")
     cordapp project(":contracts")
 
-    cordaCompile "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
+    cordaCompile "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j_version}"
     cordaCompile "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaCompile "org.slf4j:jul-to-slf4j:$slf4j_version"
     cordaDriver "net.corda:corda-shell:4.9"
