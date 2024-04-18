@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static org.gradle.api.JavaVersion.VERSION_17
 import static org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
-import static org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_8
+import static org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
 
 buildscript { //properties that you need to build the project
 
@@ -57,8 +57,8 @@ allprojects { //Properties that you need to compile your project (The applicatio
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
         compilerOptions {
-            languageVersion = KOTLIN_1_8
-            apiVersion = KOTLIN_1_8
+            languageVersion = KOTLIN_1_9
+            apiVersion = KOTLIN_1_9
             jvmTarget = JVM_17
             javaParameters = true   // Useful for reflection.
             freeCompilerArgs = ['-Xjvm-default=all-compatibility']
@@ -97,7 +97,7 @@ dependencies {
     cordapp project(":workflows")
     cordapp project(":contracts")
 
-    cordaProvided "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
+    cordaProvided "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j_version}"
     cordaProvided "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaProvided "org.slf4j:jul-to-slf4j:$slf4j_version"
 }

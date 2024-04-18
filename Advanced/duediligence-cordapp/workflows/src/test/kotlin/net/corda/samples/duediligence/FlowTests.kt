@@ -51,7 +51,7 @@ class FlowTests {
         val result1 = future.get()
         println(result1)
         val subString = result1?.indexOf("Case Id: ")
-        val ApproalID = subString?.plus(9)?.let { result1?.substring(it) }
+        val ApproalID = subString?.plus(9)?.let { result1.substring(it) }
         println("-$ApproalID-")
 
         val id = ApproalID?.let { fromString(it) }
