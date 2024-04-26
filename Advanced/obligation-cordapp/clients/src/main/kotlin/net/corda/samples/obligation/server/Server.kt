@@ -1,5 +1,6 @@
 package net.corda.samples.obligation.server
 
+import co.paralleluniverse.fibers.instrument.DontInstrument
 import net.corda.client.jackson.JacksonSupport
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.Banner
@@ -29,9 +30,9 @@ open class Server {
 /**
  * Starts our Spring Boot application.
  */
+@DontInstrument
 fun main(args: Array<String>) {
     val app = SpringApplication(Server::class.java)
     app.setBannerMode(Banner.Mode.OFF)
-    app.isWebEnvironment = true
     app.run(*args)
 }
