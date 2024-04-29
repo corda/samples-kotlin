@@ -31,7 +31,8 @@ buildscript {
                 'org.assertj**',
                 'org.hamcrest**',
                 'org.mockito**',
-                'org.opentest4j**'
+                'org.opentest4j**',
+                'org.springframework**'
         ]
         log4j_version = constants.getProperty("log4jVersion")
         slf4j_version = constants.getProperty("slf4jVersion")
