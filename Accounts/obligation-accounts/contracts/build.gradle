@@ -1,4 +1,7 @@
+import static org.gradle.api.JavaVersion.VERSION_17
+
 apply plugin: 'net.corda.plugins.cordapp'
+apply plugin: 'net.corda.plugins.cordformation'
 
 cordapp {
     targetPlatformVersion corda_platform_version
@@ -25,4 +28,7 @@ dependencies {
     cordapp("$corda_release_group:corda-confidential-identities:$corda_release_version")
     // Token Account dependencies.
     cordaProvided "$accounts_release_group:accounts-contracts:$accounts_release_version"
+
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testImplementation "junit:junit:$junit_version"
 }
