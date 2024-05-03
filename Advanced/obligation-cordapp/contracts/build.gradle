@@ -1,3 +1,5 @@
+import static org.gradle.api.JavaVersion.VERSION_17
+
 apply plugin: 'net.corda.plugins.cordapp'
 
 cordapp {
