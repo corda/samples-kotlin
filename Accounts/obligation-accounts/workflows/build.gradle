@@ -38,22 +38,22 @@ configurations {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation "junit:junit:$junit_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testCompile "junit:junit:$junit_version"
 
     // Corda dependencies.
-    cordaProvided "$corda_core_release_group:corda-core:$corda_core_release_version"
-    cordaProvided "$corda_core_release_group:corda-finance-contracts:$corda_release_version"
-    cordaProvided "$corda_core_release_group:corda-finance-workflows:$corda_release_version"
+    cordaCompile "$corda_core_release_group:corda-core:$corda_core_release_version"
+    cordaCompile "$corda_core_release_group:corda-finance-contracts:$corda_release_version"
+    cordaCompile "$corda_core_release_group:corda-finance-workflows:$corda_release_version"
 
-    cordaProvided "$corda_release_group:corda:$corda_release_version"
+    cordaRuntime "$corda_release_group:corda:$corda_release_version"
     
     //finance 
-    cordaProvided "$corda_release_group:corda-finance-contracts:$corda_release_version"
-    cordaProvided "$corda_release_group:corda-finance-workflows:$corda_release_version"
+    cordaCompile "$corda_release_group:corda-finance-contracts:$corda_release_version"
+    cordaCompile "$corda_release_group:corda-finance-workflows:$corda_release_version"
 
-    testImplementation "$corda_release_group:corda-node-driver:$corda_release_version"
+    testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
 
     // CorDapp dependencies.
     cordapp project(":contracts")
@@ -61,9 +61,8 @@ dependencies {
     cordapp "$corda_release_group:corda-finance-workflows:$corda_release_version"
     cordapp("$corda_release_group:corda-confidential-identities:$corda_release_version")
     //Account dependencies
-    cordaProvided "$confidential_id_release_group:ci-workflows:$confidential_id_release_version"
-    cordaProvided "$accounts_release_group:accounts-workflows:$accounts_release_version"
-    cordaProvided "$accounts_release_group:accounts-contracts:$accounts_release_version"
+    cordaCompile "$confidential_id_release_group:ci-workflows:$confidential_id_release_version"
+    cordaCompile "$accounts_release_group:accounts-workflows:$accounts_release_version"
 }
 
 task integrationTest(type: Test, dependsOn: []) {
