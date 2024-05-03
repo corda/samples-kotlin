@@ -74,6 +74,15 @@ allprojects {
         //maven { url "https://repo.gradle.org/gradle/libs-releases-local" }
     }
 
+    java {
+        sourceCompatibility = VERSION_17
+        targetCompatibility = VERSION_17
+    }
+
+    compileJava {
+        options.compilerArgs << '-parameters'
+    }
+
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
         kotlinOptions {
             languageVersion = "1.9"
