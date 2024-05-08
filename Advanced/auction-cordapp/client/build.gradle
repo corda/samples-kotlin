@@ -1,4 +1,4 @@
-//apply plugin: 'org.springframework.boot'
+apply plugin: 'org.springframework.boot'
 apply plugin: 'net.corda.plugins.cordapp'
 
 cordapp {
@@ -32,9 +32,9 @@ dependencies {
     cordapp project(":workflows")
 }
 
-//springBoot {
-//    mainClassName = "net.corda.samples.auction.client.Starter"
-//}
+springBoot {
+    mainClass = "net.corda.samples.auction.client.Starter"
+}
 
 task runAuctionClient(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
