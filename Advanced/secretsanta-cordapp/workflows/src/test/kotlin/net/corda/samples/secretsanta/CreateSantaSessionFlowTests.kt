@@ -1,6 +1,7 @@
 package net.corda.samples.secretsanta
 
 
+import junit.framework.TestCase.assertNull
 import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.NetworkParameters
@@ -14,7 +15,6 @@ import kotlin.test.assertTrue
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.jupiter.api.Assertions
 import java.time.Instant
 import java.util.*
 
@@ -143,6 +143,6 @@ class CreateSantaSessionFlowTests {
         assertEquals(1, signedTransaction.tx.outputs.size)
         // The single attachment is the contract attachment.
         assertEquals(1, signedTransaction.tx.attachments.size)
-        Assertions.assertNull(signedTransaction.tx.timeWindow)
+        assertNull(signedTransaction.tx.timeWindow)
     }
 }

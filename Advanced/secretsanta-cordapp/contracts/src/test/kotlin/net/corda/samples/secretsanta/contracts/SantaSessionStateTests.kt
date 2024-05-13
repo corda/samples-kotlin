@@ -1,15 +1,16 @@
 package net.corda.samples.secretsanta.contracts
 
 import junit.framework.TestCase
+import junit.framework.TestCase.assertTrue
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.LinearState
 import net.corda.core.identity.CordaX500Name
 import net.corda.samples.secretsanta.states.SantaSessionState
 import net.corda.testing.core.TestIdentity
 import org.junit.After
+import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test
-import org.junit.jupiter.api.Assertions
 import java.util.*
 
 
@@ -104,26 +105,26 @@ class SantaSessionStateTests {
         TestCase.assertEquals(santa, st.issuer)
         TestCase.assertEquals(playerNames, st.playerNames)
         TestCase.assertEquals(playerEmails, st.playerEmails)
-        Assertions.assertTrue(st.playerNames.contains("olivia"))
-        Assertions.assertTrue(st.playerNames.contains("peter"))
-        Assertions.assertTrue(st.playerEmails.contains("olivia@corda.net"))
-        Assertions.assertTrue(st.playerEmails.contains("peter@corda.net"))
-        Assertions.assertNotEquals(st.getAssignments()!!["david"], st.getAssignments()!!["peter"])
+        assertTrue(st.playerNames.contains("olivia"))
+        assertTrue(st.playerNames.contains("peter"))
+        assertTrue(st.playerEmails.contains("olivia@corda.net"))
+        assertTrue(st.playerEmails.contains("peter@corda.net"))
+        assertNotEquals(st.getAssignments()!!["david"], st.getAssignments()!!["peter"])
     }
 
     @Test
     fun stateImplementsContractState() {
         val st = SantaSessionState(playerNames, playerEmails, santa, elf)
-        Assertions.assertTrue(st is ContractState)
-        Assertions.assertTrue(st is LinearState)
+        assertTrue(st is ContractState)
+        assertTrue(st is LinearState)
     }
 
     @Test
     fun stateHasOneParticipant() {
         val st = SantaSessionState(playerNames, playerEmails, santa, elf)
         TestCase.assertEquals(2, st.participants.size)
-        Assertions.assertTrue(st.participants.contains(santa))
-        Assertions.assertTrue(st.participants.contains(elf))
+        assertTrue(st.participants.contains(santa))
+        assertTrue(st.participants.contains(elf))
     }
 
     @Test
@@ -134,13 +135,13 @@ class SantaSessionStateTests {
         TestCase.assertEquals(playerNames.size, assignments!!.size)
         // iterate through assignments for validity
         for (santa_candidate in playerNames) { // ensure all these players actually exist
-            Assertions.assertTrue(playerNames.contains(santa_candidate))
+            assertTrue(playerNames.contains(santa_candidate))
             for (target_candidate in playerNames) { // skip duplicates in iteration
                 if (santa_candidate == target_candidate) {
                     continue
                 }
                 // ensure no one is assigned themselves
-                Assertions.assertNotEquals(santa_candidate, assignments[santa_candidate])
+                assertNotEquals(santa_candidate, assignments[santa_candidate])
             }
         }
     }
