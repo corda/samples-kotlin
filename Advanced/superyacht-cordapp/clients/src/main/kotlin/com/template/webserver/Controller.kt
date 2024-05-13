@@ -21,7 +21,7 @@ import net.corda.core.utilities.getOrThrow
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.Currency
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 
 val SERVICE_NAMES = listOf("Notary", "Network Map Service")
