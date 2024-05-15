@@ -1,4 +1,3 @@
-
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'net.corda.plugins.cordapp'
 apply plugin: 'net.corda.plugins.cordformation'
