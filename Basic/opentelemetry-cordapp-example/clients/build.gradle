@@ -34,7 +34,7 @@ dependencies {
 
 
 springBoot {
-    mainClassName = "net.corda.samples.example.webserver.ServerKt"
+    mainClass = "net.corda.samples.example.webserver.ServerKt"
 }
 
 /* The Client is the communication channel between the external and the node. This task will help you immediately

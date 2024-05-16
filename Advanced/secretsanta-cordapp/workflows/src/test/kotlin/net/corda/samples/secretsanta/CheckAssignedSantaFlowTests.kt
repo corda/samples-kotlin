@@ -10,9 +10,9 @@ import net.corda.samples.secretsanta.states.SantaSessionState
 import net.corda.testing.node.*
 import kotlin.test.assertEquals
 import org.junit.After
+import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test
-import org.junit.jupiter.api.Assertions
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.ExecutionException
@@ -94,7 +94,7 @@ class CheckAssignedSantaFlowTests {
         assert(!f2Output.playerNames.contains("derek"))
         assertEquals(f1Output.getAssignments()!!["david"], f2Output.getAssignments()!!["david"])
         assertEquals(f1Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["peter"])
-        Assertions.assertNotEquals(f1Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["david"])
+        assertNotEquals(f1Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["david"])
         assertEquals(f1Output.linearId, f2Output.linearId)
     }
 
@@ -127,7 +127,7 @@ class CheckAssignedSantaFlowTests {
         assert(!f3Output.playerNames.contains("derek"))
         assertEquals(f3Output.getAssignments()!!["david"], f2Output.getAssignments()!!["david"])
         assertEquals(f3Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["peter"])
-        Assertions.assertNotEquals(f3Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["david"])
+        assertNotEquals(f3Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["david"])
         assertEquals(f3Output.linearId, f2Output.linearId)
     }
 
@@ -161,7 +161,7 @@ class CheckAssignedSantaFlowTests {
         assert(!f2Output.playerNames.contains("derek"))
         assertEquals(f1Output.getAssignments()!!["david"], f2Output.getAssignments()!!["david"])
         assertEquals(f1Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["peter"])
-        Assertions.assertNotEquals(f1Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["david"])
+        assertNotEquals(f1Output.getAssignments()!!["peter"], f2Output.getAssignments()!!["david"])
         assertEquals(f1Output.linearId, f2Output.linearId)
     }
 }

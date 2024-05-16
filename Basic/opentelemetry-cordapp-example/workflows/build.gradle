@@ -38,8 +38,6 @@ configurations {
 }
 
 dependencies {
-
-    //compile "io.opentelemetry:opentelemetry-api:$open_telemetry_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Corda dependencies.

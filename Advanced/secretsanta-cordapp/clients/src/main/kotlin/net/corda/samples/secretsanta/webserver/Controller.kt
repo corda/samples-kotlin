@@ -85,7 +85,7 @@ class Controller(rpc: NodeRPCConnection) {
         val convertedObject = Gson().fromJson(payload, JsonObject::class.java)
         val gameId = fromString(convertedObject["gameId"].asString)
         // NOTE lowercase the name for easy retrieve
-        val playerName = "\"" + convertedObject["name"].asString.toLowerCase().trim { it <= ' ' } + "\""
+        val playerName = "\"" + convertedObject["name"].asString.lowercase().trim { it <= ' ' } + "\""
 
         // optional param
         val sendEmail = convertedObject["sendEmail"].asBoolean
@@ -128,7 +128,7 @@ class Controller(rpc: NodeRPCConnection) {
 
         // NOTE: we lowercase all names internally for clarity
         for (jo in pNames) {
-            val newName = jo.toString().toLowerCase()
+            val newName = jo.toString().lowercase()
             if (!playerNames.contains(newName)) {
                 playerNames.add(newName)
             }

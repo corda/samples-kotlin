@@ -5,7 +5,6 @@ import com.r3.corda.lib.accounts.contracts.states.AccountInfo
 import com.r3.corda.lib.accounts.workflows.flows.RequestKeyForAccount
 import com.r3.corda.lib.accounts.workflows.services.AccountService
 import com.r3.corda.lib.accounts.workflows.services.KeyManagementBackedAccountService
-import com.sun.istack.NotNull
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.ReferencedStateAndRef
@@ -21,6 +20,7 @@ import net.corda.samples.snl.contracts.GameBoardContract.Commands.PlayMove
 import net.corda.samples.snl.oracle.flows.OracleSignatureFlow
 import net.corda.samples.snl.states.BoardConfig
 import net.corda.samples.snl.states.GameBoard
+import org.jetbrains.annotations.NotNull
 import java.security.SignatureException
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
@@ -109,8 +109,8 @@ class PlayerMoveFlow private constructor() {
                     .getNodeByLegalName(CordaX500Name.parse("O=Oracle,L=Mumbai,C=IN"))!!.legalIdentities[0]
 
             val ftx = selfSignedTransaction.buildFilteredTransaction(Predicate { o: Any? ->
-                (o is Command<*> && (o as Command<*>).signers.contains(oracle.owningKey)
-                        && (o as Command<*>).value is PlayMove)
+                (o is Command<*> && o.signers.contains(oracle.owningKey)
+                        && o.value is PlayMove)
             })
 
             val oracleSignature = subFlow(OracleSignatureFlow(oracle, ftx))!!

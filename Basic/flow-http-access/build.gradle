@@ -1,6 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static org.gradle.api.JavaVersion.VERSION_17
 import static org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
 import static org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
 
@@ -29,7 +26,6 @@ buildscript { //properties that you need to build the project
                        '--add-opens', 'java.base/java.security.cert=ALL-UNNAMED', '--add-opens', 'java.base/java.security=ALL-UNNAMED',
                        '--add-opens', 'java.base/javax.net.ssl=ALL-UNNAMED', '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
                        '--add-opens', 'java.base/java.util.concurrent=ALL-UNNAMED', '--add-opens', 'java.sql/java.sql=ALL-UNNAMED',]
-
     }
 
     repositories {
@@ -80,7 +76,7 @@ sourceSets {
     }
 }
 
-//Module dependencis
+//Module dependencies
 dependencies {
     // Corda dependencies.
     cordaProvided "$corda_core_release_group:corda-core:$corda_core_release_version"
@@ -94,7 +90,6 @@ dependencies {
     cordaProvided "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaProvided "org.slf4j:jul-to-slf4j:$slf4j_version"
     cordaDriver "net.corda:corda-shell:$corda_shell_version"
-
 }
 
 cordapp {
@@ -123,7 +118,6 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
             address("localhost:10006")
             adminAddress("localhost:10046")
         }
-//        cordapps = []
         rpcUsers = [[ user: "user1", "password": "test", "permissions": ["StartFlow.com.flowhttp.HttpCallFlow"]]]
     }
 }

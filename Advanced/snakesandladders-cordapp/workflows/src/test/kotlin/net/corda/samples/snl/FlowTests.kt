@@ -69,7 +69,7 @@ class FlowTests {
         a.startFlow<StateAndRef<AccountInfo>>(createAccount2)
         network.runNetwork()
         val createBoardConfig = CreateBoardConfig.Initiator("Ashutosh", "Peter")
-        val signedTransactionCordaFuture = a.startFlow(createBoardConfig)
+        a.startFlow(createBoardConfig)
         network.runNetwork()
         val createGameFlow = CreateGameFlow.Initiator("Ashutosh", "Peter")
         val signedTransactionCordaFuture1 = a.startFlow(createGameFlow)

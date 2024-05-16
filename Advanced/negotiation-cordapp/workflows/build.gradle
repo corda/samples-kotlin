@@ -1,11 +1,7 @@
-import static org.gradle.api.JavaVersion.VERSION_17
-
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'net.corda.plugins.cordapp'
 apply plugin: 'net.corda.plugins.quasar-utils'
 apply plugin: 'net.corda.plugins.cordformation'
-
-//jar.baseName = "negotiation-workflows"
 
 cordapp {
     targetPlatformVersion corda_platform_version.toInteger()

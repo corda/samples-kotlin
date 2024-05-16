@@ -23,8 +23,7 @@ class OracleSignatureFlowHandler(private val requestSession: FlowSession) : Flow
     @Throws(FlowException::class)
     override fun call(): Unit {
         val transaction = requestSession.receive(FilteredTransaction::class.java).unwrap{ it-> it }
-        var signature: TransactionSignature? = null
-        signature = try {
+        val signature: TransactionSignature = try {
             serviceHub.cordaService(DiceRollService::class.java).sign(transaction)
         } catch (e: Exception) {
             throw FlowException(e)
