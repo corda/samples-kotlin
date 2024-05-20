@@ -1,6 +1,6 @@
 package net.corda.samples.supplychain.contracts
 
-import groovy.util.GroovyTestCase.assertEquals
+import junit.framework.TestCase.assertEquals
 import net.corda.samples.supplychain.states.InvoiceState
 import net.corda.testing.node.MockServices
 import org.junit.Test

@@ -3,8 +3,8 @@ apply plugin: 'net.corda.plugins.cordapp'
 apply plugin: 'net.corda.plugins.quasar-utils'
 
 cordapp {
-    targetPlatformVersion 4
-    minimumPlatformVersion 4
+    targetPlatformVersion corda_platform_version
+    minimumPlatformVersion corda_platform_version
     workflow {
         name "supplychain Flows"
         vendor "Corda Open Source"
@@ -37,31 +37,37 @@ sourceSets {
 }
 
 configurations {
-    integrationTestCompile.extendsFrom testCompile
-    integrationTestRuntime.extendsFrom testRuntime
+    integrationTestCompile.extendsFrom testImplementation
+    integrationTestRuntime.extendsFrom testRuntimeOny
 }
 
 dependencies {
     // Kotlin.
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // For testing.
-    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
-    testCompile "junit:junit:$junit_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testImplementation "junit:junit:$junit_version"
 
     // Corda dependencies.
-    cordaCompile "$corda_core_release_group:corda-core:$corda_core_release_version"
+    cordaProvided "$corda_core_release_group:corda-core:$corda_core_release_version"
+    testImplementation "$corda_release_group:corda-node-driver:$corda_release_version"
+    testImplementation "$corda_core_release_group:corda-core-test-utils:$corda_core_release_version"
 
     // CorDapp dependencies.
-    cordaCompile project(":contracts")
+    cordaProvided project(":contracts")
 
-    //Account dependencies
-    cordaCompile "$confidential_id_release_group:ci-workflows:$confidential_id_release_version"
-    cordaCompile "$accounts_release_group:accounts-workflows:$accounts_release_version"
+    //Account and CI dependencies
+    cordapp "$accounts_release_group:accounts-contracts:$accounts_release_version"
+    cordapp "$confidential_id_release_group:ci-workflows:$confidential_id_release_version"
+    cordapp "$accounts_release_group:accounts-workflows:$accounts_release_version"
 }
 
 task integrationTest(type: Test, dependsOn: []) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+test {
+    jvmArgs = rootProject.ext.testJvmArgs
 }
