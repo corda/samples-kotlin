@@ -45,9 +45,9 @@ class FlowTests {
     //Test #2 test successful download of the attachment by the receiving node.
     @Test
     fun `attachment downloaded by buyer`() {
-        val future = a.startFlow(SendAttachment(b.info.legalIdentities.first(), true))
+        a.startFlow(SendAttachment(b.info.legalIdentities.first(), true))
         network.runNetwork()
-        val future1 = b.startFlow(DownloadAttachment(a.info.legalIdentities.first(), "file.zip"))
+        b.startFlow(DownloadAttachment(a.info.legalIdentities.first(), "file.zip"))
         network.runNetwork()
     }
 }

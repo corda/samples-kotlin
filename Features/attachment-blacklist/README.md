@@ -33,7 +33,7 @@ check that the parties to the `AgreementState` are not blacklisted. There aren't
 ### Deploy and run the node
 ```
 ./greadlew clean build deployNodes
-./build/node/runnodes
+./build/nodes/runnodes
 ```
 
 

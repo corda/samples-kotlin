@@ -1,6 +1,5 @@
 package net.corda.samples.stockpaydividend
 
-import com.google.common.collect.ImmutableList
 import com.r3.corda.lib.tokens.money.FiatCurrency.Companion.getInstance
 import com.r3.corda.lib.tokens.workflows.utilities.tokenBalance
 import net.corda.core.crypto.SecureHash

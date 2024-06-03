@@ -56,7 +56,7 @@ class RecordPlayerState @ConstructorForDeserialization constructor(manufacturer:
         get() = uid
 
     override fun getParty(role: String): Party {
-        return when (role.toLowerCase()) {
+        return when (role.lowercase()) {
             "manufacturer" -> manufacturer
             "dealer" -> dealer
             else -> manufacturer

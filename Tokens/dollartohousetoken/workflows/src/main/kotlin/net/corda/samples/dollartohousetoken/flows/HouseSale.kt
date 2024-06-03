@@ -22,7 +22,6 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
 import net.corda.samples.dollartohousetoken.states.HouseState
-import org.checkerframework.common.aliasing.qual.Unique
 import java.util.*
 
 // *********
@@ -39,7 +38,7 @@ class HouseSale(val houseId: String,
         // Obtain a reference from a notary we wish to use.
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
-        val uuid = UUID.fromString(houseId)
+        UUID.fromString(houseId)
 
         /* Fetch the house state from the vault using the vault query */
         val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(UniqueIdentifier.fromString(houseId)))
@@ -99,7 +98,7 @@ class HouseSaleResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         /*
         *  Generate the move proposal, it returns the input-output pair for the fiat currency transfer, which we need to send to the Initiator.
         * */
-        val partyAndAmount = PartyAndAmount(counterpartySession.counterparty,priceToken)
+        PartyAndAmount(counterpartySession.counterparty,priceToken)
         val inputsAndOutputs : Pair<List<StateAndRef<FungibleToken>>, List<FungibleToken>> =
                 DatabaseTokenSelection(serviceHub).generateMove(listOf(Pair(counterpartySession.counterparty,priceToken)),ourIdentity)
                         //.generateMove(runId.uuid, listOf(partyAndAmount),ourIdentity,null)

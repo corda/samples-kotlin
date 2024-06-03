@@ -42,7 +42,7 @@ class FlowTests {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun houseTokenStateCreation() {
         val createFlow = CreateHouseTokenFlow( "NYCHelena",1000000)
-        val future: Future<String> = a!!.startFlow(createFlow)
+        a!!.startFlow(createFlow)
         network!!.runNetwork()
 
         //get house states on ledger with uuid as input tokenId
@@ -59,10 +59,10 @@ class FlowTests {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun houseTokenStateIssuance() {
         val createFlow = CreateHouseTokenFlow("NYCHelena", 1000000)
-        val future: Future<String> = a!!.startFlow(createFlow)
+        a!!.startFlow(createFlow)
         network!!.runNetwork()
         val issueFlow = IssueHouseTokenFlow("NYCHelena", 20, b!!.info.legalIdentities[0])
-        val future2: Future<String> = a!!.startFlow(issueFlow)
+        a!!.startFlow(issueFlow)
         network!!.runNetwork()
 
         //get house states on ledger with uuid as input tokenId

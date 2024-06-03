@@ -6,8 +6,8 @@ import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.utilities.NetworkHostAndPort
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import javax.annotation.PostConstruct
-import javax.annotation.PreDestroy
+import jakarta.annotation.PostConstruct
+import jakarta.annotation.PreDestroy
 
 private const val CORDA_USER_NAME = "config.rpc.username"
 private const val CORDA_USER_PASSWORD = "config.rpc.password"
