@@ -56,6 +56,10 @@ buildscript {
 allprojects {
     apply plugin: 'kotlin'
 
+    tasks.withType(Test) {
+        jvmArgs = rootProject.ext.testJvmArgs
+    }
+
     repositories {
         mavenLocal()
 
