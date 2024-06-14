@@ -43,7 +43,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     testImplementation "junit:junit:$junit_version"
 
-    implementation "com.r3.corda.lib.contracts:contract-sdk:0.9-SNAPSHOT"
+    implementation "com.r3.corda.lib.contracts:contract-sdk:1.0-SNAPSHOT"
 
     // Corda dependencies.
     cordaProvided "$corda_core_release_group:corda-core:$corda_core_release_version"
@@ -53,4 +53,8 @@ dependencies {
 
 test {
     jvmArgs = rootProject.ext.testJvmArgs
+}
+
+tasks.jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
