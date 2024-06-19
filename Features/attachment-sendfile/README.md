@@ -48,7 +48,7 @@ The flow logic is the following:
 ### Deploy and run the node
 ```
 ./gradlew clean build deployNodes
-./build/node/runnodes
+./build/nodes/runnodes
 ```
 
 Once all 3 nodes have started up, run the following command in the Seller's interactive node shell:

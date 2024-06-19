@@ -43,7 +43,7 @@ class IssueHouseTokenFlow(val symbol: String,
 
         val fungibletoken = FungibleToken(amount,holder)
 
-        val stx = subFlow(IssueTokens(listOf(fungibletoken)))
+        subFlow(IssueTokens(listOf(fungibletoken)))
         return "Issued $quantity $symbol token to ${holder.name.organisation}"
     }
 }

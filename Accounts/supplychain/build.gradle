@@ -50,6 +50,10 @@ buildscript {
 allprojects {
     apply plugin: 'org.jetbrains.kotlin.jvm'
 
+    tasks.withType(Test) {
+        jvmArgs = rootProject.ext.testJvmArgs
+    }
+
     repositories {
         mavenLocal()
 

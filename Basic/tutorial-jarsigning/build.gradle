@@ -49,6 +49,10 @@ allprojects { //Properties that you need to compile your project (The applicatio
     apply from: "${rootProject.projectDir}/../repositories.gradle"
     apply plugin: 'org.jetbrains.kotlin.jvm'
 
+    tasks.withType(Test) {
+        jvmArgs = rootProject.ext.testJvmArgs
+    }
+
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
         compilerOptions {
             languageVersion = KOTLIN_1_9

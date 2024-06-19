@@ -26,7 +26,7 @@ There are two states `PaymentRequestState` and `MoneyState`, and two flows `Requ
 ### Deploy and run the nodes
 ```
 ./gradlew clean build deployNodes
-./build/node/runnodes
+./build/nodes/runnodes
 ```
 
 Once all four nodes are started up, in Finance Team's node shell, run:

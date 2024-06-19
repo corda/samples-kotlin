@@ -1,7 +1,5 @@
 package net.corda.samples.carinsurance.schema
 
-//4.6 changes
-import jdk.nashorn.internal.objects.annotations.Constructor
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
 import org.hibernate.annotations.Type
