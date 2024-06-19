@@ -18,8 +18,6 @@ buildscript { //properties that you need to build the project
         log4j_version = constants.getProperty("log4jVersion")
         slf4j_version = constants.getProperty("slf4jVersion")
         corda_platform_version = constants.getProperty("platformVersion").toInteger()
-        rxjava_version = constants.getProperty("rxJavaVersion")
-        snappy_version = constants.getProperty("snappyVersion")
         //springboot
         spring_boot_version = '3.2.5'
         spring_boot_gradle_plugin_version = '3.2.5'
@@ -179,24 +177,24 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         }
         rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
-//    node {
-//        name "O=USEast3,L=New York,C=US"
-//        p2pPort 10008
-//        rpcSettings {
-//            address("localhost:10009")
-//            adminAddress("localhost:10049")
-//        }
-//        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
-//    }
-//    node {
-//        name "O=AsiaEast,L=Beijing,C=CN"
-//        p2pPort 10011
-//        rpcSettings {
-//            address("localhost:10012")
-//            adminAddress("localhost:10052")
-//        }
-//        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
-//    }
+    node {
+        name "O=USEast3,L=New York,C=US"
+        p2pPort 10008
+        rpcSettings {
+            address("localhost:10009")
+            adminAddress("localhost:10049")
+        }
+        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
+    }
+    node {
+        name "O=AsiaEast,L=Beijing,C=CN"
+        p2pPort 10011
+        rpcSettings {
+            address("localhost:10012")
+            adminAddress("localhost:10052")
+        }
+        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
+    }
     node {
         name "O=USWest1,L=San Diego,C=US"
         p2pPort 10014
