@@ -22,7 +22,6 @@ sourceSets {
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
-    implementation "org.bouncycastle:bcprov-jdk18on:1.75"
 
     // Corda dependencies.
     implementation "$corda_release_group:corda-core:$corda_release_version"
@@ -37,8 +36,8 @@ dependencies {
     implementation "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j_version}"
     implementation "org.apache.logging.log4j:log4j-web:${log4j_version}"
     implementation "org.slf4j:jul-to-slf4j:$slf4j_version"
+    implementation "org.bouncycastle:bcprov-jdk18on:1.75"
 }
-
 
 springBoot {
     mainClass = "net.corda.samples.tokentofriend.webserver.ServerKt"
