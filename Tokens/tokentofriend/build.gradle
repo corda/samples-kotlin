@@ -129,6 +129,9 @@ dependencies {
     // Token SDK dependencies.
     cordapp "$tokens_release_group:tokens-contracts:$tokens_release_version"
     cordapp "$tokens_release_group:tokens-workflows:$tokens_release_version"
+
+    implementation "$tokens_release_group:tokens-contracts:$tokens_release_version"
+    implementation "$tokens_release_group:tokens-workflows:$tokens_release_version"
 }
 
 cordapp {

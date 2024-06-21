@@ -1,10 +1,8 @@
 package net.corda.samples.tokentofriend.contracts
 
-import com.r3.corda.lib.tokens.contracts.commands.EvolvableTokenTypeCommand
-import com.r3.corda.lib.tokens.contracts.commands.Update
-import net.corda.samples.tokentofriend.states.CustomTokenState
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
+import net.corda.samples.tokentofriend.states.CustomTokenState
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
