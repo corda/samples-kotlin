@@ -9,7 +9,7 @@ cordapp {
 dependencies {
     // Corda dependencies.
     cordaProvided "$corda_release_group:corda-rpc:$corda_release_version"
-    cordaProvided "$corda_release_group:corda-finance-contracts:$corda_release_version"
+    cordaProvided "net.corda:corda-finance-contracts:$corda_release_version"
     cordaProvided "net.corda:corda-core:$corda_release_version"
     cordaProvided "net.corda:corda-jackson:$corda_release_version"
     cordaProvided "net.corda:corda:$corda_release_version"
@@ -19,7 +19,7 @@ dependencies {
         exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
     }
 
-    cordaProvided "$corda_release_group:corda-finance-contracts:$corda_release_version"
+    cordaProvided "net.corda:corda-finance-contracts:$corda_release_version"
     cordaProvided "$corda_release_group:corda-finance-workflows:$corda_release_version"
     implementation "org.springframework.boot:spring-boot-devtools:$spring_boot_version"
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3")
