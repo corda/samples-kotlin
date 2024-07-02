@@ -101,7 +101,7 @@ dependencies {
     corda  "$corda_release_group:corda:$corda_release_version"
 
     // CorDapp dependencies.
-    cordapp("net.corda:corda-finance-contracts:$corda_release_version")
+    cordapp("$corda_core_release_group:corda-finance-contracts:$corda_release_version")
     cordapp("$corda_release_group:corda-finance-workflows:$corda_release_version")
     cordapp project(":workflows")
     cordapp project(":contracts")
@@ -123,7 +123,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         projectCordapp {
             deploy = false
         }
-        cordapp("net.corda:corda-finance-contracts:$corda_release_version")
+        cordapp("$corda_core_release_group:corda-finance-contracts:$corda_release_version")
         cordapp("$corda_release_group:corda-finance-workflows:$corda_release_version")
         cordapp project(':contracts')
         cordapp project(':workflows')

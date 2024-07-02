@@ -49,7 +49,7 @@ dependencies {
 
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testImplementation "$corda_core_release_group:corda-core:$corda_core_release_version"
-    testImplementation "$corda_release_group:corda-node-driver:$corda_release_version"
+    testImplementation "$corda_core_release_group:corda-node-driver:$corda_release_version"
     testImplementation "junit:junit:$junit_version"
     testImplementation "io.reactivex:rxjava:$rxjava_version"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
