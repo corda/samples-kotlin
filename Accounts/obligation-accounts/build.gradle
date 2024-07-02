@@ -41,7 +41,7 @@ buildscript {
 
     }
 
-    ext.artifactory_contextUrl = 'https://software.r3.com/artifactory'
+ext.artifactory_contextUrl = 'https://software.r3.com/artifactory'
 ext.cordaArtifactoryUsername = System.getenv('CORDA_ARTIFACTORY_USERNAME') ?: ''
 ext.cordaArtifactoryPassword = System.getenv('CORDA_ARTIFACTORY_PASSWORD') ?: ''
 
@@ -50,19 +50,19 @@ ext.cordaArtifactoryPassword = System.getenv('CORDA_ARTIFACTORY_PASSWORD') ?: ''
         mavenLocal()
         mavenCentral()
 
-            maven {
-        url "https://software.r3.com/artifactory/r3-corda-releases"
-        authentication {
-            basic(BasicAuthentication)
+        maven {
+            url "https://software.r3.com/artifactory/r3-corda-releases"
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = cordaArtifactoryUsername
+                password = cordaArtifactoryPassword
+            }
+            mavenContent {
+                releasesOnly()
+            }
         }
-        credentials {
-            username = cordaArtifactoryUsername
-            password = cordaArtifactoryPassword
-        }
-        mavenContent {
-            releasesOnly()
-        }
-    }
 
         maven { url 'https://download.corda.net/maven/corda-releases' }
     }
