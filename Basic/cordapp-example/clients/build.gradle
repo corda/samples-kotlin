@@ -8,6 +8,10 @@ sourceSets {
     }
 }
 
+tasks.named('bootJar') {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+}
 dependencies {
     // Corda dependencies.
     implementation "$corda_core_release_group:corda-core:$corda_core_release_version"
