@@ -48,8 +48,6 @@ buildscript {
         //
         // Specify your own repos here, including any authentication details that are required.
         //
-
-        maven { url 'https://download.corda.net/maven/corda-releases' }
     }
 
     dependencies {
