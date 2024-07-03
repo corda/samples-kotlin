@@ -119,7 +119,7 @@ dependencies {
     // Corda dependencies.
     cordaProvided "$corda_core_release_group:corda-core:$corda_core_release_version"
     cordaProvided "$corda_core_release_group:corda-finance-contracts:$corda_release_version"
-    cordaProvided "$corda_release_group:corda-finance-workflows:$corda_release_version"
+    cordaProvided "$corda_core_release_group:corda-finance-workflows:$corda_release_version"
 
     cordaBootstrapper ("$corda_release_group:corda-node-api:$corda_release_version") {
         exclude group: "ch.qos.logback", module: "logback-classic"
@@ -132,7 +132,7 @@ dependencies {
     cordapp project(":contracts")
 
     cordapp "$corda_core_release_group:corda-finance-contracts:$corda_release_version"
-    cordapp "$corda_release_group:corda-finance-workflows:$corda_release_version"
+    cordapp "$corda_core_release_group:corda-finance-workflows:$corda_release_version"
     cordapp "$corda_release_group:corda-confidential-identities:$corda_release_version"
 
 
@@ -164,7 +164,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         cordapp project(':contracts')
         cordapp project(':workflows')
         cordapp("$corda_core_release_group:corda-finance-contracts:$corda_release_version")
-        cordapp("$corda_release_group:corda-finance-workflows:$corda_release_version")
+        cordapp("$corda_core_release_group:corda-finance-workflows:$corda_release_version")
         cordapp("$corda_release_group:corda-confidential-identities:$corda_release_version")
         rpcUsers = [[ user: "user1", "password": "password", "permissions": ["ALL"]]]
         runSchemaMigration = true
