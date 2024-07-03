@@ -69,7 +69,7 @@ dependencies {
 
     //Testing
     cordaProvided "$corda_core_release_group:corda-core-test-utils:$corda_core_release_version"
-    cordaProvided "$corda_release_group:corda-test-utils:$corda_release_version"
+    cordaProvided "$corda_core_release_group:corda-test-utils:$corda_core_release_version"
     testImplementation "io.reactivex:rxjava:$rxjava_version"
     testRuntimeOnly "org.iq80.snappy:snappy:$snappy_version"
 }
