@@ -48,19 +48,19 @@ dependencies {
     // Corda dependencies.
     cordaProvided "$corda_core_release_group:corda-core:$corda_core_release_version"
     cordaProvided "$corda_core_release_group:corda-finance-contracts:$corda_release_version"
-    cordaProvided "$corda_core_release_group:corda-finance-workflows:$corda_release_version"
+    cordaProvided "$corda_release_group:corda-finance-workflows:$corda_release_version"
     cordaProvided "$corda_release_group:corda:$corda_release_version"
     
     //finance 
     cordaProvided "$corda_core_release_group:corda-finance-contracts:$corda_release_version"
-    cordaProvided "$corda_core_release_group:corda-finance-workflows:$corda_release_version"
+    cordaProvided "$corda_release_group:corda-finance-workflows:$corda_release_version"
 
     testImplementation "$corda_core_release_group:corda-node-driver:$corda_release_version"
 
     // CorDapp dependencies.
     cordapp project(":contracts")
     cordapp "$corda_core_release_group:corda-finance-contracts:$corda_release_version"
-    cordapp "$corda_core_release_group:corda-finance-workflows:$corda_release_version"
+    cordapp "$corda_release_group:corda-finance-workflows:$corda_release_version"
     cordapp("$corda_release_group:corda-confidential-identities:$corda_release_version")
     //Account dependencies
     cordaProvided "$confidential_id_release_group:ci-workflows:$confidential_id_release_version"
@@ -69,7 +69,7 @@ dependencies {
 
     //Testing
     cordaProvided "$corda_core_release_group:corda-core-test-utils:$corda_core_release_version"
-    cordaProvided "$corda_core_release_group:corda-test-utils:$corda_core_release_version"
+    cordaProvided "$corda_release_group:corda-test-utils:$corda_release_version"
     testImplementation "io.reactivex:rxjava:$rxjava_version"
     testRuntimeOnly "org.iq80.snappy:snappy:$snappy_version"
 }
