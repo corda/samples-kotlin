@@ -52,7 +52,7 @@ buildscript {
     repositories {
         mavenCentral()
         maven {
-            url 'https://downloads.corda.net/maven'
+            url 'https://downloads.corda.net/maven/corda-releases'
         }
         mavenLocal()
     }
