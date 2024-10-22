@@ -1,7 +1,7 @@
 buildscript { //properties that you need to build the project
 
     Properties constants = new Properties()
-    file("$projectDir/../constants.properties").withInputStream { constants.load(it) }
+    file("$projectDir/constants.properties").withInputStream { constants.load(it) }
 
     ext {
         corda_release_group = constants.getProperty("cordaReleaseGroup")
@@ -18,12 +18,12 @@ buildscript { //properties that you need to build the project
         //springboot
         spring_boot_version = '2.0.2.RELEASE'
         spring_boot_gradle_plugin_version = '2.0.2.RELEASE'
+        artifactory_contextUrl = constants.getProperty("artifactoryContextUrl")
     }
 
     repositories {
         mavenLocal()
         mavenCentral()
-
         maven { url 'https://download.corda.net/maven/corda-releases' }
     }
 
@@ -42,10 +42,81 @@ allprojects { //Properties that you need to compile your project (The applicatio
 
     repositories {
         mavenLocal()
-
         mavenCentral()
-        maven { url 'https://download.corda.net/maven/corda-dependencies' }
-        maven { url 'https://jitpack.io' }
+        maven {
+            url "${artifactory_contextUrl}/r3-corda-releases"
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = findProperty('cordaArtifactoryUsername') ?: System.getenv('CORDA_ARTIFACTORY_USERNAME')
+                password = findProperty('cordaArtifactoryPassword') ?: System.getenv('CORDA_ARTIFACTORY_PASSWORD')
+            }
+            content {
+                includeGroupByRegex 'net\\.corda(\\..*)?'
+                includeGroupByRegex 'com\\.r3(\\..*)?'
+            }
+        }
+
+        maven {
+            url "${artifactory_contextUrl}/corda-lib"
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = findProperty('cordaArtifactoryUsername') ?: System.getenv('CORDA_ARTIFACTORY_USERNAME')
+                password = findProperty('cordaArtifactoryPassword') ?: System.getenv('CORDA_ARTIFACTORY_PASSWORD')
+            }
+
+        }
+
+        maven {
+            url "${artifactory_contextUrl}/corda"
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = findProperty('cordaArtifactoryUsername') ?: System.getenv('CORDA_ARTIFACTORY_USERNAME')
+                password = findProperty('cordaArtifactoryPassword') ?: System.getenv('CORDA_ARTIFACTORY_PASSWORD')
+            }
+            content {
+                includeGroupByRegex 'net\\.corda(\\..*)?'
+                includeGroupByRegex 'com\\.r3(\\..*)?'
+            }
+        }
+
+        maven {
+            url "${artifactory_contextUrl}/r3-corda-dev"
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = findProperty('cordaArtifactoryUsername') ?: System.getenv('CORDA_ARTIFACTORY_USERNAME')
+                password = findProperty('cordaArtifactoryPassword') ?: System.getenv('CORDA_ARTIFACTORY_PASSWORD')
+            }
+            content {
+                includeGroupByRegex 'net\\.corda(\\..*)?'
+                includeGroupByRegex 'com\\.r3(\\..*)?'
+            }
+        }
+
+        maven {
+            url "$artifactory_contextUrl/corda-dependencies"
+            authentication {
+                basic(BasicAuthentication)
+            }
+            content {
+                includeVersionByRegex "co.paralleluniverse", "quasar-core", ".*r3.*"
+                includeVersionByRegex "co.paralleluniverse", "quasar-osgi-annotations", ".*r3.*"
+                includeVersionByRegex "com.github.ben-manes.caffeine", "caffeine", ".*r3.*"
+            }
+            credentials {
+                username = findProperty('cordaArtifactoryUsername') ?: System.getenv('CORDA_ARTIFACTORY_USERNAME')
+                password = findProperty('cordaArtifactoryPassword') ?: System.getenv('CORDA_ARTIFACTORY_PASSWORD')
+            }
+        }
+        maven { url 'https://download.corda.net/maven/corda-dev' }
+        maven { url 'https://download.corda.net/maven/r3-corda-dev' }
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
