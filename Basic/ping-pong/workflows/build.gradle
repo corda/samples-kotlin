@@ -1,3 +1,9 @@
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.9.0' // Or your Kotlin version
+    id 'maven-publish'
+}
+
 apply plugin: 'net.corda.plugins.cordapp'
 apply plugin: 'net.corda.plugins.quasar-utils'
 

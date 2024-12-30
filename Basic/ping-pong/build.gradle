@@ -1,6 +1,8 @@
 import static org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
 import static org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
 
+
+
 buildscript { //properties that you need to build the project
 
     Properties constants = new Properties()
@@ -40,6 +42,26 @@ buildscript { //properties that you need to build the project
     }
 }
 
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.9.0' // Or your Kotlin version
+
+    id 'maven-publish'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.kotlin
+        }
+    }
+    repositories {
+        maven {
+            println("Publishing to local repo")
+            println("$buildDir/repo")
+            url = uri("$buildDir/repo") // Local repo example
+        }
+    }
+}
 allprojects { //Properties that you need to compile your project (The application)
     apply from: "${rootProject.projectDir}/../repositories.gradle"
     apply plugin: 'org.jetbrains.kotlin.jvm'
@@ -88,52 +110,11 @@ dependencies {
     cordaProvided "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaProvided "org.slf4j:jul-to-slf4j:$slf4j_version"
     cordaDriver "net.corda:corda-shell:$corda_shell_version"
+    cordaDriver "org.postgresql:postgresql:42.2.19"
+
 }
 
 cordapp {
     targetPlatformVersion corda_platform_version.toInteger()
 }
 
-task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
-    /* This property will load the CorDapps to each of the node by default, including the Notary. You can find them
-     * in the cordapps folder of the node at build/nodes/Notary/cordapps. However, the notary doesn't really understand
-     * the notion of cordapps. In production, Notary does not need cordapps as well. This is just a short cut to load
-     * the Corda network bootstrapper.
-     */
-    nodeDefaults {
-        projectCordapp {
-            deploy = false
-        }
-        cordapp project(':workflows')
-        runSchemaMigration = true //This configuration is for any CorDapps with custom schema, We will leave this as true to avoid
-        //problems for developers who are not familiar with Corda. If you are not using custom schemas, you can change
-        //it to false for quicker project compiling time.
-    }
-    node {
-        name "O=Notary,L=London,C=GB"
-        notary = [validating: true]
-        p2pPort 10002
-        rpcSettings {
-            address("localhost:10003")
-            adminAddress("localhost:10043")
-        }
-    }
-    node {
-        name "O=PartyA,L=London,C=GB"
-        p2pPort 10005
-        rpcSettings {
-            address("localhost:10006")
-            adminAddress("localhost:10046")
-        }
-        rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
-    }
-    node {
-        name "O=PartyB,L=New York,C=US"
-        p2pPort 10008
-        rpcSettings {
-            address("localhost:10009")
-            adminAddress("localhost:10049")
-        }
-        rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
-    }
-}

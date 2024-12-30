@@ -8,7 +8,6 @@ import net.corda.core.messaging.startFlow
 import net.corda.core.utilities.NetworkHostAndPort.Companion.parse
 import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.loggerFor
-import net.corda.samples.pingpong.flows.Ping
 
 val RPC_USERNAME = "user1"
 val RPC_PASSWORD = "test"
@@ -65,7 +64,5 @@ class RpcClient(rpcAddressString: String) {
         val counterparty = rpcProxy.wellKnownPartyFromX500Name(counterpartyX500Name)
                 ?: throw IllegalArgumentException("Peer $counterpartyName not found in the network map.")
 
-        val flowFuture = rpcProxy.startFlow(::Ping, counterparty).returnValue
-        flowFuture.getOrThrow()
     }
 }

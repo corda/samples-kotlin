@@ -14,7 +14,7 @@ The CorDapp being used is another copy of the yo CorDapp, as the majority of the
 To start with provisioning the database, open a new terminal in the root directory of this project and type:
 
 ```sh
-docker run --name postgres_for_corda -e POSTGRES_PASSWORD=test -d -p 5432:5432 postgres:11
+docker run --name postgres_for_corda -e POSTGRES_PASSWORD=test -d -p 5445:5432 postgres:11
 
 # run sql scripts locally on the postgres instance to configure it for use
 cat config.sql | docker exec -i postgres_for_corda psql -h localhost -p 5432 -U postgres

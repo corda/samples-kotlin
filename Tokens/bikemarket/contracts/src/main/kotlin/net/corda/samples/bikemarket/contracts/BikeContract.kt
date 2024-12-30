@@ -9,14 +9,15 @@ import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.bikemarket.states.FrameTokenState
 
 
-class FrameContract :  Contract {
-//
+class BikeContract :  Contract {
 
     companion object {
-        const val CONTRACT_ID = "net.corda.samples.bikemarket.contracts.FrameContract"
+        const val CONTRACT_ID = "net.corda.samples.bikemarket.contracts.BikeContract"
     }
     interface Commands: CommandData {
         class Create : Commands
+        class Burn : Commands
+        class Transfer : Commands
     }
 
     override fun verify(tx: LedgerTransaction) {
