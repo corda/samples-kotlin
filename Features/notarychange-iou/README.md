@@ -5,7 +5,7 @@ using one of the Corda library flow called `NotaryChangeFlow`.
 
 ## Concepts
 
-[Notary](https://docs.r3.com/en/platform/corda/4.9/community/key-concepts-notaries.html) is a critical component of a Corda network. It helps prevent double-spending 
+[Notary](https://docs.r3.com/en/platform/corda/4.12/community/key-concepts-notaries.html) is a critical component of a Corda network. It helps prevent double-spending 
 attempts in a Corda network. Thus, all states issued in Corda are tied to a Notary. 
 Any transaction involving the update of a state must be notarised by the Notary 
 that the state is tied to. Since other notaries wouldn't have seen any previous 
@@ -26,7 +26,7 @@ issue an IOU at a particular Notary and try to settle the IOU using a different 
 
 ## Pre-Requisites
 
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
 
 ### Running the CorDapp
 

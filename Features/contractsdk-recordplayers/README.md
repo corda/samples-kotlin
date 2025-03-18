@@ -8,7 +8,7 @@ If you're familiar with record players you probably know how difficult it is to 
 
 This cordapp simulates how you could model the process of a limited edition record player (the cordagraf) that is manufactured and issued to specific dealers, and those dealers are the only entities that can service those record players after the fact and report stats back to the manufacturer about how the players are being used.
 
-A Record Player is issued as a [LinearState](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#linearstate) and is updated by dealers, that act functionally as the only entity that can update the `RecordPlayerState`.
+A Record Player is issued as a [LinearState](https://docs.r3.com/en/platform/corda/4.12/community/api-states.html#linearstate) and is updated by dealers, that act functionally as the only entity that can update the `RecordPlayerState`.
 
 
 ### Using the Contract SDK

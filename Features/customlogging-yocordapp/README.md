@@ -73,7 +73,7 @@ You can end up getting log feeds in json that look something like this:
 ### Pre-Requisites
 
 
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
 
 
 ### Running the CorDapp

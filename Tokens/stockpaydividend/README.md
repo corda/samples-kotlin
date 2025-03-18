@@ -42,7 +42,7 @@ which holds the underlying information of a stock like stock name, symbol, divid
 represents the dividend to be paid off by the company to the shareholder. 
 
 ## Pre-Requisites
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
 
 ## Usage
 ### Running the nodes

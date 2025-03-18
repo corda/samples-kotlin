@@ -4,17 +4,17 @@
 
 # State Reissuance Sample CorDapp
 
-This CorDapp serves as a sample for [state reissuance](https://docs.r3.com/en/platform/corda/4.9/community/reissuing-states.html#consuming-an-original-state-instead-of-deleting-it) feature of Corda. This feature enables developers to break long 
+This CorDapp serves as a sample for [state reissuance](https://docs.r3.com/en/platform/corda/4.12/community/reissuing-states.html#consuming-an-original-state-instead-of-deleting-it) feature of Corda. This feature enables developers to break long 
 transaction backchains by reissuing a state with a guaranteed state replacement. This is particularly useful in situations
 when a party doesn't want to share state history with other parties for privacy or performance concerns.
 
-This samples demonstrates the feature with the help of a [linear state](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#linearstate), represented by a land title issued on Corda ledger. 
+This samples demonstrates the feature with the help of a [linear state](https://docs.r3.com/en/platform/corda/4.12/community/api-states.html#linearstate), represented by a land title issued on Corda ledger. 
 The land title can be transferred multiple times and when the transaction backchain becomes long, the land title could be 
 reissued and the transaction backchain could be pruned.
 
 # Pre-Requisites
 
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
 
 # Usage
 
