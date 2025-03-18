@@ -29,7 +29,7 @@ In the `AcceptanceFlow.java`, we receive the modified ProposalState and it's con
 ## Usage
 
 ### Pre-Requisites
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
 
 
 

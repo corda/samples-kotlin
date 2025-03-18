@@ -11,7 +11,7 @@ There are 4 main parties in this example:
 
 
 ## State
-* `YachtState`: This is an [OwnableState](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#ownablestate) and a [LinearState](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#linearstate) that represents a Yacht that can be issued by the Yacht Issuer to the Yacht Owner (Party A).
+* `YachtState`: This is an [OwnableState](https://docs.r3.com/en/platform/corda/4.12/community/api-states.html#ownablestate) and a [LinearState](https://docs.r3.com/en/platform/corda/4.12/community/api-states.html#linearstate) that represents a Yacht that can be issued by the Yacht Issuer to the Yacht Owner (Party A).
 
 ## Contract
 * `YachtContract`: This is used to govern the evolution of a `YachtState`. This file includes validation rules governing the `Create` and `Purchase` command for YachtState
@@ -23,7 +23,7 @@ There are 4 main parties in this example:
 
 ## Pre-Requisites
 
-[Please ensure that your device is set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+[Please ensure that your device is set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
 
 
 ## Running the nodes

@@ -1,5 +1,5 @@
 # Tic Tac Thor
-This CorDapp recreates the game of Tic Tac Toe via Corda. It primarilly demonstrates how you can have [LinearState](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#linearstate) transactions between cross-node accounts.
+This CorDapp recreates the game of Tic Tac Toe via Corda. It primarilly demonstrates how you can have [LinearState](https://docs.r3.com/en/platform/corda/4.12/community/api-states.html#linearstate) transactions between cross-node accounts.
 <p align="center">
   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Tic_tac_toe.svg/1024px-Tic_tac_toe.svg.png" alt="Corda" width="200">
 </p>

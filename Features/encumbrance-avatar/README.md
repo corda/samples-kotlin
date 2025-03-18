@@ -4,7 +4,7 @@
 
 # Corda encumbrance sample
 
-Corda supports the idea of "Linked States", using the [TransactionState.encumbrance](https://docs.r3.com/en/platform/corda/4.9/community/key-concepts-contracts.html#encumbrances) property. When building a transaction, a state `x` can
+Corda supports the idea of "Linked States", using the [TransactionState.encumbrance](https://docs.r3.com/en/platform/corda/4.12/community/key-concepts-contracts.html#encumbrances) property. When building a transaction, a state `x` can
 point to other state `y` by specifying the index of `y`'s state in the transaction output index.
 
 In this situation `x` is linked to `y`, i.e. `x` is dependent on `y`. `x` cannot be consumed unless you consume `y`.
@@ -58,7 +58,7 @@ otherwise one can spend the "encumbrance" (Expiry) state, which would freeze the
 That's why we also make Expiry dependent on Avatar. (See how we have added encumbrance index's to the output states in
 both the flows.)
 
-Read more about Encumbrances [here](https://docs.r3.com/en/platform/corda/4.9/community/key-concepts-contracts.html#encumbrances).
+Read more about Encumbrances [here](https://docs.r3.com/en/platform/corda/4.12/community/key-concepts-contracts.html#encumbrances).
 
 ## Reminder
 

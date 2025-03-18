@@ -20,7 +20,7 @@ There are a few flows that enable this project. We will create a resource (in th
 
 ## Pre-Requisites
 
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
 
 # Usage
 

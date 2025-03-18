@@ -8,7 +8,7 @@ We have built a front end interface to make the interaction easier. Clone the ap
 </p>
 
 ## Pre-Requisites
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
   
 ## Running the application
  ```

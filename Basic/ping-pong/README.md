@@ -2,7 +2,7 @@
 
 This CorDapp allows a node to ping any other node on the network that also has this CorDapp installed.
 
-It demonstrates how to use Corda for messaging and passing data using a flow that initiates a [communication session](https://docs.r3.com/en/platform/corda/4.9/community/api-flows.html#create-communication-sessions-with-initiateflow) without saving any states or using any contracts.
+It demonstrates how to use Corda for messaging and passing data using a flow that initiates a [communication session](https://docs.r3.com/en/platform/corda/4.12/community/api-flows.html#create-communication-sessions-with-initiateflow) without saving any states or using any contracts.
 
 
 ### Concepts
