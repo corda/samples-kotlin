@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="b7dca983-4c90-400c-88a7-f2f2d63bde2f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workflows/src/main/kotlin/net/corda/samples/example/flows/ExampleFlow.kt" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/src/main/kotlin/net/corda/samples/example/flows/ExampleFlow.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ping-pong/client/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../ping-pong/client/build.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,6 +31,17 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="cordapp-example" type="f1a62948:ProjectNode" />
               </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="cordapp-example" type="f1a62948:ProjectNode" />
+                <item name="contracts" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="cordapp-example" type="f1a62948:ProjectNode" />
+                <item name="contracts" type="2d1252cf:ModuleNode" />
+                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
+              </path>
             </expand>
             <select />
           </tree_state>
@@ -37,21 +50,43 @@
     </system>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$/../.." value="release/ent/4.12" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;saurabhkatke&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:corda/samples-kotlin.git&quot;,
+    &quot;accountId&quot;: &quot;298feda5-4323-4697-9c73-38a2e0b254b4&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="1lz4lWv4H22IlHPKK2iwpzrMZW7" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
-    <property name="show.unlinked.gradle.project.popup" value="true" />
-  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.IOUFlowTests.executor": "Run",
+    "RunOnceActivity.git.unshallow": "true",
+    "external.system.has.shared.sources": "true",
+    "git-widget-placeholder": "saurabh.katke/ENT-13736",
+    "kotlin-language-version-configured": "true"
+  }
+}]]></component>
   <component name="RunManager" selected="Gradle.IOUFlowTests">
     <configuration name="ContractTests" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
@@ -69,7 +104,10 @@
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
       <method v="2" />
     </configuration>
     <configuration name="DriverBasedTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -88,7 +126,10 @@
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
       <method v="2" />
     </configuration>
     <configuration name="IOUFlowTests" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -107,7 +148,10 @@
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
       <method v="2" />
     </configuration>
     <configuration name="StateTests" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -126,7 +170,10 @@
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
       <method v="2" />
     </configuration>
     <list>
@@ -144,7 +191,7 @@
       </list>
     </recent_temporary>
   </component>
-  <component name="SpellCheckerSettings" BundledDictionaries="0" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" Dictionaries="0" CorrectionsLimit="5" DefaultDictionary="application-level" UseSingleDictionary="true" />
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -157,31 +204,5 @@
       <updated>1608586738487</updated>
     </task>
     <servers />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="1693" y="298" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1652271850180">
-      <screen x="0" y="23" width="3440" height="1333" />
-    </state>
-    <state x="1693" y="298" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.3440.1333@0.23.3440.1333" timestamp="1652271850180" />
-    <state width="2232" height="659" key="GridCell.Tab.0.bottom" timestamp="1652271657063">
-      <screen x="0" y="23" width="3440" height="1333" />
-    </state>
-    <state width="2232" height="659" key="GridCell.Tab.0.bottom/0.23.3440.1333@0.23.3440.1333" timestamp="1652271657063" />
-    <state width="2232" height="659" key="GridCell.Tab.0.center" timestamp="1652271657062">
-      <screen x="0" y="23" width="3440" height="1333" />
-    </state>
-    <state width="2232" height="659" key="GridCell.Tab.0.center/0.23.3440.1333@0.23.3440.1333" timestamp="1652271657062" />
-    <state width="2232" height="659" key="GridCell.Tab.0.left" timestamp="1652271657062">
-      <screen x="0" y="23" width="3440" height="1333" />
-    </state>
-    <state width="2232" height="659" key="GridCell.Tab.0.left/0.23.3440.1333@0.23.3440.1333" timestamp="1652271657062" />
-    <state width="2232" height="659" key="GridCell.Tab.0.right" timestamp="1652271657062">
-      <screen x="0" y="23" width="3440" height="1333" />
-    </state>
-    <state width="2232" height="659" key="GridCell.Tab.0.right/0.23.3440.1333@0.23.3440.1333" timestamp="1652271657062" />
-    <state x="1738" y="275" key="SettingsEditor" timestamp="1652271790912">
-      <screen x="0" y="23" width="3440" height="1333" />
-    </state>
-    <state x="1738" y="275" key="SettingsEditor/0.23.3440.1333@0.23.3440.1333" timestamp="1652271790912" />
   </component>
 </project>

@@ -25,9 +25,15 @@ dependencies {
 /* The Client is the communication channel between the external and the node. This task will help you immediately
  * execute your rpc methods in the main method of the client.kt. You can somewhat see this as a quick test of making
  * RPC calls to your nodes.
- */
+
 task pingPartyBKotlin(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'net.corda.samples.pingpong.ClientKt'
+    args 'localhost:10006', 'O=PartyB,L=New York,C=US'
+}
+ */
+task runGreetingClient(type: JavaExec, dependsOn: assemble) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'net.corda.samples.greeting.ClientKt'
     args 'localhost:10006', 'O=PartyB,L=New York,C=US'
 }
