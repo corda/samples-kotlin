@@ -36,13 +36,12 @@ class CreateAndIssueStock(val symbol: String,
 
         // Sample specific - retrieving the hard-coded observers
         val identityService = serviceHub.identityService
-        val observers: List<Party> = getObserverLegalIdenties(identityService)!!
+        val observers: List<Party> = getObserverLegalIdentities(identityService)
 
         // Construct the output StockState
         val stockState = StockState(ourIdentity, symbol,
                 name, currency,
-                price, BigDecimal.ZERO,  // A newly issued stock should not have any dividend
-                Date(), Date(),
+                price,
                 UniqueIdentifier())
 
         // The notary provided here will be used in all future actions of this token
@@ -54,7 +53,7 @@ class CreateAndIssueStock(val symbol: String,
         // Similar in IssueMoney flow, class of IssuedTokenType represents the stock is issued by the company party
         val issuedStock = stockState.toPointer(stockState.javaClass) issuedBy ourIdentity
 
-        // Create an specified amount of stock with a pointer that refers to the StockState
+        // Create a specified amount of stock with a pointer that refers to the StockState
         val issueAmount = Amount(issueVol.toLong(), issuedStock)
 
         // Indicate the recipient which is the issuing party itself here
@@ -66,10 +65,10 @@ class CreateAndIssueStock(val symbol: String,
                 + price + " " + currency + "\nTransaction ID: " + stx.id)
     }
 
-    fun getObserverLegalIdenties(identityService: IdentityService): List<Party>? {
-        var observers: MutableList<Party> = ArrayList()
+    fun getObserverLegalIdentities(identityService: IdentityService): List<Party> {
+        val observers: MutableList<Party> = ArrayList()
         for (observerName in listOf("Observer")) {
-            val observerSet = identityService.partiesFromName(observerName!!, false)
+            val observerSet = identityService.partiesFromName(observerName, false)
             if (observerSet.size != 1) {
                 val errMsg = String.format("Found %d identities for the observer.", observerSet.size)
                 throw IllegalStateException(errMsg)

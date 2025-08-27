@@ -29,7 +29,6 @@ class MoveStock(val symbol: String,
         val stockPointer: TokenPointer<StockState> = QueryUtilities.queryStockPointer(symbol, serviceHub)
 
         // With the pointer, we can get the create an instance of transferring Amount
-        // With the pointer, we can get the create an instance of transferring Amount
         val amount: Amount<TokenType> = Amount(quantity, stockPointer)
 
         //Use built-in flow for move tokens to the recipient

@@ -7,7 +7,6 @@ import com.r3.corda.lib.tokens.contracts.commands.Update
 import net.corda.core.contracts.*
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.stockpaydividend.states.StockState
-import java.math.BigDecimal
 
 // ************
 // * Contract *
@@ -37,7 +36,6 @@ class StockContract : EvolvableTokenContract(),Contract {
             //Validations when creating a new stock
             "Stock symbol must not be empty".using(!createdStockState.symbol.isEmpty())
             "Stock name must not be empty".using(!createdStockState.name.isEmpty())
-            "Stock dividend must start with zero".using(createdStockState.dividend.equals(BigDecimal.ZERO))
         }
     }
 
