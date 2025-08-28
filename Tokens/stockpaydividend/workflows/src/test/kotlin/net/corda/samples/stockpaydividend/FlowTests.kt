@@ -21,16 +21,16 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 
 class FlowTests {
-    protected var network: MockNetwork? = null
-    protected var company: StartedMockNode? = null
-    protected var observer: StartedMockNode? = null
-    protected var shareholder: StartedMockNode? = null
-    protected var bank: StartedMockNode? = null
-    protected var exDate: Date? = null
-    protected var payDate: Date? = null
+    private var network: MockNetwork? = null
+    private var company: StartedMockNode? = null
+    private var observer: StartedMockNode? = null
+    private var shareholder: StartedMockNode? = null
+    private var bank: StartedMockNode? = null
+    private var exDate: Date? = null
+    private var payDate: Date? = null
 
-    protected var notary: StartedMockNode? = null
-    protected var notaryParty: Party? = null
+    private var notary: StartedMockNode? = null
+    private var notaryParty: Party? = null
 
     var COMPANY = TestIdentity(CordaX500Name("Company", "TestVillage", "US"))
     var SHAREHOLDER = TestIdentity(CordaX500Name("Shareholder", "TestVillage", "US"))
@@ -106,7 +106,7 @@ class FlowTests {
         // Move Stock
         future = company!!.startFlow(MoveStock(STOCK_SYMBOL, BUYING_STOCK, shareholder!!.info.legalIdentities[0]))
         network!!.runNetwork()
-        val moveTx = future.get()
+        future.get()
 
         //Retrieve states from receiver
         val receivedStockStatesPages = shareholder!!.services.vaultService.queryBy(StockState::class.java).states
