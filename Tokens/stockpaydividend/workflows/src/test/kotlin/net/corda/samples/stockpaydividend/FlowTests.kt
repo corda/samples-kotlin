@@ -12,13 +12,18 @@ import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkParameters
 import net.corda.testing.node.StartedMockNode
 import net.corda.testing.node.TestCordapp
+import net.corda.testing.solana.SolanaTestValidator
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.Assert
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 import java.math.BigDecimal
 import java.util.*
 import java.util.concurrent.ExecutionException
+import net.corda.testing.node.MockNetworkNotarySpec
+import net.corda.testing.node.internal.DUMMY_CONTRACTS_CORDAPP
 
 class FlowTests {
     private var network: MockNetwork? = null
@@ -44,14 +49,40 @@ class FlowTests {
     val ISSUING_STOCK_QUANTITY = 2000
     val BUYING_STOCK = java.lang.Long.valueOf(500)
 
+    companion object {
+        val notaryName = CordaX500Name("Solana Notary Service", "Zurich", "CH")
+
+        private lateinit var testValidator: SolanaTestValidator
+
+        @BeforeClass
+        @JvmStatic
+        fun startTestValidator() {
+            testValidator = SolanaTestValidator()
+            testValidator.fundDevAccounts()
+            testValidator.defaultNotarySetup()
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun stopTestValidator() {
+            if (::testValidator.isInitialized) {
+                testValidator.close()
+            }
+        }
+    }
+
     @Before
     fun setup() {
         network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
                 TestCordapp.findCordapp("net.corda.samples.stockpaydividend.contracts"),
                 TestCordapp.findCordapp("net.corda.samples.stockpaydividend.flows"),
                 TestCordapp.findCordapp("com.r3.corda.lib.tokens.contracts"),
-                TestCordapp.findCordapp("com.r3.corda.lib.tokens.workflows")
-        ), networkParameters = testNetworkParameters(minimumPlatformVersion = 4)))
+            TestCordapp.findCordapp("com.r3.corda.lib.tokens.workflows"),
+            DUMMY_CONTRACTS_CORDAPP
+        ), notarySpecs = listOf(MockNetworkNotarySpec(notaryName, notaryConfig = createNotaryConfig())),
+            networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
+        )
+        )
 
         company = network!!.createPartyNode(COMPANY.name)
         observer = network!!.createPartyNode(OBSERVER.name)
@@ -75,6 +106,15 @@ class FlowTests {
     fun tearDown() {
         network!!.stopNodes()
     }
+
+    private fun createNotaryConfig(): String = """
+                            validating = false
+                            notaryLegalIdentity = "$notaryName"
+                            solana {
+                                rpcUrl = "${SolanaTestValidator.RPC_URL}"
+                                wallet = "${SolanaTestValidator.DEV_NOTARY_FILE}"
+                            }
+                        """.trimIndent()
 
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
