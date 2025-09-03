@@ -73,15 +73,17 @@ class FlowTests {
 
     @Before
     fun setup() {
-        network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
-                TestCordapp.findCordapp("net.corda.samples.stockpaydividend.contracts"),
-                TestCordapp.findCordapp("net.corda.samples.stockpaydividend.flows"),
-                TestCordapp.findCordapp("com.r3.corda.lib.tokens.contracts"),
-            TestCordapp.findCordapp("com.r3.corda.lib.tokens.workflows"),
-            DUMMY_CONTRACTS_CORDAPP
-        ), notarySpecs = listOf(MockNetworkNotarySpec(notaryName, notaryConfig = createNotaryConfig())),
-            networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
-        )
+        network = MockNetwork(
+            MockNetworkParameters(
+                cordappsForAllNodes = listOf(
+                    TestCordapp.findCordapp("net.corda.samples.stockpaydividend.contracts"),
+                    TestCordapp.findCordapp("net.corda.samples.stockpaydividend.flows"),
+                    TestCordapp.findCordapp("com.r3.corda.lib.tokens.contracts"),
+                    TestCordapp.findCordapp("com.r3.corda.lib.tokens.workflows"),
+                    DUMMY_CONTRACTS_CORDAPP
+                ), notarySpecs = listOf(MockNetworkNotarySpec(notaryName, notaryConfig = createNotaryConfig())),
+                networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
+            )
         )
 
         company = network!!.createPartyNode(COMPANY.name)
@@ -120,7 +122,16 @@ class FlowTests {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun issueTest() {
         // Issue Stock
-        val future = company!!.startFlow(CreateAndIssueStock(STOCK_SYMBOL, STOCK_NAME, STOCK_CURRENCY, STOCK_PRICE, ISSUING_STOCK_QUANTITY, notaryParty!!))
+        val future = company!!.startFlow(
+            CreateAndIssueStock(
+                STOCK_SYMBOL,
+                STOCK_NAME,
+                STOCK_CURRENCY,
+                STOCK_PRICE,
+                ISSUING_STOCK_QUANTITY,
+                notaryParty!!
+            )
+        )
         network!!.runNetwork()
         val stx = future.get()
         val stxID = stx.substring(stx.lastIndexOf(" ") + 1)
@@ -139,7 +150,16 @@ class FlowTests {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun moveTest() {
         // Issue Stock
-        var future = company!!.startFlow<String?>(CreateAndIssueStock(STOCK_SYMBOL, STOCK_NAME, STOCK_CURRENCY, STOCK_PRICE, ISSUING_STOCK_QUANTITY, notaryParty!!))
+        var future = company!!.startFlow<String?>(
+            CreateAndIssueStock(
+                STOCK_SYMBOL,
+                STOCK_NAME,
+                STOCK_CURRENCY,
+                STOCK_PRICE,
+                ISSUING_STOCK_QUANTITY,
+                notaryParty!!
+            )
+        )
         network!!.runNetwork()
         future.get()
 
@@ -151,7 +171,11 @@ class FlowTests {
         //Retrieve states from receiver
         val receivedStockStatesPages = shareholder!!.services.vaultService.queryBy(StockState::class.java).states
         val receivedStockState = receivedStockStatesPages[0].state.data
-        val (quantity) = shareholder!!.services.vaultService.tokenBalance(receivedStockState.toPointer(receivedStockState.javaClass))
+        val (quantity) = shareholder!!.services.vaultService.tokenBalance(
+            receivedStockState.toPointer(
+                receivedStockState.javaClass
+            )
+        )
 
         //Check
         Assert.assertEquals(quantity, java.lang.Long.valueOf(500).toLong())
