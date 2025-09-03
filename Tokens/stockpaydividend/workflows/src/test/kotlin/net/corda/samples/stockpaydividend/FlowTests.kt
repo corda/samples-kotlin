@@ -124,7 +124,16 @@ class FlowTests {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun issueTest() {
         // Issue Stock
-        val future = company!!.startFlow(CreateAndIssueStock(STOCK_SYMBOL, STOCK_NAME, STOCK_CURRENCY, STOCK_PRICE, ISSUING_STOCK_QUANTITY, notaryParty!!))
+        val future = company!!.startFlow(
+            CreateAndIssueStock(
+                STOCK_SYMBOL,
+                STOCK_NAME,
+                STOCK_CURRENCY,
+                STOCK_PRICE,
+                ISSUING_STOCK_QUANTITY,
+                notaryParty!!
+            )
+        )
         network!!.runNetwork()
         val stx = future.get()
         val stxID = stx.substring(stx.lastIndexOf(" ") + 1)
