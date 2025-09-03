@@ -75,15 +75,17 @@ class FlowTests {
 
     @Before
     fun setup() {
-        network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
-                TestCordapp.findCordapp("net.corda.samples.stockpaydividend.contracts"),
-                TestCordapp.findCordapp("net.corda.samples.stockpaydividend.flows"),
-                TestCordapp.findCordapp("com.r3.corda.lib.tokens.contracts"),
-            TestCordapp.findCordapp("com.r3.corda.lib.tokens.workflows"),
-            DUMMY_CONTRACTS_CORDAPP
-        ), notarySpecs = listOf(MockNetworkNotarySpec(notaryName, notaryConfig = createNotaryConfig())),
-            networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
-        )
+        network = MockNetwork(
+            MockNetworkParameters(
+                cordappsForAllNodes = listOf(
+                    TestCordapp.findCordapp("net.corda.samples.stockpaydividend.contracts"),
+                    TestCordapp.findCordapp("net.corda.samples.stockpaydividend.flows"),
+                    TestCordapp.findCordapp("com.r3.corda.lib.tokens.contracts"),
+                    TestCordapp.findCordapp("com.r3.corda.lib.tokens.workflows"),
+                    DUMMY_CONTRACTS_CORDAPP
+                ), notarySpecs = listOf(MockNetworkNotarySpec(notaryName, notaryConfig = createNotaryConfig())),
+                networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
+            )
         )
 
         company = network!!.createPartyNode(COMPANY.name)
@@ -135,6 +137,7 @@ class FlowTests {
         Assert.assertNotNull(observerTx)
         Assert.assertEquals(issuerTx, observerTx)
     }
+
 
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
