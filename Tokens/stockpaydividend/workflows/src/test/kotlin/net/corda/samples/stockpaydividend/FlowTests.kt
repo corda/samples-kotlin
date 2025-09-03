@@ -1,6 +1,6 @@
 package net.corda.samples.stockpaydividend
 
-import BridgeStock
+import com.r3.corda.lib.tokens.bridging.rpc.BridgeStock
 import com.r3.corda.lib.tokens.workflows.utilities.tokenBalance
 import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.CordaX500Name

@@ -1,3 +1,5 @@
+package com.r3.corda.lib.tokens.bridging.rpc
+
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.types.TokenType
 import com.r3.corda.lib.tokens.workflows.flows.move.MoveTokensFlowHandler
