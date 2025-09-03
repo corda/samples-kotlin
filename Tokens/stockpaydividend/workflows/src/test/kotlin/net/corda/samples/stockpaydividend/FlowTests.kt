@@ -1,11 +1,13 @@
 package net.corda.samples.stockpaydividend
 
+import BridgeStock
 import com.r3.corda.lib.tokens.workflows.utilities.tokenBalance
 import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.samples.stockpaydividend.flows.*
 import net.corda.samples.stockpaydividend.states.StockState
+import net.corda.solana.aggregator.common.Signer
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockNetwork
@@ -134,12 +136,20 @@ class FlowTests {
         Assert.assertEquals(issuerTx, observerTx)
     }
 
-
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
     fun moveTest() {
         // Issue Stock
-        var future = company!!.startFlow<String?>(CreateAndIssueStock(STOCK_SYMBOL, STOCK_NAME, STOCK_CURRENCY, STOCK_PRICE, ISSUING_STOCK_QUANTITY, notaryParty!!))
+        var future = company!!.startFlow<String?>(
+            CreateAndIssueStock(
+                STOCK_SYMBOL,
+                STOCK_NAME,
+                STOCK_CURRENCY,
+                STOCK_PRICE,
+                ISSUING_STOCK_QUANTITY,
+                notaryParty!!
+            )
+        )
         network!!.runNetwork()
         future.get()
 
@@ -151,7 +161,11 @@ class FlowTests {
         //Retrieve states from receiver
         val receivedStockStatesPages = shareholder!!.services.vaultService.queryBy(StockState::class.java).states
         val receivedStockState = receivedStockStatesPages[0].state.data
-        val (quantity) = shareholder!!.services.vaultService.tokenBalance(receivedStockState.toPointer(receivedStockState.javaClass))
+        val (quantity) = shareholder!!.services.vaultService.tokenBalance(
+            receivedStockState.toPointer(
+                receivedStockState.javaClass
+            )
+        )
 
         //Check
         Assert.assertEquals(quantity, java.lang.Long.valueOf(500).toLong())
@@ -163,6 +177,62 @@ class FlowTests {
 
         //Check
         Assert.assertEquals(quantity1, java.lang.Long.valueOf(1500).toLong())
+    }
+
+    @Test
+    @Throws(ExecutionException::class, InterruptedException::class)
+    fun bridgeTest() {
+
+        val mintAuthority = SolanaTestValidator.DEV_NOTARY
+        val accountOwner = Signer.random()
+
+        testValidator.fundAccount(10, accountOwner)
+
+        val tokenMint = testValidator.createToken(mintAuthority)
+        val tokenAccount = testValidator.createTokenAccount(accountOwner, tokenMint)
+
+        // Issue Stock
+        var future = company!!.startFlow<String?>(
+            CreateAndIssueStock(
+                STOCK_SYMBOL,
+                STOCK_NAME,
+                STOCK_CURRENCY,
+                STOCK_PRICE,
+                ISSUING_STOCK_QUANTITY,
+                notaryParty!!
+            )
+        )
+        network!!.runNetwork()
+        future.get()
+
+        val stockStatesPages = company!!.services.vaultService.queryBy(StockState::class.java).states
+        val stockState = stockStatesPages[0].state.data
+        val (quantity) = company!!.services.vaultService.tokenBalance(stockState.toPointer(stockState.javaClass))
+        Assert.assertEquals(quantity, java.lang.Long.valueOf(2000).toLong())
+
+        // TODO Spend all to avoid having a change to yourself - then can't distinguish which amount si to mint which is a change
+        future = company!!.startFlow(
+            BridgeStock(
+                STOCK_SYMBOL,
+                ISSUING_STOCK_QUANTITY.toLong() /*BUYING_STOCK*/,
+                company!!.info.legalIdentities[0],
+                tokenAccount.base58(),
+                tokenMint.base58(),
+                mintAuthority.account.base58()
+            )
+        )
+
+        network!!.runNetwork()
+        val result = future.get()
+        println(result)
+
+        //Retrieve states from sender
+        val remainingStockStatesPages = company!!.services.vaultService.queryBy(StockState::class.java).states
+        val remainingStockState = remainingStockStatesPages[0].state.data
+        val (quantity1) = company!!.services.vaultService.tokenBalance(remainingStockState.toPointer(remainingStockState.javaClass))
+
+        //Check
+        Assert.assertEquals(quantity1, java.lang.Long.valueOf(2000).toLong())
     }
 
 }

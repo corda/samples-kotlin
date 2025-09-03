@@ -57,6 +57,9 @@ dependencies {
     // Token SDK dependencies.
     cordaProvided "$tokens_release_group:tokens-contracts:$tokens_release_version"
     cordaProvided "$tokens_release_group:tokens-workflows:$tokens_release_version"
+
+    cordaProvided "$corda_release_group:corda-solana-sdk:$corda_release_version"
+    cordaProvided "$corda_release_group:corda-solana-common:$corda_release_version"
 }
 
 task integrationTest(type: Test, dependsOn: []) {
