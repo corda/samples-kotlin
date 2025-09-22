@@ -93,7 +93,6 @@ class BridgeStock(
  *
  * @param partyAndAmount pairing party - amount of token that is to be moved to that party
  * @param observers optional observing parties to which the transaction will be broadcast
- * @param queryCriteria additional criteria for token selection
  */
 @StartableByService
 @StartableByRPC
@@ -107,8 +106,7 @@ constructor(
     val additionalCommand: BridgingContract.BridgingCommand,
     val destination: Pubkey,
     val mint: Pubkey,
-    val mintAuthority: Pubkey,
-    val queryCriteria: QueryCriteria? = null
+    val mintAuthority: Pubkey
 ) : FlowLogic<SignedTransaction>() {
 
     constructor(
@@ -139,8 +137,7 @@ constructor(
                 additionalCommand = additionalCommand,
                 destination = destination,
                 mint = mint,
-                mintAuthority = mintAuthority,
-                queryCriteria = queryCriteria
+                mintAuthority = mintAuthority
             )
         )
     }
