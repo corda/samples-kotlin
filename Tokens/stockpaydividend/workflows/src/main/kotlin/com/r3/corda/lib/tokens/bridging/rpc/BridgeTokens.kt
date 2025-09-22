@@ -3,9 +3,7 @@ package com.r3.corda.lib.tokens.bridging.rpc
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.types.TokenType
 import com.r3.corda.lib.tokens.workflows.flows.move.MoveTokensFlowHandler
-import com.r3.corda.lib.tokens.workflows.types.PartyAndAmount
 import com.r3.corda.lib.tokens.workflows.utilities.sessionsForParties
-import net.corda.core.contracts.Amount
 import net.corda.core.contracts.ContractState
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.FlowSession
@@ -20,10 +18,10 @@ import net.corda.core.transactions.SignedTransaction
 import com.r3.corda.lib.tokens.bridging.BridgeFungibleTokensFlow
 import com.r3.corda.lib.tokens.bridging.contracts.BridgingContract
 import com.r3.corda.lib.tokens.bridging.states.BridgedAssetLockState
-import com.r3.corda.lib.tokens.contracts.types.TokenPointer
+import com.r3.corda.lib.tokens.contracts.states.FungibleToken
+import net.corda.core.contracts.StateAndRef
+import net.corda.core.node.services.Vault
 import net.corda.core.utilities.ProgressTracker
-import net.corda.samples.stockpaydividend.flows.utilities.QueryUtilities
-import net.corda.samples.stockpaydividend.states.StockState
 import net.corda.solana.sdk.instruction.Pubkey
 
 @InitiatingFlow
@@ -57,22 +55,16 @@ class BridgeStock(
 
     @Suspendable
     override fun call(): String {
-        // To get the transferring stock, we can get the StockState from the vault and get it's pointer
-        val stockPointer: TokenPointer<StockState> = QueryUtilities.queryStockPointer(symbol, serviceHub)
-
-        // With the pointer, we can get the create an instance of transferring Amount
-        val amount: Amount<TokenType> = Amount(quantity, stockPointer)
-
         val additionalOutput: ContractState = BridgedAssetLockState(listOf(ourIdentity))
         val additionalCommand = BridgingContract.BridgingCommand.BridgeToSolana(
             destination,
             bridgeAuthority
-        ) //, ourIdentity.owningKey, bridgeAuthority.owningKey)
+        )
         //Use built-in flow for move tokens to the recipient
         val stx = subFlow(
             BridgeFungibleTokens(
-                amount,
-                ourIdentity,
+                ourIdentity, //TODO confidentialIdentity
+                emptyList(),
                 additionalOutput,
                 additionalCommand,
                 destination,
@@ -87,11 +79,10 @@ class BridgeStock(
 }
 
 /**
- * Initiating flow used to bridge amounts of tokens of the same party, [partyAndAmount] specifies what amount of tokens is bridged to a participant.
+ * Initiating flow used to bridge amounts of tokens of the same party.
  *
  * Call this for one [TokenType] at a time.
  *
- * @param partyAndAmount pairing party - amount of token that is to be moved to that party
  * @param observers optional observing parties to which the transaction will be broadcast
  */
 @StartableByService
@@ -100,7 +91,7 @@ class BridgeStock(
 class BridgeFungibleTokens
 @JvmOverloads
 constructor(
-    val partyAndAmount: PartyAndAmount<TokenType>,
+    val holder: AbstractParty,
     val observers: List<Party> = emptyList(),
     val additionalOutput: ContractState,
     val additionalCommand: BridgingContract.BridgingCommand,
@@ -109,30 +100,26 @@ constructor(
     val mintAuthority: Pubkey
 ) : FlowLogic<SignedTransaction>() {
 
-    constructor(
-        amount: Amount<TokenType>, holder: AbstractParty, additionalOutput: ContractState,
-        additionalCommand: BridgingContract.BridgingCommand, destination: Pubkey, mint: Pubkey, mintAuthority: Pubkey
-    )
-            : this(
-        PartyAndAmount(holder, amount),
-        emptyList(),
-        additionalOutput,
-        additionalCommand,
-        destination,
-        mint,
-        mintAuthority
-    )
-
     @Suspendable
     override fun call(): SignedTransaction {
-        val participants = listOf(partyAndAmount.party)
+        val participants = listOf(holder)  //TODO add confidentialIdentity
         val observerSessions = sessionsForParties(observers)
         val participantSessions = sessionsForParties(participants)
+
+        //TODO add list of StetRef to bridge in flow parameters
+        val criteria = QueryCriteria.VaultQueryCriteria(status = Vault.StateStatus.UNCONSUMED)
+
+        serviceHub.vaultService.queryBy(FungibleToken::class.java, criteria)
+
+        val token: StateAndRef<FungibleToken> = serviceHub.vaultService
+            .queryBy(FungibleToken::class.java, criteria)
+            .states.first()
+
         return subFlow(
             BridgeFungibleTokensFlow(
-                partyAndAmount = partyAndAmount,
                 participantSessions = participantSessions,
                 observerSessions = observerSessions,
+                token = token,
                 additionalOutput = additionalOutput,
                 additionalCommand = additionalCommand,
                 destination = destination,

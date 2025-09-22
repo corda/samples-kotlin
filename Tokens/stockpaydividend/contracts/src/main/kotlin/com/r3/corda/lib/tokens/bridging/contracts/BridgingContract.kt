@@ -37,10 +37,11 @@ class BridgingContract : Contract {
         require(moveCommands.size == 1) { "Bridging must have one move command to lock token" }
 
         val lockedSum = tx.outputsOfType<FungibleToken>()
-            .filter { it.holder == bridgingCommand.bridgeAuthority } //TODO this is mute point for now, change to != bridgeAuthority, to filter only states owned by CI ..
+            .filter { it.holder == bridgingCommand.bridgeAuthority } // TODO this is mute point for now, change to != bridgeAuthority, to filter only states owned by CI ...
+            // ... currently can't distinguish between locked and a change, both are for same holder
             .sumOf {
                 it.amount.toDecimal().toLong()
-            } // ... currently can't distinguish between locked and a change, both are for same holder ...
+            }
 
         val instruction = tx.notaryInstructions.singleOrNull() as? SolanaInstruction
 
