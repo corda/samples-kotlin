@@ -1,10 +1,17 @@
 package net.corda.samples.stockpaydividend
 
 import com.r3.corda.lib.tokens.bridging.rpc.BridgeStock
+import com.r3.corda.lib.tokens.bridging.states.BridgedAssetLockState
+import com.r3.corda.lib.tokens.contracts.states.FungibleToken
+import com.r3.corda.lib.tokens.contracts.types.TokenPointer
+import com.r3.corda.lib.tokens.workflows.utilities.heldTokensByToken
 import com.r3.corda.lib.tokens.workflows.utilities.tokenBalance
+import net.corda.core.contracts.StateAndRef
+import net.corda.core.contracts.StateRef
 import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
+import net.corda.core.node.services.Vault
 import net.corda.samples.stockpaydividend.flows.*
 import net.corda.samples.stockpaydividend.states.StockState
 import net.corda.solana.aggregator.common.Signer
@@ -245,6 +252,19 @@ class FlowTests {
 
         //Check
         Assert.assertEquals(quantity1, java.lang.Long.valueOf(2000).toLong())
+
+        val tokenPointer: TokenPointer<StockState> = stockState.toPointer(stockState.javaClass)
+        val token: StateAndRef<FungibleToken>? =
+            company!!.services.vaultService.queryBy(FungibleToken::class.java).states.firstOrNull { it.state.data.amount.token.tokenType == tokenPointer }
+        Assert.assertNotNull(token)
+        val bridgingState: StateAndRef<BridgedAssetLockState>? =
+            company!!.services.vaultService.queryBy(BridgedAssetLockState::class.java).states.firstOrNull()
+        Assert.assertNotNull(bridgingState)
+
+        Assert.assertTrue(
+            "Bridge state and token are outputs of the same transaction",
+            bridgingState!!.ref.txhash == token!!.ref.txhash
+        )
     }
 
 }
