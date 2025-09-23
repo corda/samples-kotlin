@@ -225,11 +225,14 @@ class FlowTests {
 
         val stockStatesPages = company!!.services.vaultService.queryBy(StockState::class.java).states
         val stockState = stockStatesPages[0].state.data
-        val (quantity) = company!!.services.vaultService.tokenBalance(stockState.toPointer(stockState.javaClass))
-        Assert.assertEquals(quantity, java.lang.Long.valueOf(2000).toLong())
+        val stockStatePointer = stockState.toPointer(stockState.javaClass)
+        val (startCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
+        Assert.assertEquals(2000L, startCordaQuantity)
 
         val startSolanaBalance =
-            testValidator.client.getBalance(accountOwner.account.base58(), RpcParams()).checkResponse("getBalance")
+            testValidator.client.getTokenAccountBalance(tokenAccount.base58(), RpcParams())
+                .checkResponse("getTokenAccountBalance")
+        Assert.assertEquals("0", startSolanaBalance!!.amount)
 
         // TODO Spend all to avoid having a change to yourself - then can't distinguish which amount si to mint which is a change
         future = company!!.startFlow(
@@ -247,12 +250,10 @@ class FlowTests {
         val result = future.get()
         println(result)
 
-        //Retrieve states from sender
         val remainingStockStatesPages = company!!.services.vaultService.queryBy(StockState::class.java).states
         val remainingStockState = remainingStockStatesPages[0].state.data
         val (quantity1) = company!!.services.vaultService.tokenBalance(remainingStockState.toPointer(remainingStockState.javaClass))
 
-        //Check
         Assert.assertEquals(quantity1, java.lang.Long.valueOf(2000).toLong())
 
         val tokenPointer: TokenPointer<StockState> = stockState.toPointer(stockState.javaClass)
@@ -268,10 +269,17 @@ class FlowTests {
             bridgingState!!.ref.txhash == token!!.ref.txhash
         )
 
-        val endSolanaBalance =
-            testValidator.client.getBalance(accountOwner.account.base58(), RpcParams()).checkResponse("getBalance")
+        val (finalCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
+        Assert.assertEquals(
+            2000L,
+            finalCordaQuantity
+        ) //TODO this is Corda move token to self, so it still the same amount as at the beginning
 
-        Assert.assertEquals(startSolanaBalance, endSolanaBalance) //TODO check token account not total token balance
+        val finalSolanaBalance =
+            testValidator.client.getTokenAccountBalance(tokenAccount.base58(), RpcParams())
+                .checkResponse("getTokenAccountBalance")
+
+        Assert.assertEquals("2000", finalSolanaBalance!!.amount)
     }
 
 }
