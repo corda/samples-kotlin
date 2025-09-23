@@ -11,7 +11,9 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.samples.stockpaydividend.flows.*
 import net.corda.samples.stockpaydividend.states.StockState
+import net.corda.solana.aggregator.common.RpcParams
 import net.corda.solana.aggregator.common.Signer
+import net.corda.solana.aggregator.common.checkResponse
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockNetwork
@@ -226,6 +228,9 @@ class FlowTests {
         val (quantity) = company!!.services.vaultService.tokenBalance(stockState.toPointer(stockState.javaClass))
         Assert.assertEquals(quantity, java.lang.Long.valueOf(2000).toLong())
 
+        val startSolanaBalance =
+            testValidator.client.getBalance(accountOwner.account.base58(), RpcParams()).checkResponse("getBalance")
+
         // TODO Spend all to avoid having a change to yourself - then can't distinguish which amount si to mint which is a change
         future = company!!.startFlow(
             BridgeStock(
@@ -262,6 +267,11 @@ class FlowTests {
             "Bridge state and token are outputs of the same transaction",
             bridgingState!!.ref.txhash == token!!.ref.txhash
         )
+
+        val endSolanaBalance =
+            testValidator.client.getBalance(accountOwner.account.base58(), RpcParams()).checkResponse("getBalance")
+
+        Assert.assertEquals(startSolanaBalance, endSolanaBalance) //TODO check token account not total token balance
     }
 
 }
