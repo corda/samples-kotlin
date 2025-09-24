@@ -250,10 +250,11 @@ class FlowTests {
         future.get()
 
         val stockStatesPages = company!!.services.vaultService.queryBy(StockState::class.java).states
+        Assert.assertNotNull(stockStatesPages[0])
         val stockState = stockStatesPages[0].state.data
         val stockStatePointer = stockState.toPointer(stockState.javaClass)
         val (startCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
-        Assert.assertEquals(ISSUING_STOCK_QUANTITY, startCordaQuantity)
+        Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), startCordaQuantity)
 
         val startSolanaBalance =
             testValidator.client.getTokenAccountBalance(tokenAccount.base58(), RpcParams())
@@ -276,14 +277,20 @@ class FlowTests {
         future.get()
 
         val remainingStockStatesPages = company!!.services.vaultService.queryBy(StockState::class.java).states
+        Assert.assertNotNull(remainingStockStatesPages[0])
         val remainingStockState = remainingStockStatesPages[0].state.data
-        val (quantity1) = company!!.services.vaultService.tokenBalance(remainingStockState.toPointer(remainingStockState.javaClass))
+        val remainingStockStatePointer: TokenPointer<StockState> =
+            remainingStockState.toPointer(remainingStockState.javaClass)
+        val (finalCordaQuantity) = company!!.services.vaultService.tokenBalance(remainingStockStatePointer)
+        Assert.assertEquals(
+            ISSUING_STOCK_QUANTITY.toLong(),
+            finalCordaQuantity
+        ) // TODO this is Corda move token to self, so it still the same amount as at the beginning
 
-        Assert.assertEquals(2000L, quantity1)
-
-        val tokenPointer: TokenPointer<StockState> = stockState.toPointer(stockState.javaClass)
         val token: StateAndRef<FungibleToken>? =
-            company!!.services.vaultService.queryBy(FungibleToken::class.java).states.firstOrNull { it.state.data.amount.token.tokenType == tokenPointer }
+            company!!.services.vaultService.queryBy(FungibleToken::class.java).states.firstOrNull {
+                it.state.data.amount.token.tokenType == remainingStockStatePointer
+            }
         Assert.assertNotNull(token)
         val bridgingState: StateAndRef<BridgedAssetLockState>? =
             company!!.services.vaultService.queryBy(BridgedAssetLockState::class.java).states.firstOrNull()
@@ -294,17 +301,11 @@ class FlowTests {
             bridgingState!!.ref.txhash == token!!.ref.txhash
         )
 
-        val (finalCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
-        Assert.assertEquals(
-            2000L,
-            finalCordaQuantity
-        ) //TODO this is Corda move token to self, so it still the same amount as at the beginning
-
         val finalSolanaBalance =
             testValidator.client.getTokenAccountBalance(tokenAccount.base58(), RpcParams())
                 .checkResponse("getTokenAccountBalance")
 
-        Assert.assertEquals("2000", finalSolanaBalance!!.amount)
+        Assert.assertEquals(ISSUING_STOCK_QUANTITY.toString(), finalSolanaBalance!!.amount)
     }
 
 }
