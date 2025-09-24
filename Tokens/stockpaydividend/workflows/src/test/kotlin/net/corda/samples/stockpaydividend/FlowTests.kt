@@ -273,8 +273,7 @@ class FlowTests {
         )
 
         network!!.runNetwork()
-        val result = future.get()
-        println(result)
+        future.get()
 
         val remainingStockStatesPages = company!!.services.vaultService.queryBy(StockState::class.java).states
         val remainingStockState = remainingStockStatesPages[0].state.data
