@@ -253,7 +253,7 @@ class FlowTests {
         val stockState = stockStatesPages[0].state.data
         val stockStatePointer = stockState.toPointer(stockState.javaClass)
         val (startCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
-        Assert.assertEquals(2000L, startCordaQuantity)
+        Assert.assertEquals(ISSUING_STOCK_QUANTITY, startCordaQuantity)
 
         val startSolanaBalance =
             testValidator.client.getTokenAccountBalance(tokenAccount.base58(), RpcParams())
@@ -264,7 +264,7 @@ class FlowTests {
         future = company!!.startFlow(
             BridgeStock(
                 STOCK_SYMBOL,
-                ISSUING_STOCK_QUANTITY.toLong() /*BUYING_STOCK*/,
+                startCordaQuantity ,
                 company!!.info.legalIdentities[0],
                 tokenAccount.base58(),
                 tokenMint.base58(),
@@ -279,7 +279,7 @@ class FlowTests {
         val remainingStockState = remainingStockStatesPages[0].state.data
         val (quantity1) = company!!.services.vaultService.tokenBalance(remainingStockState.toPointer(remainingStockState.javaClass))
 
-        Assert.assertEquals(quantity1, java.lang.Long.valueOf(2000).toLong())
+        Assert.assertEquals(2000L, quantity1)
 
         val tokenPointer: TokenPointer<StockState> = stockState.toPointer(stockState.javaClass)
         val token: StateAndRef<FungibleToken>? =
