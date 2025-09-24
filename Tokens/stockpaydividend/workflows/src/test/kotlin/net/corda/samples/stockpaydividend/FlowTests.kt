@@ -14,6 +14,7 @@ import net.corda.samples.stockpaydividend.states.StockState
 import net.corda.solana.aggregator.common.RpcParams
 import net.corda.solana.aggregator.common.Signer
 import net.corda.solana.aggregator.common.checkResponse
+import net.corda.solana.sdk.internal.Token2022
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockNetwork
@@ -32,6 +33,10 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.internal.DUMMY_CONTRACTS_CORDAPP
+import net.corda.testing.solana.randomKeypairFile
+import org.junit.ClassRule
+import org.junit.rules.TemporaryFolder
+import java.nio.file.Path
 
 class FlowTests {
     private var network: MockNetwork? = null
@@ -57,17 +62,35 @@ class FlowTests {
     val ISSUING_STOCK_QUANTITY = 2000
     val BUYING_STOCK = java.lang.Long.valueOf(500)
 
+
     companion object {
         val notaryName = CordaX500Name("Solana Notary Service", "Zurich", "CH")
 
+        @ClassRule
+        @JvmField
+        val generalDir = TemporaryFolder()
+
+        @ClassRule
+        @JvmField
+        val custodiedKeysDir = TemporaryFolder()
+
+        private lateinit var notaryKeyFile: Path
+        private lateinit var notaryKey: Signer
+        private lateinit var mintAuthority: Signer
+        private val tokenAccountOwner = Signer.random()
         private lateinit var testValidator: SolanaTestValidator
 
         @BeforeClass
         @JvmStatic
         fun startTestValidator() {
             testValidator = SolanaTestValidator()
-            testValidator.fundDevAccounts()
-            testValidator.defaultNotarySetup()
+            notaryKeyFile = generalDir.randomKeypairFile()
+            notaryKey = Signer.fromFile(notaryKeyFile)
+            mintAuthority = Signer.fromFile(custodiedKeysDir.randomKeypairFile())
+            testValidator.start()
+            testValidator.defaultNotaryProgramSetup(notaryKey.account)
+            testValidator.fundAccount(10, mintAuthority)
+            testValidator.fundAccount(10, tokenAccountOwner)
         }
 
         @AfterClass
@@ -122,10 +145,14 @@ class FlowTests {
                             notaryLegalIdentity = "$notaryName"
                             solana {
                                 rpcUrl = "${SolanaTestValidator.RPC_URL}"
-                                wallet = "${SolanaTestValidator.DEV_NOTARY_FILE}"
+                                notaryKeypairFile = "$notaryKeyFile"
+                                custodiedKeysDir = "${custodiedKeysDir.root.toPath()}"
+                                programWhitelist = ["${Token2022.PROGRAM_ID}"]
+                              
                             }
                         """.trimIndent()
 
+    //wallet = "${SolanaTestValidator.DEV_NOTARY_FILE}"
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
     fun issueTest() {
@@ -201,7 +228,6 @@ class FlowTests {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun bridgeTest() {
 
-        val mintAuthority = SolanaTestValidator.DEV_NOTARY
         val accountOwner = Signer.random()
 
         testValidator.fundAccount(10, accountOwner)
