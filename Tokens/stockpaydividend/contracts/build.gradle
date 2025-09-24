@@ -26,6 +26,10 @@ dependencies {
 
     // Token SDK dependencies.
     cordaProvided "$tokens_release_group:tokens-contracts:$tokens_release_version"
+
+    //App dependencies
+    cordaProvided "com.lmax:solana4j:${solana4j_version}"
+    cordaProvided "$corda_release_group:corda-solana-sdk:$corda_release_version"
 }
 
 test {

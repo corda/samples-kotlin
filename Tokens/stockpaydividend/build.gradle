@@ -17,10 +17,11 @@ buildscript {
         log4j_version = constants.getProperty("log4jVersion")
         slf4j_version = constants.getProperty("slf4jVersion")
         corda_platform_version = constants.getProperty("platformVersion").toInteger()
+        solana4j_version = constants.getProperty("solana4jVersion")
 
         //token
         tokens_release_group = 'com.r3.corda.lib.tokens'
-        tokens_release_version = '1.3-SNAPSHOT'
+        tokens_release_version = '1.3'
 
 
         testJvmArgs = ['--add-opens', 'java.base/java.time=ALL-UNNAMED', '--add-opens', 'java.base/java.io=ALL-UNNAMED',
