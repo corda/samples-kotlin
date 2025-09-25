@@ -1,5 +1,6 @@
 package net.corda.samples.stockpaydividend
 
+import com.lmax.solana4j.api.PublicKey
 import com.r3.corda.lib.tokens.bridging.rpc.BridgeStock
 import com.r3.corda.lib.tokens.bridging.states.BridgedAssetLockState
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
@@ -32,6 +33,7 @@ import java.math.BigDecimal
 import java.util.*
 import java.util.concurrent.ExecutionException
 import net.corda.testing.node.MockNetworkNotarySpec
+import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.internal.DUMMY_CONTRACTS_CORDAPP
 import net.corda.testing.solana.randomKeypairFile
 import org.junit.ClassRule
@@ -80,6 +82,9 @@ class FlowTests {
         private val tokenAccountOwner = Signer.random()
         private lateinit var testValidator: SolanaTestValidator
 
+        private lateinit var tokenMint: PublicKey
+        private lateinit var tokenAccount: PublicKey
+
         @BeforeClass
         @JvmStatic
         fun startTestValidator() {
@@ -91,6 +96,13 @@ class FlowTests {
             testValidator.defaultNotaryProgramSetup(notaryKey.account)
             testValidator.fundAccount(10, mintAuthority)
             testValidator.fundAccount(10, tokenAccountOwner)
+
+            val accountOwner = Signer.random()
+
+            testValidator.fundAccount(10, accountOwner)
+
+            tokenMint = testValidator.createToken(mintAuthority)
+            tokenAccount = testValidator.createTokenAccount(accountOwner, tokenMint)
         }
 
         @AfterClass
@@ -104,11 +116,12 @@ class FlowTests {
 
     @Before
     fun setup() {
+        val app = TestCordapp.findCordapp("net.corda.samples.stockpaydividend.flows")
         network = MockNetwork(
             MockNetworkParameters(
                 cordappsForAllNodes = listOf(
                     TestCordapp.findCordapp("net.corda.samples.stockpaydividend.contracts"),
-                    TestCordapp.findCordapp("net.corda.samples.stockpaydividend.flows"),
+                    app,
                     TestCordapp.findCordapp("com.r3.corda.lib.tokens.contracts"),
                     TestCordapp.findCordapp("com.r3.corda.lib.tokens.workflows"),
                     DUMMY_CONTRACTS_CORDAPP
@@ -117,7 +130,17 @@ class FlowTests {
             )
         )
 
-        company = network!!.createPartyNode(COMPANY.name)
+        val companyCfg = mapOf(
+            "participants" to mapOf(COMPANY.name.toString() to tokenAccount.base58()),
+            "mints" to mapOf(STOCK_SYMBOL to tokenMint.base58()),
+            "mintAuthorities" to mapOf(STOCK_SYMBOL to mintAuthority.account.base58())
+        )
+        company = network!!.createNode(
+            MockNodeParameters(
+                legalName = COMPANY.name,
+                additionalCordapps = listOf(app.withConfig(companyCfg))
+            )
+        )
         observer = network!!.createPartyNode(OBSERVER.name)
         shareholder = network!!.createPartyNode(SHAREHOLDER.name)
         bank = network!!.createPartyNode(BANK.name)
@@ -147,12 +170,10 @@ class FlowTests {
                                 rpcUrl = "${SolanaTestValidator.RPC_URL}"
                                 notaryKeypairFile = "$notaryKeyFile"
                                 custodiedKeysDir = "${custodiedKeysDir.root.toPath()}"
-                                programWhitelist = ["${Token2022.PROGRAM_ID}"]
-                              
+                                programWhitelist = ["${Token2022.PROGRAM_ID}"]          
                             }
                         """.trimIndent()
 
-    //wallet = "${SolanaTestValidator.DEV_NOTARY_FILE}"
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
     fun issueTest() {
@@ -228,13 +249,6 @@ class FlowTests {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun bridgeTest() {
 
-        val accountOwner = Signer.random()
-
-        testValidator.fundAccount(10, accountOwner)
-
-        val tokenMint = testValidator.createToken(mintAuthority)
-        val tokenAccount = testValidator.createTokenAccount(accountOwner, tokenMint)
-
         // Issue Stock
         var future = company!!.startFlow<String?>(
             CreateAndIssueStock(
@@ -266,10 +280,7 @@ class FlowTests {
             BridgeStock(
                 STOCK_SYMBOL,
                 startCordaQuantity ,
-                company!!.info.legalIdentities[0],
-                tokenAccount.base58(),
-                tokenMint.base58(),
-                mintAuthority.account.base58()
+                company!!.info.legalIdentities[0]
             )
         )
 

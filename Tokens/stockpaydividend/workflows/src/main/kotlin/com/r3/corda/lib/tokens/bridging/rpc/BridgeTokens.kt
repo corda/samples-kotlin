@@ -16,6 +16,7 @@ import net.corda.core.identity.Party
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import com.r3.corda.lib.tokens.bridging.BridgeFungibleTokensFlow
+import com.r3.corda.lib.tokens.bridging.SolanaAccountsMappingService
 import com.r3.corda.lib.tokens.bridging.contracts.BridgingContract
 import com.r3.corda.lib.tokens.bridging.states.BridgedAssetLockState
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
@@ -29,33 +30,19 @@ import net.corda.solana.sdk.instruction.Pubkey
 class BridgeStock(
     val symbol: String,
     val quantity: Long,
-    val bridgeAuthority: Party,
-    val destination: Pubkey,
-    val mint: Pubkey,
-    val mintAuthority: Pubkey
+    val bridgeAuthority: Party
 ) : FlowLogic<String>() {
-
-    constructor(
-        symbol: String,
-        quantity: Long,
-        bridgeAuthority: Party,
-        destination: String,
-        mint: String,
-        mintAuthority: String
-    ) : this(
-        symbol,
-        quantity,
-        bridgeAuthority,
-        Pubkey.fromBase58(destination),
-        Pubkey.fromBase58(mint),
-        Pubkey.fromBase58(mintAuthority)
-    )
 
     override val progressTracker = ProgressTracker()
 
     @Suspendable
     override fun call(): String {
         val additionalOutput: ContractState = BridgedAssetLockState(listOf(ourIdentity))
+
+        val solanaAccountMapping = serviceHub.cordaService(SolanaAccountsMappingService::class.java)
+        val destination = solanaAccountMapping.participants[ourIdentity.name]!! //TODO handle null
+        val mint = solanaAccountMapping.mints[symbol]!! //TODO handle null
+        val mintAuthority = solanaAccountMapping.minAuthorities[symbol]!! //TODO handle null
         val additionalCommand = BridgingContract.BridgingCommand.BridgeToSolana(
             destination,
             bridgeAuthority

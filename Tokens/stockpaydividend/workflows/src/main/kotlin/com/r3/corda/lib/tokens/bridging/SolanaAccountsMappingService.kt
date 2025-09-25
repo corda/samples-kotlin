@@ -1,0 +1,42 @@
+package com.r3.corda.lib.tokens.bridging
+
+import net.corda.core.identity.CordaX500Name
+import net.corda.core.node.AppServiceHub
+import net.corda.core.node.services.CordaService
+import net.corda.core.serialization.SingletonSerializeAsToken
+import net.corda.solana.sdk.instruction.Pubkey
+
+@CordaService
+class SolanaAccountsMappingService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() {
+    var participants: Map<CordaX500Name, Pubkey>
+    var mints: Map<String, Pubkey>
+    var minAuthorities: Map<String, Pubkey>
+
+    // TODO quiet failover as this service is used in MockNetwork by nodes without a config for now
+    // will be fail fast after separating flows to specific CordApps and adding Birding Authority which will have exclusive flows and this service
+    init {
+        val cfg = appServiceHub.getAppContext().config
+        participants = try {
+            (cfg.get("participants") as? Map<String, String>)?.map { (k, v) ->
+                CordaX500Name.parse(k) to Pubkey.fromBase58(
+                    v
+                )
+            }?.toMap() ?: emptyMap()
+        } catch (_: Exception) {
+            emptyMap() // TODO see above
+        }
+        mints = try {
+            (cfg.get("mints") as? Map<String, String>)?.map { (k, v) -> k to Pubkey.fromBase58(v) }?.toMap()
+                ?: emptyMap()
+        } catch (_: Exception) {
+            emptyMap() // TODO see above
+        }
+
+        minAuthorities = try {
+            (cfg.get("mintAuthorities") as? Map<String, String>)?.map { (k, v) -> k to Pubkey.fromBase58(v) }?.toMap()
+                ?: emptyMap()
+        } catch (_: Exception) {
+            emptyMap() // TODO see above
+        }
+    }
+}
