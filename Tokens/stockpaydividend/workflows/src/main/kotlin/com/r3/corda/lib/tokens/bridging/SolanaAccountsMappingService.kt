@@ -10,7 +10,7 @@ import net.corda.solana.sdk.instruction.Pubkey
 class SolanaAccountsMappingService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() {
     var participants: Map<CordaX500Name, Pubkey>
     var mints: Map<String, Pubkey>
-    var minAuthorities: Map<String, Pubkey>
+    var mintAuthorities: Map<String, Pubkey>
 
     // TODO quiet failover as this service is used in MockNetwork by nodes without a config for now
     // will be fail fast after separating flows to specific CordApps and adding Birding Authority which will have exclusive flows and this service
@@ -23,20 +23,20 @@ class SolanaAccountsMappingService(appServiceHub: AppServiceHub) : SingletonSeri
                 )
             }?.toMap() ?: emptyMap()
         } catch (_: Exception) {
-            emptyMap() // TODO see above
+            emptyMap()
         }
         mints = try {
             (cfg.get("mints") as? Map<String, String>)?.map { (k, v) -> k to Pubkey.fromBase58(v) }?.toMap()
                 ?: emptyMap()
         } catch (_: Exception) {
-            emptyMap() // TODO see above
+            emptyMap()
         }
 
-        minAuthorities = try {
+        mintAuthorities = try {
             (cfg.get("mintAuthorities") as? Map<String, String>)?.map { (k, v) -> k to Pubkey.fromBase58(v) }?.toMap()
                 ?: emptyMap()
         } catch (_: Exception) {
-            emptyMap() // TODO see above
+            emptyMap()
         }
     }
 }
