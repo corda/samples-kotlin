@@ -37,26 +37,20 @@ class BridgeStock(
 
     @Suspendable
     override fun call(): String {
-        val additionalOutput: ContractState = BridgedAssetLockState(listOf(ourIdentity))
 
-        val solanaAccountMapping = serviceHub.cordaService(SolanaAccountsMappingService::class.java)
-        val destination = solanaAccountMapping.participants[ourIdentity.name]!! //TODO handle null
-        val mint = solanaAccountMapping.mints[symbol]!! //TODO handle null
-        val mintAuthority = solanaAccountMapping.minAuthorities[symbol]!! //TODO handle null
-        val additionalCommand = BridgingContract.BridgingCommand.BridgeToSolana(
-            destination,
-            bridgeAuthority
-        )
+        //TODO add list of StetRef to bridge in flow parameters
+        val criteria = QueryCriteria.VaultQueryCriteria(status = Vault.StateStatus.UNCONSUMED)
+        val token: StateAndRef<FungibleToken> = serviceHub.vaultService
+            .queryBy(FungibleToken::class.java, criteria)
+            .states.first()
+
         //Use built-in flow for move tokens to the recipient
         val stx = subFlow(
             BridgeFungibleTokens(
                 ourIdentity, //TODO confidentialIdentity
                 emptyList(),
-                additionalOutput,
-                additionalCommand,
-                destination,
-                mint,
-                mintAuthority
+                token,
+                bridgeAuthority
             )
         )
 
@@ -73,18 +67,14 @@ class BridgeStock(
  * @param observers optional observing parties to which the transaction will be broadcast
  */
 @StartableByService
-@StartableByRPC
 @InitiatingFlow
 class BridgeFungibleTokens
 @JvmOverloads
 constructor(
     val holder: AbstractParty,
     val observers: List<Party> = emptyList(),
-    val additionalOutput: ContractState,
-    val additionalCommand: BridgingContract.BridgingCommand,
-    val destination: Pubkey,
-    val mint: Pubkey,
-    val mintAuthority: Pubkey
+    val token: StateAndRef<FungibleToken>, //TODO should be FungibleToken
+    val bridgeAuthority: Party
 ) : FlowLogic<SignedTransaction>() {
 
     @Suspendable
@@ -93,14 +83,17 @@ constructor(
         val observerSessions = sessionsForParties(observers)
         val participantSessions = sessionsForParties(participants)
 
-        //TODO add list of StetRef to bridge in flow parameters
-        val criteria = QueryCriteria.VaultQueryCriteria(status = Vault.StateStatus.UNCONSUMED)
+        val additionalOutput: ContractState = BridgedAssetLockState(listOf(ourIdentity))
 
-        serviceHub.vaultService.queryBy(FungibleToken::class.java, criteria)
-
-        val token: StateAndRef<FungibleToken> = serviceHub.vaultService
-            .queryBy(FungibleToken::class.java, criteria)
-            .states.first()
+        val symbol = "TEST" //TODO mapping should change to LinearId
+        val solanaAccountMapping = serviceHub.cordaService(SolanaAccountsMappingService::class.java)
+        val destination = solanaAccountMapping.participants[ourIdentity.name]!! //TODO handle null
+        val mint = solanaAccountMapping.mints[symbol]!! //TODO handle null
+        val mintAuthority = solanaAccountMapping.mintAuthorities[symbol]!! //TODO handle null
+        val additionalCommand = BridgingContract.BridgingCommand.BridgeToSolana(
+            destination,
+            bridgeAuthority
+        )
 
         return subFlow(
             BridgeFungibleTokensFlow(
