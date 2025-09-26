@@ -16,60 +16,41 @@ import net.corda.core.identity.Party
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import com.r3.corda.lib.tokens.bridging.BridgeFungibleTokensFlow
+import com.r3.corda.lib.tokens.bridging.SolanaAccountsMappingService
 import com.r3.corda.lib.tokens.bridging.contracts.BridgingContract
 import com.r3.corda.lib.tokens.bridging.states.BridgedAssetLockState
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
+import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.node.services.Vault
 import net.corda.core.utilities.ProgressTracker
-import net.corda.solana.sdk.instruction.Pubkey
 
 @InitiatingFlow
 @StartableByRPC
 class BridgeStock(
     val symbol: String,
     val quantity: Long,
-    val bridgeAuthority: Party,
-    val destination: Pubkey,
-    val mint: Pubkey,
-    val mintAuthority: Pubkey
+    val bridgeAuthority: Party
 ) : FlowLogic<String>() {
-
-    constructor(
-        symbol: String,
-        quantity: Long,
-        bridgeAuthority: Party,
-        destination: String,
-        mint: String,
-        mintAuthority: String
-    ) : this(
-        symbol,
-        quantity,
-        bridgeAuthority,
-        Pubkey.fromBase58(destination),
-        Pubkey.fromBase58(mint),
-        Pubkey.fromBase58(mintAuthority)
-    )
 
     override val progressTracker = ProgressTracker()
 
     @Suspendable
     override fun call(): String {
-        val additionalOutput: ContractState = BridgedAssetLockState(listOf(ourIdentity))
-        val additionalCommand = BridgingContract.BridgingCommand.BridgeToSolana(
-            destination,
-            bridgeAuthority
-        )
+
+        //TODO this simulates getting updates from vault
+        val criteria = QueryCriteria.VaultQueryCriteria(status = Vault.StateStatus.UNCONSUMED)
+        val token: StateAndRef<FungibleToken> = serviceHub.vaultService
+            .queryBy(FungibleToken::class.java, criteria)
+            .states.first()
+
         //Use built-in flow for move tokens to the recipient
         val stx = subFlow(
             BridgeFungibleTokens(
                 ourIdentity, //TODO confidentialIdentity
                 emptyList(),
-                additionalOutput,
-                additionalCommand,
-                destination,
-                mint,
-                mintAuthority
+                token,
+                bridgeAuthority
             )
         )
 
@@ -86,18 +67,14 @@ class BridgeStock(
  * @param observers optional observing parties to which the transaction will be broadcast
  */
 @StartableByService
-@StartableByRPC
 @InitiatingFlow
 class BridgeFungibleTokens
 @JvmOverloads
 constructor(
     val holder: AbstractParty,
     val observers: List<Party> = emptyList(),
-    val additionalOutput: ContractState,
-    val additionalCommand: BridgingContract.BridgingCommand,
-    val destination: Pubkey,
-    val mint: Pubkey,
-    val mintAuthority: Pubkey
+    val token: StateAndRef<FungibleToken>, //TODO should be FungibleToken, TODO change to any TokenType would need amendments to UUID retrieval below
+    val bridgeAuthority: Party
 ) : FlowLogic<SignedTransaction>() {
 
     @Suspendable
@@ -106,14 +83,18 @@ constructor(
         val observerSessions = sessionsForParties(observers)
         val participantSessions = sessionsForParties(participants)
 
-        //TODO add list of StetRef to bridge in flow parameters
-        val criteria = QueryCriteria.VaultQueryCriteria(status = Vault.StateStatus.UNCONSUMED)
+        val additionalOutput: ContractState = BridgedAssetLockState(listOf(ourIdentity))
 
-        serviceHub.vaultService.queryBy(FungibleToken::class.java, criteria)
+        val cordaTokenId = (token.state.data.amount.token.tokenType as TokenPointer<*>).pointer.pointer.id
 
-        val token: StateAndRef<FungibleToken> = serviceHub.vaultService
-            .queryBy(FungibleToken::class.java, criteria)
-            .states.first()
+        val solanaAccountMapping = serviceHub.cordaService(SolanaAccountsMappingService::class.java)
+        val destination = solanaAccountMapping.participants[ourIdentity.name]!! //TODO handle null, TODo eliminate this
+        val mint = solanaAccountMapping.mints[cordaTokenId]!! //TODO handle null
+        val mintAuthority = solanaAccountMapping.mintAuthorities[cordaTokenId]!! //TODO handle null
+        val additionalCommand = BridgingContract.BridgingCommand.BridgeToSolana(
+            destination,
+            bridgeAuthority
+        )
 
         return subFlow(
             BridgeFungibleTokensFlow(
