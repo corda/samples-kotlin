@@ -7,6 +7,7 @@ import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import com.r3.corda.lib.tokens.workflows.utilities.tokenBalance
 import net.corda.core.contracts.StateAndRef
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
@@ -63,7 +64,7 @@ class FlowTests {
     val STOCK_PRICE = BigDecimal.valueOf(7.4)
     val ISSUING_STOCK_QUANTITY = 2000
     val BUYING_STOCK = java.lang.Long.valueOf(500)
-
+    val LINEAR_ID = UniqueIdentifier()
 
     companion object {
         val notaryName = CordaX500Name("Solana Notary Service", "Zurich", "CH")
@@ -132,8 +133,8 @@ class FlowTests {
 
         val companyCfg = mapOf(
             "participants" to mapOf(COMPANY.name.toString() to tokenAccount.base58()),
-            "mints" to mapOf(STOCK_SYMBOL to tokenMint.base58()),
-            "mintAuthorities" to mapOf(STOCK_SYMBOL to mintAuthority.account.base58())
+            "mints" to mapOf(LINEAR_ID.toString() to tokenMint.base58()),
+            "mintAuthorities" to mapOf(LINEAR_ID.toString() to mintAuthority.account.base58())
         )
         company = network!!.createNode(
             MockNodeParameters(
@@ -227,6 +228,7 @@ class FlowTests {
         //Retrieve states from receiver
         val receivedStockStatesPages = shareholder!!.services.vaultService.queryBy(StockState::class.java).states
         val receivedStockState = receivedStockStatesPages[0].state.data
+        val cordaTokenId = receivedStockState.toPointer<StockState>().pointer.pointer.id
         val (quantity) = shareholder!!.services.vaultService.tokenBalance(
             receivedStockState.toPointer(
                 receivedStockState.javaClass
@@ -257,7 +259,8 @@ class FlowTests {
                 STOCK_CURRENCY,
                 STOCK_PRICE,
                 ISSUING_STOCK_QUANTITY,
-                notaryParty!!
+                notaryParty!!,
+                LINEAR_ID
             )
         )
         network!!.runNetwork()

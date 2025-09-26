@@ -28,7 +28,9 @@ class CreateAndIssueStock(val symbol: String,
                           val currency: String,
                           val price: BigDecimal,
                           val issueVol: Int,
-                          val notary: Party) : FlowLogic<String>() {
+                          val notary: Party,
+                          val linearId: UniqueIdentifier = UniqueIdentifier()
+) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
     @Suspendable
@@ -39,10 +41,7 @@ class CreateAndIssueStock(val symbol: String,
         val observers: List<Party> = getObserverLegalIdentities(identityService)
 
         // Construct the output StockState
-        val stockState = StockState(ourIdentity, symbol,
-                name, currency,
-                price,
-                UniqueIdentifier())
+        val stockState = StockState(ourIdentity, symbol, name, currency, price, linearId)
 
         // The notary provided here will be used in all future actions of this token
         val transactionState = stockState withNotary notary

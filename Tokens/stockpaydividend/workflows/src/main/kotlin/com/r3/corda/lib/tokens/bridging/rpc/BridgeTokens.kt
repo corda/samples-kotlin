@@ -20,10 +20,10 @@ import com.r3.corda.lib.tokens.bridging.SolanaAccountsMappingService
 import com.r3.corda.lib.tokens.bridging.contracts.BridgingContract
 import com.r3.corda.lib.tokens.bridging.states.BridgedAssetLockState
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
+import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.node.services.Vault
 import net.corda.core.utilities.ProgressTracker
-import net.corda.solana.sdk.instruction.Pubkey
 
 @InitiatingFlow
 @StartableByRPC
@@ -38,7 +38,7 @@ class BridgeStock(
     @Suspendable
     override fun call(): String {
 
-        //TODO add list of StetRef to bridge in flow parameters
+        //TODO this simulates getting updates from vault
         val criteria = QueryCriteria.VaultQueryCriteria(status = Vault.StateStatus.UNCONSUMED)
         val token: StateAndRef<FungibleToken> = serviceHub.vaultService
             .queryBy(FungibleToken::class.java, criteria)
@@ -73,7 +73,7 @@ class BridgeFungibleTokens
 constructor(
     val holder: AbstractParty,
     val observers: List<Party> = emptyList(),
-    val token: StateAndRef<FungibleToken>, //TODO should be FungibleToken
+    val token: StateAndRef<FungibleToken>, //TODO should be FungibleToken, TODO change to any TokenType would need amendments to UUID retrieval below
     val bridgeAuthority: Party
 ) : FlowLogic<SignedTransaction>() {
 
@@ -85,11 +85,12 @@ constructor(
 
         val additionalOutput: ContractState = BridgedAssetLockState(listOf(ourIdentity))
 
-        val symbol = "TEST" //TODO mapping should change to LinearId
+        val cordaTokenId = (token.state.data.amount.token.tokenType as TokenPointer<*>).pointer.pointer.id
+
         val solanaAccountMapping = serviceHub.cordaService(SolanaAccountsMappingService::class.java)
-        val destination = solanaAccountMapping.participants[ourIdentity.name]!! //TODO handle null
-        val mint = solanaAccountMapping.mints[symbol]!! //TODO handle null
-        val mintAuthority = solanaAccountMapping.mintAuthorities[symbol]!! //TODO handle null
+        val destination = solanaAccountMapping.participants[ourIdentity.name]!! //TODO handle null, TODo eliminate this
+        val mint = solanaAccountMapping.mints[cordaTokenId]!! //TODO handle null
+        val mintAuthority = solanaAccountMapping.mintAuthorities[cordaTokenId]!! //TODO handle null
         val additionalCommand = BridgingContract.BridgingCommand.BridgeToSolana(
             destination,
             bridgeAuthority
