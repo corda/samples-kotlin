@@ -285,7 +285,7 @@ class FlowTests {
         future.get()
 
         // First stock to be bridged
-        var stockStatePointer = getTokensPointers(company!!, STOCK_SYMBOL).first()
+        var stockStatePointer = getTokensPointer(company!!, STOCK_SYMBOL)
         val (startCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), startCordaQuantity)
 
@@ -295,7 +295,7 @@ class FlowTests {
         Assert.assertEquals("0", startSolanaBalance!!.amount)
 
         // Second stock - to verify it remains unaffected
-        var stock2StatePointer = getTokensPointers(company!!, STOCK_SYMBOL_2).first()
+        var stock2StatePointer = getTokensPointer(company!!, STOCK_SYMBOL_2)
         var (start2CordaQuantity) = company!!.services.vaultService.tokenBalance(stock2StatePointer)
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), start2CordaQuantity)
 
@@ -311,7 +311,7 @@ class FlowTests {
         network!!.runNetwork()
         future.get()
 
-        stockStatePointer = getTokensPointers(company!!, STOCK_SYMBOL).first()
+        stockStatePointer = getTokensPointer(company!!, STOCK_SYMBOL)
         val (finalCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
         Assert.assertEquals(
             ISSUING_STOCK_QUANTITY.toLong(),
@@ -339,18 +339,19 @@ class FlowTests {
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toString(), finalSolanaBalance!!.amount)
 
         // Second stock balance remains unchanged /unaffected
-        stock2StatePointer = getTokensPointers(company!!, STOCK_SYMBOL_2).first()
+        stock2StatePointer = getTokensPointer(company!!, STOCK_SYMBOL_2)
         start2CordaQuantity = company!!.services.vaultService.tokenBalance(stock2StatePointer).quantity
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), start2CordaQuantity)
 
     }
 
 
-    private fun getTokensPointers(node: StartedMockNode, symbol: String): List<TokenPointer<StockState>> {
+    private fun getTokensPointer(node: StartedMockNode, symbol: String): TokenPointer<StockState> {
         val page =
-            node.services.vaultService.queryBy(StockState::class.java) //TODO + UNCONSUMED query  and belonging to our identity
+            node.services.vaultService.queryBy(StockState::class.java) //TODO + UNCONSUMED query and belonging to our identity
         val states = page.states.filter { it.state.data.symbol == symbol }
         val pointers: List<TokenPointer<StockState>> = states.map { it.state.data.toPointer(StockState::class.java) }
-        return pointers
+        Assert.assertEquals(1, pointers.size)
+        return pointers.first()
     }
 }
