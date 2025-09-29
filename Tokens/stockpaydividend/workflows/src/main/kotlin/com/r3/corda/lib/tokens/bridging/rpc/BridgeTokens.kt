@@ -1,7 +1,6 @@
 package com.r3.corda.lib.tokens.bridging.rpc
 
 import co.paralleluniverse.fibers.Suspendable
-import com.r3.corda.lib.tokens.contracts.types.TokenType
 import com.r3.corda.lib.tokens.workflows.flows.move.MoveTokensFlowHandler
 import com.r3.corda.lib.tokens.workflows.utilities.sessionsForParties
 import net.corda.core.contracts.ContractState
@@ -61,15 +60,13 @@ class BridgeStock(
 }
 
 /**
- * Initiating flow used to bridge amounts of tokens of the same party.
- *
- * Call this for one [TokenType] at a time.
+ * Initiating flow used to bridge token of the same party.
  *
  * @param observers optional observing parties to which the transaction will be broadcast
  */
 @StartableByService
 @InitiatingFlow
-class BridgeFungibleTokens
+class BridgeFungibleTokens //TODO move away from RPC package
 @JvmOverloads
 constructor(
     val holder: AbstractParty,
