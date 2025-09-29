@@ -13,7 +13,6 @@ import net.corda.core.flows.StartableByRPC
 import net.corda.core.flows.StartableByService
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
-import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import com.r3.corda.lib.tokens.bridging.BridgeFungibleTokensFlow
 import com.r3.corda.lib.tokens.bridging.SolanaAccountsMappingService
@@ -22,8 +21,9 @@ import com.r3.corda.lib.tokens.bridging.states.BridgedAssetLockState
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import net.corda.core.contracts.StateAndRef
-import net.corda.core.node.services.Vault
 import net.corda.core.utilities.ProgressTracker
+import net.corda.samples.stockpaydividend.states.StockState
+import com.r3.corda.lib.tokens.workflows.utilities.tokenAmountsByToken
 
 @InitiatingFlow
 @StartableByRPC
@@ -39,10 +39,11 @@ class BridgeStock(
     override fun call(): String {
 
         //TODO this simulates getting updates from vault
-        val criteria = QueryCriteria.VaultQueryCriteria(status = Vault.StateStatus.UNCONSUMED)
-        val token: StateAndRef<FungibleToken> = serviceHub.vaultService
-            .queryBy(FungibleToken::class.java, criteria)
-            .states.first()
+        val page =
+            serviceHub.vaultService.queryBy(StockState::class.java) //TODO + UNCONSUMED query  and belonging to our identity
+        val states = page.states.filter { it.state.data.symbol == symbol }
+        val pointer: TokenPointer<StockState> = states.map { it.state.data.toPointer(StockState::class.java) }.first()
+        val token: StateAndRef<FungibleToken> = serviceHub.vaultService.tokenAmountsByToken(pointer).states.first()
 
         //Use built-in flow for move tokens to the recipient
         val stx = subFlow(

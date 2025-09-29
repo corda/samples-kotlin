@@ -65,6 +65,9 @@ class FlowTests {
     val ISSUING_STOCK_QUANTITY = 2000
     val BUYING_STOCK = java.lang.Long.valueOf(500)
     val LINEAR_ID = UniqueIdentifier()
+    val STOCK_SYMBOL_2 = "TEST2"
+    val LINEAR_ID_2 = UniqueIdentifier()
+    val STOCK_NAME_2 = "Test Stock 2"
 
     companion object {
         val notaryName = CordaX500Name("Solana Notary Service", "Zurich", "CH")
@@ -251,7 +254,7 @@ class FlowTests {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun bridgeTest() {
 
-        // Issue Stock
+        // Issue 1st Stock
         var future = company!!.startFlow<String?>(
             CreateAndIssueStock(
                 STOCK_SYMBOL,
@@ -266,10 +269,23 @@ class FlowTests {
         network!!.runNetwork()
         future.get()
 
-        val stockStatesPages = company!!.services.vaultService.queryBy(StockState::class.java).states
-        Assert.assertNotNull(stockStatesPages[0])
-        val stockState = stockStatesPages[0].state.data
-        val stockStatePointer = stockState.toPointer(stockState.javaClass)
+        // Issue 2nd Stock
+        future = company!!.startFlow<String?>(
+            CreateAndIssueStock(
+                STOCK_SYMBOL_2,
+                STOCK_NAME_2,
+                STOCK_CURRENCY,
+                STOCK_PRICE,
+                ISSUING_STOCK_QUANTITY,
+                notaryParty!!,
+                LINEAR_ID_2
+            )
+        )
+        network!!.runNetwork()
+        future.get()
+
+        // First stock to be bridged
+        var stockStatePointer = getTokensPointers(company!!, STOCK_SYMBOL).first()
         val (startCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), startCordaQuantity)
 
@@ -277,6 +293,11 @@ class FlowTests {
             testValidator.client.getTokenAccountBalance(tokenAccount.base58(), RpcParams())
                 .checkResponse("getTokenAccountBalance")
         Assert.assertEquals("0", startSolanaBalance!!.amount)
+
+        // Second stock - to verify it remains unaffected
+        var stock2StatePointer = getTokensPointers(company!!, STOCK_SYMBOL_2).first()
+        var (start2CordaQuantity) = company!!.services.vaultService.tokenBalance(stock2StatePointer)
+        Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), start2CordaQuantity)
 
         // TODO Spend all to avoid having a change to yourself - then can't distinguish which amount si to mint which is a change
         future = company!!.startFlow(
@@ -290,12 +311,8 @@ class FlowTests {
         network!!.runNetwork()
         future.get()
 
-        val remainingStockStatesPages = company!!.services.vaultService.queryBy(StockState::class.java).states
-        Assert.assertNotNull(remainingStockStatesPages[0])
-        val remainingStockState = remainingStockStatesPages[0].state.data
-        val remainingStockStatePointer: TokenPointer<StockState> =
-            remainingStockState.toPointer(remainingStockState.javaClass)
-        val (finalCordaQuantity) = company!!.services.vaultService.tokenBalance(remainingStockStatePointer)
+        stockStatePointer = getTokensPointers(company!!, STOCK_SYMBOL).first()
+        val (finalCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
         Assert.assertEquals(
             ISSUING_STOCK_QUANTITY.toLong(),
             finalCordaQuantity
@@ -303,7 +320,7 @@ class FlowTests {
 
         val token: StateAndRef<FungibleToken>? =
             company!!.services.vaultService.queryBy(FungibleToken::class.java).states.firstOrNull {
-                it.state.data.amount.token.tokenType == remainingStockStatePointer
+                it.state.data.amount.token.tokenType == stockStatePointer
             }
         Assert.assertNotNull(token)
         val bridgingState: StateAndRef<BridgedAssetLockState>? =
@@ -320,6 +337,20 @@ class FlowTests {
                 .checkResponse("getTokenAccountBalance")
 
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toString(), finalSolanaBalance!!.amount)
+
+        // Second stock balance remains unchanged /unaffected
+        stock2StatePointer = getTokensPointers(company!!, STOCK_SYMBOL_2).first()
+        start2CordaQuantity = company!!.services.vaultService.tokenBalance(stock2StatePointer).quantity
+        Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), start2CordaQuantity)
+
     }
 
+
+    private fun getTokensPointers(node: StartedMockNode, symbol: String): List<TokenPointer<StockState>> {
+        val page =
+            node.services.vaultService.queryBy(StockState::class.java) //TODO + UNCONSUMED query  and belonging to our identity
+        val states = page.states.filter { it.state.data.symbol == symbol }
+        val pointers: List<TokenPointer<StockState>> = states.map { it.state.data.toPointer(StockState::class.java) }
+        return pointers
+    }
 }
