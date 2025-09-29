@@ -47,6 +47,7 @@ class FlowTests {
     private var observer: StartedMockNode? = null
     private var shareholder: StartedMockNode? = null
     private var bank: StartedMockNode? = null
+    private var ba: StartedMockNode? = null
     private var exDate: Date? = null
     private var payDate: Date? = null
 
@@ -57,6 +58,7 @@ class FlowTests {
     var SHAREHOLDER = TestIdentity(CordaX500Name("Shareholder", "TestVillage", "US"))
     var BANK = TestIdentity(CordaX500Name("Bank", "Rulerland", "US"))
     var OBSERVER = TestIdentity(CordaX500Name("Observer", "Rulerland", "US"))
+    var BA = TestIdentity(CordaX500Name("Bridging Authority", "New York", "US"))
 
     val STOCK_SYMBOL = "TEST"
     val STOCK_NAME = "Test Stock"
@@ -120,12 +122,13 @@ class FlowTests {
 
     @Before
     fun setup() {
-        val app = TestCordapp.findCordapp("net.corda.samples.stockpaydividend.flows")
+        val bridgingCordapp =
+            TestCordapp.findCordapp("net.corda.samples.stockpaydividend.flows") //TODO when the Cordapp will be moved to platform, this will be exclusively only for BA
         network = MockNetwork(
             MockNetworkParameters(
                 cordappsForAllNodes = listOf(
                     TestCordapp.findCordapp("net.corda.samples.stockpaydividend.contracts"),
-                    app,
+                    bridgingCordapp,
                     TestCordapp.findCordapp("com.r3.corda.lib.tokens.contracts"),
                     TestCordapp.findCordapp("com.r3.corda.lib.tokens.workflows"),
                     DUMMY_CONTRACTS_CORDAPP
@@ -135,21 +138,22 @@ class FlowTests {
         )
 
         val companyCfg = mapOf(
-            "participants" to mapOf(COMPANY.name.toString() to tokenAccount.base58()),
+            "participants" to mapOf(BA.name.toString() to tokenAccount.base58()), //TODO introduction of BA shows that participants are not needed - it's rather a single BA account
             "mints" to mapOf(LINEAR_ID.toString() to tokenMint.base58()),
             "mintAuthorities" to mapOf(LINEAR_ID.toString() to mintAuthority.account.base58())
         )
-        company = network!!.createNode(
-            MockNodeParameters(
-                legalName = COMPANY.name,
-                additionalCordapps = listOf(app.withConfig(companyCfg))
-            )
-        )
+        company = network!!.createPartyNode(COMPANY.name)
         observer = network!!.createPartyNode(OBSERVER.name)
         shareholder = network!!.createPartyNode(SHAREHOLDER.name)
         bank = network!!.createPartyNode(BANK.name)
         notary = network!!.notaryNodes[0]
         notaryParty = notary!!.info.legalIdentities[0]
+        ba = network!!.createNode(
+            MockNodeParameters(
+                legalName = BA.name,
+                additionalCordapps = listOf(bridgingCordapp.withConfig(companyCfg))
+            )
+        )
 
         // Set execution date as tomorrow
         val c = Calendar.getInstance()
@@ -254,7 +258,7 @@ class FlowTests {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun bridgeTest() {
 
-        // Issue 1st Stock
+        // Issue 1st Stock on Company node
         var future = company!!.startFlow<String?>(
             CreateAndIssueStock(
                 STOCK_SYMBOL,
@@ -269,8 +273,8 @@ class FlowTests {
         network!!.runNetwork()
         future.get()
 
-        // Issue 2nd Stock
-        future = company!!.startFlow<String?>(
+        // Issue 2nd Stock on Bridge Authority node to verify it remains unaffected
+        future = ba!!.startFlow(
             CreateAndIssueStock(
                 STOCK_SYMBOL_2,
                 STOCK_NAME_2,
@@ -284,7 +288,7 @@ class FlowTests {
         network!!.runNetwork()
         future.get()
 
-        // First stock to be bridged
+        // First stock to be bridged - moving from Company to Bridge Authority
         var stockStatePointer = getTokensPointer(company!!, STOCK_SYMBOL)
         val (startCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), startCordaQuantity)
@@ -294,37 +298,51 @@ class FlowTests {
                 .checkResponse("getTokenAccountBalance")
         Assert.assertEquals("0", startSolanaBalance!!.amount)
 
-        // Second stock - to verify it remains unaffected
-        var stock2StatePointer = getTokensPointer(company!!, STOCK_SYMBOL_2)
-        var (start2CordaQuantity) = company!!.services.vaultService.tokenBalance(stock2StatePointer)
+        // Second stock on Bridging Authority - to verify it remains unaffected
+        var stock2StatePointer = getTokensPointer(ba!!, STOCK_SYMBOL_2)
+        var (start2CordaQuantity) = ba!!.services.vaultService.tokenBalance(stock2StatePointer)
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), start2CordaQuantity)
 
-        // TODO Spend all to avoid having a change to yourself - then can't distinguish which amount si to mint which is a change
-        future = company!!.startFlow(
+        // Move Stock
+        future =
+            company!!.startFlow(MoveStock(STOCK_SYMBOL, ISSUING_STOCK_QUANTITY.toLong(), ba!!.info.legalIdentities[0]))
+        network!!.runNetwork()
+        future.get()
+
+        // Company has no longer the amount of stocks
+        val (endCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
+        Assert.assertEquals(0L, endCordaQuantity)
+
+        // Bridging Authority received the amount of stocks
+        stockStatePointer = getTokensPointer(ba!!, STOCK_SYMBOL)
+        val (startBridgingAuthorityCordaQuantity) = ba!!.services.vaultService.tokenBalance(stockStatePointer)
+        Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), startBridgingAuthorityCordaQuantity)
+
+        future = ba!!.startFlow(
             BridgeStock(
                 STOCK_SYMBOL,
                 startCordaQuantity ,
-                company!!.info.legalIdentities[0]
+                ba!!.info.legalIdentities[0] //TODO remove this as will be internally moved to own CI
             )
         )
 
         network!!.runNetwork()
         future.get()
 
-        stockStatePointer = getTokensPointer(company!!, STOCK_SYMBOL)
-        val (finalCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
+        stockStatePointer = getTokensPointer(ba!!, STOCK_SYMBOL)
+        val (finalCordaQuantity) = ba!!.services.vaultService.tokenBalance(stockStatePointer)
         Assert.assertEquals(
             ISSUING_STOCK_QUANTITY.toLong(),
             finalCordaQuantity
         ) // TODO this is Corda move token to self, so it still the same amount as at the beginning
 
         val token: StateAndRef<FungibleToken>? =
-            company!!.services.vaultService.queryBy(FungibleToken::class.java).states.firstOrNull {
+            ba!!.services.vaultService.queryBy(FungibleToken::class.java).states.firstOrNull {
                 it.state.data.amount.token.tokenType == stockStatePointer
             }
         Assert.assertNotNull(token)
         val bridgingState: StateAndRef<BridgedAssetLockState>? =
-            company!!.services.vaultService.queryBy(BridgedAssetLockState::class.java).states.firstOrNull()
+            ba!!.services.vaultService.queryBy(BridgedAssetLockState::class.java).states.firstOrNull()
         Assert.assertNotNull(bridgingState)
 
         Assert.assertTrue(
@@ -339,12 +357,11 @@ class FlowTests {
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toString(), finalSolanaBalance!!.amount)
 
         // Second stock balance remains unchanged /unaffected
-        stock2StatePointer = getTokensPointer(company!!, STOCK_SYMBOL_2)
-        start2CordaQuantity = company!!.services.vaultService.tokenBalance(stock2StatePointer).quantity
+        stock2StatePointer = getTokensPointer(ba!!, STOCK_SYMBOL_2)
+        start2CordaQuantity = ba!!.services.vaultService.tokenBalance(stock2StatePointer).quantity
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), start2CordaQuantity)
 
     }
-
 
     private fun getTokensPointer(node: StartedMockNode, symbol: String): TokenPointer<StockState> {
         val page =
