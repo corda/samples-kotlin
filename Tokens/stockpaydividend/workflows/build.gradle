@@ -53,15 +53,12 @@ dependencies {
 
     // CorDapp dependencies.
     cordapp project(":contracts")
-    cordapp project(":bridging-contracts")
-    cordapp project(":bridging-flows")
+    cordapp project(":bridging-contracts") // Used in the test
+    cordapp project(":bridging-flows") // Used in the test
 
     // Token SDK dependencies.
     cordaProvided "$tokens_release_group:tokens-contracts:$tokens_release_version"
     cordaProvided "$tokens_release_group:tokens-workflows:$tokens_release_version"
-
-    cordaProvided "$corda_release_group:corda-solana-sdk:$corda_release_version"
-    cordaProvided "$corda_release_group:corda-solana-common:$corda_release_version"
 }
 
 task integrationTest(type: Test, dependsOn: []) {
