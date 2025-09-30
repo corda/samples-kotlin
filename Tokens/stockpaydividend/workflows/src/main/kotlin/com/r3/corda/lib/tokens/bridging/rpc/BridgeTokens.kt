@@ -11,7 +11,6 @@ import com.r3.corda.lib.tokens.workflows.utilities.sessionsForParties
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.flows.*
-import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.node.services.Vault
 import net.corda.core.node.services.vault.QueryCriteria
@@ -28,7 +27,8 @@ class BridgeStock(
     val bridgeAuthority: Party,
     val destination: Pubkey,
     val mint: Pubkey,
-    val mintAuthority: Pubkey
+    val mintAuthority: Pubkey,
+    val holdingIdentityLabel: UUID
 ) : FlowLogic<String>() {
 
     constructor(
@@ -37,14 +37,16 @@ class BridgeStock(
         bridgeAuthority: Party,
         destination: String,
         mint: String,
-        mintAuthority: String
+        mintAuthority: String,
+        holdingIdentityLabel: String
     ) : this(
         symbol,
         quantity,
         bridgeAuthority,
         Pubkey.fromBase58(destination),
         Pubkey.fromBase58(mint),
-        Pubkey.fromBase58(mintAuthority)
+        Pubkey.fromBase58(mintAuthority),
+        UUID.fromString(holdingIdentityLabel)
     )
 
     override val progressTracker = ProgressTracker()
@@ -59,13 +61,13 @@ class BridgeStock(
         //Use built-in flow for move tokens to the recipient
         val stx = subFlow(
             BridgeFungibleTokens(
-                ourIdentity, //TODO confidentialIdentity
                 emptyList(),
                 additionalOutput,
                 additionalCommand,
                 destination,
                 mint,
-                mintAuthority
+                mintAuthority,
+                holdingIdentityLabel
             )
         )
 
@@ -87,35 +89,33 @@ class BridgeStock(
 class BridgeFungibleTokens
 @JvmOverloads
 constructor(
-    val holder: AbstractParty,
     val observers: List<Party> = emptyList(),
     val additionalOutput: ContractState,
     val additionalCommand: BridgingContract.BridgingCommand,
     val destination: Pubkey,
     val mint: Pubkey,
-    val mintAuthority: Pubkey
+    val mintAuthority: Pubkey,
+    val holdingIdentityLabel: UUID
 ) : FlowLogic<SignedTransaction>() {
 
     @Suspendable
     override fun call(): SignedTransaction {
-        // TODO: at the moment we are generating the UUID for the confidential identity but in the future it should be configured
-        val confidentialIdentityID = UUID.randomUUID()
-        val confidentialIdentityPublicKey = serviceHub
+        val holdingIdentityPublicKey = serviceHub
             .identityService
-            .publicKeysForExternalId(confidentialIdentityID)
+            .publicKeysForExternalId(holdingIdentityLabel)
             .singleOrNull()
-        val confidentialIdentityPartyAndCertificate = if (confidentialIdentityPublicKey == null) {
+        val holdingIdentityPartyAndCertificate = if (holdingIdentityPublicKey == null) {
             serviceHub.keyManagementService.freshKeyAndCert(
                 identity = serviceHub.identityService.certificateFromKey(ourIdentity.owningKey)!!,
                 revocationEnabled = false,
-                externalId = confidentialIdentityID
+                externalId = holdingIdentityLabel
             )
         } else {
-            serviceHub.identityService.certificateFromKey(confidentialIdentityPublicKey)
-                ?: throw IllegalStateException("Could not find certificate for key $confidentialIdentityPublicKey")
+            serviceHub.identityService.certificateFromKey(holdingIdentityPublicKey)
+                ?: throw IllegalStateException("Could not find certificate for key $holdingIdentityPublicKey")
         }
 
-        val participants = listOf(holder)
+        val participants = listOf(holdingIdentityPartyAndCertificate.party)
         val observerSessions = sessionsForParties(observers)
         val participantSessions = sessionsForParties(participants)
 
@@ -138,7 +138,7 @@ constructor(
                 destination = destination,
                 mint = mint,
                 mintAuthority = mintAuthority,
-                confidentialIdentityPartyAndCertificate.party,
+                holdingIdentityPartyAndCertificate.party,
             )
         )
     }

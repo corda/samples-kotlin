@@ -9,7 +9,8 @@ import net.corda.core.contracts.StateAndRef
 import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
-import net.corda.samples.stockpaydividend.flows.*
+import net.corda.samples.stockpaydividend.flows.CreateAndIssueStock
+import net.corda.samples.stockpaydividend.flows.MoveStock
 import net.corda.samples.stockpaydividend.states.StockState
 import net.corda.solana.aggregator.common.RpcParams
 import net.corda.solana.aggregator.common.Signer
@@ -17,26 +18,16 @@ import net.corda.solana.aggregator.common.checkResponse
 import net.corda.solana.sdk.internal.Token2022
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.TestIdentity
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkParameters
-import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.TestCordapp
+import net.corda.testing.node.*
+import net.corda.testing.node.internal.DUMMY_CONTRACTS_CORDAPP
 import net.corda.testing.solana.SolanaTestValidator
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.Assert
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Test
+import net.corda.testing.solana.randomKeypairFile
+import org.junit.*
+import org.junit.rules.TemporaryFolder
 import java.math.BigDecimal
+import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ExecutionException
-import net.corda.testing.node.MockNetworkNotarySpec
-import net.corda.testing.node.internal.DUMMY_CONTRACTS_CORDAPP
-import net.corda.testing.solana.randomKeypairFile
-import org.junit.ClassRule
-import org.junit.rules.TemporaryFolder
-import java.nio.file.Path
 
 class FlowTests {
     private var network: MockNetwork? = null
@@ -61,6 +52,7 @@ class FlowTests {
     val STOCK_PRICE = BigDecimal.valueOf(7.4)
     val ISSUING_STOCK_QUANTITY = 2000
     val BUYING_STOCK = java.lang.Long.valueOf(500)
+    val HOLDING_IDENTITY_LABEL = "7045e3d6-90ac-4d85-a8a3-3b7e363f2c06"
 
 
     companion object {
@@ -269,7 +261,8 @@ class FlowTests {
                 company!!.info.legalIdentities[0],
                 tokenAccount.base58(),
                 tokenMint.base58(),
-                mintAuthority.account.base58()
+                mintAuthority.account.base58(),
+                HOLDING_IDENTITY_LABEL
             )
         )
 
