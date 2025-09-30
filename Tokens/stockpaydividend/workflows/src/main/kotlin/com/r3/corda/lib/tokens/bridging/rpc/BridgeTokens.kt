@@ -1,28 +1,24 @@
 package com.r3.corda.lib.tokens.bridging.rpc
 
 import co.paralleluniverse.fibers.Suspendable
-import com.r3.corda.lib.tokens.contracts.types.TokenType
-import com.r3.corda.lib.tokens.workflows.flows.move.MoveTokensFlowHandler
-import com.r3.corda.lib.tokens.workflows.utilities.sessionsForParties
-import net.corda.core.contracts.ContractState
-import net.corda.core.flows.FlowLogic
-import net.corda.core.flows.FlowSession
-import net.corda.core.flows.InitiatedBy
-import net.corda.core.flows.InitiatingFlow
-import net.corda.core.flows.StartableByRPC
-import net.corda.core.flows.StartableByService
-import net.corda.core.identity.AbstractParty
-import net.corda.core.identity.Party
-import net.corda.core.node.services.vault.QueryCriteria
-import net.corda.core.transactions.SignedTransaction
 import com.r3.corda.lib.tokens.bridging.BridgeFungibleTokensFlow
 import com.r3.corda.lib.tokens.bridging.contracts.BridgingContract
 import com.r3.corda.lib.tokens.bridging.states.BridgedAssetLockState
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
+import com.r3.corda.lib.tokens.contracts.types.TokenType
+import com.r3.corda.lib.tokens.workflows.flows.move.MoveTokensFlowHandler
+import com.r3.corda.lib.tokens.workflows.utilities.sessionsForParties
+import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
+import net.corda.core.flows.*
+import net.corda.core.identity.AbstractParty
+import net.corda.core.identity.Party
 import net.corda.core.node.services.Vault
+import net.corda.core.node.services.vault.QueryCriteria
+import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.ProgressTracker
 import net.corda.solana.sdk.instruction.Pubkey
+import java.util.*
 
 @InitiatingFlow
 @StartableByRPC
@@ -102,7 +98,24 @@ constructor(
 
     @Suspendable
     override fun call(): SignedTransaction {
-        val participants = listOf(holder)  //TODO add confidentialIdentity
+        // TODO: at the moment we are generating the UUID for the confidential identity but in the future it should be configured
+        val confidentialIdentityID = UUID.randomUUID()
+        val confidentialIdentityPublicKey = serviceHub
+            .identityService
+            .publicKeysForExternalId(confidentialIdentityID)
+            .singleOrNull()
+        val confidentialIdentityPartyAndCertificate = if (confidentialIdentityPublicKey == null) {
+            serviceHub.keyManagementService.freshKeyAndCert(
+                identity = serviceHub.identityService.certificateFromKey(ourIdentity.owningKey)!!,
+                revocationEnabled = false,
+                externalId = confidentialIdentityID
+            )
+        } else {
+            serviceHub.identityService.certificateFromKey(confidentialIdentityPublicKey)
+                ?: throw IllegalStateException("Could not find certificate for key $confidentialIdentityPublicKey")
+        }
+
+        val participants = listOf(holder)
         val observerSessions = sessionsForParties(observers)
         val participantSessions = sessionsForParties(participants)
 
@@ -124,7 +137,8 @@ constructor(
                 additionalCommand = additionalCommand,
                 destination = destination,
                 mint = mint,
-                mintAuthority = mintAuthority
+                mintAuthority = mintAuthority,
+                confidentialIdentityPartyAndCertificate.party,
             )
         )
     }

@@ -8,6 +8,7 @@ import com.r3.corda.lib.tokens.workflows.flows.move.addMoveTokens
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.flows.FlowSession
+import net.corda.core.identity.AbstractParty
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.solana.sdk.instruction.Pubkey
 
@@ -21,14 +22,14 @@ constructor(
     val additionalCommand: BridgingContract.BridgingCommand,
     val destination: Pubkey,
     val mint: Pubkey,
-    val mintAuthority: Pubkey
+    val mintAuthority: Pubkey,
+    val holder: AbstractParty
 ) : AbstractMoveTokensFlow() {
 
     @Suspendable
     override fun addMove(transactionBuilder: TransactionBuilder) {
 
         val amount = token.state.data.amount
-        val holder = ourIdentity //TODO confidential identity
         val output = FungibleToken(amount, holder)
         addMoveTokens(transactionBuilder = transactionBuilder, inputs = listOf(token), outputs = listOf(output))
 
