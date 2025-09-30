@@ -1,11 +1,12 @@
 package net.corda.samples.stockpaydividend.flows
 
 import co.paralleluniverse.fibers.Suspendable
+import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
-import com.r3.corda.lib.tokens.contracts.types.TokenType
 import com.r3.corda.lib.tokens.money.FiatCurrency.Companion.getInstance
+import com.r3.corda.lib.tokens.workflows.utilities.tokenAmountsByToken
 import com.r3.corda.lib.tokens.workflows.utilities.tokenBalance
-import net.corda.core.contracts.Amount
+import net.corda.core.contracts.StateAndRef
 import net.corda.core.flows.FlowException
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow
@@ -42,5 +43,26 @@ class GetFiatBalance(private val currencyCode: String) : FlowLogic<String>() {
         val amount =  serviceHub.vaultService.tokenBalance(fiatTokenType)
         return "You currently have ${amount.quantity/100} ${amount.token.tokenIdentifier}"
 
+    }
+}
+
+
+//TODO this is temporally
+@InitiatingFlow
+@StartableByRPC
+class GetTokenToBridge(
+    val symbol: String
+) : FlowLogic<List<StateAndRef<FungibleToken>>>() {
+
+    override val progressTracker = ProgressTracker()
+
+    @Suspendable
+    override fun call(): List<StateAndRef<FungibleToken>> {
+        val page =
+            serviceHub.vaultService.queryBy(StockState::class.java) //TODO + UNCONSUMED query  and belonging to our identity
+        val states = page.states.filter { it.state.data.symbol == symbol }
+        val pointer: TokenPointer<StockState> = states.map { it.state.data.toPointer(StockState::class.java) }.first()
+        val tokens: List<StateAndRef<FungibleToken>> = serviceHub.vaultService.tokenAmountsByToken(pointer).states
+        return tokens
     }
 }

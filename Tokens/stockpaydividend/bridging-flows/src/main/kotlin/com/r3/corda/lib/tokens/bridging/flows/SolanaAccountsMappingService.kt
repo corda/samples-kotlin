@@ -1,4 +1,4 @@
-package com.r3.corda.lib.tokens.bridging
+package com.r3.corda.lib.tokens.bridging.flows
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.AppServiceHub
@@ -13,8 +13,6 @@ class SolanaAccountsMappingService(appServiceHub: AppServiceHub) : SingletonSeri
     var mints: Map<UUID, Pubkey>
     var mintAuthorities: Map<UUID, Pubkey>
 
-    // TODO quiet failover as this service is used in MockNetwork by nodes without a config for now
-    // will be fail fast after separating flows to specific CordApps and adding Birding Authority which will have exclusive flows and this service
     init {
         val cfg = appServiceHub.getAppContext().config
         participants = try {
@@ -22,25 +20,25 @@ class SolanaAccountsMappingService(appServiceHub: AppServiceHub) : SingletonSeri
                 CordaX500Name.parse(k) to Pubkey.fromBase58(
                     v
                 )
-            }?.toMap() ?: emptyMap()
+            }?.toMap()
+                ?: emptyMap() // throw IllegalArgumentException("participants config missing for SolanaAccountsMappingService")
         } catch (_: Exception) {
             emptyMap()
         }
         mints = try {
             (cfg.get("mints") as? Map<String, String>)?.map { (k, v) -> UUID.fromString(k) to Pubkey.fromBase58(v) }
                 ?.toMap()
-                ?: emptyMap()
+                ?: emptyMap() //throw IllegalArgumentException("mints config missing for SolanaAccountsMappingService")
         } catch (_: Exception) {
             emptyMap()
         }
-
         mintAuthorities = try {
             (cfg.get("mintAuthorities") as? Map<String, String>)?.map { (k, v) ->
                 UUID.fromString(k) to Pubkey.fromBase58(
                     v
                 )
             }?.toMap()
-                ?: emptyMap()
+                ?: emptyMap() //throw IllegalArgumentException("mintAuthorities config missing for SolanaAccountsMappingService")
         } catch (_: Exception) {
             emptyMap()
         }

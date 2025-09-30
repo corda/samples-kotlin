@@ -1,4 +1,4 @@
-package com.r3.corda.lib.tokens.bridging
+package com.r3.corda.lib.tokens.bridging.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.bridging.contracts.BridgingContract

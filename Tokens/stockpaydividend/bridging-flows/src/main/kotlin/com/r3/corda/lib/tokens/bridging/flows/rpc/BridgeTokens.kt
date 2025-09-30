@@ -1,4 +1,4 @@
-package com.r3.corda.lib.tokens.bridging.rpc
+package com.r3.corda.lib.tokens.bridging.flows.rpc
 
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.workflows.flows.move.MoveTokensFlowHandler
@@ -13,22 +13,19 @@ import net.corda.core.flows.StartableByService
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
-import com.r3.corda.lib.tokens.bridging.BridgeFungibleTokensFlow
-import com.r3.corda.lib.tokens.bridging.SolanaAccountsMappingService
+import com.r3.corda.lib.tokens.bridging.flows.BridgeFungibleTokensFlow
+import com.r3.corda.lib.tokens.bridging.flows.SolanaAccountsMappingService
 import com.r3.corda.lib.tokens.bridging.contracts.BridgingContract
 import com.r3.corda.lib.tokens.bridging.states.BridgedAssetLockState
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.utilities.ProgressTracker
-import net.corda.samples.stockpaydividend.states.StockState
-import com.r3.corda.lib.tokens.workflows.utilities.tokenAmountsByToken
 
 @InitiatingFlow
 @StartableByRPC
 class BridgeStock(
-    val symbol: String,
-    val quantity: Long,
+    val token: StateAndRef<FungibleToken>, //TODO change to a list
     val bridgeAuthority: Party
 ) : FlowLogic<String>() {
 
@@ -36,13 +33,6 @@ class BridgeStock(
 
     @Suspendable
     override fun call(): String {
-
-        //TODO this simulates getting updates from vault
-        val page =
-            serviceHub.vaultService.queryBy(StockState::class.java) //TODO + UNCONSUMED query  and belonging to our identity
-        val states = page.states.filter { it.state.data.symbol == symbol }
-        val pointer: TokenPointer<StockState> = states.map { it.state.data.toPointer(StockState::class.java) }.first()
-        val token: StateAndRef<FungibleToken> = serviceHub.vaultService.tokenAmountsByToken(pointer).states.first()
 
         //Use built-in flow for move tokens to the recipient
         val stx = subFlow(
@@ -54,7 +44,7 @@ class BridgeStock(
             )
         )
 
-        return ("\nBridged " + quantity + " " + symbol + " stocks to "
+        return ("\nBridged quantity " + token.state.data.amount + " " + " stocks to "
                 + ourIdentity.name.organisation + ".\nTransaction ID: " + stx.id)
     }
 }
