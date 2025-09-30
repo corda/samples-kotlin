@@ -1,31 +1,19 @@
 package com.r3.corda.lib.tokens.bridging.flows.rpc
 
 import co.paralleluniverse.fibers.Suspendable
-import com.r3.corda.lib.tokens.workflows.flows.move.MoveTokensFlowHandler
-import com.r3.corda.lib.tokens.workflows.utilities.sessionsForParties
-import net.corda.core.contracts.ContractState
+import com.r3.corda.lib.tokens.bridging.flows.BridgeFungibleTokenFlow
 import net.corda.core.flows.FlowLogic
-import net.corda.core.flows.FlowSession
-import net.corda.core.flows.InitiatedBy
 import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
-import net.corda.core.flows.StartableByService
-import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
-import net.corda.core.transactions.SignedTransaction
-import com.r3.corda.lib.tokens.bridging.flows.BridgeFungibleTokensFlow
-import com.r3.corda.lib.tokens.bridging.flows.SolanaAccountsMappingService
-import com.r3.corda.lib.tokens.bridging.contracts.BridgingContract
-import com.r3.corda.lib.tokens.bridging.states.BridgedAssetLockState
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
-import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.utilities.ProgressTracker
 
 @InitiatingFlow
 @StartableByRPC
-class BridgeStock(
-    val token: StateAndRef<FungibleToken>, //TODO change to a list
+class BridgeToken(
+    val token: StateAndRef<FungibleToken>, //TODO change to a list?
     val bridgeAuthority: Party
 ) : FlowLogic<String>() {
 
@@ -36,7 +24,7 @@ class BridgeStock(
 
         //Use built-in flow for move tokens to the recipient
         val stx = subFlow(
-            BridgeFungibleTokens(
+            BridgeFungibleTokenFlow(
                 ourIdentity, //TODO confidentialIdentity
                 emptyList(),
                 token,
@@ -49,61 +37,3 @@ class BridgeStock(
     }
 }
 
-/**
- * Initiating flow used to bridge token of the same party.
- *
- * @param observers optional observing parties to which the transaction will be broadcast
- */
-@StartableByService
-@InitiatingFlow
-class BridgeFungibleTokens //TODO move away from RPC package
-@JvmOverloads
-constructor(
-    val holder: AbstractParty,
-    val observers: List<Party> = emptyList(),
-    val token: StateAndRef<FungibleToken>, //TODO should be FungibleToken, TODO change to any TokenType would need amendments to UUID retrieval below
-    val bridgeAuthority: Party
-) : FlowLogic<SignedTransaction>() {
-
-    @Suspendable
-    override fun call(): SignedTransaction {
-        val participants = listOf(holder)  //TODO add confidentialIdentity
-        val observerSessions = sessionsForParties(observers)
-        val participantSessions = sessionsForParties(participants)
-
-        val additionalOutput: ContractState = BridgedAssetLockState(listOf(ourIdentity))
-
-        val cordaTokenId = (token.state.data.amount.token.tokenType as TokenPointer<*>).pointer.pointer.id
-
-        val solanaAccountMapping = serviceHub.cordaService(SolanaAccountsMappingService::class.java)
-        val destination = solanaAccountMapping.participants[ourIdentity.name]!! //TODO handle null, TODo eliminate this
-        val mint = solanaAccountMapping.mints[cordaTokenId]!! //TODO handle null
-        val mintAuthority = solanaAccountMapping.mintAuthorities[cordaTokenId]!! //TODO handle null
-        val additionalCommand = BridgingContract.BridgingCommand.BridgeToSolana(
-            destination,
-            bridgeAuthority
-        )
-
-        return subFlow(
-            BridgeFungibleTokensFlow(
-                participantSessions = participantSessions,
-                observerSessions = observerSessions,
-                token = token,
-                additionalOutput = additionalOutput,
-                additionalCommand = additionalCommand,
-                destination = destination,
-                mint = mint,
-                mintAuthority = mintAuthority
-            )
-        )
-    }
-}
-
-/**
- * Responder flow for [BridgeFungibleTokens].
- */
-@InitiatedBy(BridgeFungibleTokens::class)
-class BridgeFungibleTokensHandler(val otherSession: FlowSession) : FlowLogic<Unit>() {
-    @Suspendable
-    override fun call() = subFlow(MoveTokensFlowHandler(otherSession))
-}

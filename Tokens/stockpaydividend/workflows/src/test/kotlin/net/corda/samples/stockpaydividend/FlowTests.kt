@@ -2,7 +2,7 @@ package net.corda.samples.stockpaydividend
 
 import com.lmax.solana4j.api.PublicKey
 import com.r3.corda.lib.tokens.bridging.states.BridgedAssetLockState
-import com.r3.corda.lib.tokens.bridging.flows.rpc.BridgeStock
+import com.r3.corda.lib.tokens.bridging.flows.rpc.BridgeToken
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import com.r3.corda.lib.tokens.workflows.utilities.tokenBalance
@@ -124,7 +124,7 @@ class FlowTests {
         val bridgingContractsCordapp = TestCordapp.findCordapp("com.r3.corda.lib.tokens.bridging.contracts")
         val bridgingFlowsCordapp = TestCordapp.findCordapp("com.r3.corda.lib.tokens.bridging.flows")
         val baConfig = mapOf(
-            "participants" to mapOf(BA.name.toString() to tokenAccount.base58()), //TODO introduction of BA shows that participants are not needed - it's rather a single BA account
+            "participants" to mapOf(COMPANY.name.toString() to tokenAccount.base58()),
             "mints" to mapOf(LINEAR_ID.toString() to tokenMint.base58()),
             "mintAuthorities" to mapOf(LINEAR_ID.toString() to mintAuthority.account.base58())
         )
@@ -340,7 +340,7 @@ class FlowTests {
         Assert.assertEquals(1, statesToBridge.size)
 
         future = bridgingAuthority!!.startFlow(
-            BridgeStock(
+            BridgeToken(
                 statesToBridge.first(),
                 bridgingAuthority!!.info.legalIdentities[0] //TODO remove this as will be internally moved to own CI
             )
@@ -380,7 +380,6 @@ class FlowTests {
         stock2StatePointer = getTokensPointer(bridgingAuthority!!, STOCK_SYMBOL_2)
         start2CordaQuantity = bridgingAuthority!!.services.vaultService.tokenBalance(stock2StatePointer).quantity
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), start2CordaQuantity)
-
     }
 
     private fun getTokensPointer(node: StartedMockNode, symbol: String): TokenPointer<StockState> {

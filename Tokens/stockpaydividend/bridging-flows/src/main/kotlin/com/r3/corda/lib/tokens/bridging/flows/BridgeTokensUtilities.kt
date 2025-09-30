@@ -34,24 +34,23 @@ fun bridgeTokens(
             .map { it.data }
             .filterIsInstance<AbstractToken>()
             .groupBy { it.issuedTokenType }
-    val inputGroups: Map<IssuedTokenType, List<StateAndRef<AbstractToken>>> = transactionBuilder.inputStates()
-        .map { serviceHub.toStateAndRef<AbstractToken>(it) }.groupBy { it.state.data.issuedTokenType }
+    val inputGroups: Map<IssuedTokenType, List<StateAndRef<AbstractToken>>> =
+        transactionBuilder.inputStates()
+            .map { serviceHub.toStateAndRef<AbstractToken>(it) }
+            .groupBy { it.state.data.issuedTokenType }
 
     check(outputGroups.keys == inputGroups.keys) {
         "Input and output token types must correspond to each other when moving tokensToIssue"
     }
 
     transactionBuilder.apply {
-
         outputGroups.forEach { (issuedTokenType: IssuedTokenType, _: List<AbstractToken>) ->
             val inputGroup = inputGroups[issuedTokenType]
                 ?: throw IllegalArgumentException("No corresponding inputs for the outputs issued token type: $issuedTokenType")
             val keys = inputGroup.map { it.state.data.holder.owningKey }
-
             additionalOutput.map {
                 addOutputState(it)
             }
-
             addCommand(additionalCommand, keys)
         }
     }

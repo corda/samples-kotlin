@@ -22,14 +22,14 @@ class SolanaAccountsMappingService(appServiceHub: AppServiceHub) : SingletonSeri
                     v
                 )
             }?.toMap()
-                ?: emptyMap() // throw IllegalArgumentException("participants config missing for SolanaAccountsMappingService")
+                ?: emptyMap()
         } catch (_: Exception) {
-            emptyMap() //TODO here and other occurrences, ignore misconfiguration as the service is used by Notary in the mock network
+            emptyMap() //TODO here and other occurrences, for now ignore misconfiguration as the service is used by Notary in the mock network
         }
         mints = try {
             (cfg.get("mints") as? Map<String, String>)?.map { (k, v) -> UUID.fromString(k) to Pubkey.fromBase58(v) }
                 ?.toMap()
-                ?: emptyMap() //throw IllegalArgumentException("mints config missing for SolanaAccountsMappingService")
+                ?: emptyMap()
         } catch (_: Exception) {
             emptyMap()
         }
@@ -39,7 +39,7 @@ class SolanaAccountsMappingService(appServiceHub: AppServiceHub) : SingletonSeri
                     v
                 )
             }?.toMap()
-                ?: emptyMap() //throw IllegalArgumentException("mintAuthorities config missing for SolanaAccountsMappingService")
+                ?: emptyMap()
         } catch (_: Exception) {
             emptyMap()
         }
