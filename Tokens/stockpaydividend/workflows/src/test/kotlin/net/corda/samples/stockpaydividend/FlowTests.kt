@@ -135,7 +135,13 @@ class FlowTests {
                     TestCordapp.findCordapp("net.corda.samples.stockpaydividend.flows"),
                     TestCordapp.findCordapp("com.r3.corda.lib.tokens.contracts"),
                     TestCordapp.findCordapp("com.r3.corda.lib.tokens.workflows")
-                ), notarySpecs = listOf(MockNetworkNotarySpec(notaryName, notaryConfig = createNotaryConfig())),
+                ),
+                notarySpecs = listOf(
+                    MockNetworkNotarySpec(
+                        notaryName,
+                        notaryConfig = createNotaryConfig()
+                    )
+                ), //TODO start separately notary to provide specific set of cordapps without bridging ones
                 networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
             )
         )
@@ -233,7 +239,6 @@ class FlowTests {
         //Retrieve states from receiver
         val receivedStockStatesPages = shareholder!!.services.vaultService.queryBy(StockState::class.java).states
         val receivedStockState = receivedStockStatesPages[0].state.data
-        val cordaTokenId = receivedStockState.toPointer<StockState>().pointer.pointer.id
         val (quantity) = shareholder!!.services.vaultService.tokenBalance(
             receivedStockState.toPointer(
                 receivedStockState.javaClass

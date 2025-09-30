@@ -47,7 +47,7 @@ class GetFiatBalance(private val currencyCode: String) : FlowLogic<String>() {
 }
 
 
-//TODO this is temporally
+//TODO this is temporally, used by Bridging Authority
 @InitiatingFlow
 @StartableByRPC
 class GetTokenToBridge(
@@ -59,7 +59,7 @@ class GetTokenToBridge(
     @Suspendable
     override fun call(): List<StateAndRef<FungibleToken>> {
         val page =
-            serviceHub.vaultService.queryBy(StockState::class.java) //TODO + UNCONSUMED query  and belonging to our identity
+            serviceHub.vaultService.queryBy(StockState::class.java) //TODO + UNCONSUMED query and belonging to our identity
         val states = page.states.filter { it.state.data.symbol == symbol }
         val pointer: TokenPointer<StockState> = states.map { it.state.data.toPointer(StockState::class.java) }.first()
         val tokens: List<StateAndRef<FungibleToken>> = serviceHub.vaultService.tokenAmountsByToken(pointer).states

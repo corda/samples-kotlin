@@ -7,6 +7,7 @@ import net.corda.core.serialization.SingletonSerializeAsToken
 import net.corda.solana.sdk.instruction.Pubkey
 import java.util.UUID
 
+
 @CordaService
 class SolanaAccountsMappingService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() {
     var participants: Map<CordaX500Name, Pubkey>
@@ -23,7 +24,7 @@ class SolanaAccountsMappingService(appServiceHub: AppServiceHub) : SingletonSeri
             }?.toMap()
                 ?: emptyMap() // throw IllegalArgumentException("participants config missing for SolanaAccountsMappingService")
         } catch (_: Exception) {
-            emptyMap()
+            emptyMap() //TODO here and other occurrences, ignore misconfiguration as the service is used by Notary in the mock network
         }
         mints = try {
             (cfg.get("mints") as? Map<String, String>)?.map { (k, v) -> UUID.fromString(k) to Pubkey.fromBase58(v) }
