@@ -38,7 +38,7 @@ class BridgeFungibleTokenFlow(
 
     @Suspendable
     override fun call(): SignedTransaction {
-        val participants = listOf(holder)  //TODO add confidentialIdentity
+        val participants = listOf(holder)
         val observerSessions = sessionsForParties(observers)
         val participantSessions = sessionsForParties(participants)
 
@@ -47,10 +47,13 @@ class BridgeFungibleTokenFlow(
         val cordaTokenId = (token.state.data.amount.token.tokenType as TokenPointer<*>).pointer.pointer.id
 
         val owners = previousOwnersOf(token).map { serviceHub.identityService.wellKnownPartyFromAnonymous(it) ?: it }
-
+        val singlePreviousOwner = owners.singleOrNull { it is Party } as Party?
+        require(singlePreviousOwner != null) {
+            "Cannot find previous owner of the token to bridge, or multiple found: $owners"
+        }
         val solanaAccountMapping = serviceHub.cordaService(SolanaAccountsMappingService::class.java)
         val destination =
-            solanaAccountMapping.participants[(owners.first() as Party).name]!! //TODO handle null and ugly code
+            solanaAccountMapping.participants[singlePreviousOwner.name]!! //TODO handle null
         val mint = solanaAccountMapping.mints[cordaTokenId]!! //TODO handle null
         val mintAuthority = solanaAccountMapping.mintAuthorities[cordaTokenId]!! //TODO handle null
         val additionalCommand = BridgingContract.BridgingCommand.BridgeToSolana(
@@ -80,11 +83,9 @@ class BridgeFungibleTokenFlow(
         val inputTokens: List<FungibleToken> =
             stx.toLedgerTransaction(serviceHub).inputsOfType<FungibleToken>()
 
-        // Usually one holder; can be many if the tx merged inputs
         return inputTokens.map { it.holder }.toSet()
     }
 }
-
 
 /**
  * Responder flow for [BridgeFungibleTokenFlow].
@@ -130,4 +131,3 @@ constructor(
         )
     }
 }
-
