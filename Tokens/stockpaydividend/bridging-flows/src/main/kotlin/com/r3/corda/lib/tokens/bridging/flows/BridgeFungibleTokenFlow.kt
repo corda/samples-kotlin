@@ -46,7 +46,7 @@ class BridgeFungibleTokenFlow(
 
         val cordaTokenId = (token.state.data.amount.token.tokenType as TokenPointer<*>).pointer.pointer.id
 
-        val owners = previousOwnersOf(token).map { serviceHub.identityService.wellKnownPartyFromAnonymous(it) ?: it }
+        val owners = previousOwnersOf(serviceHub, token).map { serviceHub.identityService.wellKnownPartyFromAnonymous(it) ?: it }
         val singlePreviousOwner = owners.singleOrNull { it is Party } as Party?
         require(singlePreviousOwner != null) {
             "Cannot find previous owner of the token to bridge, or multiple found: $owners"
@@ -74,17 +74,6 @@ class BridgeFungibleTokenFlow(
                 holder
             )
         )
-    }
-
-    fun previousOwnersOf(output: StateAndRef<FungibleToken>): Set<AbstractParty> {
-        val txHash = output.ref.txhash
-        val stx = serviceHub.validatedTransactions.getTransaction(txHash)
-            ?: error("Producing transaction $txHash not found")
-
-        val inputTokens: List<FungibleToken> =
-            stx.toLedgerTransaction(serviceHub).inputsOfType<FungibleToken>()
-
-        return inputTokens.map { it.holder }.toSet()
     }
 }
 

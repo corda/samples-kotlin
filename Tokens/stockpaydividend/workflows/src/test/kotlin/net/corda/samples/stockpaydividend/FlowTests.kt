@@ -143,7 +143,8 @@ class FlowTests {
                         notaryConfig = createNotaryConfig()
                     )
                 ), //TODO start separately notary to provide specific set of cordapps without bridging ones
-                networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
+                networkParameters = testNetworkParameters(minimumPlatformVersion = 4),
+                threadPerNode = true
             )
         )
 
@@ -261,7 +262,6 @@ class FlowTests {
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
     fun bridgeTest() {
-
         // Issue 1st Stock on Company node
         var future = company!!.startFlow<String?>(
             CreateAndIssueStock(
@@ -274,9 +274,7 @@ class FlowTests {
                 LINEAR_ID
             )
         )
-        network!!.runNetwork()
         future.get()
-
         // Issue 2nd Stock on Bridge Authority node to verify it remains unaffected
         future = bridgingAuthority!!.startFlow(
             CreateAndIssueStock(
@@ -289,9 +287,7 @@ class FlowTests {
                 LINEAR_ID_2
             )
         )
-        network!!.runNetwork()
         future.get()
-
         // First stock to be bridged - moving from Company to Bridge Authority
         var stockStatePointer = getTokensPointer(company!!, STOCK_SYMBOL)
         val (startCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
@@ -306,7 +302,6 @@ class FlowTests {
         var stock2StatePointer = getTokensPointer(bridgingAuthority!!, STOCK_SYMBOL_2)
         var (start2CordaQuantity) = bridgingAuthority!!.services.vaultService.tokenBalance(stock2StatePointer)
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), start2CordaQuantity)
-
         // Move Stock
         future =
             company!!.startFlow(
@@ -316,7 +311,6 @@ class FlowTests {
                     bridgingAuthority!!.info.legalIdentities[0]
                 )
             )
-        network!!.runNetwork()
         future.get()
 
         // Company has no longer the amount of stocks
@@ -330,25 +324,16 @@ class FlowTests {
         )
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), startBridgingAuthorityCordaQuantity)
 
-
         val future2 = bridgingAuthority!!.startFlow(
             GetTokenToBridge(
                 STOCK_SYMBOL
             )
         )
-        network!!.runNetwork()
         val statesToBridge = future2.get()
         Assert.assertEquals(1, statesToBridge.size)
 
-        future = bridgingAuthority!!.startFlow(
-            BridgeToken(
-                statesToBridge.first(),
-                bridgingAuthority!!.info.legalIdentities[0] //TODO remove this as will be internally moved to own CI
-            )
-        )
-
-        network!!.runNetwork()
-        future.get()
+        // We need to wait for the vault listener to process the newly received token
+        Thread.sleep(1000)
 
         stockStatePointer = getTokensPointer(bridgingAuthority!!, STOCK_SYMBOL)
         val (finalCordaQuantity) = bridgingAuthority!!.services.vaultService.tokenBalance(stockStatePointer)
