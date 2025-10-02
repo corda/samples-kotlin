@@ -10,10 +10,11 @@ import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.utilities.ProgressTracker
 
+// This flow is only for tests. In real life the @BridgingAuthorityBootstrapService.kt would run the BridgeFungibleTokenFlow directly.
 @InitiatingFlow
 @StartableByRPC
 class BridgeToken(
-    val token: StateAndRef<FungibleToken>, //TODO change to a list?
+    val token: StateAndRef<FungibleToken>,
     val bridgeAuthority: Party
 ) : FlowLogic<String>() {
 
@@ -25,7 +26,7 @@ class BridgeToken(
         //Use built-in flow for move tokens to the recipient
         val stx = subFlow(
             BridgeFungibleTokenFlow(
-                ourIdentity, //TODO confidentialIdentity
+                ourIdentity,
                 emptyList(),
                 token,
                 bridgeAuthority

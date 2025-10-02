@@ -32,7 +32,7 @@ import net.corda.solana.sdk.instruction.Pubkey
 class BridgeFungibleTokenFlow(
     val holder: AbstractParty,
     val observers: List<Party> = emptyList(),
-    val token: StateAndRef<FungibleToken>, //TODO should be FungibleToken, TODO change to any TokenType would need amendments to UUID retrieval below
+    val token: StateAndRef<FungibleToken>,
     val bridgeAuthority: Party
 ) : FlowLogic<SignedTransaction>() {
 
@@ -70,7 +70,8 @@ class BridgeFungibleTokenFlow(
                 additionalCommand = additionalCommand,
                 destination = destination,
                 mint = mint,
-                mintAuthority = mintAuthority
+                mintAuthority = mintAuthority,
+                holder
             )
         )
     }
@@ -106,14 +107,14 @@ constructor(
     val additionalCommand: BridgingContract.BridgingCommand,
     val destination: Pubkey,
     val mint: Pubkey,
-    val mintAuthority: Pubkey
+    val mintAuthority: Pubkey,
+    val holder: AbstractParty
 ) : AbstractMoveTokensFlow() { //TODO move away from this abstract class, it's progress tracker mention only token move
 
     @Suspendable
     override fun addMove(transactionBuilder: TransactionBuilder) {
 
         val amount = token.state.data.amount
-        val holder = ourIdentity //TODO confidential identity
         val output = FungibleToken(amount, holder)
         addMoveTokens(transactionBuilder = transactionBuilder, inputs = listOf(token), outputs = listOf(output))
 

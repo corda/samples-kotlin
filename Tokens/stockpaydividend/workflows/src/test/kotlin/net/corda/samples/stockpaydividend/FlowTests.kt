@@ -126,7 +126,8 @@ class FlowTests {
         val baConfig = mapOf(
             "participants" to mapOf(COMPANY.name.toString() to tokenAccount.base58()),
             "mints" to mapOf(LINEAR_ID.toString() to tokenMint.base58()),
-            "mintAuthorities" to mapOf(LINEAR_ID.toString() to mintAuthority.account.base58())
+            "mintAuthorities" to mapOf(LINEAR_ID.toString() to mintAuthority.account.base58()),
+            "holdingIdentityLabel" to UUID.randomUUID().toString()
         )
         network = MockNetwork(
             MockNetworkParameters(
