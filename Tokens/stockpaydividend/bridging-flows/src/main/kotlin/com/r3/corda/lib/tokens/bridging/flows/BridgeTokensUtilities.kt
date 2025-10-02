@@ -3,9 +3,11 @@ package com.r3.corda.lib.tokens.bridging.flows
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.bridging.contracts.BridgingContract
 import com.r3.corda.lib.tokens.contracts.states.AbstractToken
+import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.IssuedTokenType
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
+import net.corda.core.identity.AbstractParty
 import net.corda.core.node.ServiceHub
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.solana.sdk.instruction.Pubkey
@@ -80,4 +82,16 @@ fun bridgeToken(
         serviceHub, transactionBuilder, listOf(additionalOutput),
         additionalCommand, destination, mint, mintAuthority, quantity
     )
+}
+
+@Suspendable
+fun previousOwnersOf(serviceHub: ServiceHub, output: StateAndRef<FungibleToken>): Set<AbstractParty> {
+    val txHash = output.ref.txhash
+    val stx = serviceHub.validatedTransactions.getTransaction(txHash)
+        ?: error("Producing transaction $txHash not found")
+
+    val inputTokens: List<FungibleToken> =
+        stx.toLedgerTransaction(serviceHub).inputsOfType<FungibleToken>()
+
+    return inputTokens.map { it.holder }.toSet()
 }

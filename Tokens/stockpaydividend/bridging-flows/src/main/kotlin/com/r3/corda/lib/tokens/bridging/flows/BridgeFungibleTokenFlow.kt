@@ -32,7 +32,7 @@ import net.corda.solana.sdk.instruction.Pubkey
 class BridgeFungibleTokenFlow(
     val holder: AbstractParty,
     val observers: List<Party> = emptyList(),
-    val token: StateAndRef<FungibleToken>, //TODO should be FungibleToken, TODO change to any TokenType would need amendments to UUID retrieval below
+    val token: StateAndRef<FungibleToken>,
     val bridgeAuthority: Party
 ) : FlowLogic<SignedTransaction>() {
 
@@ -46,7 +46,7 @@ class BridgeFungibleTokenFlow(
 
         val cordaTokenId = (token.state.data.amount.token.tokenType as TokenPointer<*>).pointer.pointer.id
 
-        val owners = previousOwnersOf(token).map { serviceHub.identityService.wellKnownPartyFromAnonymous(it) ?: it }
+        val owners = previousOwnersOf(serviceHub, token).map { serviceHub.identityService.wellKnownPartyFromAnonymous(it) ?: it }
         val singlePreviousOwner = owners.singleOrNull { it is Party } as Party?
         require(singlePreviousOwner != null) {
             "Cannot find previous owner of the token to bridge, or multiple found: $owners"
@@ -70,20 +70,10 @@ class BridgeFungibleTokenFlow(
                 additionalCommand = additionalCommand,
                 destination = destination,
                 mint = mint,
-                mintAuthority = mintAuthority
+                mintAuthority = mintAuthority,
+                holder
             )
         )
-    }
-
-    fun previousOwnersOf(output: StateAndRef<FungibleToken>): Set<AbstractParty> {
-        val txHash = output.ref.txhash
-        val stx = serviceHub.validatedTransactions.getTransaction(txHash)
-            ?: error("Producing transaction $txHash not found")
-
-        val inputTokens: List<FungibleToken> =
-            stx.toLedgerTransaction(serviceHub).inputsOfType<FungibleToken>()
-
-        return inputTokens.map { it.holder }.toSet()
     }
 }
 
@@ -106,14 +96,14 @@ constructor(
     val additionalCommand: BridgingContract.BridgingCommand,
     val destination: Pubkey,
     val mint: Pubkey,
-    val mintAuthority: Pubkey
+    val mintAuthority: Pubkey,
+    val holder: AbstractParty
 ) : AbstractMoveTokensFlow() { //TODO move away from this abstract class, it's progress tracker mention only token move
 
     @Suspendable
     override fun addMove(transactionBuilder: TransactionBuilder) {
 
         val amount = token.state.data.amount
-        val holder = ourIdentity //TODO confidential identity
         val output = FungibleToken(amount, holder)
         addMoveTokens(transactionBuilder = transactionBuilder, inputs = listOf(token), outputs = listOf(output))
 

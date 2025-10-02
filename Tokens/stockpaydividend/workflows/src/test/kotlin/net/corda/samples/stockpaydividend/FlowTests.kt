@@ -2,7 +2,6 @@ package net.corda.samples.stockpaydividend
 
 import com.lmax.solana4j.api.PublicKey
 import com.r3.corda.lib.tokens.bridging.states.BridgedAssetLockState
-import com.r3.corda.lib.tokens.bridging.flows.rpc.BridgeToken
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import com.r3.corda.lib.tokens.workflows.utilities.tokenBalance
@@ -11,7 +10,9 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
-import net.corda.samples.stockpaydividend.flows.*
+import net.corda.samples.stockpaydividend.flows.CreateAndIssueStock
+import net.corda.samples.stockpaydividend.flows.GetTokenToBridge
+import net.corda.samples.stockpaydividend.flows.MoveStock
 import net.corda.samples.stockpaydividend.states.StockState
 import net.corda.solana.aggregator.common.RpcParams
 import net.corda.solana.aggregator.common.Signer
@@ -19,26 +20,15 @@ import net.corda.solana.aggregator.common.checkResponse
 import net.corda.solana.sdk.internal.Token2022
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.TestIdentity
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkParameters
-import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.TestCordapp
+import net.corda.testing.node.*
 import net.corda.testing.solana.SolanaTestValidator
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.Assert
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Test
+import net.corda.testing.solana.randomKeypairFile
+import org.junit.*
+import org.junit.rules.TemporaryFolder
 import java.math.BigDecimal
+import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ExecutionException
-import net.corda.testing.node.MockNetworkNotarySpec
-import net.corda.testing.node.MockNodeParameters
-import net.corda.testing.solana.randomKeypairFile
-import org.junit.ClassRule
-import org.junit.rules.TemporaryFolder
-import java.nio.file.Path
 
 class FlowTests {
     private var network: MockNetwork? = null
@@ -126,7 +116,8 @@ class FlowTests {
         val baConfig = mapOf(
             "participants" to mapOf(COMPANY.name.toString() to tokenAccount.base58()),
             "mints" to mapOf(LINEAR_ID.toString() to tokenMint.base58()),
-            "mintAuthorities" to mapOf(LINEAR_ID.toString() to mintAuthority.account.base58())
+            "mintAuthorities" to mapOf(LINEAR_ID.toString() to mintAuthority.account.base58()),
+            "holdingIdentityLabel" to UUID.randomUUID().toString()
         )
         network = MockNetwork(
             MockNetworkParameters(
@@ -142,7 +133,8 @@ class FlowTests {
                         notaryConfig = createNotaryConfig()
                     )
                 ), //TODO start separately notary to provide specific set of cordapps without bridging ones
-                networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
+                networkParameters = testNetworkParameters(minimumPlatformVersion = 4),
+                threadPerNode = true
             )
         )
 
@@ -200,7 +192,6 @@ class FlowTests {
                 notaryParty!!
             )
         )
-        network!!.runNetwork()
         val stx = future.get()
         val stxID = stx.substring(stx.lastIndexOf(" ") + 1)
         val stxIDHash: SecureHash = SecureHash.parse(stxID)
@@ -228,12 +219,10 @@ class FlowTests {
                 notaryParty!!
             )
         )
-        network!!.runNetwork()
         future.get()
 
         // Move Stock
         future = company!!.startFlow(MoveStock(STOCK_SYMBOL, BUYING_STOCK, shareholder!!.info.legalIdentities[0]))
-        network!!.runNetwork()
         future.get()
 
         //Retrieve states from receiver
@@ -260,7 +249,6 @@ class FlowTests {
     @Test
     @Throws(ExecutionException::class, InterruptedException::class)
     fun bridgeTest() {
-
         // Issue 1st Stock on Company node
         var future = company!!.startFlow<String?>(
             CreateAndIssueStock(
@@ -273,9 +261,7 @@ class FlowTests {
                 LINEAR_ID
             )
         )
-        network!!.runNetwork()
         future.get()
-
         // Issue 2nd Stock on Bridge Authority node to verify it remains unaffected
         future = bridgingAuthority!!.startFlow(
             CreateAndIssueStock(
@@ -288,9 +274,7 @@ class FlowTests {
                 LINEAR_ID_2
             )
         )
-        network!!.runNetwork()
         future.get()
-
         // First stock to be bridged - moving from Company to Bridge Authority
         var stockStatePointer = getTokensPointer(company!!, STOCK_SYMBOL)
         val (startCordaQuantity) = company!!.services.vaultService.tokenBalance(stockStatePointer)
@@ -305,7 +289,6 @@ class FlowTests {
         var stock2StatePointer = getTokensPointer(bridgingAuthority!!, STOCK_SYMBOL_2)
         var (start2CordaQuantity) = bridgingAuthority!!.services.vaultService.tokenBalance(stock2StatePointer)
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), start2CordaQuantity)
-
         // Move Stock
         future =
             company!!.startFlow(
@@ -315,7 +298,6 @@ class FlowTests {
                     bridgingAuthority!!.info.legalIdentities[0]
                 )
             )
-        network!!.runNetwork()
         future.get()
 
         // Company has no longer the amount of stocks
@@ -329,25 +311,16 @@ class FlowTests {
         )
         Assert.assertEquals(ISSUING_STOCK_QUANTITY.toLong(), startBridgingAuthorityCordaQuantity)
 
-
         val future2 = bridgingAuthority!!.startFlow(
             GetTokenToBridge(
                 STOCK_SYMBOL
             )
         )
-        network!!.runNetwork()
         val statesToBridge = future2.get()
         Assert.assertEquals(1, statesToBridge.size)
 
-        future = bridgingAuthority!!.startFlow(
-            BridgeToken(
-                statesToBridge.first(),
-                bridgingAuthority!!.info.legalIdentities[0] //TODO remove this as will be internally moved to own CI
-            )
-        )
-
-        network!!.runNetwork()
-        future.get()
+        // We need to wait for the vault listener to process the newly received token
+        Thread.sleep(1000)
 
         stockStatePointer = getTokensPointer(bridgingAuthority!!, STOCK_SYMBOL)
         val (finalCordaQuantity) = bridgingAuthority!!.services.vaultService.tokenBalance(stockStatePointer)
