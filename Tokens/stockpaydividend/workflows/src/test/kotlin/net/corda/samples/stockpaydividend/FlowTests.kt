@@ -2,7 +2,6 @@ package net.corda.samples.stockpaydividend
 
 import com.lmax.solana4j.api.PublicKey
 import com.r3.corda.lib.tokens.bridging.states.BridgedAssetLockState
-import com.r3.corda.lib.tokens.bridging.flows.rpc.BridgeToken
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import com.r3.corda.lib.tokens.workflows.utilities.tokenBalance
@@ -11,7 +10,9 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
-import net.corda.samples.stockpaydividend.flows.*
+import net.corda.samples.stockpaydividend.flows.CreateAndIssueStock
+import net.corda.samples.stockpaydividend.flows.GetTokenToBridge
+import net.corda.samples.stockpaydividend.flows.MoveStock
 import net.corda.samples.stockpaydividend.states.StockState
 import net.corda.solana.aggregator.common.RpcParams
 import net.corda.solana.aggregator.common.Signer
@@ -19,26 +20,15 @@ import net.corda.solana.aggregator.common.checkResponse
 import net.corda.solana.sdk.internal.Token2022
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.TestIdentity
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNetworkParameters
-import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.TestCordapp
+import net.corda.testing.node.*
 import net.corda.testing.solana.SolanaTestValidator
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.Assert
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Test
+import net.corda.testing.solana.randomKeypairFile
+import org.junit.*
+import org.junit.rules.TemporaryFolder
 import java.math.BigDecimal
+import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ExecutionException
-import net.corda.testing.node.MockNetworkNotarySpec
-import net.corda.testing.node.MockNodeParameters
-import net.corda.testing.solana.randomKeypairFile
-import org.junit.ClassRule
-import org.junit.rules.TemporaryFolder
-import java.nio.file.Path
 
 class FlowTests {
     private var network: MockNetwork? = null
@@ -202,7 +192,6 @@ class FlowTests {
                 notaryParty!!
             )
         )
-        network!!.runNetwork()
         val stx = future.get()
         val stxID = stx.substring(stx.lastIndexOf(" ") + 1)
         val stxIDHash: SecureHash = SecureHash.parse(stxID)
@@ -230,12 +219,10 @@ class FlowTests {
                 notaryParty!!
             )
         )
-        network!!.runNetwork()
         future.get()
 
         // Move Stock
         future = company!!.startFlow(MoveStock(STOCK_SYMBOL, BUYING_STOCK, shareholder!!.info.legalIdentities[0]))
-        network!!.runNetwork()
         future.get()
 
         //Retrieve states from receiver
