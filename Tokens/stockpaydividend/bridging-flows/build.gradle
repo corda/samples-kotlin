@@ -5,7 +5,7 @@ cordapp {
     targetPlatformVersion corda_platform_version.toInteger()
     minimumPlatformVersion corda_platform_version.toInteger()
     workflow {
-        name "stockpaydividend Flows"
+        name "Token Bridging Flows"
         vendor "Corda Open Source"
         licence "Apache License, Version 2.0"
         versionId 1
@@ -32,10 +32,6 @@ sourceSets {
     }
 }
 
-configurations {
-    integrationTestImplementation.extendsFrom testImplementation
-    integrationTestRuntimeOnly.extendsFrom testRuntimeOny
-}
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
@@ -52,13 +48,14 @@ dependencies {
     testImplementation "$corda_release_group:corda-test-utils:$corda_release_version"
 
     // CorDapp dependencies.
-    cordapp project(":contracts")
-    cordapp project(":bridging-contracts") // Used in the test
-    cordapp project(":bridging-flows") // Used in the test
+    cordapp project(":bridging-contracts")
 
     // Token SDK dependencies.
     cordaProvided "$tokens_release_group:tokens-contracts:$tokens_release_version"
     cordaProvided "$tokens_release_group:tokens-workflows:$tokens_release_version"
+
+    cordaProvided "$corda_release_group:corda-solana-sdk:$corda_release_version"
+    cordaProvided "$corda_release_group:corda-solana-common:$corda_release_version"
 }
 
 task integrationTest(type: Test, dependsOn: []) {
