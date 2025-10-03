@@ -60,7 +60,7 @@ class BridgeFungibleTokenFlow(
             destination,
             bridgeAuthority
         )
-
+        logger.info("Generating Solana bridging transaction with the following parameters: mint=$mint, mintAuthority=$mintAuthority, destination=$destination.")
         return subFlow(
             InternalBridgeFungibleTokenFlow(
                 participantSessions = participantSessions,

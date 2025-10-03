@@ -86,6 +86,22 @@ allprojects {
                 releasesOnly()
             }
         }
+
+        // For SNAPSHOT version
+        maven {
+            url "https://software.r3.com/artifactory/r3-corda-dev"
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = findProperty('cordaArtifactoryUsername') ?: System.getenv('CORDA_ARTIFACTORY_USERNAME')
+                password = findProperty('cordaArtifactoryPassword') ?: System.getenv('CORDA_ARTIFACTORY_PASSWORD')
+            }
+            content {
+                includeGroup 'com.r3.libs'
+                includeModule 'com.r3.corda', 'corda-shell'
+            }
+        }
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
@@ -136,11 +152,15 @@ dependencies {
     // CorDapp dependencies.
     cordapp project(":workflows")
     cordapp project(":contracts")
+    cordapp project(":bridging-setup")
+
+    cordapp project(":bridging-contracts") // Used in the test
+    cordapp project(":bridging-flows") // Used in the test
 
     cordaProvided "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j_version}"
     cordaProvided "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaProvided "org.slf4j:jul-to-slf4j:$slf4j_version"
-    cordaDriver "net.corda:corda-shell:$corda_release_version"
+    cordaDriver "com.r3.corda:corda-shell:$corda_release_version"
     // Token SDK dependencies.
     cordapp "$tokens_release_group:tokens-contracts:$tokens_release_version"
     cordapp "$tokens_release_group:tokens-workflows:$tokens_release_version"
@@ -150,6 +170,20 @@ cordapp {
     targetPlatformVersion corda_platform_version.toInteger()
     minimumPlatformVersion corda_platform_version.toInteger()
 }
+
+//TODO for now set manually path to solana-aggregator
+def solanaAgregatorPath = "<PATH_TO_SLANA_GGREGATOR>"
+def solanaNotaryKeyPath = "${solanaAgregatorPath}/notary-program/dev-keys/DevNMdtQW3Q4ybKQvxgwpJj84h5mb7JE218qTpZQnoA3.json"
+def custodiedKeysDirectory = "${project.buildDir}/nodes/custodied-keys"
+def keysDirectory = "${project.buildDir}/nodes/solana-keys"
+def funderKeyFile = "${solanaAgregatorPath}/notary-program/dev-keys/DevNMdtQW3Q4ybKQvxgwpJj84h5mb7JE218qTpZQnoA3.json"
+def bigBankWallet = "${keysDirectory}/big-corp-wallet.json"
+def bridgeAuthorityWallet = "${custodiedKeysDirectory}/bridge-authority-wallet.json"
+def tokenMintFile = "${keysDirectory}/tokenMint.pub"
+def bigBankAccount = "${keysDirectory}/big-corp-token.pub"
+def solanaUrl = "https://api.devnet.solana.com"
+//TODO ser a task parmeter?
+def linearId = '6116560b-c78e-4e13-871d-d666a5d032a3'
 
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     nodeDefaults {
@@ -164,7 +198,14 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     }
     node {
         name "O=Notary,L=London,C=GB"
-        notary = [validating : false]
+        notary = [validating      : false,
+                  serviceLegalName: "O=Notary Service,L=Zurich,C=CH",
+                  solana          : [
+                          notaryKeypairFile: file(solanaNotaryKeyPath).absolutePath,
+                          custodiedKeysDir : file(custodiedKeysDirectory).absolutePath,
+                          rpcUrl           : "https://api.devnet.solana.com"
+                  ]
+        ]
         p2pPort 10002
         rpcSettings {
             address("localhost:10003")
@@ -207,6 +248,24 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         }
         rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
+    node {
+        name "O=Bridging Authority,L=New York,C=US"
+        p2pPort 10018
+        rpcSettings {
+            address("localhost:10019")
+            adminAddress("localhost:10047")
+        }
+        cordapp(project(':bridging-contracts'))
+        cordapp(project(':bridging-flows')) {
+            // TODO manual step needed for now - repace placeholders <> with value after deployNodes, before runnnodes
+            config """\
+                participants = { "O=WayneCo,L=SF,C=US" = "<bigBankWallet>" }
+                mints = { "${linearId}" = "<tokenMintFile>" }
+                mintAuthorities = { "${linearId}" = "<bridgeAuthorityWallet>" }
+            """
+        }
+        rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
+    }
 }
 
 task installQuasar(type: Copy) {
@@ -216,3 +275,77 @@ task installQuasar(type: Copy) {
     }
 }
 
+tasks.register('createWallets') {
+    "solana-keygen new -o ${bridgeAuthorityWallet} --no-bip39-passphrase -f".execute()
+    "solana-keygen new -o ${bigBankWallet} --no-bip39-passphrase -f".execute()
+}
+
+tasks.register("fundAuthorityWallet", JavaExec) {
+    dependsOn('createWallets')
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.corda.bank.BridgingSetup'
+
+    args '--rpcUrl'
+    args "${solanaUrl}"
+    args '--role'
+    args 'FUND_WALLET'
+    args '--quantity'
+    args 1
+    args '--funder'
+    args "${funderKeyFile}"
+    args '--target'
+    args "${bridgeAuthorityWallet}"
+}
+
+tasks.register("createTokenMint", JavaExec) {
+    dependsOn('fundAuthorityWallet')
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.corda.bank.BridgingSetup'
+
+    args '--rpcUrl'
+    args "${solanaUrl}"
+    args '--role'
+    args 'CREATE_TOKEN'
+    args '--funder'
+    args "${bridgeAuthorityWallet}"
+    args '--mint'
+    args "${tokenMintFile}"
+}
+
+tasks.register("fundBigBankWallet", JavaExec) {
+    dependsOn('createWallets')
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.corda.bank.BridgingSetup'
+
+    args '--rpcUrl'
+    args "${solanaUrl}"
+    args '--role'
+    args 'FUND_WALLET'
+    args '--quantity'
+    args 1
+    args '--funder'
+    args "${funderKeyFile}"
+    args '--target'
+    args "${bigBankWallet}"
+}
+
+tasks.register("createTokenAccount", JavaExec) {
+    dependsOn('createTokenMint', 'fundAuthorityWallet', 'fundBigBankWallet')
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.corda.bank.BridgingSetup'
+
+    args '--rpcUrl'
+    args "${solanaUrl}"
+    args '--role'
+    args 'CREATE_TOKEN_ACCOUNT'
+    args '--funder'
+    args "${bigBankWallet}"
+    args '--mint'
+    args "${tokenMintFile}"
+    args '--account'
+    args "${bigBankAccount}"
+}
+
+tasks.register("setupBridging") {
+    dependsOn('createTokenAccount', 'createTokenMint', 'fundAuthorityWallet', 'fundBigBankWallet', 'createWallets')
+}

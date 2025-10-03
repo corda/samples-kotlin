@@ -8,6 +8,7 @@ import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.Party
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import net.corda.core.contracts.StateAndRef
+import net.corda.core.contracts.StateRef
 import net.corda.core.utilities.ProgressTracker
 
 @InitiatingFlow
@@ -37,3 +38,12 @@ class BridgeToken(
     }
 }
 
+@StartableByRPC
+class BridgeTokenRpc(private val tokenRef: StateRef, private val bridgeAuthority: Party) : FlowLogic<String>() {
+    @Suspendable
+    override fun call(): String {
+        val stateAndRef: StateAndRef<FungibleToken> = serviceHub.toStateAndRef(tokenRef)
+        val result = subFlow(BridgeToken(stateAndRef, bridgeAuthority))
+        return result
+    }
+}

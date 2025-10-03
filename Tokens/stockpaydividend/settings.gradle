@@ -1,4 +1,4 @@
 include 'workflows'
 include 'contracts'
 include 'clients'
-include 'bridging-contracts', 'bridging-flows'
+include 'bridging-contracts', 'bridging-flows', 'bridging-setup'
