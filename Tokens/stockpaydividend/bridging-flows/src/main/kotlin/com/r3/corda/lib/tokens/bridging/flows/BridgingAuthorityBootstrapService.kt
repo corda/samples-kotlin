@@ -2,7 +2,8 @@ package com.r3.corda.lib.tokens.bridging.flows
 
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import net.corda.core.contracts.StateAndRef
-import net.corda.core.identity.AbstractParty
+import net.corda.core.identity.CordaX500Name
+import net.corda.core.identity.Party
 import net.corda.core.identity.PartyAndCertificate
 import net.corda.core.node.AppServiceHub
 import net.corda.core.node.services.CordaService
@@ -16,6 +17,7 @@ import java.util.concurrent.Executors
 class BridgingAuthorityBootstrapService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() {
     private val holdingIdentityPartyAndCertificate: PartyAndCertificate
     private val bridgeAuthorityParty = appServiceHub.myInfo.legalIdentities.first()
+    private val solanaNotaryParty: Party
     private val logger = LoggerFactory.getLogger(BridgingAuthorityBootstrapService::class.java)
 
     private val executor = Executors.newSingleThreadExecutor()
@@ -23,6 +25,7 @@ class BridgingAuthorityBootstrapService(appServiceHub: AppServiceHub) : Singleto
     init {
         val cfg = appServiceHub.getAppContext().config
         val holdingIdentityLabel = UUID.fromString(cfg.getString("holdingIdentityLabel"))
+        val solanaNotaryCordaX500Name = CordaX500Name.parse(cfg.getString("solanaNotaryCordaX500Name"))
         val holdingIdentityPublicKey = appServiceHub
             .identityService
             .publicKeysForExternalId(holdingIdentityLabel)
@@ -41,6 +44,11 @@ class BridgingAuthorityBootstrapService(appServiceHub: AppServiceHub) : Singleto
             checkNotNull(appServiceHub.identityService.certificateFromKey(holdingIdentityPublicKey)) {
                 "Could not find certificate for key $holdingIdentityPublicKey"
             }
+        }
+
+        // Find the Solana Notary party by its Corda X500 name
+        solanaNotaryParty = checkNotNull(appServiceHub.networkParameters.notaries.map { it.identity }.firstOrNull { it.name == solanaNotaryCordaX500Name }) {
+            "Could not find Solana Notary party for name $solanaNotaryCordaX500Name"
         }
 
         appServiceHub.registerUnloadHandler { onStop() }
@@ -69,15 +77,17 @@ class BridgingAuthorityBootstrapService(appServiceHub: AppServiceHub) : Singleto
 
     private fun callFlow(fungibleTokens: Collection<StateAndRef<FungibleToken>>, appServiceHub: AppServiceHub) {
         fungibleTokens.forEach { token ->
-            if (bridgeAuthorityParty !in previousOwnersOf(appServiceHub, token)) {
-                logger.debug { "Starting flow to bridge ${token.state.data.amount} to Solana" }
+            val previousTokenOwners = previousOwnersOf(appServiceHub, token, logger)
+            if (previousTokenOwners.isNotEmpty() && bridgeAuthorityParty !in previousTokenOwners) {
+                logger.info("Starting flow to bridge ${token.state.data.amount} to Solana ${appServiceHub.myInfo.legalIdentities.first()}, po=${previousTokenOwners}")
                 executor.submit {
                     appServiceHub.startFlow(
                         BridgeFungibleTokenFlow(
                             holdingIdentityPartyAndCertificate.party,
                             emptyList(),
                             token,
-                            bridgeAuthorityParty
+                            bridgeAuthorityParty,
+                            solanaNotaryParty
                         )
                     )
                 }

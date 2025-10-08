@@ -40,7 +40,9 @@ class FlowTests {
     private var exDate: Date? = null
     private var payDate: Date? = null
 
+    private var solanaNotary: StartedMockNode? = null
     private var notary: StartedMockNode? = null
+    private var solanaNotaryParty: Party? = null
     private var notaryParty: Party? = null
 
     var COMPANY = TestIdentity(CordaX500Name("Company", "TestVillage", "US"))
@@ -61,7 +63,8 @@ class FlowTests {
     val STOCK_NAME_2 = "Test Stock 2"
 
     companion object {
-        val notaryName = CordaX500Name("Solana Notary Service", "Zurich", "CH")
+        val solanaNotaryName = CordaX500Name("Solana Notary Service", "Zurich", "CH")
+        val notaryName = CordaX500Name("Notary Service", "London", "GB")
 
         @ClassRule
         @JvmField
@@ -71,8 +74,8 @@ class FlowTests {
         @JvmField
         val custodiedKeysDir = TemporaryFolder()
 
-        private lateinit var notaryKeyFile: Path
-        private lateinit var notaryKey: Signer
+        private lateinit var solanaNotaryKeyFile: Path
+        private lateinit var solanaNotaryKey: Signer
         private lateinit var mintAuthority: Signer
         private val tokenAccountOwner = Signer.random()
         private lateinit var testValidator: SolanaTestValidator
@@ -84,11 +87,11 @@ class FlowTests {
         @JvmStatic
         fun startTestValidator() {
             testValidator = SolanaTestValidator()
-            notaryKeyFile = generalDir.randomKeypairFile()
-            notaryKey = Signer.fromFile(notaryKeyFile)
+            solanaNotaryKeyFile = generalDir.randomKeypairFile()
+            solanaNotaryKey = Signer.fromFile(solanaNotaryKeyFile)
             mintAuthority = Signer.fromFile(custodiedKeysDir.randomKeypairFile())
             testValidator.start()
-            testValidator.defaultNotaryProgramSetup(notaryKey.account)
+            testValidator.defaultNotaryProgramSetup(solanaNotaryKey.account)
             testValidator.fundAccount(10, mintAuthority)
             testValidator.fundAccount(10, tokenAccountOwner)
 
@@ -117,7 +120,8 @@ class FlowTests {
             "participants" to mapOf(COMPANY.name.toString() to tokenAccount.base58()),
             "mints" to mapOf(LINEAR_ID.toString() to tokenMint.base58()),
             "mintAuthorities" to mapOf(LINEAR_ID.toString() to mintAuthority.account.base58()),
-            "holdingIdentityLabel" to UUID.randomUUID().toString()
+            "holdingIdentityLabel" to UUID.randomUUID().toString(),
+            "solanaNotaryCordaX500Name" to solanaNotaryName.toString()
         )
         network = MockNetwork(
             MockNetworkParameters(
@@ -131,6 +135,10 @@ class FlowTests {
                     MockNetworkNotarySpec(
                         notaryName,
                         notaryConfig = createNotaryConfig()
+                    ),
+                    MockNetworkNotarySpec(
+                        solanaNotaryName,
+                        notaryConfig = createSolanaNotaryConfig()
                     )
                 ), //TODO start separately notary to provide specific set of cordapps without bridging ones
                 networkParameters = testNetworkParameters(minimumPlatformVersion = 4),
@@ -142,7 +150,9 @@ class FlowTests {
         observer = network!!.createPartyNode(OBSERVER.name)
         shareholder = network!!.createPartyNode(SHAREHOLDER.name)
         bank = network!!.createPartyNode(BANK.name)
+        solanaNotary = network!!.notaryNodes[1]
         notary = network!!.notaryNodes[0]
+        solanaNotaryParty = solanaNotary!!.info.legalIdentities[0]
         notaryParty = notary!!.info.legalIdentities[0]
         bridgingAuthority = network!!.createNode(
             MockNodeParameters(
@@ -167,15 +177,20 @@ class FlowTests {
         network!!.stopNodes()
     }
 
-    private fun createNotaryConfig(): String = """
+    private fun createSolanaNotaryConfig(): String = """
                             validating = false
-                            notaryLegalIdentity = "$notaryName"
+                            notaryLegalIdentity = "$solanaNotaryName"
                             solana {
                                 rpcUrl = "${SolanaTestValidator.RPC_URL}"
-                                notaryKeypairFile = "$notaryKeyFile"
+                                notaryKeypairFile = "$solanaNotaryKeyFile"
                                 custodiedKeysDir = "${custodiedKeysDir.root.toPath()}"
                                 programWhitelist = ["${Token2022.PROGRAM_ID}"]          
                             }
+                        """.trimIndent()
+
+    private fun createNotaryConfig(): String = """
+                            validating = false
+                            notaryLegalIdentity = "$notaryName"
                         """.trimIndent()
 
     @Test
@@ -320,7 +335,7 @@ class FlowTests {
         Assert.assertEquals(1, statesToBridge.size)
 
         // We need to wait for the vault listener to process the newly received token
-        Thread.sleep(1000)
+        Thread.sleep(10000)
 
         stockStatePointer = getTokensPointer(bridgingAuthority!!, STOCK_SYMBOL)
         val (finalCordaQuantity) = bridgingAuthority!!.services.vaultService.tokenBalance(stockStatePointer)

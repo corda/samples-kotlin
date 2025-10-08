@@ -12,9 +12,7 @@ import net.corda.core.node.ServiceHub
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.solana.sdk.internal.Token2022
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.forEach
+import org.slf4j.Logger
 
 /**
  * Adds a set of bridging commands to a transaction using specific outputs.
@@ -85,13 +83,14 @@ fun bridgeToken(
 }
 
 @Suspendable
-fun previousOwnersOf(serviceHub: ServiceHub, output: StateAndRef<FungibleToken>): Set<AbstractParty> {
+fun previousOwnersOf(serviceHub: ServiceHub, output: StateAndRef<FungibleToken>, logger: Logger): Set<AbstractParty> {
     val txHash = output.ref.txhash
     val stx = serviceHub.validatedTransactions.getTransaction(txHash)
         ?: error("Producing transaction $txHash not found")
 
-    val inputTokens: List<FungibleToken> =
-        stx.toLedgerTransaction(serviceHub).inputsOfType<FungibleToken>()
+    val inputTokens: List<FungibleToken> = stx.inputs.map {
+        serviceHub.toStateAndRef<FungibleToken>(it).state.data
+    }
 
-    return inputTokens.map { it.holder }.toSet()
+    return inputTokens.map { it.holder }.toSet().also { logger.info("Kit all inputs of owners: $it") }
 }

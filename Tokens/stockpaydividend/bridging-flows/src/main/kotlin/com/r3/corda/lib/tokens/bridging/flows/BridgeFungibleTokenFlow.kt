@@ -11,11 +11,7 @@ import com.r3.corda.lib.tokens.workflows.flows.move.addMoveTokens
 import com.r3.corda.lib.tokens.workflows.utilities.sessionsForParties
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
-import net.corda.core.flows.FlowLogic
-import net.corda.core.flows.FlowSession
-import net.corda.core.flows.InitiatedBy
-import net.corda.core.flows.InitiatingFlow
-import net.corda.core.flows.StartableByService
+import net.corda.core.flows.*
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
@@ -33,7 +29,8 @@ class BridgeFungibleTokenFlow(
     val holder: AbstractParty,
     val observers: List<Party> = emptyList(),
     val token: StateAndRef<FungibleToken>,
-    val bridgeAuthority: Party
+    val bridgeAuthority: Party,
+    val solanaNotary: Party
 ) : FlowLogic<SignedTransaction>() {
 
     @Suspendable
@@ -42,16 +39,29 @@ class BridgeFungibleTokenFlow(
         val observerSessions = sessionsForParties(observers)
         val participantSessions = sessionsForParties(participants)
 
+        val tokenWithNewNotary = if (token.state.notary != solanaNotary) {
+            logger.info("Kit changing notary $ourIdentity")
+            // Change the notary to the Solana notary if needed
+            subFlow(NotaryChangeFlow(token, solanaNotary))
+        } else {
+            logger.info("Kit changing notary not needed $ourIdentity")
+            token
+        }
+
+        logger.info("Kit after notary change ${tokenWithNewNotary.state.notary}")
+
         val additionalOutput: ContractState = BridgedAssetLockState(listOf(ourIdentity))
 
-        val cordaTokenId = (token.state.data.amount.token.tokenType as TokenPointer<*>).pointer.pointer.id
+        val cordaTokenId = (tokenWithNewNotary.state.data.amount.token.tokenType as TokenPointer<*>).pointer.pointer.id
 
-        val owners = previousOwnersOf(serviceHub, token).map { serviceHub.identityService.wellKnownPartyFromAnonymous(it) ?: it }
+        logger.info("Our Identity: $ourIdentity")
+        val owners = previousOwnersOf(serviceHub, token, logger).map { serviceHub.identityService.wellKnownPartyFromAnonymous(it) ?: it }
         val singlePreviousOwner = owners.singleOrNull { it is Party } as Party?
         require(singlePreviousOwner != null) {
             "Cannot find previous owner of the token to bridge, or multiple found: $owners"
         }
         val solanaAccountMapping = serviceHub.cordaService(SolanaAccountsMappingService::class.java)
+        logger.info("Kit single previous owner: ${singlePreviousOwner.name}")
         val destination =
             solanaAccountMapping.participants[singlePreviousOwner.name]!! //TODO handle null
         val mint = solanaAccountMapping.mints[cordaTokenId]!! //TODO handle null
@@ -65,13 +75,14 @@ class BridgeFungibleTokenFlow(
             InternalBridgeFungibleTokenFlow(
                 participantSessions = participantSessions,
                 observerSessions = observerSessions,
-                token = token,
+                token = tokenWithNewNotary,
                 additionalOutput = additionalOutput,
                 additionalCommand = additionalCommand,
                 destination = destination,
                 mint = mint,
                 mintAuthority = mintAuthority,
-                holder
+                holder,
+                solanaNotary
             )
         )
     }
@@ -97,14 +108,16 @@ constructor(
     val destination: Pubkey,
     val mint: Pubkey,
     val mintAuthority: Pubkey,
-    val holder: AbstractParty
+    val holder: AbstractParty,
+    val solanaNotary: Party
 ) : AbstractMoveTokensFlow() { //TODO move away from this abstract class, it's progress tracker mention only token move
 
     @Suspendable
     override fun addMove(transactionBuilder: TransactionBuilder) {
-
         val amount = token.state.data.amount
         val output = FungibleToken(amount, holder)
+        logger.info("Kit in internal - notary ${token.state.notary}")
+        logger.info("Kit in internal - holder ${token.state.data.holder}")
         addMoveTokens(transactionBuilder = transactionBuilder, inputs = listOf(token), outputs = listOf(output))
 
         val quantity = amount.toDecimal()
