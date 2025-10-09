@@ -1,9 +1,11 @@
-cd /Users/szymon.sztuka/workspace/samples-kotlin/Tokens/stockpaydividend
+#!/bin/bash
+java -jar build/libs/admin-cli-4.14-SNAPSHOT.jar create-network -u http://localhost:8899 -v
+java -jar build/libs/admin-cli-4.14-SNAPSHOT.jar authorize --address Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5 --network 1 -u http://localhost:8899
+java -jar build/libs/admin-cli-4.14-SNAPSHOT.jar list-notaries -u http://localhost:8899
 
 solana config set --url localhost
 
 ./gradlew deployNodes
-# for local net change Notary node.conf rpcUtl =  http://localhost:8899
 
 NOTARY_FILE=./bridging-flows/src/main/resources/Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json
 NOTARY_ACCOUNT=`solana address -k $NOTARY_FILE`

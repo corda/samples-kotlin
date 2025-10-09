@@ -176,7 +176,6 @@ def keysDirectory = "${project.buildDir}/nodes/solana-keys"
 def bridgeAuthorityWallet = "${custodiedKeysDirectory}/bridge-authority-wallet.json"
 def tokenMintFile = "${keysDirectory}/token-mint.pub"
 def bigBankFile = "${keysDirectory}/big-corp.pub"
-//def solanaUrl = "https://api.devnet.solana.com"
 
 def linearId = '6116560b-c78e-4e13-871d-d666a5d032a3'
 
@@ -198,7 +197,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
                   solana          : [
                           notaryKeypairFile: file(solanaNotaryKeyPath).absolutePath,
                           custodiedKeysDir : file(custodiedKeysDirectory).absolutePath,
-                          rpcUrl: "http://localhost:8899"
+                          rpcUrl: "https://api.devnet.solana.com"
                   ]
         ]
         p2pPort 10002
@@ -257,7 +256,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
 }
 
 tasks.register('expandBACordappConfig') {
-    //dependsOn('deployNodes')
+    dependsOn('deployNodes')
     doLast {
         def pubkey1 = file(bigBankFile).getText('UTF-8').trim()
         def pubkey2 = file(tokenMintFile).getText('UTF-8').trim()

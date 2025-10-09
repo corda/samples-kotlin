@@ -129,6 +129,8 @@ An basic sample of how account feature can be integrated with TokenSDK
 
 ##### 2. Build network - deploy Nodes, setup Bridging Authority
 
+# for local net change Notary node.conf rpcUtl =  http://localhost:8899
+
 ##### 3. Run nodes
 
 ##### 4. IssueStock - Stock Issuer
