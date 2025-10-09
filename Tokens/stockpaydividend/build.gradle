@@ -152,7 +152,6 @@ dependencies {
     // CorDapp dependencies.
     cordapp project(":workflows")
     cordapp project(":contracts")
-    cordapp project(":bridging-setup")
 
     cordapp project(":bridging-contracts") // Used in the test
     cordapp project(":bridging-flows") // Used in the test
@@ -171,18 +170,14 @@ cordapp {
     minimumPlatformVersion corda_platform_version.toInteger()
 }
 
-//TODO for now set manually path to solana-aggregator
-def solanaAgregatorPath = "<PATH_TO_SLANA_GGREGATOR>"
-def solanaNotaryKeyPath = "${solanaAgregatorPath}/notary-program/dev-keys/DevNMdtQW3Q4ybKQvxgwpJj84h5mb7JE218qTpZQnoA3.json"
+def solanaNotaryKeyPath = "${project.rootDir}/bridging-flows/src/main/resources/Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json"
 def custodiedKeysDirectory = "${project.buildDir}/nodes/custodied-keys"
 def keysDirectory = "${project.buildDir}/nodes/solana-keys"
-def funderKeyFile = "${solanaAgregatorPath}/notary-program/dev-keys/DevNMdtQW3Q4ybKQvxgwpJj84h5mb7JE218qTpZQnoA3.json"
-def bigBankWallet = "${keysDirectory}/big-corp-wallet.json"
 def bridgeAuthorityWallet = "${custodiedKeysDirectory}/bridge-authority-wallet.json"
-def tokenMintFile = "${keysDirectory}/tokenMint.pub"
-def bigBankAccount = "${keysDirectory}/big-corp-token.pub"
-def solanaUrl = "https://api.devnet.solana.com"
-//TODO ser a task parmeter?
+def tokenMintFile = "${keysDirectory}/token-mint.pub"
+def bigBankFile = "${keysDirectory}/big-corp.pub"
+//def solanaUrl = "https://api.devnet.solana.com"
+
 def linearId = '6116560b-c78e-4e13-871d-d666a5d032a3'
 
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
@@ -203,7 +198,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
                   solana          : [
                           notaryKeypairFile: file(solanaNotaryKeyPath).absolutePath,
                           custodiedKeysDir : file(custodiedKeysDirectory).absolutePath,
-                          rpcUrl           : "https://api.devnet.solana.com"
+                          rpcUrl: "http://localhost:8899"
                   ]
         ]
         p2pPort 10002
@@ -256,96 +251,37 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
             adminAddress("localhost:10047")
         }
         cordapp(project(':bridging-contracts'))
-        cordapp(project(':bridging-flows')) {
-            // TODO manual step needed for now - repace placeholders <> with value after deployNodes, before runnnodes
-            config """\
-                participants = { "O=WayneCo,L=SF,C=US" = "<bigBankWallet>" }
-                mints = { "${linearId}" = "<tokenMintFile>" }
-                mintAuthorities = { "${linearId}" = "<bridgeAuthorityWallet>" }
-            """
-        }
+        cordapp(project(':bridging-flows'))
         rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
 }
 
-task installQuasar(type: Copy) {
+tasks.register('expandBACordappConfig') {
+    //dependsOn('deployNodes')
+    doLast {
+        def pubkey1 = file(bigBankFile).getText('UTF-8').trim()
+        def pubkey2 = file(tokenMintFile).getText('UTF-8').trim()
+        def stdout = new ByteArrayOutputStream()
+        exec { commandLine 'solana-keygen', 'pubkey', "${bridgeAuthorityWallet}"; standardOutput = stdout }
+        def pubkey3 = stdout.toString('UTF-8').trim()
+
+        copy {
+            from "${project.projectDir}/workflows/src/main/resources"
+            include 'bridging-flows-template.conf'
+            into "$buildDir/nodes/BridgingAuthority/cordapps/config"
+            rename { String name -> name.replace('template', '1.0') }
+            expand(bigBankAccount: pubkey1,
+                    tokenMintAccount: pubkey2,
+                    bridgeAuthorityAccount: pubkey3,
+                    cordaTokenTypeLinearId: linearId,
+                    bigBankCordaIdentity: "O=WayneCo,L=SF,C=US")
+        }
+    }
+}
+
+tasks.register('installQuasar', Copy) {
     destinationDir rootProject.file("lib")
     from(configurations.quasar) {
         rename 'quasar-core(.*).jar', 'quasar.jar'
     }
-}
-
-tasks.register('createWallets') {
-    "solana-keygen new -o ${bridgeAuthorityWallet} --no-bip39-passphrase -f".execute()
-    "solana-keygen new -o ${bigBankWallet} --no-bip39-passphrase -f".execute()
-}
-
-tasks.register("fundAuthorityWallet", JavaExec) {
-    dependsOn('createWallets')
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'net.corda.bank.BridgingSetup'
-
-    args '--rpcUrl'
-    args "${solanaUrl}"
-    args '--role'
-    args 'FUND_WALLET'
-    args '--quantity'
-    args 1
-    args '--funder'
-    args "${funderKeyFile}"
-    args '--target'
-    args "${bridgeAuthorityWallet}"
-}
-
-tasks.register("createTokenMint", JavaExec) {
-    dependsOn('fundAuthorityWallet')
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'net.corda.bank.BridgingSetup'
-
-    args '--rpcUrl'
-    args "${solanaUrl}"
-    args '--role'
-    args 'CREATE_TOKEN'
-    args '--funder'
-    args "${bridgeAuthorityWallet}"
-    args '--mint'
-    args "${tokenMintFile}"
-}
-
-tasks.register("fundBigBankWallet", JavaExec) {
-    dependsOn('createWallets')
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'net.corda.bank.BridgingSetup'
-
-    args '--rpcUrl'
-    args "${solanaUrl}"
-    args '--role'
-    args 'FUND_WALLET'
-    args '--quantity'
-    args 1
-    args '--funder'
-    args "${funderKeyFile}"
-    args '--target'
-    args "${bigBankWallet}"
-}
-
-tasks.register("createTokenAccount", JavaExec) {
-    dependsOn('createTokenMint', 'fundAuthorityWallet', 'fundBigBankWallet')
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'net.corda.bank.BridgingSetup'
-
-    args '--rpcUrl'
-    args "${solanaUrl}"
-    args '--role'
-    args 'CREATE_TOKEN_ACCOUNT'
-    args '--funder'
-    args "${bigBankWallet}"
-    args '--mint'
-    args "${tokenMintFile}"
-    args '--account'
-    args "${bigBankAccount}"
-}
-
-tasks.register("setupBridging") {
-    dependsOn('createTokenAccount', 'createTokenMint', 'fundAuthorityWallet', 'fundBigBankWallet', 'createWallets')
 }

@@ -123,3 +123,49 @@ Provides basic understanding from the ground up.
 [Sample - TokenSDK with Account](https://github.com/corda/accounts/tree/master/examples/tokens-integration-test)
 An basic sample of how account feature can be integrated with TokenSDK
 
+## Bridging To Solana
+
+##### 1. Create accounts on solana
+
+##### 2. Build network - deploy Nodes, setup Bridging Authority
+
+##### 3. Run nodes
+
+##### 4. IssueStock - Stock Issuer
+
+WayneCo creates a StockState and issues some stock tokens associated to the created StockState.
+> On company WayneCo's node, execute <br>
+`start IssueStock symbol: TEST, name: "Stock, SP500", currency: USD, price: 7.4, issueVol: 500, notary: Notary`
+
+start CreateAndIssueStock \
+symbol: TEST, \
+name: "Test Stock", \
+currency: USD, \
+price: 7.4, \
+issueVol: 2000, \
+notary: "O=Notary Service,L=Zurich,C=CH", \
+linearId: 6116560b-c78e-4e13-871d-d666a5d032a3
+
+##### 5. MoveStock - Stock Issuer
+
+WayneCo transfers some stock tokens to the Shareholder.
+> On company WayneCo's node, execute <br>
+`start MoveStock symbol: TEST, quantity: 100, recipient: "O=Bridging Authority,L=New York,C=US"`
+
+Now at the Bridging Authority's terminal, we can see that it received 100 stock tokens:
+> On shareholder node, execute <br>`start GetStockBalance symbol: TEST`
+
+##### 6. Bridging to Solana - Select Token
+
+> run vaultQuery contractStateType: com.r3.corda.lib.tokens.contracts.states.FungibleToken
+
+> start GetTokenToBridge symbol: TEST
+
+##### 7. Bridging to Solana - Bridge
+
+> start BridgeTokenRpc tokenRef: { txhash: 11EE3F587AF711F2BADB11DEDAA48A4607F6EF8A4ADEC8A3A50410EAC44AD827, index:
+> 0 } , bridgeAuthority: "O=Bridging Authority,L=New York,C=US"
+
+##### 8. Check on solana
+
+##### 9. Redemption

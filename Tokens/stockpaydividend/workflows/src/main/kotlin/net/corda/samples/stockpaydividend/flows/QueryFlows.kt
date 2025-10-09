@@ -52,17 +52,17 @@ class GetFiatBalance(private val currencyCode: String) : FlowLogic<String>() {
 @StartableByRPC
 class GetTokenToBridge(
     val symbol: String
-) : FlowLogic<List<StateAndRef<FungibleToken>>>() {
+) : FlowLogic<List<String>>() {
 
     override val progressTracker = ProgressTracker()
 
     @Suspendable
-    override fun call(): List<StateAndRef<FungibleToken>> {
+    override fun call(): List<String> {
         val page =
             serviceHub.vaultService.queryBy(StockState::class.java) //TODO + UNCONSUMED query and belonging to our identity
         val states = page.states.filter { it.state.data.symbol == symbol }
         val pointer: TokenPointer<StockState> = states.map { it.state.data.toPointer(StockState::class.java) }.first()
-        val tokens: List<StateAndRef<FungibleToken>> = serviceHub.vaultService.tokenAmountsByToken(pointer).states
-        return tokens
+        val stateRefs: List<String> = serviceHub.vaultService.tokenAmountsByToken(pointer).states.map { "${it.ref}" }
+        return stateRefs
     }
 }
