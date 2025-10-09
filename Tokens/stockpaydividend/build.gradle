@@ -278,7 +278,7 @@ tasks.register('expandBACordappConfig') {
     }
 }
 
-tasks.register('installQuasar', Copy) {
+task installQuasar(type: Copy) {
     destinationDir rootProject.file("lib")
     from(configurations.quasar) {
         rename 'quasar-core(.*).jar', 'quasar.jar'

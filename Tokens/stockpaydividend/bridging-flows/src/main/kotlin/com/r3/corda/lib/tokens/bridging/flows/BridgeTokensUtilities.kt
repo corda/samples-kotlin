@@ -54,9 +54,10 @@ fun bridgeTokens(
             addCommand(additionalCommand, keys)
         }
     }
-    require(additionalCommand is BridgingContract.BridgingCommand.BridgeToSolana) { "Only bridging to Solana is supported" }
-    val instruction = Token2022.mintTo(mint, destination, mintAuthority, quantity)
-    transactionBuilder.addNotaryInstruction(instruction)
+    if (additionalCommand is BridgingContract.BridgingCommand.BridgeToSolana) {
+        val instruction = Token2022.mintTo(mint, destination, mintAuthority, quantity)
+        transactionBuilder.addNotaryInstruction(instruction)
+    }
 
     return transactionBuilder
 }

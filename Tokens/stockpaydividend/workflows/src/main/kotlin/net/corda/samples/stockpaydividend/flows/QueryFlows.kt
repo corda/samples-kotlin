@@ -4,7 +4,6 @@ import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import com.r3.corda.lib.tokens.money.FiatCurrency.Companion.getInstance
-import com.r3.corda.lib.tokens.workflows.flows.move.MoveTokensFlowHandler
 import com.r3.corda.lib.tokens.workflows.utilities.tokenAmountsByToken
 import com.r3.corda.lib.tokens.workflows.utilities.tokenBalance
 import net.corda.core.contracts.StateAndRef
@@ -46,6 +45,7 @@ class GetFiatBalance(private val currencyCode: String) : FlowLogic<String>() {
 
     }
 }
+
 
 //TODO this is temporally, used by Bridging Authority
 @InitiatingFlow
