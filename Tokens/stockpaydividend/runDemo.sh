@@ -55,7 +55,6 @@ echo $MINT_ACCOUNT >> $tokenMintPubKeyFile
 spl-token balance --address $TOKEN_ACCOUNT
 spl-token display $TOKEN_ACCOUNT
 
-
 # On WayneCo node console:
 start CreateAndIssueStock \
   symbol: TEST, \
@@ -69,11 +68,9 @@ start CreateAndIssueStock \
 start MoveStock symbol: TEST, quantity: 1000, recipient: "O=Bridging Authority,L=New York,C=US"
 
 # On BridgingAuthority node console:
-start GetTokenToBridge symbol: TEST
+start GetTokenToBridgeFormatted symbol: TEST
 
 start BridgeTokenRpc tokenRef: { txhash: <TX_HASH>, index: 0 } , bridgeAuthority: "O=Bridging Authority,L=New York,C=US"
-
-start BridgeTokenRpc tokenRef: { txhash: 27D1EA2D305270BD1E31AA89AA1022A209412BA001F4BE46684549E7AA1DC380, index: 0 } , bridgeAuthority: "O=Bridging Authority,L=New York,C=US"
 
 # Check
 spl-token balance --address $TOKEN_ACCOUNT

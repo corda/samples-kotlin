@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import com.r3.corda.lib.tokens.money.FiatCurrency.Companion.getInstance
+import com.r3.corda.lib.tokens.workflows.flows.move.MoveTokensFlowHandler
 import com.r3.corda.lib.tokens.workflows.utilities.tokenAmountsByToken
 import com.r3.corda.lib.tokens.workflows.utilities.tokenBalance
 import net.corda.core.contracts.StateAndRef
@@ -46,11 +47,29 @@ class GetFiatBalance(private val currencyCode: String) : FlowLogic<String>() {
     }
 }
 
-
 //TODO this is temporally, used by Bridging Authority
 @InitiatingFlow
 @StartableByRPC
 class GetTokenToBridge(
+    val symbol: String
+) : FlowLogic<List<StateAndRef<FungibleToken>>>() {
+
+    override val progressTracker = ProgressTracker()
+
+    @Suspendable
+    override fun call(): List<StateAndRef<FungibleToken>> {
+        val page =
+            serviceHub.vaultService.queryBy(StockState::class.java) //TODO + UNCONSUMED query and belonging to our identity
+        val states = page.states.filter { it.state.data.symbol == symbol }
+        val pointer: TokenPointer<StockState> = states.map { it.state.data.toPointer(StockState::class.java) }.first()
+        val tokens: List<StateAndRef<FungibleToken>> = serviceHub.vaultService.tokenAmountsByToken(pointer).states
+        return tokens
+    }
+}
+
+@InitiatingFlow
+@StartableByRPC
+class GetTokenToBridgeFormatted(
     val symbol: String
 ) : FlowLogic<List<String>>() {
 
@@ -58,11 +77,8 @@ class GetTokenToBridge(
 
     @Suspendable
     override fun call(): List<String> {
-        val page =
-            serviceHub.vaultService.queryBy(StockState::class.java) //TODO + UNCONSUMED query and belonging to our identity
-        val states = page.states.filter { it.state.data.symbol == symbol }
-        val pointer: TokenPointer<StockState> = states.map { it.state.data.toPointer(StockState::class.java) }.first()
-        val stateRefs: List<String> = serviceHub.vaultService.tokenAmountsByToken(pointer).states.map { "${it.ref}" }
-        return stateRefs
+        val tokens: List<StateAndRef<FungibleToken>> = subFlow(GetTokenToBridge(symbol))
+        val formatted: List<String> = tokens.map { "${it.ref}" }
+        return formatted
     }
 }
