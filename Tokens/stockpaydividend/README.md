@@ -125,20 +125,96 @@ An basic sample of how account feature can be integrated with TokenSDK
 
 ## Bridging To Solana
 
-##### 1. Create accounts on solana
+### Running on Solana Dev Net
 
-##### 2. Build network - deploy Nodes, setup Bridging Authority
+Build nodes:
 
-# for local net change Notary node.conf rpcUtl =  http://localhost:8899
+```bash
+./gradlew deployNodes
+```
 
-##### 3. Run nodes
+Create Solana Accounts and Fund accounts of WayneCo and the BridgingAuthority, create Mint and TokenAccount to be
+bridged to:
 
-##### 4. IssueStock - Stock Issuer
+```bash
+./setupSolanaAccounts.sh
+```
 
-WayneCo creates a StockState and issues some stock tokens associated to the created StockState.
-> On company WayneCo's node, execute <br>
-`start IssueStock symbol: TEST, name: "Stock, SP500", currency: USD, price: 7.4, issueVol: 500, notary: Notary`
+Amend `BrigindAuthority` Cordapp's configuration with mappings to newly created accounts:
 
+```bash
+/gradlew expandBACordappConfig
+```
+
+Run nodes:
+
+```bash
+./build/nodes/runnodes
+```
+
+### Running with Solana Local Validator
+
+Start a local solana validator with the notary program deployed following instruction from Corda Enterprise.
+(the below commands can be run in one go from `./addCordaNetowrk.sh` script).
+
+```bash
+Add the new network and Notary key to Solana. This Notary will be used by the Corda nodes.
+```bash
+ADMIN_CLI="solana-aggregator/admin-cli/build/libs/admin-cli-4.14-SNAPSHOT.jar"
+java -jar $ADMIN_CLI create-network -u http://localhost:8899 -v -k solana-aggregator/notary-program/dev-keys/DevAD5S5AFhTTCmrD8Jg58bDhbZabSzth7Bu6rG4HFYo.json
+```
+
+The command will output confirmation with network ID `1`:
+
+```
+Creating network ...
+✓ Corda network creation successful - network ID: 1
+```
+
+Add the Notary key to the network:
+
+```bash
+> java -jar $ADMIN_CLI authorize --address Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5 --network 1 -u http://localhost:8899 -k solana-aggregator/notary-program/dev-keys/DevAD5S5AFhTTCmrD8Jg58bDhbZabSzth7Bu6rG4HFYo.json
+```
+
+This command will output:
+
+```
+> Authorizing notary Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5...
+> ✓ Notary authorized successfully: Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5
+```
+
+You can list the authorized notaries with:
+
+```bash
+java -jar $ADMIN_CLI list-notaries -u http://localhost:8899 -v -k solana-aggregator/notary-program/dev-keys/DevAD5S5AFhTTCmrD8Jg58bDhbZabSzth7Bu6rG4HFYo.json
+```
+
+```
+Network ID: 0
+   1. Notary: DevNMdtQW3Q4ybKQvxgwpJj84h5mb7JE218qTpZQnoA3
+Network ID: 1
+   1. Notary: Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5
+```
+
+Follow the steps from Running on Solana Dev Net.
+The only change is to replace Solana Dev Net url with local validator url `http://localhost:8899` in notary config in
+`depolyNodes` task. .
+
+#### Using the Cordapps
+
+You can check the current balance on Solana Account:
+
+```bash
+spl-token balance --address $TOKEN_ACCOUNT
+spl-token display $TOKEN_ACCOUNT
+```
+
+##### On WayneCo node console:
+
+Issue Stock `TEST` with liniearID `6116560b-c78e-4e13-871d-d666a5d032a3` matching configuration in Bridging Authority.
+
+```bash
 start CreateAndIssueStock \
 symbol: TEST, \
 name: "Test Stock", \
@@ -147,27 +223,30 @@ price: 7.4, \
 issueVol: 2000, \
 notary: "O=Notary Service,L=Zurich,C=CH", \
 linearId: 6116560b-c78e-4e13-871d-d666a5d032a3
+```
 
-##### 5. MoveStock - Stock Issuer
+Move 1000 stock tokens to self to Bridging Authority:
 
-WayneCo transfers some stock tokens to the Shareholder.
-> On company WayneCo's node, execute <br>
-`start MoveStock symbol: TEST, quantity: 100, recipient: "O=Bridging Authority,L=New York,C=US"`
+```bash
+start MoveStock symbol: TEST, quantity: 1000, recipient: "O=Bridging Authority,L=New York,C=US"
+```
 
-Now at the Bridging Authority's terminal, we can see that it received 100 stock tokens:
-> On shareholder node, execute <br>`start GetStockBalance symbol: TEST`
+##### On BridgingAuthority node console:
 
-##### 6. Bridging to Solana - Select Token
+This is currently a manual step to showcase how bridging, normally the bridging flow starts automatically as soon as
+a participant moves token(s) to the Bridging Authority:
 
-> run vaultQuery contractStateType: com.r3.corda.lib.tokens.contracts.states.FungibleToken
+```bash
+start GetTokenToBridgeFormatted symbol: TEST
+```
 
-> start GetTokenToBridge symbol: TEST
+```bash
+start BridgeTokenRpc tokenRef: { txhash: <TX_HASH>, index: 0 } , bridgeAuthority: "O=Bridging Authority,L=New York,C=US"
+```
 
-##### 7. Bridging to Solana - Bridge
+You can check the current balance on Solana Account has increased:
 
-> start BridgeTokenRpc tokenRef: { txhash: 11EE3F587AF711F2BADB11DEDAA48A4607F6EF8A4ADEC8A3A50410EAC44AD827, index:
-> 0 } , bridgeAuthority: "O=Bridging Authority,L=New York,C=US"
-
-##### 8. Check on solana
-
-##### 9. Redemption
+```bash
+spl-token balance --address $TOKEN_ACCOUNT
+spl-token display $TOKEN_ACCOUNT
+```
