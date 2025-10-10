@@ -170,7 +170,8 @@ cordapp {
     minimumPlatformVersion corda_platform_version.toInteger()
 }
 
-def solanaNotaryKeyPath = "${project.rootDir}/bridging-flows/src/main/resources/Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json"
+def solanaNotaryKeyFileName = 'Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json'
+def solanaNotaryKeyPath = "$buildDir/extracted/dev-keys/$solanaNotaryKeyFileName"
 def custodiedKeysDirectory = "${project.buildDir}/nodes/custodied-keys"
 def keysDirectory = "${project.buildDir}/nodes/solana-keys"
 def bridgeAuthorityWallet = "${custodiedKeysDirectory}/bridge-authority-wallet.json"
@@ -180,6 +181,7 @@ def bigBankFile = "${keysDirectory}/big-corp.pub"
 def linearId = '6116560b-c78e-4e13-871d-d666a5d032a3'
 
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
+    dependsOn('extractDevKey')
     nodeDefaults {
         projectCordapp {
             deploy = false
@@ -282,4 +284,26 @@ task installQuasar(type: Copy) {
     from(configurations.quasar) {
         rename 'quasar-core(.*).jar', 'quasar.jar'
     }
+}
+
+configurations {
+    libJar {
+        transitive = false
+    }
+}
+
+dependencies {
+    libJar 'com.r3.corda.lib.solana:token-bridging-workflows:0.1.0-SNAPSHOT@jar'
+}
+
+tasks.register('extractDevKey', Copy) {
+    from({ zipTree(configurations.libJar.singleFile) }) {
+        include "dev-keys/$solanaNotaryKeyFileName"
+    }
+    into "$buildDir/extracted"
+}
+
+tasks.register('setupSolanaAccounts', Exec) {
+    dependsOn('extractDevKey')
+    commandLine 'bash', '-x', "$projectDir/setupSolanaAccounts.sh", "$solanaNotaryKeyPath"
 }

@@ -137,13 +137,13 @@ Create Solana Accounts and Fund accounts of WayneCo and the BridgingAuthority, c
 bridged to:
 
 ```bash
-./setupSolanaAccounts.sh
+./gradlew setupSolanaAccounts
 ```
 
 Amend `BrigindAuthority` Cordapp's configuration with mappings to newly created accounts:
 
 ```bash
-/gradlew expandBACordappConfig
+./gradlew expandBACordappConfig
 ```
 
 Run nodes:
@@ -155,7 +155,7 @@ Run nodes:
 ### Running with Solana Local Validator
 
 Start a local solana validator with the notary program deployed following instruction from Corda Enterprise.
-(the below commands can be run in one go from `./addCordaNetowrk.sh` script).
+(the below commands can be run in one go from `./addCordaNetwork.sh` script).
 
 ```bash
 Add the new network and Notary key to Solana. This Notary will be used by the Corda nodes.

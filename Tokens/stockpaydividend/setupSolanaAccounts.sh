@@ -1,8 +1,7 @@
 #!/bin/bash
 solana config set --url localhost
 
-NOTARY_FILE=./bridging-flows/src/main/resources/Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json
-NOTARY_ACCOUNT=`solana address -k $NOTARY_FILE`
+NOTARY_ACCOUNT=`solana address -k $1`
 solana airdrop 10 $NOTARY_ACCOUNT
 
 bridgeAuthorityWallet=./build/nodes/custodied-keys/bridge-authority-wallet.json
@@ -12,7 +11,7 @@ bigBankWallet=./build/nodes/solana-keys/big-corp-wallet.json
 solana-keygen new -o $bigBankWallet --no-bip39-passphrase -f
 
 bridgeAuthorityAccount=`solana address -k $bridgeAuthorityWallet`
-funderKeyFile=$NOTARY_FILE
+funderKeyFile=$1
 solana transfer $bridgeAuthorityAccount 0.1 --fee-payer $funderKeyFile --from $funderKeyFile --allow-unfunded-recipient
 
 bigBankAccount=`solana address -k $bigBankWallet`
@@ -32,7 +31,7 @@ MINT_ACCOUNT=$(spl-token create-token \
 TOKEN_ACCOUNT=$(spl-token create-account \
   --program-id TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb \
   --owner $bigBankAccount \
-  --fee-payer $NOTARY_FILE \
+  --fee-payer $funderKeyFile \
   $MINT_ACCOUNT  | awk '/^Creating account / {print $3}')
 
 bigBankPubKeyFile=./build/nodes/solana-keys/big-corp.pub
