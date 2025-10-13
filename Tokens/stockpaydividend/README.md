@@ -157,7 +157,6 @@ Run nodes:
 Start a local solana validator with the notary program deployed following instruction from Corda Enterprise.
 (the below commands can be run in one go from `./addCordaNetwork.sh` script).
 
-```bash
 Add the new network and Notary key to Solana. This Notary will be used by the Corda nodes.
 ```bash
 ADMIN_CLI="solana-aggregator/admin-cli/build/libs/admin-cli-4.14-SNAPSHOT.jar"
@@ -190,6 +189,7 @@ You can list the authorized notaries with:
 java -jar $ADMIN_CLI list-notaries -u http://localhost:8899 -v -k solana-aggregator/notary-program/dev-keys/DevAD5S5AFhTTCmrD8Jg58bDhbZabSzth7Bu6rG4HFYo.json
 ```
 
+The expected output is:
 ```
 Network ID: 0
    1. Notary: DevNMdtQW3Q4ybKQvxgwpJj84h5mb7JE218qTpZQnoA3
@@ -199,7 +199,7 @@ Network ID: 1
 
 Follow the steps from Running on Solana Dev Net.
 The only change is to replace Solana Dev Net url with local validator url `http://localhost:8899` in notary config in
-`depolyNodes` task. .
+`depolyNodes` task.
 
 #### Using the Cordapps
 
@@ -212,7 +212,7 @@ spl-token display $TOKEN_ACCOUNT
 
 ##### On WayneCo node console:
 
-Issue Stock `TEST` with liniearID `6116560b-c78e-4e13-871d-d666a5d032a3` matching configuration in Bridging Authority.
+Issue Stock `TEST` with linearID `6116560b-c78e-4e13-871d-d666a5d032a3` matching configuration in Bridging Authority.
 
 ```bash
 start CreateAndIssueStock \
