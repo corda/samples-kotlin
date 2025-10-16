@@ -6,6 +6,7 @@ import net.corda.samples.example.flows.ExampleFlow.Initiator
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
+import net.corda.core.flows.scheduler.mapper.FlowThreadPool
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
@@ -13,6 +14,9 @@ import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import net.corda.samples.example.contracts.IOUContract
 import net.corda.samples.example.states.IOUState
+import net.corda.core.utilities.seconds
+import java.time.Instant
+//import java.time.Duration
 
 
 /**
@@ -29,8 +33,10 @@ import net.corda.samples.example.states.IOUState
 object ExampleFlow {
     @InitiatingFlow
     @StartableByRPC
-    class Initiator(val iouValue: Int,
-                    val otherParty: Party) : FlowLogic<SignedTransaction>() {
+    @FlowThreadPool("IOUFlowPool")
+    class Initiator(
+        val iouValue: Int,
+        val otherParty: Party, val sleepInTheMiddleInSeconds: Int) : FlowLogic<SignedTransaction>() {
         /**
          * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
          * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
@@ -43,16 +49,18 @@ object ExampleFlow {
                 override fun childProgressTracker() = CollectSignaturesFlow.tracker()
             }
 
+            object SLEEPING_IN_THE_MIDDLE : ProgressTracker.Step("Delay in the middle of the flow.")
             object FINALISING_TRANSACTION : Step("Obtaining notary signature and recording transaction.") {
                 override fun childProgressTracker() = FinalityFlow.tracker()
             }
 
             fun tracker() = ProgressTracker(
-                    GENERATING_TRANSACTION,
-                    VERIFYING_TRANSACTION,
-                    SIGNING_TRANSACTION,
-                    GATHERING_SIGS,
-                    FINALISING_TRANSACTION
+                GENERATING_TRANSACTION,
+                VERIFYING_TRANSACTION,
+                SIGNING_TRANSACTION,
+                GATHERING_SIGS,
+                FINALISING_TRANSACTION,
+                SLEEPING_IN_THE_MIDDLE
             )
         }
 
@@ -80,24 +88,35 @@ object ExampleFlow {
             val iouState = IOUState(iouValue, serviceHub.myInfo.legalIdentities.first(), otherParty)
             val txCommand = Command(IOUContract.Commands.Create(), iouState.participants.map { it.owningKey })
             val txBuilder = TransactionBuilder(notary)
-                    .addOutputState(iouState, IOUContract.ID)
-                    .addCommand(txCommand)
+                .addOutputState(iouState, IOUContract.ID)
+                .addCommand(txCommand)
 
             // Stage 2.
             progressTracker.currentStep = VERIFYING_TRANSACTION
             // Verify that the transaction is valid.
             txBuilder.verify(serviceHub)
 
+//            logger.info("Pausing IOU flow for $deleySeconds seconds to simulate proccessing delay...")
+//            sleep(Duration.ofSeconds(deleySeconds))
+
             // Stage 3.
             progressTracker.currentStep = SIGNING_TRANSACTION
             // Sign the transaction.
             val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
+            if (sleepInTheMiddleInSeconds > 0) {
+                progressTracker.currentStep = SLEEPING_IN_THE_MIDDLE
+                val afterSleep = Instant.now() + sleepInTheMiddleInSeconds.seconds
+                logger.info(SLEEPING_IN_THE_MIDDLE.label)
+                sleep(sleepInTheMiddleInSeconds.seconds)
+                if (Instant.now() < afterSleep) throw FlowException("Did not sleep for at least $sleepInTheMiddleInSeconds seconds")
+            }
+
             // Stage 4.
             progressTracker.currentStep = GATHERING_SIGS
             // Send the state to the counterparty, and receive it back with their signature.
             val otherPartySession = initiateFlow(otherParty)
-            val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, setOf(otherPartySession), GATHERING_SIGS.childProgressTracker()))
+            val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx,setOf(otherPartySession), GATHERING_SIGS.childProgressTracker()))
 
             // Stage 5.
             progressTracker.currentStep = FINALISING_TRANSACTION

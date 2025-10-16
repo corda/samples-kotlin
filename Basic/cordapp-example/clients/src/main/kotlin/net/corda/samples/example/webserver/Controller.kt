@@ -92,6 +92,7 @@ class Controller(rpc: NodeRPCConnection) {
     fun createIOU(request: HttpServletRequest): ResponseEntity<String> {
         val iouValue = request.getParameter("iouValue").toInt()
         val partyName = request.getParameter("partyName")
+        val sleepInTheMiddleInSeconds = request.getParameter("sleepInTheMiddleInSeconds").toInt()
         if(partyName == null){
             return ResponseEntity.badRequest().body("Query parameter 'partyName' must not be null.\n")
         }
@@ -102,7 +103,7 @@ class Controller(rpc: NodeRPCConnection) {
         val otherParty = proxy.wellKnownPartyFromX500Name(partyX500Name) ?: return ResponseEntity.badRequest().body("Party named $partyName cannot be found.\n")
 
         return try {
-            val signedTx = proxy.startTrackedFlow(::Initiator, iouValue, otherParty).returnValue.getOrThrow()
+            val signedTx = proxy.startTrackedFlow(::Initiator, iouValue, otherParty, sleepInTheMiddleInSeconds).returnValue.getOrThrow()
             ResponseEntity.status(HttpStatus.CREATED).body("Transaction id ${signedTx.id} committed to ledger.\n")
 
         } catch (ex: Throwable) {

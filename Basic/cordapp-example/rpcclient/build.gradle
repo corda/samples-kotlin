@@ -1,0 +1,66 @@
+//plugins {
+//    id 'application'
+//}
+
+apply plugin: 'application'
+apply plugin: 'net.corda.plugins.cordapp'
+apply plugin: 'net.corda.plugins.cordformation'
+//apply plugin: 'org.jetbrains.kotlin.jvm'
+
+dependencies {
+    implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
+//    compile "org.apache.logging.log4j:log4j-web:${log4j_version}"
+//    compile "org.slf4j:jul-to-slf4j:$slf4j_version"
+
+//    compile "org.apache.logging.log4j:log4j-slf4j-impl:$log4j_version"
+//    compile "org.apache.logging.log4j:log4j-core:$log4j_version"
+
+//    compile "info.picocli:picocli:4.0.4"
+//    compile "com.jcabi:jcabi-manifests:$jcabi_manifests_version"
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk17:$kotlin_version"
+    implementation "$corda_core_release_group:corda-core:$corda_core_release_version"
+    implementation "$corda_release_group:corda-rpc:$corda_release_version"
+    implementation "$corda_release_group:corda-rpc-ext:$corda_release_version"
+    implementation "$corda_release_group:corda-node-api:$corda_release_version"
+    implementation project(":workflows")
+    implementation project(":contracts")
+}
+group 'com.example.rpcclient'
+application {
+    mainClassName = 'com.example.rpcclient.RPCClient'
+}
+
+cordapp {
+    targetPlatformVersion corda_platform_version
+    minimumPlatformVersion corda_platform_version
+ }
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.example.rpcclient.RPCClient'
+    }
+
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+    /*configurations.implementation.canBeResolved = true
+    from {
+        configurations.implementation.resolvedConfiguration.resolvedArtifacts.collect {
+            it.file
+            //it.isDirectory() ? it : zipTree(it)
+        }
+    }*/
+    configurations.implementation.canBeResolved = true
+   from {
+       configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+        /*configurations.getByName('implementation').files..collect {
+            it.isDirectory() ? it : zipTree(it)
+        }*/
+    }
+}
+sourceSets {
+    main {
+        resources {
+            srcDir rootProject.file("config/dev")
+        }
+    }
+}
