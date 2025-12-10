@@ -21,7 +21,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
-import java.lang.IllegalStateException
 import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
@@ -29,34 +28,34 @@ import java.util.concurrent.Future
 import kotlin.test.assertEquals
 
 class DriverBasedTest {
-    companion object {
-        private val networkParameters = NetworkParameters(
-            minimumPlatformVersion = 4,
-            notaries = emptyList(),
-            maxMessageSize = 10485760,
-            maxTransactionSize = 10485760,
-            modifiedTime = Instant.now(),
-            epoch = 1,
-            whitelistedContractImplementations = emptyMap(),
-            eventHorizon = Duration.ofDays(30),
-            packageOwnership = emptyMap(),
-        )
-    }
+    private val networkParameters = NetworkParameters(
+        minimumPlatformVersion = 4,
+        notaries = emptyList(),
+        maxMessageSize = 10485760,
+        maxTransactionSize = 10485760,
+        modifiedTime = Instant.now(),
+        epoch = 1,
+        whitelistedContractImplementations = emptyMap(),
+        eventHorizon = Duration.ofDays(30),
+        packageOwnership = emptyMap(),
+    )
+
     private val validator = SolanaTestValidator()
     private val bankA = TestIdentity(CordaX500Name("BankA", "", "GB"))
     private val bankB = TestIdentity(CordaX500Name("BankB", "", "US"))
     private val solanaNotaryName = CordaX500Name("Solana Notary Service", "London", "GB")
     private lateinit var solanaNotaryKeyFile: Path
     private lateinit var solanaNotaryKey: Signer
+
     @TempDir
     lateinit var custodiedKeysDir: Path
+
     @TempDir
     lateinit var generalDir: Path
     val solanaNotaryConfig: Map<String, Any> by lazy {
         mapOf<String, Any>(
             "notary" to mapOf(
                 "validating" to false,
-                // "serviceLegalName" doesn't work with Driver, because it needs a distributed key that is not created
                 "solana" to mapOf(
                     "rpcUrl" to SolanaTestValidator.RPC_URL,
                     "notaryKeypairFile" to "$solanaNotaryKeyFile",
@@ -75,7 +74,7 @@ class DriverBasedTest {
     )
 
     @BeforeEach
-    fun setup () {
+    fun setup() {
         solanaNotaryKeyFile = randomKeypairFile(generalDir)
         solanaNotaryKey = Signer.fromFile(solanaNotaryKeyFile)
         validator.start()
@@ -88,27 +87,26 @@ class DriverBasedTest {
     }
 
     @Test
-    fun nodeTest() {
-        withDriver {
-            // Start a pair of nodes and wait for them both to be ready.
-            val (partyAHandle, partyBHandle) = startNodes(bankA, bankB)
+    fun nodeTest() = withDriver {
+        // Start a pair of nodes and wait for them both to be ready.
+        val (partyAHandle, partyBHandle) = startNodes(bankA, bankB)
 
-            // From each node, make an RPC call to retrieve another node's name from the network map, to verify that the
-            // nodes have started and can communicate.
+        // From each node, make an RPC call to retrieve another node's name from the network map, to verify that the
+        // nodes have started and can communicate.
 
-            // This is a very basic test: in practice tests would be starting flows, and verifying the states in the vault
-            // and other important metrics to ensure that your CorDapp is working as intended.
-            assertEquals(bankB.name, partyAHandle.resolveName(bankB.name))
-            assertEquals(bankA.name, partyBHandle.resolveName(bankA.name))
-        }
+        // This is a very basic test: in practice tests would be starting flows, and verifying the states in the vault
+        // and other important metrics to ensure that your CorDapp is working as intended.
+        assertEquals(bankB.name, partyAHandle.resolveName(bankB.name))
+        assertEquals(bankA.name, partyBHandle.resolveName(bankA.name))
     }
 
     // Runs a test inside the Driver DSL, which provides useful functions for starting nodes, etc.
     private fun withDriver(test: DriverDSL.() -> Unit) = driver(
-        DriverParameters(isDebug = true, startNodesInProcess = true,
-            cordappsForAllNodes = cordappsForAllNodes,
+        DriverParameters(
+            isDebug = true, startNodesInProcess = true, cordappsForAllNodes = cordappsForAllNodes,
             notarySpecs = listOf(NotarySpec(solanaNotaryName, solanaNotaryConfig, startInProcess = false)),
-            networkParameters = networkParameters)
+            networkParameters = networkParameters
+        )
     ) { test() }
 
     // Makes an RPC call to retrieve another node's name from the network map.
