@@ -2,7 +2,10 @@ repositories {
     mavenLocal()
     mavenCentral()
 
+    //
+    // Specify your own repos here, including any authentication details that are required.
+    //
+    
     maven { url 'https://jitpack.io' }
-    maven { url 'https://download.corda.net/maven/corda-dependencies' }
     maven { url 'https://repo.gradle.org/gradle/libs-releases' }
 }
