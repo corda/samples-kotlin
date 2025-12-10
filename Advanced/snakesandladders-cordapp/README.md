@@ -17,7 +17,7 @@ Each player can create an account to participate. Players can either be on the s
 Oracle node is used to obtain the player dice rolls.
 
 ## Pre-Requisites
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
 
 
 ## Running the nodes

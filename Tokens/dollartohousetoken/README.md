@@ -18,7 +18,7 @@ There are three flows that we'll primarily use in this example that you'll be bu
 
 
 ## Pre-Requisites
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
 # Usage
 
 ## Running the nodes
@@ -57,7 +57,7 @@ We can now check the issued house token in PartyB's vault. Since we issued it as
     
     run vaultQuery contractStateType: com.r3.corda.lib.tokens.contracts.states.NonFungibleToken
     
-Note that HouseState token is an evolvable token which is a [LinearState](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#linearstate), thus we can check PartyB's vault to view the [EvolvableToken](https://training.corda.net/libraries/tokens-sdk/#evolvabletokentype)
+Note that HouseState token is an evolvable token which is a [LinearState](https://docs.r3.com/en/platform/corda/4.12/community/api-states.html#linearstate), thus we can check PartyB's vault to view the [EvolvableToken](https://training.corda.net/libraries/tokens-sdk/#evolvabletokentype)
 
     run vaultQuery contractStateType: net.corda.samples.dollartohousetoken.states.HouseState
     

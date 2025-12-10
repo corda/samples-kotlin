@@ -28,7 +28,7 @@ Open a terminal and go to the project root directory and type: (to deploy the no
 ```
 
 ## Pre-Requisites
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
 
 ## Usage
 ### Running the sample
@@ -60,7 +60,7 @@ At the Buyer side, we would assume we got a recall notice and will send the phys
 ```
 flow start TotalPart part: frame, serial: F4561
 ```
-At the buyer's shell, if we do the [vaultQuery](https://docs.r3.com/en/platform/corda/4.9/community/api-vault-query.html) again, we will see we now only have a wheel token (the frame token is gone). With the wheel token, we can sell this pair of wheels to the used parts agency. We will achieve it by running: 
+At the buyer's shell, if we do the [vaultQuery](https://docs.r3.com/en/platform/corda/4.12/community/api-vault-query.html) again, we will see we now only have a wheel token (the frame token is gone). With the wheel token, we can sell this pair of wheels to the used parts agency. We will achieve it by running: 
 ```
 flow start TransferPartToken part: wheels, serial: W7894, holder: UsedPartsAgency
 ```

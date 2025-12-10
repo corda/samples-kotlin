@@ -41,7 +41,7 @@ This opentelemetry-cordapp-example application allows a party (lender) to issue 
 
 ## States
 
-* `IOUState`: This is a [LinearState](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#linearstate) and a [QueryableState](https://docs.r3.com/en/platform/corda/4.9/community/api-states.html#the-queryablestate-and-schedulablestate-interfaces) that represents an IOU that can be issued by one party (lender) to another party (borrower).
+* `IOUState`: This is a [LinearState](https://docs.r3.com/en/platform/corda/4.12/community/api-states.html#linearstate) and a [QueryableState](https://docs.r3.com/en/platform/corda/4.12/community/api-states.html#the-queryablestate-and-schedulablestate-interfaces) that represents an IOU that can be issued by one party (lender) to another party (borrower).
 
 ## Contracts
 
@@ -52,7 +52,7 @@ This opentelemetry-cordapp-example application allows a party (lender) to issue 
 * `ExampleFlow`: This flow is used to create an `IOUState`. It takes 2 arguments as the parameters: the `iouValue` (Int) and the `otherParty` (Party).
 
 ## Pre-requisites:
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
 
 ## Running the nodes:
 1. Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
