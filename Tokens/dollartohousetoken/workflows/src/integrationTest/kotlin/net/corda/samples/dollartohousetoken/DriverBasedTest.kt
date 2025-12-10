@@ -2,10 +2,13 @@ package net.corda.samples.dollartohousetoken
 
 import com.lmax.solana4j.Solana
 import com.lmax.solana4j.api.PublicKey
+import com.lmax.solana4j.programs.Token2022Program
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.NetworkParameters
 import net.corda.core.utilities.getOrThrow
 import net.corda.solana.notary.common.Signer
+import net.corda.solana.notary.common.rpc.DefaultRpcParams
+import net.corda.solana.notary.common.rpc.sendAndConfirm
 import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.solana.sdk.internal.Token2022
 import net.corda.testing.core.TestIdentity
@@ -20,11 +23,13 @@ import net.corda.testing.solana.randomKeypairFile
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.Future
+import kotlin.collections.emptyList
 import kotlin.test.assertEquals
 
 class DriverBasedTest {
@@ -46,6 +51,12 @@ class DriverBasedTest {
     private val solanaNotaryName = CordaX500Name("Solana Notary Service", "London", "GB")
     private lateinit var solanaNotaryKeyFile: Path
     private lateinit var solanaNotaryKey: Signer
+    private val mintAuthoritySigner = Signer.random()
+    private lateinit var tokenMint: PublicKey
+    private val bankAWallet = Signer.random()
+    private val bankBWallet = Signer.random()
+    private lateinit var bankATokenAccount: PublicKey
+    private lateinit var bankBTokenAccount: PublicKey
 
     @TempDir
     lateinit var custodiedKeysDir: Path
@@ -79,6 +90,12 @@ class DriverBasedTest {
         solanaNotaryKey = Signer.fromFile(solanaNotaryKeyFile)
         validator.start()
         validator.defaultNotaryProgramSetup(solanaNotaryKey.account)
+        setOf(mintAuthoritySigner, bankAWallet, bankBWallet).forEach {
+            validator.fundAccount(10, it)
+        }
+        tokenMint = validator.createToken(mintAuthoritySigner, decimals = 3.toByte())
+        bankATokenAccount = validator.createTokenAccount(bankAWallet, tokenMint)
+        bankBTokenAccount = validator.createTokenAccount(bankBWallet, tokenMint)
     }
 
     @AfterEach
@@ -122,3 +139,27 @@ class DriverBasedTest {
 }
 
 fun Pubkey.toPublicKey(): PublicKey = Solana.account(bytes)
+
+fun SolanaTestValidator.transfer(
+    fromOwner: Signer,
+    fromTokenAccount: PublicKey,
+    toTokenAccount: PublicKey,
+    amount: Long,
+) {
+    val error = this.client
+        .sendAndConfirm(
+            { txBuilder ->
+                Token2022Program.factory(txBuilder).transfer(
+                    fromTokenAccount,
+                    toTokenAccount,
+                    fromOwner.account,
+                    amount,
+                    emptyList()
+                )
+            },
+            fromOwner,
+            emptyList(),
+            DefaultRpcParams()
+        ).metadata.err
+    assertNull(error, "Token transfer failed with error: $error")
+}
