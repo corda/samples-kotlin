@@ -2,9 +2,14 @@ package net.corda.samples.dollartohousetoken
 
 import com.lmax.solana4j.Solana
 import com.lmax.solana4j.api.PublicKey
+import net.corda.core.contracts.Amount
 import net.corda.core.identity.CordaX500Name
+import net.corda.core.messaging.startFlow
 import net.corda.core.node.NetworkParameters
 import net.corda.core.utilities.getOrThrow
+import net.corda.samples.dollartohousetoken.flows.CreateAndIssueHouseToken
+import net.corda.samples.dollartohousetoken.flows.FiatCurrencyIssueFlow
+import net.corda.samples.dollartohousetoken.flows.HouseSale
 import net.corda.solana.notary.common.Signer
 import net.corda.solana.notary.common.rpc.checkResponse
 import net.corda.solana.sdk.instruction.Pubkey
@@ -46,7 +51,7 @@ class DriverBasedTest {
     private val validator = SolanaTestValidator()
     private val bankA = TestIdentity(CordaX500Name("BankA", "", "GB"))
     private val bankB = TestIdentity(CordaX500Name("BankB", "", "US"))
-    private val solanaNotaryName = CordaX500Name("Solana Notary Service", "London", "GB")
+    private val solanaNotaryName = CordaX500Name("Solana Notary", "London", "GB")
     private lateinit var solanaNotaryKeyFile: Path
     private lateinit var solanaNotaryKey: Signer
     private val mintAuthoritySigner = Signer.random()
@@ -74,13 +79,21 @@ class DriverBasedTest {
             )
         )
     }
-    val cordappsForAllNodes = setOf(
-        "com.r3.corda.lib.tokens.contracts",
-        "com.r3.corda.lib.tokens.workflows",
-        "net.corda.samples.dollartohousetoken.flows",
-        "net.corda.samples.dollartohousetoken.contracts",
-        "net.corda.samples.dollartohousetoken.states",
-    ).map { TestCordapp.findCordapp(it) }
+    val cordappsForAllNodes : List<TestCordapp> by lazy {
+        setOf(
+            "com.r3.corda.lib.tokens.contracts",
+            "com.r3.corda.lib.tokens.workflows",
+            "net.corda.samples.dollartohousetoken.contracts",
+            "net.corda.samples.dollartohousetoken.states",
+        ).map { TestCordapp.findCordapp(it) } + TestCordapp.findCordapp("net.corda.samples.dollartohousetoken.flows")
+            .withConfig(
+                mapOf(
+                    "solanaTokenMin" to tokenMint.base58(),
+                    "solanaDestinationAccount" to bankBTokenAccount.base58(),
+                    "solanaMintAuthority" to mintAuthoritySigner.account.base58()
+                )
+            )
+    }
 
     @BeforeEach
     fun setup() {
@@ -89,7 +102,7 @@ class DriverBasedTest {
         validator.start()
         validator.defaultNotaryProgramSetup(solanaNotaryKey.account)
         setOf(mintAuthoritySigner, bankAWallet, bankBWallet).forEach {
-            validator.fundAccount(1000, it)
+            validator.fundAccount(100000, it)
         }
         tokenMint = validator.createToken(mintAuthoritySigner, decimals = 3.toByte())
         bankATokenAccount = validator.createTokenAccount(bankAWallet, tokenMint)
@@ -106,9 +119,16 @@ class DriverBasedTest {
         // Start a pair of nodes and wait for them both to be ready.
         val (partyAHandle, partyBHandle) = startNodes(bankA, bankB)
 
-        // From each node, make an RPC call to retrieve another node's name from the network map, to verify that the
-        // nodes have started and can communicate.
+        val result = (partyAHandle.rpc.startFlow(::CreateAndIssueHouseToken,
+            partyAHandle.nodeInfo.legalIdentities[0],
+            Amount.parseCurrency("1000 USD"), 10, "500 sqft", "NA", "NYC")
+            .returnValue.get())
+        val houseID = result.substringAfter("UUID: ").substringBefore(".").trim()
+        partyBHandle.rpc.startFlow(::FiatCurrencyIssueFlow, "USD", 100000, partyBHandle.nodeInfo.legalIdentities[0])
+            .returnValue.get()
 
+        partyAHandle.rpc.startFlow(::HouseSale, houseID, partyBHandle.nodeInfo.legalIdentities[0])
+            .returnValue.get()
         // This is a very basic test: in practice tests would be starting flows, and verifying the states in the vault
         // and other important metrics to ensure that your CorDapp is working as intended.
         assertEquals(bankB.name, partyAHandle.resolveName(bankB.name))
@@ -125,7 +145,7 @@ class DriverBasedTest {
     private fun withDriver(test: DriverDSL.() -> Unit) = driver(
         DriverParameters(
             isDebug = true, startNodesInProcess = true, cordappsForAllNodes = cordappsForAllNodes,
-            notarySpecs = listOf(NotarySpec(solanaNotaryName, solanaNotaryConfig, startInProcess = false)),
+            notarySpecs = listOf(NotarySpec(solanaNotaryName, solanaNotaryConfig, startInProcess = true)),
             networkParameters = networkParameters
         )
     ) { test() }

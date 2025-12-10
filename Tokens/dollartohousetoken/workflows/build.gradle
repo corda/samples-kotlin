@@ -39,8 +39,9 @@ configurations {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "$corda_release_group:corda-solana-sdk:$corda_release_version"
+
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation "$corda_release_group:corda-solana-sdk:$corda_release_version"
     testImplementation 'net.corda.solana.notary:common:0.1.2'
     testImplementation "$corda_release_group:corda-test-utils:$corda_release_version"
     testImplementation 'com.lmax:solana4j:1.2.2'

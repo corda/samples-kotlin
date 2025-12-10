@@ -33,7 +33,7 @@ class CreateAndIssueHouseToken(val owner: Party,
     @Suspendable
     override fun call():String {
         // Obtain a reference from a notary we wish to use.
-        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Solana Notary,L=London,C=GB"))
 
         /* Get a reference of own identity */
         val issuer = ourIdentity

@@ -14,7 +14,6 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.*
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
-import net.corda.core.node.services.Vault
 import net.corda.core.node.services.queryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
@@ -22,6 +21,8 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
 import net.corda.samples.dollartohousetoken.states.HouseState
+import net.corda.solana.sdk.instruction.Pubkey
+import net.corda.solana.sdk.internal.Token2022
 import java.util.*
 
 // *********
@@ -36,7 +37,7 @@ class HouseSale(val houseId: String,
     @Suspendable
     override fun call():String {
         // Obtain a reference from a notary we wish to use.
-        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Solana Notary,L=London,C=GB"))
 
         UUID.fromString(houseId)
 
@@ -59,19 +60,26 @@ class HouseSale(val houseId: String,
         // Send the house valuation to the buyer.
         buyerSession.send(houseState.valuationOfHouse)
 
-        // Recieve inputStatesAndRef for the fiat currency exchange from the buyer, these would be inputs to the fiat currency exchange transaction.
+        // Receive inputStatesAndRef for the fiat currency exchange from the buyer, these would be inputs to the fiat currency exchange transaction.
         val inputs = subFlow(ReceiveStateAndRefFlow<FungibleToken>(buyerSession))
 
-        // Recieve output for the fiat currency from the buyer, this would contain the transfered amount from buyer to yourself
+        // Receive output for the fiat currency from the buyer, this would contain the transferred amount from buyer to yourself
         val moneyReceived: List<FungibleToken> = buyerSession.receive<List<FungibleToken>>().unwrap { it -> it}
 
         /* Create a fiat currency proposal for the house token using the helper function provided by Token SDK. */
         addMoveTokens(txBuilder, inputs, moneyReceived)
 
+        val config = serviceHub.getAppContext().config
+        val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMin"))
+        val solanaDestinationAccount = Pubkey.fromBase58(config.getString("solanaDestinationAccount"))
+        val solanaMintAuthority = Pubkey.fromBase58(config.getString("solanaMintAuthority"))
+
+        txBuilder.addNotaryInstruction(Token2022.mintTo(solanaTokenMint, solanaDestinationAccount, solanaMintAuthority, moneyReceived.sumOf { it.amount.quantity }))
+
         /* Sign the transaction with your private */
         val initialSignedTrnx = serviceHub.signInitialTransaction(txBuilder)
 
-        /* Call the CollectSignaturesFlow to recieve signature of the buyer */
+        /* Call the CollectSignaturesFlow to receive signature of the buyer */
         val ftx= subFlow(CollectSignaturesFlow(initialSignedTrnx, listOf(buyerSession)))
 
         /* Call finality flow to notarise the transaction */
@@ -89,10 +97,10 @@ class HouseSale(val houseId: String,
 class HouseSaleResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call():SignedTransaction {
-        /* Recieve the valuation of the house */
+        /* Receive the valuation of the house */
         val price = counterpartySession.receive<Amount<Currency>>().unwrap { it }
 
-        /* Create instance of the fiat currecy token amount */
+        /* Create instance of the fiat currency token amount */
         val priceToken = Amount(price.quantity, getInstance(price.token.currencyCode))
 
         /*
