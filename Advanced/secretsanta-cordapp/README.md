@@ -21,7 +21,7 @@ There's essentially five processes you'll need to be aware of.
 
 #### Pre-Requisites
 
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.9/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
 
 
 ### Running these services
