@@ -65,13 +65,13 @@ class DriverBasedTest {
             )
         )
     }
-    val cordappsForAllNodes = listOf(
-        TestCordapp.findCordapp("com.r3.corda.lib.tokens.contracts"),
-        TestCordapp.findCordapp("com.r3.corda.lib.tokens.workflows"),
-        TestCordapp.findCordapp("net.corda.samples.dollartohousetoken.flows"),
-        TestCordapp.findCordapp("net.corda.samples.dollartohousetoken.contracts"),
-        TestCordapp.findCordapp("net.corda.samples.dollartohousetoken.states"),
-    )
+    val cordappsForAllNodes = setOf(
+        "com.r3.corda.lib.tokens.contracts",
+        "com.r3.corda.lib.tokens.workflows",
+        "net.corda.samples.dollartohousetoken.flows",
+        "net.corda.samples.dollartohousetoken.contracts",
+        "net.corda.samples.dollartohousetoken.states",
+    ).map { TestCordapp.findCordapp(it) }
 
     @BeforeEach
     fun setup() {
