@@ -2,13 +2,11 @@ package net.corda.samples.dollartohousetoken
 
 import com.lmax.solana4j.Solana
 import com.lmax.solana4j.api.PublicKey
-import com.lmax.solana4j.programs.Token2022Program
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.NetworkParameters
 import net.corda.core.utilities.getOrThrow
 import net.corda.solana.notary.common.Signer
-import net.corda.solana.notary.common.rpc.DefaultRpcParams
-import net.corda.solana.notary.common.rpc.sendAndConfirm
+import net.corda.solana.notary.common.rpc.checkResponse
 import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.solana.sdk.internal.Token2022
 import net.corda.testing.core.TestIdentity
@@ -23,8 +21,8 @@ import net.corda.testing.solana.randomKeypairFile
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.io.TempDir
+import java.math.BigDecimal
 import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
@@ -91,7 +89,7 @@ class DriverBasedTest {
         validator.start()
         validator.defaultNotaryProgramSetup(solanaNotaryKey.account)
         setOf(mintAuthoritySigner, bankAWallet, bankBWallet).forEach {
-            validator.fundAccount(10, it)
+            validator.fundAccount(1000, it)
         }
         tokenMint = validator.createToken(mintAuthoritySigner, decimals = 3.toByte())
         bankATokenAccount = validator.createTokenAccount(bankAWallet, tokenMint)
@@ -115,6 +113,12 @@ class DriverBasedTest {
         // and other important metrics to ensure that your CorDapp is working as intended.
         assertEquals(bankB.name, partyAHandle.resolveName(bankB.name))
         assertEquals(bankA.name, partyBHandle.resolveName(bankA.name))
+
+        assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankATokenAccount))
+        assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankBTokenAccount))
+        validator.mintTo(mintAuthoritySigner, tokenMint, bankATokenAccount, 5)
+        assertEquals(BigDecimal("0.005"), validator.getTokenBalance(bankATokenAccount))
+        assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankBTokenAccount))
     }
 
     // Runs a test inside the Driver DSL, which provides useful functions for starting nodes, etc.
@@ -140,26 +144,9 @@ class DriverBasedTest {
 
 fun Pubkey.toPublicKey(): PublicKey = Solana.account(bytes)
 
-fun SolanaTestValidator.transfer(
-    fromOwner: Signer,
-    fromTokenAccount: PublicKey,
-    toTokenAccount: PublicKey,
-    amount: Long,
-) {
-    val error = this.client
-        .sendAndConfirm(
-            { txBuilder ->
-                Token2022Program.factory(txBuilder).transfer(
-                    fromTokenAccount,
-                    toTokenAccount,
-                    fromOwner.account,
-                    amount,
-                    emptyList()
-                )
-            },
-            fromOwner,
-            emptyList(),
-            DefaultRpcParams()
-        ).metadata.err
-    assertNull(error, "Token transfer failed with error: $error")
-}
+fun SolanaTestValidator.getTokenBalance(publicKey: PublicKey): BigDecimal = this
+    .client
+    .getTokenAccountBalance(publicKey.base58(), this.rpcParams)
+    .checkResponse("getTokenAccountBalance")!!
+    .uiAmountString
+    .toBigDecimal()
