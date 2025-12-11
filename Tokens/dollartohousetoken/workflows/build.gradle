@@ -77,6 +77,8 @@ task integrationTest(type: Test, dependsOn: []) {
     classpath = sourceSets.integrationTest.runtimeClasspath
 }
 
+check.dependsOn integrationTest
+
 test {
     useJUnitPlatform()
     jvmArgs = rootProject.ext.testJvmArgs

@@ -51,10 +51,10 @@ class DriverBasedTest {
     private val validator = SolanaTestValidator()
     private val bankA = TestIdentity(CordaX500Name("BankA", "", "GB"))
     private val bankB = TestIdentity(CordaX500Name("BankB", "", "US"))
-    private val solanaNotaryName = CordaX500Name("Solana Notary", "London", "GB")
+    private val solanaNotaryName = CordaX500Name("Notary", "London", "GB")
     private lateinit var solanaNotaryKeyFile: Path
     private lateinit var solanaNotaryKey: Signer
-    private val mintAuthoritySigner = Signer.random()
+    private val mintAuthoritySigner by lazy { Signer.fromFile(randomKeypairFile(custodiedKeysDir)) }
     private lateinit var tokenMint: PublicKey
     private val bankAWallet = Signer.random()
     private val bankBWallet = Signer.random()
@@ -116,8 +116,13 @@ class DriverBasedTest {
 
     @Test
     fun nodeTest() = withDriver {
-        // Start a pair of nodes and wait for them both to be ready.
         val (partyAHandle, partyBHandle) = startNodes(bankA, bankB)
+
+        assertEquals(bankB.name, partyAHandle.resolveName(bankB.name))
+        assertEquals(bankA.name, partyBHandle.resolveName(bankA.name))
+
+        assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankATokenAccount))
+        assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankBTokenAccount))
 
         val result = (partyAHandle.rpc.startFlow(::CreateAndIssueHouseToken,
             partyAHandle.nodeInfo.legalIdentities[0],
@@ -129,16 +134,9 @@ class DriverBasedTest {
 
         partyAHandle.rpc.startFlow(::HouseSale, houseID, partyBHandle.nodeInfo.legalIdentities[0])
             .returnValue.get()
-        // This is a very basic test: in practice tests would be starting flows, and verifying the states in the vault
-        // and other important metrics to ensure that your CorDapp is working as intended.
-        assertEquals(bankB.name, partyAHandle.resolveName(bankB.name))
-        assertEquals(bankA.name, partyBHandle.resolveName(bankA.name))
 
         assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankATokenAccount))
-        assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankBTokenAccount))
-        validator.mintTo(mintAuthoritySigner, tokenMint, bankATokenAccount, 5)
-        assertEquals(BigDecimal("0.005"), validator.getTokenBalance(bankATokenAccount))
-        assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankBTokenAccount))
+        assertEquals(BigDecimal("100"), validator.getTokenBalance(bankBTokenAccount))
     }
 
     // Runs a test inside the Driver DSL, which provides useful functions for starting nodes, etc.

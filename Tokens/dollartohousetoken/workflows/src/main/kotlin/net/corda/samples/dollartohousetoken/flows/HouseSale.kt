@@ -37,7 +37,7 @@ class HouseSale(val houseId: String,
     @Suspendable
     override fun call():String {
         // Obtain a reference from a notary we wish to use.
-        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Solana Notary,L=London,C=GB"))
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
         UUID.fromString(houseId)
 
