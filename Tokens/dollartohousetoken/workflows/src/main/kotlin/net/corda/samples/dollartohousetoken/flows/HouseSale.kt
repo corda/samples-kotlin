@@ -71,11 +71,15 @@ class HouseSale(val houseId: String,
 
         val config = serviceHub.getAppContext().config
         val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMin"))
+        val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals"))
         val solanaSourceAccount = Pubkey.fromBase58(config.getString("solanaSourceAccount"))
         val solanaDestinationAccount = Pubkey.fromBase58(config.getString("solanaDestinationAccount"))
         val solanaMintAuthority = Pubkey.fromBase58(config.getString("solanaMintAuthority"))
 
-        txBuilder.addNotaryInstruction(Token2022.transfer(solanaSourceAccount, solanaTokenMint, solanaDestinationAccount, solanaMintAuthority, moneyReceived.sumOf { it.amount.quantity }))
+        val amount = moneyReceived.sumOf { it.amount.quantity }
+        txBuilder.addNotaryInstruction(Token2022.transfer(solanaSourceAccount,
+            solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
+            amount, solanaTokenMintDecimals))
 
         /* Sign the transaction with your private */
         val initialSignedTrnx = serviceHub.signInitialTransaction(txBuilder)

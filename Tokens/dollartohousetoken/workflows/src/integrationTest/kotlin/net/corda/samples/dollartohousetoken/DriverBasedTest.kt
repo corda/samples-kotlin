@@ -61,6 +61,7 @@ class DriverBasedTest {
     private val bankBWallet by lazy { Signer.fromFile(randomKeypairFile(custodiedKeysDir)) }
     private lateinit var bankATokenAccount: PublicKey
     private lateinit var bankBTokenAccount: PublicKey
+    private val tokenDecimals = 3
 
     @TempDir
     lateinit var custodiedKeysDir: Path
@@ -92,7 +93,8 @@ class DriverBasedTest {
                     "solanaTokenMin" to tokenMint.base58(),
                     "solanaSourceAccount" to bankBTokenAccount.base58(),
                     "solanaDestinationAccount" to bankATokenAccount.base58(),
-                    "solanaMintAuthority" to bankBWallet.account.base58()
+                    "solanaMintAuthority" to bankBWallet.account.base58(),
+                    "solanaTokenMintDecimals" to tokenDecimals
                 )
             )
     }
@@ -106,10 +108,10 @@ class DriverBasedTest {
         setOf(mintAuthoritySigner, bankAWallet, bankBWallet).forEach {
             validator.fundAccount(100000, it)
         }
-        tokenMint = validator.createToken(mintAuthoritySigner, decimals = 3.toByte())
+        tokenMint = validator.createToken(mintAuthoritySigner, decimals = tokenDecimals.toByte())
         bankATokenAccount = validator.createTokenAccount(bankAWallet, tokenMint)
         bankBTokenAccount = validator.createTokenAccount(bankBWallet, tokenMint)
-        validator.mintTo(mintAuthoritySigner, tokenMint, bankBTokenAccount, 10000000)
+        validator.mintTo(mintAuthoritySigner, tokenMint, bankBTokenAccount, 1000000)
     }
 
     @AfterEach
@@ -125,7 +127,7 @@ class DriverBasedTest {
         assertEquals(bankA.name, partyBHandle.resolveName(bankA.name))
 
         assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankATokenAccount))
-        assertEquals(BigDecimal("10000"), validator.getTokenBalance(bankBTokenAccount))
+        assertEquals(BigDecimal("1000"), validator.getTokenBalance(bankBTokenAccount))
 
         val result = (partyAHandle.rpc.startFlow(::CreateAndIssueHouseToken,
             partyAHandle.nodeInfo.legalIdentities[0],
@@ -139,7 +141,7 @@ class DriverBasedTest {
             .returnValue.get()
 
         assertEquals(BigDecimal("100"), validator.getTokenBalance(bankATokenAccount))
-        assertEquals(BigDecimal("9900"), validator.getTokenBalance(bankBTokenAccount))
+        assertEquals(BigDecimal("900"), validator.getTokenBalance(bankBTokenAccount))
     }
 
     // Runs a test inside the Driver DSL, which provides useful functions for starting nodes, etc.
