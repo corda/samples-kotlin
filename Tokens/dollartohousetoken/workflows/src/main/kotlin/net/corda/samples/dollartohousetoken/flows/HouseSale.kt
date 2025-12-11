@@ -22,6 +22,7 @@ import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
 import net.corda.samples.dollartohousetoken.states.HouseState
 import net.corda.solana.sdk.instruction.Pubkey
+import net.corda.solana.sdk.instruction.SolanaInstruction
 import net.corda.solana.sdk.internal.SplToken
 import java.util.*
 
@@ -66,13 +67,14 @@ class HouseSale(val houseId: String,
         // Receive output for the fiat currency from the buyer, this would contain the transferred amount from buyer to yourself
         val moneyReceived: List<FungibleToken> = buyerSession.receive<List<FungibleToken>>().unwrap { it }
 
+        val solanaSourceAccount = Pubkey.fromBase58(buyerSession.receive<String>().unwrap { it })
+
         /* Create a fiat currency proposal for the house token using the helper function provided by Token SDK. */
         addMoveTokens(txBuilder, inputs, moneyReceived)
 
         val config = serviceHub.getAppContext().config
-        val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMin"))
+        val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
         val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals"))
-        val solanaSourceAccount = Pubkey.fromBase58(config.getString("solanaSourceAccount"))
         val solanaDestinationAccount = Pubkey.fromBase58(config.getString("solanaDestinationAccount"))
         val solanaMintAuthority = Pubkey.fromBase58(config.getString("solanaMintAuthority"))
 
@@ -85,7 +87,7 @@ class HouseSale(val houseId: String,
         val initialSignedTrnx = serviceHub.signInitialTransaction(txBuilder)
 
         /* Call the CollectSignaturesFlow to receive signature of the buyer */
-        val ftx= subFlow(CollectSignaturesFlow(initialSignedTrnx, listOf(buyerSession)))
+        val ftx = subFlow(CollectSignaturesFlow(initialSignedTrnx, listOf(buyerSession)))
 
         /* Call finality flow to notarise the transaction */
         val stx = subFlow(FinalityFlow(ftx, listOf(buyerSession)))
@@ -108,23 +110,35 @@ class HouseSaleResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         /* Create instance of the fiat currency token amount */
         val priceToken = Amount(price.quantity, getInstance(price.token.currencyCode))
 
-        /*
-        *  Generate the move proposal, it returns the input-output pair for the fiat currency transfer, which we need to send to the Initiator.
-        * */
+        /* Generate the move proposal, it returns the input-output pair for the fiat currency transfer, which we need to send to the Initiator. */
         PartyAndAmount(counterpartySession.counterparty,priceToken)
         val inputsAndOutputs : Pair<List<StateAndRef<FungibleToken>>, List<FungibleToken>> =
                 DatabaseTokenSelection(serviceHub).generateMove(listOf(Pair(counterpartySession.counterparty,priceToken)),ourIdentity)
-                        //.generateMove(runId.uuid, listOf(partyAndAmount),ourIdentity,null)
 
         /* Call SendStateAndRefFlow to send the inputs to the Initiator*/
         subFlow(SendStateAndRefFlow(counterpartySession, inputsAndOutputs.first))
         /* Send the output generated from the fiat currency move proposal to the initiator */
         counterpartySession.send(inputsAndOutputs.second)
 
+        val config = serviceHub.getAppContext().config
+        val solanaSourceAccount = config.getString("solanaSourceAccount")
+        counterpartySession.send(solanaSourceAccount)
+
         //signing
         subFlow(object : SignTransactionFlow(counterpartySession) {
             @Throws(FlowException::class)
-            override fun checkTransaction(stx: SignedTransaction) { // Custom Logic to validate transaction.
+            override fun checkTransaction(stx: SignedTransaction) {
+                val notaryInstructions = stx.tx.notaryInstructions
+                require(notaryInstructions.isNotEmpty()) { "Expected a notary instruction" }
+                require(notaryInstructions.size == 1) { "Expected single notary instruction" }
+                val instruction = notaryInstructions.first()
+                require( instruction is SolanaInstruction) { "Expected Solana notary instruction" }
+                val accounts = instruction.accounts
+                require(accounts.size == 4) { "Missing accounts" }
+                require(accounts[0].pubkey == Pubkey.fromBase58(solanaSourceAccount)) { "Wrong source account" }
+                val solanaMintAuthority = Pubkey.fromBase58(config.getString("solanaTokenMint"))
+                require(accounts[1].pubkey == solanaMintAuthority) { "Wrong mint account" }
+                //TODO check programId, data - can be by creating locally and comparing bytes
             }
         })
         return subFlow(ReceiveFinalityFlow(counterpartySession))

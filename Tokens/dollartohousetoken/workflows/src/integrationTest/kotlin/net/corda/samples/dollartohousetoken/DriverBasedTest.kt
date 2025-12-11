@@ -90,7 +90,7 @@ class DriverBasedTest {
         ).map { TestCordapp.findCordapp(it) } + TestCordapp.findCordapp("net.corda.samples.dollartohousetoken.flows")
             .withConfig(
                 mapOf(
-                    "solanaTokenMin" to tokenMint.base58(),
+                    "solanaTokenMint" to tokenMint.base58(),
                     "solanaSourceAccount" to bankBTokenAccount.base58(),
                     "solanaDestinationAccount" to bankATokenAccount.base58(),
                     "solanaMintAuthority" to bankBWallet.account.base58(),
