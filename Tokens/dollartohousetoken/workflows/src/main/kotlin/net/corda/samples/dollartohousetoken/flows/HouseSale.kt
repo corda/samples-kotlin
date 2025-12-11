@@ -22,7 +22,7 @@ import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
 import net.corda.samples.dollartohousetoken.states.HouseState
 import net.corda.solana.sdk.instruction.Pubkey
-import net.corda.solana.sdk.internal.Token2022
+import net.corda.solana.sdk.internal.SplToken
 import java.util.*
 
 // *********
@@ -77,7 +77,7 @@ class HouseSale(val houseId: String,
         val solanaMintAuthority = Pubkey.fromBase58(config.getString("solanaMintAuthority"))
 
         val amount = moneyReceived.sumOf { it.amount.quantity }
-        txBuilder.addNotaryInstruction(Token2022.transfer(solanaSourceAccount,
+        txBuilder.addNotaryInstruction(SplToken.transfer(solanaSourceAccount,
             solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
             amount, solanaTokenMintDecimals))
 

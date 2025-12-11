@@ -13,7 +13,7 @@ import net.corda.samples.dollartohousetoken.flows.HouseSale
 import net.corda.solana.notary.common.Signer
 import net.corda.solana.notary.common.rpc.checkResponse
 import net.corda.solana.sdk.instruction.Pubkey
-import net.corda.solana.sdk.internal.Token2022
+import net.corda.solana.sdk.internal.SplToken
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.driver.DriverDSL
 import net.corda.testing.driver.DriverParameters
@@ -76,7 +76,7 @@ class DriverBasedTest {
                     "rpcUrl" to SolanaTestValidator.RPC_URL,
                     "notaryKeypairFile" to "$solanaNotaryKeyFile",
                     "custodiedKeysDir" to "$custodiedKeysDir",
-                    "programWhitelist" to listOf(Token2022.PROGRAM_ID.toPublicKey().base58()),
+                    "programWhitelist" to listOf(SplToken.PROGRAM_ID.toPublicKey().base58()),
                 )
             )
         )
@@ -108,10 +108,10 @@ class DriverBasedTest {
         setOf(mintAuthoritySigner, bankAWallet, bankBWallet).forEach {
             validator.fundAccount(100000, it)
         }
-        tokenMint = validator.createToken(mintAuthoritySigner, decimals = tokenDecimals.toByte())
-        bankATokenAccount = validator.createTokenAccount(bankAWallet, tokenMint)
-        bankBTokenAccount = validator.createTokenAccount(bankBWallet, tokenMint)
-        validator.mintTo(mintAuthoritySigner, tokenMint, bankBTokenAccount, 1000000)
+        tokenMint = validator.createToken(mintAuthoritySigner, decimals = tokenDecimals.toByte(), isToken2022 = false)
+        bankATokenAccount = validator.createTokenAccount(bankAWallet, tokenMint, isToken2022 = false)
+        bankBTokenAccount = validator.createTokenAccount(bankBWallet, tokenMint, isToken2022 = false)
+        validator.mintTo(mintAuthoritySigner, tokenMint, bankBTokenAccount, 1000000, isToken2022 = false)
     }
 
     @AfterEach
