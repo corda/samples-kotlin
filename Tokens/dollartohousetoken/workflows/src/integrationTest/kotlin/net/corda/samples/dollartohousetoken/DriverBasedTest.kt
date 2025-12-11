@@ -33,6 +33,7 @@ import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.Future
 import kotlin.collections.emptyList
+import kotlin.lazy
 import kotlin.test.assertEquals
 
 class DriverBasedTest {
@@ -57,7 +58,7 @@ class DriverBasedTest {
     private val mintAuthoritySigner by lazy { Signer.fromFile(randomKeypairFile(custodiedKeysDir)) }
     private lateinit var tokenMint: PublicKey
     private val bankAWallet = Signer.random()
-    private val bankBWallet = Signer.random()
+    private val bankBWallet by lazy { Signer.fromFile(randomKeypairFile(custodiedKeysDir)) }
     private lateinit var bankATokenAccount: PublicKey
     private lateinit var bankBTokenAccount: PublicKey
 
@@ -89,8 +90,9 @@ class DriverBasedTest {
             .withConfig(
                 mapOf(
                     "solanaTokenMin" to tokenMint.base58(),
-                    "solanaDestinationAccount" to bankBTokenAccount.base58(),
-                    "solanaMintAuthority" to mintAuthoritySigner.account.base58()
+                    "solanaSourceAccount" to bankBTokenAccount.base58(),
+                    "solanaDestinationAccount" to bankATokenAccount.base58(),
+                    "solanaMintAuthority" to bankBWallet.account.base58()
                 )
             )
     }
@@ -107,6 +109,7 @@ class DriverBasedTest {
         tokenMint = validator.createToken(mintAuthoritySigner, decimals = 3.toByte())
         bankATokenAccount = validator.createTokenAccount(bankAWallet, tokenMint)
         bankBTokenAccount = validator.createTokenAccount(bankBWallet, tokenMint)
+        validator.mintTo(mintAuthoritySigner, tokenMint, bankBTokenAccount, 10000000)
     }
 
     @AfterEach
@@ -122,7 +125,7 @@ class DriverBasedTest {
         assertEquals(bankA.name, partyBHandle.resolveName(bankA.name))
 
         assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankATokenAccount))
-        assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankBTokenAccount))
+        assertEquals(BigDecimal("10000"), validator.getTokenBalance(bankBTokenAccount))
 
         val result = (partyAHandle.rpc.startFlow(::CreateAndIssueHouseToken,
             partyAHandle.nodeInfo.legalIdentities[0],
@@ -135,8 +138,8 @@ class DriverBasedTest {
         partyAHandle.rpc.startFlow(::HouseSale, houseID, partyBHandle.nodeInfo.legalIdentities[0])
             .returnValue.get()
 
-        assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankATokenAccount))
-        assertEquals(BigDecimal("100"), validator.getTokenBalance(bankBTokenAccount))
+        assertEquals(BigDecimal("100"), validator.getTokenBalance(bankATokenAccount))
+        assertEquals(BigDecimal("9900"), validator.getTokenBalance(bankBTokenAccount))
     }
 
     // Runs a test inside the Driver DSL, which provides useful functions for starting nodes, etc.
