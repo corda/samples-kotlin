@@ -18,6 +18,7 @@ import net.corda.testing.core.TestIdentity
 import net.corda.testing.driver.DriverDSL
 import net.corda.testing.driver.DriverParameters
 import net.corda.testing.driver.NodeHandle
+import net.corda.testing.driver.NodeParameters
 import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
 import net.corda.testing.node.TestCordapp
@@ -81,22 +82,34 @@ class DriverBasedTest {
             )
         )
     }
+    val flowCordapp = TestCordapp.findCordapp("net.corda.samples.dollartohousetoken.flows")
     val cordappsForAllNodes : List<TestCordapp> by lazy {
         setOf(
             "com.r3.corda.lib.tokens.contracts",
             "com.r3.corda.lib.tokens.workflows",
             "net.corda.samples.dollartohousetoken.contracts",
             "net.corda.samples.dollartohousetoken.states",
-        ).map { TestCordapp.findCordapp(it) } + TestCordapp.findCordapp("net.corda.samples.dollartohousetoken.flows")
-            .withConfig(
-                mapOf(
-                    "solanaTokenMint" to tokenMint.base58(),
-                    "solanaSourceAccount" to bankBTokenAccount.base58(),
-                    "solanaDestinationAccount" to bankATokenAccount.base58(),
-                    "solanaMintAuthority" to bankBWallet.account.base58(),
-                    "solanaTokenMintDecimals" to tokenDecimals
-                )
-            )
+        ).map { TestCordapp.findCordapp(it) }
+    }
+
+   val bankAConfig: Map<String,Any> by lazy {
+       mapOf(
+           "solanaTokenMint" to tokenMint.base58(),
+           "solanaSourceAccount" to bankBTokenAccount.base58(),
+           "solanaDestinationAccount" to bankATokenAccount.base58(),
+           "solanaMintAuthority" to bankBWallet.account.base58(),
+           "solanaTokenMintDecimals" to tokenDecimals
+       )
+   }
+
+    val bankBConfig: Map<String,Any> by lazy {
+        mapOf(
+            "solanaTokenMint" to tokenMint.base58(),
+            "solanaSourceAccount" to bankBTokenAccount.base58(),
+            "solanaDestinationAccount" to bankATokenAccount.base58(),
+            "solanaMintAuthority" to bankBWallet.account.base58(),
+            "solanaTokenMintDecimals" to tokenDecimals
+        )
     }
 
     @BeforeEach
@@ -121,7 +134,8 @@ class DriverBasedTest {
 
     @Test
     fun `node test`() = withDriver {
-        val (partyAHandle, partyBHandle) = startNodes(bankA, bankB)
+        val partyAHandle = startNode(providedName = bankA.name, defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankAConfig)))).getOrThrow()
+        val partyBHandle = startNode(providedName = bankB.name, defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankBConfig)))).getOrThrow()
 
         assertEquals(bankB.name, partyAHandle.resolveName(bankB.name))
         assertEquals(bankA.name, partyBHandle.resolveName(bankA.name))
@@ -159,10 +173,6 @@ class DriverBasedTest {
     // Resolves a list of futures to a list of the promised values.
     private fun <T> List<Future<T>>.waitForAll(): List<T> = map { it.getOrThrow() }
 
-    // Starts multiple nodes simultaneously, then waits for them all to be ready.
-    private fun DriverDSL.startNodes(vararg identities: TestIdentity) = identities
-        .map { startNode(providedName = it.name) }
-        .waitForAll()
 }
 
 fun Pubkey.toPublicKey(): PublicKey = Solana.account(bytes)
