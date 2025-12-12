@@ -13,7 +13,7 @@ import net.corda.samples.dollartohousetoken.flows.HouseSale
 import net.corda.solana.notary.common.Signer
 import net.corda.solana.notary.common.rpc.checkResponse
 import net.corda.solana.sdk.instruction.Pubkey
-import net.corda.solana.sdk.internal.SplToken
+import net.corda.solana.sdk.SplToken
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.driver.DriverDSL
 import net.corda.testing.driver.DriverParameters

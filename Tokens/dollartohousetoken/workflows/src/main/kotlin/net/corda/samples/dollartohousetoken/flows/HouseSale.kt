@@ -24,7 +24,7 @@ import net.corda.core.utilities.unwrap
 import net.corda.samples.dollartohousetoken.states.HouseState
 import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.solana.sdk.instruction.SolanaInstruction
-import net.corda.solana.sdk.internal.SplToken
+import net.corda.solana.sdk.SplToken
 import java.util.*
 
 // *********
