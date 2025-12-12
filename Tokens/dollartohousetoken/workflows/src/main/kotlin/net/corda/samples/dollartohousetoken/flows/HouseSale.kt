@@ -19,12 +19,15 @@ import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
+import net.corda.core.utilities.OpaqueBytes
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
 import net.corda.samples.dollartohousetoken.states.HouseState
 import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.solana.sdk.instruction.SolanaInstruction
 import net.corda.solana.sdk.SplToken
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.*
 
 // *********
@@ -63,19 +66,19 @@ class HouseSale(val houseId: String,
         buyerSession.send(houseState.valuationOfHouse)
 
         // Receive inputStatesAndRef for the fiat currency exchange from the buyer, these would be inputs to the fiat currency exchange transaction.
-        //val inputs = subFlow(ReceiveStateAndRefFlow<FungibleToken>(buyerSession))
+        val inputs = subFlow(ReceiveStateAndRefFlow<FungibleToken>(buyerSession))
 
         // Receive output for the fiat currency from the buyer, this would contain the transferred amount from buyer to yourself
-        //val moneyReceived: List<FungibleToken> = buyerSession.receive<List<FungibleToken>>().unwrap { it }
+        val moneyReceived: List<FungibleToken> = buyerSession.receive<List<FungibleToken>>().unwrap { it }
         val payerDetails = buyerSession.receive<SolanaPayer>().unwrap { it }
 
         /* Create a fiat currency proposal for the house token using the helper function provided by Token SDK. */
-        //addMoveTokens(txBuilder, inputs, moneyReceived)
+        addMoveTokens(txBuilder, inputs, moneyReceived)
 
         val config = serviceHub.getAppContext().config
         val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
         val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals"))
-        val solanaDestinationAccount = Pubkey.fromBase58(config.getString("solanaDestinationAccount"))
+        val solanaDestinationAccount = Pubkey.fromBase58(config.getString("solanaTokenAccount"))
         val solanaMintAuthority = payerDetails.walletAccount
         val solanaSourceAccount = payerDetails.tokenAccount
         require(payerDetails.tokenMint  == solanaTokenMint)
@@ -110,22 +113,22 @@ class HouseSaleResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         val price = counterpartySession.receive<Amount<Currency>>().unwrap { it }
 
         /* Create instance of the fiat currency token amount */
-        //val priceToken = Amount(price.quantity, getInstance(price.token.currencyCode))
+        val priceToken = Amount(price.quantity, getInstance(price.token.currencyCode))
 
         /* Generate the move proposal, it returns the input-output pair for the fiat currency transfer, which we need to send to the Initiator. */
-        //PartyAndAmount(counterpartySession.counterparty,priceToken)
-        //val inputsAndOutputs : Pair<List<StateAndRef<FungibleToken>>, List<FungibleToken>> =
-        //        DatabaseTokenSelection(serviceHub).generateMove(listOf(Pair(counterpartySession.counterparty,priceToken)),ourIdentity)
+        PartyAndAmount(counterpartySession.counterparty,priceToken)
+        val inputsAndOutputs : Pair<List<StateAndRef<FungibleToken>>, List<FungibleToken>> =
+                DatabaseTokenSelection(serviceHub).generateMove(listOf(Pair(counterpartySession.counterparty,priceToken)),ourIdentity)
 
         /* Call SendStateAndRefFlow to send the inputs to the Initiator*/
-        //subFlow(SendStateAndRefFlow(counterpartySession, inputsAndOutputs.first))
+        subFlow(SendStateAndRefFlow(counterpartySession, inputsAndOutputs.first))
         /* Send the output generated from the fiat currency move proposal to the initiator */
-        //counterpartySession.send(inputsAndOutputs.second)
+        counterpartySession.send(inputsAndOutputs.second)
 
         val config = serviceHub.getAppContext().config
         val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
         val solanaMintAuthority = Pubkey.fromBase58(config.getString("solanaMintAuthority"))
-        val solanaSourceAccount = Pubkey.fromBase58(config.getString("solanaSourceAccount"))
+        val solanaSourceAccount = Pubkey.fromBase58(config.getString("solanaTokenAccount"))
 
         val payerDetails = SolanaPayer(solanaTokenMint, solanaMintAuthority, solanaSourceAccount)
         counterpartySession.send(payerDetails)
@@ -139,15 +142,34 @@ class HouseSaleResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
                 require(notaryInstructions.size == 1) { "Expected single notary instruction" }
                 val instruction = notaryInstructions.first()
                 require( instruction is SolanaInstruction) { "Expected Solana notary instruction" }
-                val accounts = instruction.accounts
-                require(accounts.size == 4) { "Missing accounts" }
-                require(accounts[0].pubkey == solanaSourceAccount) { "Wrong source account" }
-                val solanaMintAuthority = Pubkey.fromBase58(config.getString("solanaTokenMint"))
-                require(accounts[1].pubkey == solanaMintAuthority) { "Wrong mint account" }
-                //TODO check programId, data - can be by creating locally and comparing bytes
+                val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals"))
+                instruction.validate(solanaSourceAccount,
+                    solanaMintAuthority,
+                    solanaTokenMint,
+                    price.quantity,
+                    solanaTokenMintDecimals.toByte())
             }
         })
         return subFlow(ReceiveFinalityFlow(counterpartySession))
+    }
+
+    private fun SolanaInstruction.validate(expectedSourceTokenAccount: Pubkey,
+                                                expectedWalletAccount: Pubkey,
+                                                expectedMintAccount: Pubkey,
+                                                expectedAmount: Long,
+                                                expectedMintDecimals: Byte) {
+
+        require(this.accounts.size == 4) { "Missing accounts" }
+        require(this.accounts[0].pubkey == expectedSourceTokenAccount) { "Wrong source account" }
+        require(this.accounts[1].pubkey == expectedMintAccount) { "Wrong mint account" }
+        require(this.accounts[3].pubkey == expectedWalletAccount) { "Wrong source wallet account" }
+        val expectedData = ByteBuffer.allocate(10)
+            .order(ByteOrder.LITTLE_ENDIAN)
+            .put(12)
+            .putLong(expectedAmount)
+            .put(expectedMintDecimals)
+            .array()
+        require(this.data == OpaqueBytes(expectedData)) { "Instruction data does not match expected data" }
     }
 }
 

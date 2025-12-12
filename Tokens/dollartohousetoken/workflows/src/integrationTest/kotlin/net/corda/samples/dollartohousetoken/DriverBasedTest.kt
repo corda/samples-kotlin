@@ -32,7 +32,6 @@ import java.math.BigDecimal
 import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
-import java.util.concurrent.Future
 import kotlin.collections.emptyList
 import kotlin.lazy
 import kotlin.test.assertEquals
@@ -95,9 +94,8 @@ class DriverBasedTest {
    val bankAConfig: Map<String,Any> by lazy {
        mapOf(
            "solanaTokenMint" to tokenMint.base58(),
-           "solanaSourceAccount" to bankBTokenAccount.base58(),
-           "solanaDestinationAccount" to bankATokenAccount.base58(),
-           "solanaMintAuthority" to bankBWallet.account.base58(),
+           "solanaTokenAccount" to bankATokenAccount.base58(),
+           "solanaMintAuthority" to bankAWallet.account.base58(),
            "solanaTokenMintDecimals" to tokenDecimals
        )
    }
@@ -105,8 +103,7 @@ class DriverBasedTest {
     val bankBConfig: Map<String,Any> by lazy {
         mapOf(
             "solanaTokenMint" to tokenMint.base58(),
-            "solanaSourceAccount" to bankBTokenAccount.base58(),
-            "solanaDestinationAccount" to bankATokenAccount.base58(),
+            "solanaTokenAccount" to bankBTokenAccount.base58(),
             "solanaMintAuthority" to bankBWallet.account.base58(),
             "solanaTokenMintDecimals" to tokenDecimals
         )
@@ -134,8 +131,10 @@ class DriverBasedTest {
 
     @Test
     fun `node test`() = withDriver {
-        val partyAHandle = startNode(providedName = bankA.name, defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankAConfig)))).getOrThrow()
-        val partyBHandle = startNode(providedName = bankB.name, defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankBConfig)))).getOrThrow()
+        val partyAHandle = startNode(providedName = bankA.name,
+            defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankAConfig)))).getOrThrow()
+        val partyBHandle = startNode(providedName = bankB.name,
+            defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankBConfig)))).getOrThrow()
 
         assertEquals(bankB.name, partyAHandle.resolveName(bankB.name))
         assertEquals(bankA.name, partyBHandle.resolveName(bankA.name))
@@ -169,10 +168,6 @@ class DriverBasedTest {
 
     // Makes an RPC call to retrieve another node's name from the network map.
     private fun NodeHandle.resolveName(name: CordaX500Name) = rpc.wellKnownPartyFromX500Name(name)!!.name
-
-    // Resolves a list of futures to a list of the promised values.
-    private fun <T> List<Future<T>>.waitForAll(): List<T> = map { it.getOrThrow() }
-
 }
 
 fun Pubkey.toPublicKey(): PublicKey = Solana.account(bytes)
