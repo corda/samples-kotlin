@@ -81,7 +81,7 @@ class HouseSale(val houseId: String,
         val amount = moneyReceived.sumOf { it.amount.quantity }
         txBuilder.addNotaryInstruction(SplToken.transfer(solanaSourceAccount,
             solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
-            amount, solanaTokenMintDecimals))
+            amount, solanaTokenMintDecimals.toByte()))
 
         /* Sign the transaction with your private */
         val initialSignedTrnx = serviceHub.signInitialTransaction(txBuilder)
