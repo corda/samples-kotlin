@@ -120,7 +120,7 @@ class DriverBasedTest {
     }
 
     @Test
-    fun nodeTest() = withDriver {
+    fun `node test`() = withDriver {
         val (partyAHandle, partyBHandle) = startNodes(bankA, bankB)
 
         assertEquals(bankB.name, partyAHandle.resolveName(bankB.name))
