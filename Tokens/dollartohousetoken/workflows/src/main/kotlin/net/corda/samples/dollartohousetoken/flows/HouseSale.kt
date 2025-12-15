@@ -1,15 +1,9 @@
 package net.corda.samples.dollartohousetoken.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import com.r3.corda.lib.tokens.contracts.states.FungibleToken
-import com.r3.corda.lib.tokens.money.FiatCurrency.Companion.getInstance
-import com.r3.corda.lib.tokens.selection.database.selector.DatabaseTokenSelection
 import com.r3.corda.lib.tokens.workflows.flows.move.addMoveNonFungibleTokens
-import com.r3.corda.lib.tokens.workflows.flows.move.addMoveTokens
 import com.r3.corda.lib.tokens.workflows.internal.flows.distribution.UpdateDistributionListFlow
-import com.r3.corda.lib.tokens.workflows.types.PartyAndAmount
 import net.corda.core.contracts.Amount
-import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.*
 import net.corda.core.identity.CordaX500Name
@@ -30,7 +24,8 @@ import net.corda.solana.sdk.instruction.SolanaInstruction
 import net.corda.solana.sdk.SplToken
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.*
+import java.util.Currency
+import java.util.UUID
 
 // *********
 // * Flows *
@@ -67,9 +62,6 @@ class HouseSale(val houseId: String,
         // Send the house valuation to the buyer.
         buyerSession.send(houseState.valuationOfHouse)
 
-        // Receive inputStatesAndRef for the fiat currency exchange from the buyer, these would be inputs to the fiat currency exchange transaction.
-        //val inputs = subFlow(ReceiveStateAndRefFlow<FungibleToken>(buyerSession))
-
         // Receive output for the fiat currency from the buyer, this would contain the transferred amount from buyer to yourself
         val payerDetails = buyerSession.receive<SolanaPayer>().unwrap { it }
 
@@ -86,7 +78,7 @@ class HouseSale(val houseId: String,
         val solanaDestinationAccount = Pubkey.fromBase58(config.getString("solanaTokenAccount"))
         val solanaMintAuthority = payerDetails.walletAccount
         val solanaSourceAccount = payerDetails.tokenAccount
-        require(payerDetails.tokenMint  == solanaTokenMint)
+        require(payerDetails.tokenMint == solanaTokenMint)
 
         val amount = houseState.valuationOfHouse.quantity
         txBuilder.addNotaryInstruction(SplToken.transfer(solanaSourceAccount,
@@ -117,18 +109,7 @@ class HouseSaleResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         /* Receive the valuation of the house */
         val price = counterpartySession.receive<Amount<Currency>>().unwrap { it }
 
-        /* Create instance of the fiat currency token amount */
-        //val priceToken = Amount(price.quantity, getInstance(price.token.currencyCode))
-
-        /* Generate the move proposal, it returns the input-output pair for the fiat currency transfer, which we need to send to the Initiator. */
-        //PartyAndAmount(counterpartySession.counterparty,priceToken)
-        //val inputsAndOutputs : Pair<List<StateAndRef<FungibleToken>>, List<FungibleToken>> =
-        //        DatabaseTokenSelection(serviceHub).generateMove(listOf(Pair(counterpartySession.counterparty,priceToken)),ourIdentity)
-
-        /* Call SendStateAndRefFlow to send the inputs to the Initiator*/
-        //subFlow(SendStateAndRefFlow(counterpartySession, inputsAndOutputs.first))
-        /* Send the output generated from the fiat currency move proposal to the initiator */
-        //counterpartySession.send(inputsAndOutputs.second)
+        // check if the amount of tokens is on Solana
 
         val config = serviceHub.getAppContext().config
         val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
@@ -138,7 +119,7 @@ class HouseSaleResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         val payerDetails = SolanaPayer(solanaTokenMint, solanaMintAuthority, solanaSourceAccount)
         counterpartySession.send(payerDetails)
 
-        //signing
+        // signing
         subFlow(object : SignTransactionFlow(counterpartySession) {
             @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {
