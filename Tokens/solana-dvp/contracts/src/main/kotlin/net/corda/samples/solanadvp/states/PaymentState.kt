@@ -5,10 +5,10 @@ import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
-import net.corda.samples.solanadvp.contracts.SaleContract
+import net.corda.samples.solanadvp.contracts.PaymentContract
 
-@BelongsToContract(SaleContract::class)
-data class SaleState(
+@BelongsToContract(PaymentContract::class)
+data class PaymentState(
     val assetId: UniqueIdentifier,
     val seller: Party,
     val buyer: Party

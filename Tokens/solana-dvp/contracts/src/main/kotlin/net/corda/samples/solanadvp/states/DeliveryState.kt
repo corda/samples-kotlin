@@ -8,9 +8,9 @@ import net.corda.core.identity.Party
 import net.corda.samples.solanadvp.contracts.DeliveryContract
 import java.util.Currency
 
-// *********
-// * State *
-// *********
+/**
+ * Generic asset state with a price.
+ */
 @BelongsToContract(DeliveryContract::class)
 data class DeliveryState(override val linearId: UniqueIdentifier,
                          override val maintainers: List<Party>,

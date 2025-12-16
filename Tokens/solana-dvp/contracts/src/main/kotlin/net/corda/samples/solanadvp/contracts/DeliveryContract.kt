@@ -5,9 +5,6 @@ import net.corda.core.contracts.Contract
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.solanadvp.states.DeliveryState
 
-// ************
-// * Contract *
-// ************
 class DeliveryContract : EvolvableTokenContract(),Contract {
     companion object {
         const val CONTRACT_ID = "net.corda.samples.solanadvp.contracts.DeliveryContract"

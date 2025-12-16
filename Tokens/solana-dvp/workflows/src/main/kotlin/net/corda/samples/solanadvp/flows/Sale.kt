@@ -16,9 +16,9 @@ import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.OpaqueBytes
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
-import net.corda.samples.solanadvp.contracts.SaleContract
+import net.corda.samples.solanadvp.contracts.PaymentContract
 import net.corda.samples.solanadvp.states.DeliveryState
-import net.corda.samples.solanadvp.states.SaleState
+import net.corda.samples.solanadvp.states.PaymentState
 import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.solana.sdk.instruction.SolanaInstruction
 import net.corda.solana.sdk.SplToken
@@ -27,9 +27,6 @@ import java.nio.ByteOrder
 import java.util.Currency
 import java.util.UUID
 
-// *********
-// * Flows *
-// *********
 @InitiatingFlow
 @StartableByRPC
 class Sale(val id: String,
@@ -65,10 +62,10 @@ class Sale(val id: String,
         // Receive output for the fiat currency from the buyer, this would contain the transferred amount from buyer to yourself
         val payerDetails = buyerSession.receive<SolanaPayer>().unwrap { it }
 
-        val output = SaleState( deliveryState.linearId, ourIdentity, buyer)
-         txBuilder.addOutputState(output, SaleContract.ID)
+        val output = PaymentState( deliveryState.linearId, ourIdentity, buyer)
+         txBuilder.addOutputState(output, PaymentContract.ID)
             .addCommand(
-                SaleContract.Commands.Agree(),
+                PaymentContract.Commands.Agree(),
                 listOf(ourIdentity.owningKey, buyer.owningKey)
             )
 
@@ -142,7 +139,6 @@ class SaleResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTran
 
 @CordaSerializable
 data class SolanaPayer(val tokenMint: Pubkey, val walletAccount: Pubkey, val tokenAccount: Pubkey)
-
 
 fun SolanaInstruction.isEqualTo(sourceTokenAccount: Pubkey,
                                        walletAccount: Pubkey,
