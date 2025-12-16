@@ -1,0 +1,163 @@
+package net.corda.samples.solanadvp.flows
+
+import co.paralleluniverse.fibers.Suspendable
+import com.r3.corda.lib.tokens.workflows.flows.move.addMoveNonFungibleTokens
+import com.r3.corda.lib.tokens.workflows.internal.flows.distribution.UpdateDistributionListFlow
+import net.corda.core.contracts.Amount
+import net.corda.core.contracts.UniqueIdentifier
+import net.corda.core.flows.*
+import net.corda.core.identity.CordaX500Name
+import net.corda.core.identity.Party
+import net.corda.core.node.services.queryBy
+import net.corda.core.node.services.vault.QueryCriteria
+import net.corda.core.serialization.CordaSerializable
+import net.corda.core.transactions.SignedTransaction
+import net.corda.core.transactions.TransactionBuilder
+import net.corda.core.utilities.OpaqueBytes
+import net.corda.core.utilities.ProgressTracker
+import net.corda.core.utilities.unwrap
+import net.corda.samples.solanadvp.contracts.SaleContract
+import net.corda.samples.solanadvp.states.DeliveryState
+import net.corda.samples.solanadvp.states.SaleState
+import net.corda.solana.sdk.instruction.Pubkey
+import net.corda.solana.sdk.instruction.SolanaInstruction
+import net.corda.solana.sdk.SplToken
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.util.Currency
+import java.util.UUID
+
+// *********
+// * Flows *
+// *********
+@InitiatingFlow
+@StartableByRPC
+class Sale(val id: String,
+           val buyer: Party) : FlowLogic<String>() {
+    override val progressTracker = ProgressTracker()
+
+    @Suspendable
+    override fun call():String {
+        // Obtain a reference from a notary we wish to use.
+        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
+
+        UUID.fromString(id)
+
+        /* Fetch the state to deliver from the vault using the vault query */
+        val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(UniqueIdentifier.fromString(id)))
+        val deliveryStateAndRef = serviceHub.vaultService.queryBy<DeliveryState>(criteria = inputCriteria).states.single()
+        val deliveryState = deliveryStateAndRef.state.data
+
+        /* Build the transaction builder */
+        val txBuilder = TransactionBuilder(notary)
+
+        /* Create a move token proposal for the token using the helper function provided by Token SDK. This would create the movement proposal and would
+         * be committed in the ledgers of parties once the transaction in finalized.
+        **/
+        addMoveNonFungibleTokens(txBuilder, serviceHub, deliveryState.toPointer(deliveryState.javaClass), buyer)
+
+        /* Initiate a flow session with the buyer to send the valuation and transfer of the fiat currency */
+        val buyerSession = initiateFlow(buyer)
+
+        // Send the valuation to the buyer.
+        buyerSession.send(deliveryState.price)
+
+        // Receive output for the fiat currency from the buyer, this would contain the transferred amount from buyer to yourself
+        val payerDetails = buyerSession.receive<SolanaPayer>().unwrap { it }
+
+        val output = SaleState( deliveryState.linearId, ourIdentity, buyer)
+         txBuilder.addOutputState(output, SaleContract.ID)
+            .addCommand(
+                SaleContract.Commands.Agree(),
+                listOf(ourIdentity.owningKey, buyer.owningKey)
+            )
+
+        val config = serviceHub.getAppContext().config
+        val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
+        val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals"))
+        val solanaDestinationAccount = Pubkey.fromBase58(config.getString("solanaTokenAccount"))
+        val solanaMintAuthority = payerDetails.walletAccount
+        val solanaSourceAccount = payerDetails.tokenAccount
+        require(payerDetails.tokenMint == solanaTokenMint)
+
+        val amount = deliveryState.price.quantity
+        txBuilder.addNotaryInstruction(SplToken.transfer(solanaSourceAccount,
+            solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
+            amount, solanaTokenMintDecimals.toByte()))
+
+        /* Sign the transaction with your private */
+        val initialSignedTrnx = serviceHub.signInitialTransaction(txBuilder)
+
+        /* Call the CollectSignaturesFlow to receive signature of the buyer */
+        val ftx = subFlow(CollectSignaturesFlow(initialSignedTrnx, listOf(buyerSession)))
+
+        /* Call finality flow to notarise the transaction */
+        val stx = subFlow(FinalityFlow(ftx, listOf(buyerSession)))
+
+        /* Distribution list is a list of identities that should receive updates. For this mechanism to behave correctly we call the UpdateDistributionListFlow flow */
+        subFlow(UpdateDistributionListFlow(stx))
+
+        return ("\nThe state is sold to " + buyer.name.organisation + "\nTransaction ID: "
+                + stx.id)
+    }
+}
+
+@InitiatedBy(Sale::class)
+class SaleResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+    @Suspendable
+    override fun call():SignedTransaction {
+        /* Receive the valuation of the */
+        val price = counterpartySession.receive<Amount<Currency>>().unwrap { it }
+
+        // check if the amount of tokens is on Solana
+
+        val config = serviceHub.getAppContext().config
+        val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
+        val solanaMintAuthority = Pubkey.fromBase58(config.getString("solanaMintAuthority"))
+        val solanaSourceAccount = Pubkey.fromBase58(config.getString("solanaTokenAccount"))
+
+        val payerDetails = SolanaPayer(solanaTokenMint, solanaMintAuthority, solanaSourceAccount)
+        counterpartySession.send(payerDetails)
+
+        // signing
+        subFlow(object : SignTransactionFlow(counterpartySession) {
+            @Throws(FlowException::class)
+            override fun checkTransaction(stx: SignedTransaction) {
+                val notaryInstructions = stx.tx.notaryInstructions
+                require(notaryInstructions.isNotEmpty()) { "Expected a notary instruction" }
+                require(notaryInstructions.size == 1) { "Expected single notary instruction" }
+                val instruction = notaryInstructions.first()
+                require( instruction is SolanaInstruction) { "Expected Solana notary instruction" }
+                val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals"))
+                instruction.isEqualTo(solanaSourceAccount,
+                    solanaMintAuthority,
+                    solanaTokenMint,
+                    price.quantity,
+                    solanaTokenMintDecimals.toByte())
+            }
+        })
+        return subFlow(ReceiveFinalityFlow(counterpartySession))
+    }
+}
+
+@CordaSerializable
+data class SolanaPayer(val tokenMint: Pubkey, val walletAccount: Pubkey, val tokenAccount: Pubkey)
+
+
+fun SolanaInstruction.isEqualTo(sourceTokenAccount: Pubkey,
+                                       walletAccount: Pubkey,
+                                       mintAccount: Pubkey,
+                                       amount: Long,
+                                       expectedMintDecimals: Byte) {
+    require(this.accounts.size == 4) { "Missing accounts" }
+    require(this.accounts[0].pubkey == sourceTokenAccount) { "Wrong source account" }
+    require(this.accounts[1].pubkey == mintAccount) { "Wrong mint account" }
+    require(this.accounts[3].pubkey == walletAccount) { "Wrong source wallet account" }
+    val expectedData = ByteBuffer.allocate(10)
+        .order(ByteOrder.LITTLE_ENDIAN)
+        .put(12)
+        .putLong(amount)
+        .put(expectedMintDecimals)
+        .array()
+    require(this.data == OpaqueBytes(expectedData)) { "Instruction data does not match expected data" }
+}
