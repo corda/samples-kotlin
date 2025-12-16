@@ -1,4 +1,4 @@
-package net.corda.samples.dollartohousetoken.contracts
+package net.corda.samples.solanadvp.contracts
 
 import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.CommandWithParties
@@ -6,11 +6,11 @@ import net.corda.core.contracts.Contract
 import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
-import net.corda.samples.dollartohousetoken.states.SaleState
+import net.corda.samples.solanadvp.states.SaleState
 
 class SaleContract : Contract {
     companion object {
-        const val ID = "net.corda.samples.dollartohousetoken.contracts.SaleContract"
+        const val ID = "net.corda.samples.solanadvp.contracts.SaleContract"
     }
 
     interface Commands : CommandData {

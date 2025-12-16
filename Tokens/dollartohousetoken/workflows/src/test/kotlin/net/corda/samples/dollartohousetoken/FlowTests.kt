@@ -9,9 +9,9 @@ import net.corda.samples.dollartohousetoken.flows.CreateAndIssueHouseToken
 import net.corda.samples.dollartohousetoken.states.HouseState
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.node.*
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.BeforeEach
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 import java.util.*
 import java.util.concurrent.Future
 import kotlin.test.assertEquals
@@ -22,7 +22,7 @@ class FlowTests {
     private var a: StartedMockNode? = null
     private var b: StartedMockNode? = null
 
-    @BeforeEach
+    @Before
     fun setup() {
         network = MockNetwork(MockNetworkParameters(cordappsForAllNodes = listOf(
                 TestCordapp.findCordapp("net.corda.samples.dollartohousetoken.contracts"),
@@ -37,7 +37,7 @@ class FlowTests {
         network!!.runNetwork()
     }
 
-    @AfterEach
+    @After
     fun tearDown() {
         network!!.stopNodes()
     }
