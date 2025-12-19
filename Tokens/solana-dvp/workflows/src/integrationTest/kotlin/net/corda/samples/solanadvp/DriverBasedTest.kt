@@ -81,7 +81,7 @@ class DriverBasedTest {
         )
     }
     val flowCordapp = TestCordapp.findCordapp("net.corda.samples.solanadvp.flows")
-    val cordappsForAllNodes : List<TestCordapp> by lazy {
+    val cordappsForAllNodes: List<TestCordapp> by lazy {
         setOf(
             "com.r3.corda.lib.tokens.contracts",
             "com.r3.corda.lib.tokens.workflows",
@@ -90,16 +90,16 @@ class DriverBasedTest {
         ).map { TestCordapp.findCordapp(it) }
     }
 
-   val bankAConfig: Map<String,Any> by lazy {
-       mapOf(
-           "solanaTokenMint" to tokenMint.base58(),
-           "solanaTokenAccount" to bankATokenAccount.base58(),
-           "solanaWalletAccount" to bankAWallet.account.base58(), // not needed in this test
-           "solanaTokenMintDecimals" to tokenDecimals
-       )
-   }
+    val bankAConfig: Map<String, Any> by lazy {
+        mapOf(
+            "solanaTokenMint" to tokenMint.base58(),
+            "solanaTokenAccount" to bankATokenAccount.base58(),
+            "solanaWalletAccount" to bankAWallet.account.base58(), // not needed in this test
+            "solanaTokenMintDecimals" to tokenDecimals
+        )
+    }
 
-    val bankBConfig: Map<String,Any> by lazy {
+    val bankBConfig: Map<String, Any> by lazy {
         mapOf(
             "solanaTokenMint" to tokenMint.base58(),
             "solanaTokenAccount" to bankBTokenAccount.base58(),
@@ -130,23 +130,30 @@ class DriverBasedTest {
 
     @Test
     fun testDvp() = withDriver {
-        val partyAHandle = startNode(providedName = bankA.name,
-            defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankAConfig)))).getOrThrow()
-        val partyBHandle = startNode(providedName = bankB.name,
-            defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankBConfig)))).getOrThrow()
+        val partyA = startNode(
+            providedName = bankA.name,
+            defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankAConfig)))
+        ).getOrThrow()
+        val partyB = startNode(
+            providedName = bankB.name,
+            defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankBConfig)))
+        ).getOrThrow()
 
-        assertEquals(bankB.name, partyAHandle.resolveName(bankB.name))
-        assertEquals(bankA.name, partyBHandle.resolveName(bankA.name))
+        assertEquals(bankB.name, partyA.resolveName(bankB.name))
+        assertEquals(bankA.name, partyB.resolveName(bankA.name))
 
         assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankATokenAccount))
         assertEquals(BigDecimal("1000"), validator.getTokenBalance(bankBTokenAccount))
 
-        val result = (partyAHandle.rpc.startFlow(::CreateAndIssueToken,
-            partyAHandle.nodeInfo.legalIdentities[0], Amount.parseCurrency("1000 USD"))
-            .returnValue.get())
+        val result = partyA.rpc.startFlow(
+            ::CreateAndIssueToken,
+            partyA.nodeInfo.legalIdentities[0],
+            Amount.parseCurrency("1000 USD")
+        ).returnValue.get()
+
         val id = result.substringAfter("UUID: ").substringBefore(".").trim()
 
-        partyAHandle.rpc.startFlow(::Sale, id, partyBHandle.nodeInfo.legalIdentities[0])
+        partyA.rpc.startFlow(::Sale, id, partyB.nodeInfo.legalIdentities[0])
             .returnValue.get()
 
         assertEquals(BigDecimal("100"), validator.getTokenBalance(bankATokenAccount))
@@ -156,8 +163,10 @@ class DriverBasedTest {
     // Runs a test inside the Driver DSL, which provides useful functions for starting nodes, etc.
     private fun withDriver(test: DriverDSL.() -> Unit) = driver(
         DriverParameters(
-            isDebug = true, startNodesInProcess = true, cordappsForAllNodes = cordappsForAllNodes,
-            notarySpecs = listOf(NotarySpec(solanaNotaryName, solanaNotaryConfig, startInProcess = true)),
+            isDebug = true,
+            startNodesInProcess = false,
+            cordappsForAllNodes = cordappsForAllNodes,
+            notarySpecs = listOf(NotarySpec(solanaNotaryName, solanaNotaryConfig, startInProcess = false)),
             networkParameters = networkParameters
         )
     ) { test() }
@@ -168,9 +177,9 @@ class DriverBasedTest {
 
 fun Pubkey.toPublicKey(): PublicKey = Solana.account(bytes)
 
-fun SolanaTestValidator.getTokenBalance(publicKey: PublicKey): BigDecimal = this
-    .client
-    .getTokenAccountBalance(publicKey.base58(), this.rpcParams)
-    .checkResponse("getTokenAccountBalance")!!
-    .uiAmountString
-    .toBigDecimal()
+fun SolanaTestValidator.getTokenBalance(publicKey: PublicKey): BigDecimal =
+    client
+        .getTokenAccountBalance(publicKey.base58(), rpcParams)
+        .checkResponse("getTokenAccountBalance")!!
+        .uiAmountString
+        .toBigDecimal()
