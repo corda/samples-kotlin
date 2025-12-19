@@ -5,7 +5,16 @@ import com.r3.corda.lib.tokens.workflows.flows.move.addMoveNonFungibleTokens
 import com.r3.corda.lib.tokens.workflows.internal.flows.distribution.UpdateDistributionListFlow
 import net.corda.core.contracts.Amount
 import net.corda.core.contracts.UniqueIdentifier
-import net.corda.core.flows.*
+import net.corda.core.flows.CollectSignaturesFlow
+import net.corda.core.flows.FinalityFlow
+import net.corda.core.flows.FlowException
+import net.corda.core.flows.FlowLogic
+import net.corda.core.flows.FlowSession
+import net.corda.core.flows.InitiatedBy
+import net.corda.core.flows.InitiatingFlow
+import net.corda.core.flows.ReceiveFinalityFlow
+import net.corda.core.flows.SignTransactionFlow
+import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
@@ -19,13 +28,12 @@ import net.corda.core.utilities.unwrap
 import net.corda.samples.solanadvp.contracts.PaymentContract
 import net.corda.samples.solanadvp.states.DeliveryState
 import net.corda.samples.solanadvp.states.PaymentState
+import net.corda.solana.sdk.SplToken
 import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.solana.sdk.instruction.SolanaInstruction
-import net.corda.solana.sdk.SplToken
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.Currency
-import java.util.UUID
+import java.util.*
 
 @InitiatingFlow
 @StartableByRPC
@@ -106,17 +114,17 @@ class SaleResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTran
         /* Receive the valuation of the */
         val price = counterpartySession.receive<Amount<Currency>>().unwrap { it }
 
-        // check if the amount of tokens is on Solana
+        // The flow could be extended to check if the amount of tokens is available on Solana
 
         val config = serviceHub.getAppContext().config
         val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
-        val solanaMintAuthority = Pubkey.fromBase58(config.getString("solanaMintAuthority"))
+        val solanaMintAuthority = Pubkey.fromBase58(config.getString("solanaWalletAccount"))
         val solanaSourceAccount = Pubkey.fromBase58(config.getString("solanaTokenAccount"))
 
         val payerDetails = SolanaPayer(solanaTokenMint, solanaMintAuthority, solanaSourceAccount)
         counterpartySession.send(payerDetails)
 
-        // signing
+        /* Signing */
         subFlow(object : SignTransactionFlow(counterpartySession) {
             @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {

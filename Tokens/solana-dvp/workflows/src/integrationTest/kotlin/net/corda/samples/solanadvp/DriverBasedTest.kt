@@ -94,7 +94,7 @@ class DriverBasedTest {
        mapOf(
            "solanaTokenMint" to tokenMint.base58(),
            "solanaTokenAccount" to bankATokenAccount.base58(),
-           "solanaMintAuthority" to bankAWallet.account.base58(),
+           "solanaWalletAccount" to bankAWallet.account.base58(), // not needed in this test
            "solanaTokenMintDecimals" to tokenDecimals
        )
    }
@@ -103,7 +103,7 @@ class DriverBasedTest {
         mapOf(
             "solanaTokenMint" to tokenMint.base58(),
             "solanaTokenAccount" to bankBTokenAccount.base58(),
-            "solanaMintAuthority" to bankBWallet.account.base58(),
+            "solanaWalletAccount" to bankBWallet.account.base58(),
             "solanaTokenMintDecimals" to tokenDecimals
         )
     }
@@ -129,7 +129,7 @@ class DriverBasedTest {
     }
 
     @Test
-    fun `node test`() = withDriver {
+    fun testDvp() = withDriver {
         val partyAHandle = startNode(providedName = bankA.name,
             defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankAConfig)))).getOrThrow()
         val partyBHandle = startNode(providedName = bankB.name,

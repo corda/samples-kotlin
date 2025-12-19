@@ -12,7 +12,10 @@ The payment is executed on Solana by the Notary, acting on behalf of the payer.
 
 There are two flows that we'll primarily use in this example that you'll be building off of.
 
-1. Create and issue a token using `TokenCreateAndIssueFlow`.
+Prerequisite: Solana account needs to be created and contains enough token amounts.
+
+1. Create and issue a Corda token using `TokenCreateAndIssueFlow`, the toke will be used for 'Delivery" in Delivery Versus Payment.
+
 2. Initiate the DVP through `SaleInitiatorFlow`.
 
     DvP is initiated by the seller, who offers an asset for sale and communicates the price to the buyer.
@@ -33,6 +36,20 @@ There are two flows that we'll primarily use in this example that you'll be buil
     acting on behalf of the buyer. If the payment succeeds, the Notary notarises the Corda transaction 
     effectively approving delivery of the asset to the buyer.
 
+### Configuration
+
+Each party keeps configuration file with Solana account. Flow shares own account data for counterparty to make payment,
+and also can verify if payment if performed for the same token (mint).
+The CordApp configuration file contains the following Solana account setting for a participant (Corda party):
+
+``solanaWalletAccount`` - public key of the participant's wallet account
+``solanaTokenAccount`` - public key of SPL token account for payment
+``solanaTokenMint`` - public key of the mint account of SPL token;
+``solanaTokenMintDecimals`` - numeric value, CordApp uses Solana checked token transfer that requires providing decimal places
+
+Public keys are written in Base58 format.
 
 ## Pre-Requisites
 [Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
+
+Change values in ``../constant.properties`` ``cordaVersion`` and ``cordaCoreVersion`` to the latest 4.14 Snapshot versions.
