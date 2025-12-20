@@ -9,7 +9,7 @@ import net.corda.samples.solanadvp.contracts.DeliveryContract
 import java.util.Currency
 
 /**
- * Generic asset state with a price.
+ * Sample NonFungibleToken with a price.
  */
 @BelongsToContract(DeliveryContract::class)
 data class DeliveryState(override val linearId: UniqueIdentifier,

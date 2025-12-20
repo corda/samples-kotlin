@@ -17,12 +17,16 @@ class ContractTests {
     //sample tests
     @Test
     fun `Price must be greater than zero`() {
-        val tokenPass = DeliveryState(UniqueIdentifier(),
+        val tokenPass = DeliveryState(
+            UniqueIdentifier(),
             listOf(operator.party),
-            Amount.parseCurrency("1000 USD"))
-        val tokenFail = DeliveryState(UniqueIdentifier(),
+            Amount.parseCurrency("1000 USD")
+        )
+        val tokenFail = DeliveryState(
+            UniqueIdentifier(),
             listOf(operator.party),
-            Amount.parseCurrency("0 USD"))
+            Amount.parseCurrency("0 USD")
+        )
         ledgerServices.ledger {
             transaction {
                 output(DeliveryContract.CONTRACT_ID, tokenFail)

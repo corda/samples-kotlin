@@ -15,13 +15,11 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.utilities.ProgressTracker
 import net.corda.samples.solanadvp.states.DeliveryState
-import java.util.*
+import java.util.Currency
+import java.util.UUID
 
-// *********
-// * Flows *
-// *********
 @StartableByRPC
-class CreateAndIssueToken(val owner: Party, val price: Amount<Currency>) : FlowLogic<String>() {
+class CreateAndIssueNonFungibleToken(val owner: Party, val price: Amount<Currency>) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
     @Suspendable

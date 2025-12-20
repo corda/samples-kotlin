@@ -1,18 +1,19 @@
 package net.corda.samples.solanadvp.states
 
+import com.r3.corda.lib.tokens.contracts.types.TokenType
+import net.corda.core.contracts.Amount
 import net.corda.core.contracts.BelongsToContract
 import net.corda.core.contracts.ContractState
-import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
-import net.corda.samples.solanadvp.contracts.PaymentContract
+import net.corda.samples.solanadvp.contracts.StockPaymentContract
 
 /**
- * A generic receipt asset state (either NonFungibleToken or a linear state).
+ * Receipt of payment for amount of FungibleTokens.
  */
-@BelongsToContract(PaymentContract::class)
-data class PaymentState(
-    val assetId: UniqueIdentifier,
+@BelongsToContract(StockPaymentContract::class)
+data class StockPaymentState(
+    val assetsAmount: Amount<TokenType>,
     val seller: Party,
     val buyer: Party
 ) : ContractState {

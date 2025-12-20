@@ -1,10 +1,13 @@
 package net.corda.samples.solanadvp.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import com.r3.corda.lib.tokens.workflows.flows.move.addMoveNonFungibleTokens
+import com.r3.corda.lib.tokens.contracts.types.TokenPointer
+import com.r3.corda.lib.tokens.contracts.types.TokenType
+import com.r3.corda.lib.tokens.workflows.flows.move.addMoveFungibleTokens
 import com.r3.corda.lib.tokens.workflows.internal.flows.distribution.UpdateDistributionListFlow
+import com.r3.corda.lib.tokens.workflows.types.PartyAndAmount
 import net.corda.core.contracts.Amount
-import net.corda.core.contracts.UniqueIdentifier
+import net.corda.core.contracts.StateAndRef
 import net.corda.core.flows.CollectSignaturesFlow
 import net.corda.core.flows.FinalityFlow
 import net.corda.core.flows.FlowException
@@ -17,41 +20,38 @@ import net.corda.core.flows.SignTransactionFlow
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
+import net.corda.core.node.ServiceHub
 import net.corda.core.node.services.queryBy
-import net.corda.core.node.services.vault.QueryCriteria
-import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
-import net.corda.core.utilities.OpaqueBytes
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
-import net.corda.samples.solanadvp.contracts.PaymentContract
-import net.corda.samples.solanadvp.states.DeliveryState
-import net.corda.samples.solanadvp.states.PaymentState
+import net.corda.samples.solanadvp.contracts.StockPaymentContract
+import net.corda.samples.solanadvp.states.StockPaymentState
+import net.corda.samples.solanadvp.states.StockState
 import net.corda.solana.sdk.SplToken
 import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.solana.sdk.instruction.SolanaInstruction
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.util.*
+import java.util.Currency
 
 @InitiatingFlow
 @StartableByRPC
-class Sale(val id: String,
-           val buyer: Party) : FlowLogic<String>() {
+class StockDvP(
+    val symbol: String,
+    val quantity: Long,
+    val price: Amount<Currency>,
+    val buyer: Party
+) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
     @Suspendable
-    override fun call():String {
+    override fun call(): String {
         // Obtain a reference from a notary we wish to use.
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
-        UUID.fromString(id)
-
         /* Fetch the state to deliver from the vault using the vault query */
-        val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(UniqueIdentifier.fromString(id)))
-        val deliveryStateAndRef = serviceHub.vaultService.queryBy<DeliveryState>(criteria = inputCriteria).states.single()
-        val deliveryState = deliveryStateAndRef.state.data
+        val stockPointer: TokenPointer<StockState> = QueryUtilities.queryStockPointer(symbol, serviceHub)
+        val stockAmount: Amount<TokenType> = Amount(quantity, stockPointer)
 
         /* Build the transaction builder */
         val txBuilder = TransactionBuilder(notary)
@@ -59,21 +59,25 @@ class Sale(val id: String,
         /* Create a move token proposal for the token using the helper function provided by Token SDK. This would create the movement proposal and would
          * be committed in the ledgers of parties once the transaction in finalized.
         **/
-        addMoveNonFungibleTokens(txBuilder, serviceHub, deliveryState.toPointer(deliveryState.javaClass), buyer)
+        addMoveFungibleTokens(
+            txBuilder,
+            serviceHub,
+            listOf(PartyAndAmount(buyer, stockAmount)),
+            ourIdentity)
 
         /* Initiate a flow session with the buyer to send the valuation and transfer of the fiat currency */
         val buyerSession = initiateFlow(buyer)
 
         // Send the valuation to the buyer.
-        buyerSession.send(deliveryState.price)
+        buyerSession.send(price)
 
         // Receive output for the fiat currency from the buyer, this would contain the transferred amount from buyer to yourself
         val payerDetails = buyerSession.receive<SolanaPayer>().unwrap { it }
 
-        val output = PaymentState( deliveryState.linearId, ourIdentity, buyer)
-         txBuilder.addOutputState(output, PaymentContract.ID)
+        val output = StockPaymentState(stockAmount, ourIdentity, buyer)
+        txBuilder.addOutputState(output, StockPaymentContract.ID)
             .addCommand(
-                PaymentContract.Commands.Agree(),
+                StockPaymentContract.Commands.Agree(),
                 listOf(ourIdentity.owningKey, buyer.owningKey)
             )
 
@@ -85,10 +89,13 @@ class Sale(val id: String,
         val solanaSourceAccount = payerDetails.tokenAccount
         require(payerDetails.tokenMint == solanaTokenMint)
 
-        val amount = deliveryState.price.quantity
-        txBuilder.addNotaryInstruction(SplToken.transfer(solanaSourceAccount,
-            solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
-            amount, solanaTokenMintDecimals.toByte()))
+        txBuilder.addNotaryInstruction(
+            SplToken.transfer(
+                solanaSourceAccount,
+                solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
+                price.quantity, solanaTokenMintDecimals.toByte()
+            )
+        ) //TODO decimals
 
         /* Sign the transaction with your private */
         val initialSignedTrnx = serviceHub.signInitialTransaction(txBuilder)
@@ -107,10 +114,10 @@ class Sale(val id: String,
     }
 }
 
-@InitiatedBy(Sale::class)
-class SaleResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+@InitiatedBy(StockDvP::class)
+class SaleStockResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable
-    override fun call():SignedTransaction {
+    override fun call(): SignedTransaction {
         /* Receive the valuation of the */
         val price = counterpartySession.receive<Amount<Currency>>().unwrap { it }
 
@@ -132,36 +139,39 @@ class SaleResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTran
                 require(notaryInstructions.isNotEmpty()) { "Expected a notary instruction" }
                 require(notaryInstructions.size == 1) { "Expected single notary instruction" }
                 val instruction = notaryInstructions.first()
-                require( instruction is SolanaInstruction) { "Expected Solana notary instruction" }
+                require(instruction is SolanaInstruction) { "Expected Solana notary instruction" }
                 val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals"))
-                instruction.isEqualTo(solanaSourceAccount,
+                instruction.requireMatchExceptDestinationAccount(
+                    solanaSourceAccount,
                     solanaMintAuthority,
                     solanaTokenMint,
                     price.quantity,
-                    solanaTokenMintDecimals.toByte())
+                    solanaTokenMintDecimals.toByte()
+                )
             }
         })
         return subFlow(ReceiveFinalityFlow(counterpartySession))
     }
 }
 
-@CordaSerializable
-data class SolanaPayer(val tokenMint: Pubkey, val walletAccount: Pubkey, val tokenAccount: Pubkey)
+object QueryUtilities {
+    /**
+     * Retrieve any unconsumed StockState and filter by the given symbol
+     */
+    fun queryStock(symbol: String, serviceHub: ServiceHub): StateAndRef<StockState> {
+        val stateAndRefs: List<StateAndRef<StockState>> = serviceHub.vaultService.queryBy<StockState>().states
+        // Match the query result with the symbol. If no results match, throw exception
+        return stateAndRefs.stream()
+            .filter { (state) -> state.data.symbol == symbol }.findAny()
+            .orElseThrow { IllegalArgumentException("StockState symbol=\"$symbol\" not found from vault") }
+    }
 
-fun SolanaInstruction.isEqualTo(sourceTokenAccount: Pubkey,
-                                       walletAccount: Pubkey,
-                                       mintAccount: Pubkey,
-                                       amount: Long,
-                                       expectedMintDecimals: Byte) {
-    require(this.accounts.size == 4) { "Missing accounts" }
-    require(this.accounts[0].pubkey == sourceTokenAccount) { "Wrong source account" }
-    require(this.accounts[1].pubkey == mintAccount) { "Wrong mint account" }
-    require(this.accounts[3].pubkey == walletAccount) { "Wrong source wallet account" }
-    val expectedData = ByteBuffer.allocate(10)
-        .order(ByteOrder.LITTLE_ENDIAN)
-        .put(12)
-        .putLong(amount)
-        .put(expectedMintDecimals)
-        .array()
-    require(this.data == OpaqueBytes(expectedData)) { "Instruction data does not match expected data" }
+    /**
+     * Retrieve any unconsumed StockState and filter by the given symbol
+     * Then return the pointer to this StockState
+     */
+    fun queryStockPointer(symbol: String, serviceHub: ServiceHub): TokenPointer<StockState> {
+        val (state) = queryStock(symbol, serviceHub)
+        return state.data.toPointer(StockState::class.java)
+    }
 }

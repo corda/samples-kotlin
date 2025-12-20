@@ -6,11 +6,11 @@ import net.corda.core.contracts.Contract
 import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
-import net.corda.samples.solanadvp.states.PaymentState
+import net.corda.samples.solanadvp.states.StockPaymentState
 
-class PaymentContract : Contract {
+class StockPaymentContract : Contract {
     companion object {
-        const val ID = "net.corda.samples.solanadvp.contracts.PaymentContract"
+        const val ID = "net.corda.samples.solanadvp.contracts.StockPaymentContract"
     }
 
     interface Commands : CommandData {
@@ -23,10 +23,10 @@ class PaymentContract : Contract {
 
         when (cmd.value) {
             is Commands.Agree -> requireThat {
-                "No inputs should be consumed." using (tx.inputsOfType<PaymentState>().isEmpty())
-                val outputs = tx.outputsOfType<PaymentState>()
+                "No inputs should be consumed." using (tx.inputsOfType<StockPaymentState>().isEmpty())
+                val outputs = tx.outputsOfType<StockPaymentState>()
                 "One output should be created." using (outputs.size == 1)
-                val out = tx.outputsOfType<PaymentState>().single()
+                val out = tx.outputsOfType<StockPaymentState>().single()
                 // This makes buyer signature required in addition to seller
                 val required = setOf(out.seller.owningKey, out.buyer.owningKey)
                 "Seller and buyer must both sign." using (cmd.signers.containsAll(required))

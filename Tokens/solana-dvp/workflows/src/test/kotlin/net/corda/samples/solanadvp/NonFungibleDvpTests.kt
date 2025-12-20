@@ -5,19 +5,23 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.Vault.StateStatus
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.node.services.vault.QueryCriteria.LinearStateQueryCriteria
-import net.corda.samples.solanadvp.flows.CreateAndIssueToken
+import net.corda.samples.solanadvp.flows.CreateAndIssueNonFungibleToken
 import net.corda.samples.solanadvp.states.DeliveryState
 import net.corda.testing.common.internal.testNetworkParameters
-import net.corda.testing.node.*
+import net.corda.testing.node.MockNetwork
+import net.corda.testing.node.MockNetworkNotarySpec
+import net.corda.testing.node.MockNetworkParameters
+import net.corda.testing.node.StartedMockNode
+import net.corda.testing.node.TestCordapp
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.util.*
 import java.util.concurrent.Future
 import kotlin.test.assertEquals
 
 
-class FlowTests {
+class NonFungibleDvpTests {
     private var network: MockNetwork? = null
     private var a: StartedMockNode? = null
     private var b: StartedMockNode? = null
@@ -44,7 +48,7 @@ class FlowTests {
 
     @Test
     fun tokenStateCreation() {
-        val createAndIssueFlow = CreateAndIssueToken(b!!.info.legalIdentities[0], Amount.parseCurrency("1000 USD"))
+        val createAndIssueFlow = CreateAndIssueNonFungibleToken(b!!.info.legalIdentities[0], Amount.parseCurrency("1000 USD"))
         val future: Future<String> = a!!.startFlow(createAndIssueFlow)
         network!!.runNetwork()
         val resultString = future.get()

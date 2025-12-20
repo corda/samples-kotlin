@@ -1,17 +1,14 @@
 package net.corda.samples.solanadvp
 
-import com.lmax.solana4j.Solana
 import com.lmax.solana4j.api.PublicKey
 import net.corda.core.contracts.Amount
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
 import net.corda.core.node.NetworkParameters
 import net.corda.core.utilities.getOrThrow
-import net.corda.samples.solanadvp.flows.CreateAndIssueToken
-import net.corda.samples.solanadvp.flows.Sale
+import net.corda.samples.solanadvp.flows.CreateAndIssueStock
+import net.corda.samples.solanadvp.flows.StockDvP
 import net.corda.solana.notary.common.Signer
-import net.corda.solana.notary.common.rpc.checkResponse
-import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.solana.sdk.SplToken
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.driver.DriverDSL
@@ -35,7 +32,7 @@ import kotlin.collections.emptyList
 import kotlin.lazy
 import kotlin.test.assertEquals
 
-class DriverBasedTest {
+class StockDvpDriverTest {
     private val networkParameters = NetworkParameters(
         minimumPlatformVersion = 4,
         notaries = emptyList(),
@@ -51,6 +48,8 @@ class DriverBasedTest {
     private val validator = SolanaTestValidator()
     private val bankA = TestIdentity(CordaX500Name("BankA", "", "GB"))
     private val bankB = TestIdentity(CordaX500Name("BankB", "", "US"))
+    private val observer = CordaX500Name("Observer", "Rulerland", "US")
+
     private val solanaNotaryName = CordaX500Name("Notary", "London", "GB")
     private lateinit var solanaNotaryKeyFile: Path
     private lateinit var solanaNotaryKey: Signer
@@ -68,7 +67,7 @@ class DriverBasedTest {
     @TempDir
     lateinit var generalDir: Path
     val solanaNotaryConfig: Map<String, Any> by lazy {
-        mapOf<String, Any>(
+        mapOf(
             "notary" to mapOf(
                 "validating" to false,
                 "solana" to mapOf(
@@ -108,6 +107,12 @@ class DriverBasedTest {
         )
     }
 
+    val STOCK_SYMBOL = "TEST"
+    val STOCK_NAME = "Test Stock"
+    val STOCK_CURRENCY = "USD"
+    val STOCK_PRICE = BigDecimal.valueOf(7.4)
+    val ISSUING_STOCK_QUANTITY = 200000L
+
     @BeforeEach
     fun setup() {
         solanaNotaryKeyFile = randomKeypairFile(generalDir)
@@ -138,23 +143,25 @@ class DriverBasedTest {
             providedName = bankB.name,
             defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankBConfig)))
         ).getOrThrow()
-
-        assertEquals(bankB.name, partyA.resolveName(bankB.name))
-        assertEquals(bankA.name, partyB.resolveName(bankA.name))
+        startNode(providedName = observer).getOrThrow()
 
         assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankATokenAccount))
         assertEquals(BigDecimal("1000"), validator.getTokenBalance(bankBTokenAccount))
 
-        val result = partyA.rpc.startFlow(
-            ::CreateAndIssueToken,
-            partyA.nodeInfo.legalIdentities[0],
-            Amount.parseCurrency("1000 USD")
+        val result = partyA.rpc.startFlow(::CreateAndIssueStock,
+            STOCK_SYMBOL,
+            STOCK_NAME,
+            STOCK_CURRENCY,
+            STOCK_PRICE,
+            ISSUING_STOCK_QUANTITY
         ).returnValue.get()
 
-        val id = result.substringAfter("UUID: ").substringBefore(".").trim()
-
-        partyA.rpc.startFlow(::Sale, id, partyB.nodeInfo.legalIdentities[0])
-            .returnValue.get()
+        partyA.rpc.startFlow(::StockDvP,
+            STOCK_SYMBOL,
+            100, // TODO compute stock amount * stock price
+            Amount.parseCurrency("1000 USD"),
+            partyB.nodeInfo.legalIdentities[0]
+        ).returnValue.get()
 
         assertEquals(BigDecimal("100"), validator.getTokenBalance(bankATokenAccount))
         assertEquals(BigDecimal("900"), validator.getTokenBalance(bankBTokenAccount))
@@ -174,12 +181,3 @@ class DriverBasedTest {
     // Makes an RPC call to retrieve another node's name from the network map.
     private fun NodeHandle.resolveName(name: CordaX500Name) = rpc.wellKnownPartyFromX500Name(name)!!.name
 }
-
-fun Pubkey.toPublicKey(): PublicKey = Solana.account(bytes)
-
-fun SolanaTestValidator.getTokenBalance(publicKey: PublicKey): BigDecimal =
-    client
-        .getTokenAccountBalance(publicKey.base58(), rpcParams)
-        .checkResponse("getTokenAccountBalance")!!
-        .uiAmountString
-        .toBigDecimal()
