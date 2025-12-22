@@ -7,6 +7,7 @@ import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.solanadvp.states.PaymentState
+import net.corda.solana.sdk.instruction.SolanaInstruction
 
 class PaymentContract : Contract {
     companion object {
@@ -30,6 +31,10 @@ class PaymentContract : Contract {
                 // This makes buyer signature required in addition to seller
                 val required = setOf(out.seller.owningKey, out.buyer.owningKey)
                 "Seller and buyer must both sign." using (cmd.signers.containsAll(required))
+
+                val solanaInstruction = requireNotNull(tx.notaryInstructionsOfType<SolanaInstruction>().singleOrNull()) {
+                    "Exactly one Solana instruction required"
+                }
 
                 // TODO verify notary instruction
             }

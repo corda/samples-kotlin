@@ -6,7 +6,7 @@ import net.corda.solana.sdk.instruction.SolanaInstruction
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-// TODO make it more generic
+// TODO will be replaced by recreating instruction and comparing in contract verification
 fun SolanaInstruction.requireMatchExceptDestinationAccount(
     sourceTokenAccount: Pubkey,
     walletAccount: Pubkey,

@@ -126,6 +126,7 @@ class SaleResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTran
         subFlow(object : SignTransactionFlow(counterpartySession) {
             @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {
+                // TODO verify by recreating Solana Instruction instead of the below code, that requires sharing designation account from seller
                 val notaryInstructions = stx.tx.notaryInstructions
                 require(notaryInstructions.isNotEmpty()) { "Expected a notary instruction" }
                 require(notaryInstructions.size == 1) { "Expected single notary instruction" }
