@@ -7,6 +7,7 @@ import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.solanadvp.states.PaymentState
+import net.corda.solana.sdk.SplToken
 import net.corda.solana.sdk.instruction.SolanaInstruction
 
 class PaymentContract : Contract {
@@ -32,11 +33,25 @@ class PaymentContract : Contract {
                 val required = setOf(out.seller.owningKey, out.buyer.owningKey)
                 "Seller and buyer must both sign." using (cmd.signers.containsAll(required))
 
-                val solanaInstruction = requireNotNull(tx.notaryInstructionsOfType<SolanaInstruction>().singleOrNull()) {
-                    "Exactly one Solana instruction required"
-                }
+                val solanaInstruction =
+                    requireNotNull(tx.notaryInstructionsOfType<SolanaInstruction>().singleOrNull()) {
+                        "Exactly one Solana instruction required"
+                    }
 
-                // TODO verify notary instruction
+                val expectedInstruction = SplToken.transfer(
+                    out.solanaBuyerTokenAccount,
+                    out.solanaTokenMint,
+                    out.solanaSellerTokenAccount,
+                    out.solanaMintAuthority,
+                    out.quantity,
+                    out.decimals
+                )
+
+                require(solanaInstruction == expectedInstruction) {
+                    "The Solana instruction in the transaction not the expected burn instruction:\n" +
+                            "transaction: $solanaInstruction\n" +
+                            "expected:    $expectedInstruction"
+                }
             }
         }
     }

@@ -7,6 +7,7 @@ import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.solanadvp.states.StockPaymentState
+import net.corda.solana.sdk.SplToken
 import net.corda.solana.sdk.instruction.SolanaInstruction
 import kotlin.collections.singleOrNull
 
@@ -33,17 +34,25 @@ class StockPaymentContract : Contract {
                 val required = setOf(out.seller.owningKey, out.buyer.owningKey)
                 "Seller and buyer must both sign." using (cmd.signers.containsAll(required))
 
-                val solanaInstruction = requireNotNull(tx.notaryInstructionsOfType<SolanaInstruction>().singleOrNull()) {
-                    "Exactly one Solana instruction required"
-                }
+                val solanaInstruction =
+                    requireNotNull(tx.notaryInstructionsOfType<SolanaInstruction>().singleOrNull()) {
+                        "Exactly one Solana instruction required"
+                    }
 
-                // TODO verify notary instruction e.g.
-                //  val expectedInstruction = Token2022.transfer
-                //  require(solanaInstruction == expectedInstruction) {
-                //      "The Solana instruction in the transaction not the expected burn instruction:\n" +
-                //             "transaction: $solanaInstruction\n" +
-                //           "expected:    $expectedInstruction"
-                // }
+                val expectedInstruction = SplToken.transfer(
+                    out.solanaBuyerTokenAccount,
+                    out.solanaTokenMint,
+                    out.solanaSellerTokenAccount,
+                    out.solanaMintAuthority,
+                    out.quantity,
+                    out.decimals
+                )
+
+                require(solanaInstruction == expectedInstruction) {
+                    "The Solana instruction in the transaction not the expected burn instruction:\n" +
+                            "transaction: $solanaInstruction\n" +
+                            "expected:    $expectedInstruction"
+                }
             }
         }
     }

@@ -13,7 +13,6 @@ import net.corda.solana.sdk.SplToken
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.driver.DriverDSL
 import net.corda.testing.driver.DriverParameters
-import net.corda.testing.driver.NodeHandle
 import net.corda.testing.driver.NodeParameters
 import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
@@ -177,7 +176,4 @@ class StockDvpDriverTest {
             networkParameters = networkParameters
         )
     ) { test() }
-
-    // Makes an RPC call to retrieve another node's name from the network map.
-    private fun NodeHandle.resolveName(name: CordaX500Name) = rpc.wellKnownPartyFromX500Name(name)!!.name
 }

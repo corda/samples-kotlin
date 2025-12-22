@@ -29,18 +29,19 @@ import net.corda.samples.solanadvp.states.DeliveryState
 import net.corda.samples.solanadvp.states.PaymentState
 import net.corda.solana.sdk.SplToken
 import net.corda.solana.sdk.instruction.Pubkey
-import net.corda.solana.sdk.instruction.SolanaInstruction
 import java.util.Currency
 import java.util.UUID
 
 @InitiatingFlow
 @StartableByRPC
-class NonFungibleTokenDvP(val id: String,
-                          val buyer: Party) : FlowLogic<String>() {
+class NonFungibleTokenDvP(
+    val id: String,
+    val buyer: Party
+) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
     @Suspendable
-    override fun call():String {
+    override fun call(): String {
         // Obtain a reference from a notary we wish to use.
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
@@ -48,7 +49,8 @@ class NonFungibleTokenDvP(val id: String,
 
         /* Fetch the state to deliver from the vault using the vault query */
         val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(UniqueIdentifier.fromString(id)))
-        val deliveryStateAndRef = serviceHub.vaultService.queryBy<DeliveryState>(criteria = inputCriteria).states.single()
+        val deliveryStateAndRef =
+            serviceHub.vaultService.queryBy<DeliveryState>(criteria = inputCriteria).states.single()
         val deliveryState = deliveryStateAndRef.state.data
 
         /* Build the transaction builder */
@@ -68,25 +70,35 @@ class NonFungibleTokenDvP(val id: String,
         // Receive output for the fiat currency from the buyer, this would contain the transferred amount from buyer to yourself
         val payerDetails = buyerSession.receive<SolanaPayer>().unwrap { it }
 
-        val output = PaymentState( deliveryState.linearId, ourIdentity, buyer)
-         txBuilder.addOutputState(output, PaymentContract.ID)
-            .addCommand(
-                PaymentContract.Commands.Agree(),
-                listOf(ourIdentity.owningKey, buyer.owningKey)
-            )
+        val amount = deliveryState.price.quantity
 
         val config = serviceHub.getAppContext().config
         val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
-        val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals"))
+        val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals")).toByte()
         val solanaDestinationAccount = Pubkey.fromBase58(config.getString("solanaTokenAccount"))
         val solanaMintAuthority = payerDetails.walletAccount
         val solanaSourceAccount = payerDetails.tokenAccount
         require(payerDetails.tokenMint == solanaTokenMint)
 
-        val amount = deliveryState.price.quantity
-        txBuilder.addNotaryInstruction(SplToken.transfer(solanaSourceAccount,
-            solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
-            amount, solanaTokenMintDecimals.toByte()))
+        val output = PaymentState(
+            deliveryState.linearId, ourIdentity, buyer,
+            solanaDestinationAccount, solanaSourceAccount,
+            solanaMintAuthority, solanaTokenMint,
+            amount, solanaTokenMintDecimals
+        )
+        txBuilder.addOutputState(output, PaymentContract.ID)
+            .addCommand(
+                PaymentContract.Commands.Agree(),
+                listOf(ourIdentity.owningKey, buyer.owningKey)
+            )
+
+        txBuilder.addNotaryInstruction(
+            SplToken.transfer(
+                solanaSourceAccount,
+                solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
+                amount, solanaTokenMintDecimals
+            )
+        )
 
         /* Sign the transaction with your private */
         val initialSignedTrnx = serviceHub.signInitialTransaction(txBuilder)
@@ -108,7 +120,7 @@ class NonFungibleTokenDvP(val id: String,
 @InitiatedBy(NonFungibleTokenDvP::class)
 class SaleResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable
-    override fun call():SignedTransaction {
+    override fun call(): SignedTransaction {
         /* Receive the valuation of the */
         val price = counterpartySession.receive<Amount<Currency>>().unwrap { it }
 
@@ -126,18 +138,6 @@ class SaleResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTran
         subFlow(object : SignTransactionFlow(counterpartySession) {
             @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {
-                // TODO verify by recreating Solana Instruction instead of the below code, that requires sharing designation account from seller
-                val notaryInstructions = stx.tx.notaryInstructions
-                require(notaryInstructions.isNotEmpty()) { "Expected a notary instruction" }
-                require(notaryInstructions.size == 1) { "Expected single notary instruction" }
-                val instruction = notaryInstructions.first()
-                require( instruction is SolanaInstruction) { "Expected Solana notary instruction" }
-                val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals"))
-                instruction.requireMatchExceptDestinationAccount(solanaSourceAccount,
-                    solanaMintAuthority,
-                    solanaTokenMint,
-                    price.quantity,
-                    solanaTokenMintDecimals.toByte())
             }
         })
         return subFlow(ReceiveFinalityFlow(counterpartySession))

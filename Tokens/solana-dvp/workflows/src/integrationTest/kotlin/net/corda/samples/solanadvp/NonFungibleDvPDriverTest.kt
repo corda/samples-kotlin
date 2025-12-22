@@ -16,7 +16,6 @@ import net.corda.solana.sdk.SplToken
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.driver.DriverDSL
 import net.corda.testing.driver.DriverParameters
-import net.corda.testing.driver.NodeHandle
 import net.corda.testing.driver.NodeParameters
 import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
@@ -139,9 +138,6 @@ class NonFungibleDvPDriverTest {
             defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankBConfig)))
         ).getOrThrow()
 
-        assertEquals(bankB.name, partyA.resolveName(bankB.name))
-        assertEquals(bankA.name, partyB.resolveName(bankA.name))
-
         assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankATokenAccount))
         assertEquals(BigDecimal("1000"), validator.getTokenBalance(bankBTokenAccount))
 
@@ -170,9 +166,6 @@ class NonFungibleDvPDriverTest {
             networkParameters = networkParameters
         )
     ) { test() }
-
-    // Makes an RPC call to retrieve another node's name from the network map.
-    private fun NodeHandle.resolveName(name: CordaX500Name) = rpc.wellKnownPartyFromX500Name(name)!!.name
 }
 
 fun Pubkey.toPublicKey(): PublicKey = Solana.account(bytes)

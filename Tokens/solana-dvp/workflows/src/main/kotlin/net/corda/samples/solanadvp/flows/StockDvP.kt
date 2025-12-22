@@ -31,7 +31,6 @@ import net.corda.samples.solanadvp.states.StockPaymentState
 import net.corda.samples.solanadvp.states.StockState
 import net.corda.solana.sdk.SplToken
 import net.corda.solana.sdk.instruction.Pubkey
-import net.corda.solana.sdk.instruction.SolanaInstruction
 import java.util.Currency
 
 @InitiatingFlow
@@ -74,26 +73,29 @@ class StockDvP(
         // Receive output for the fiat currency from the buyer, this would contain the transferred amount from buyer to yourself
         val payerDetails = buyerSession.receive<SolanaPayer>().unwrap { it }
 
-        val output = StockPaymentState(stockAmount, ourIdentity, buyer)
+        val config = serviceHub.getAppContext().config
+        val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
+        val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals")).toByte()
+        val solanaDestinationAccount = Pubkey.fromBase58(config.getString("solanaTokenAccount"))
+        val solanaMintAuthority = payerDetails.walletAccount
+        val solanaSourceAccount = payerDetails.tokenAccount
+
+        val output = StockPaymentState(stockAmount, ourIdentity, buyer,
+            solanaDestinationAccount, solanaSourceAccount,
+            solanaMintAuthority, solanaTokenMint, price.quantity, solanaTokenMintDecimals)
         txBuilder.addOutputState(output, StockPaymentContract.ID)
             .addCommand(
                 StockPaymentContract.Commands.Agree(),
                 listOf(ourIdentity.owningKey, buyer.owningKey)
             )
 
-        val config = serviceHub.getAppContext().config
-        val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
-        val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals"))
-        val solanaDestinationAccount = Pubkey.fromBase58(config.getString("solanaTokenAccount"))
-        val solanaMintAuthority = payerDetails.walletAccount
-        val solanaSourceAccount = payerDetails.tokenAccount
         require(payerDetails.tokenMint == solanaTokenMint)
 
         txBuilder.addNotaryInstruction(
             SplToken.transfer(
                 solanaSourceAccount,
                 solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
-                price.quantity, solanaTokenMintDecimals.toByte()
+                price.quantity, solanaTokenMintDecimals
             )
         ) //TODO decimals
 
@@ -135,20 +137,6 @@ class SaleStockResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         subFlow(object : SignTransactionFlow(counterpartySession) {
             @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {
-                // TODO verify by recreating Solana Instruction instead of the below code, that requires sharing designation account from seller
-                val notaryInstructions = stx.tx.notaryInstructions
-                require(notaryInstructions.isNotEmpty()) { "Expected a notary instruction" }
-                require(notaryInstructions.size == 1) { "Expected single notary instruction" }
-                val instruction = notaryInstructions.first()
-                require(instruction is SolanaInstruction) { "Expected Solana notary instruction" }
-                val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals"))
-                instruction.requireMatchExceptDestinationAccount(
-                    solanaSourceAccount,
-                    solanaMintAuthority,
-                    solanaTokenMint,
-                    price.quantity,
-                    solanaTokenMintDecimals.toByte()
-                )
             }
         })
         return subFlow(ReceiveFinalityFlow(counterpartySession))

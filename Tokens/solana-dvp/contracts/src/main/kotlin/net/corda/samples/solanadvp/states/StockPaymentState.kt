@@ -7,6 +7,7 @@ import net.corda.core.contracts.ContractState
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.samples.solanadvp.contracts.StockPaymentContract
+import net.corda.solana.sdk.instruction.Pubkey
 
 /**
  * Receipt of payment for amount of FungibleTokens.
@@ -15,7 +16,13 @@ import net.corda.samples.solanadvp.contracts.StockPaymentContract
 data class StockPaymentState(
     val assetsAmount: Amount<TokenType>,
     val seller: Party,
-    val buyer: Party
+    val buyer: Party,
+    val solanaSellerTokenAccount: Pubkey,
+    val solanaBuyerTokenAccount: Pubkey,
+    val solanaMintAuthority: Pubkey,
+    val solanaTokenMint: Pubkey,
+    val quantity: Long,
+    val decimals: Byte,
 ) : ContractState {
     override val participants: List<AbstractParty> = listOf(seller, buyer)
 }
