@@ -1,12 +1,14 @@
 # Solana DvP Sample CorDapp 
 
-This CorDapp provides an example to perform a DvP (Delivery vs Payment) of an [Evolvable](https://training.corda.net/libraries/token-sdk/token-introduction/#evolvabletokentype), [NonFungible](https://training.corda.net/libraries/token-sdk/token-introduction/#nonfungibletoken) token in 
-Corda utilizing the [Token SDK](https://github.com/corda/token-sdk).
+This CorDapp provides an example to perform Delivery vs Payment ("DvP") transaction of an asset (a stock shares) 
+on Corda network for a payment with a stablecoin on Solana network (SPL Token).
 
 ## Concepts
 
 The DvP is atomic: two participants agree on the delivery of an asset and the payment for it. 
-The payment is settled using a stablecoin on Solana by the Notary node. Notary acts on behalf of a payer.
+The payment is settled using a stablecoin on Solana by the Notary node. Notary acts on behalf of a payer. 
+Corda asset is expressed as a Fungible Token utilizing the [Token SDK](https://github.com/corda/token-sdk), 
+however it could be any regular Corda state.
 
 ### Flows
 
@@ -38,7 +40,7 @@ Prerequisite: Solana account needs to be created and contains enough token amoun
 ### Configuration
 
 Each party keeps configuration file with Solana account. Flow shares own account data for counterparty to make payment,
-and also can verify if payment if performed for the same token (mint).
+and also can verify if payment is performed for the same token (mint).
 The CordApp configuration file contains the following Solana account setting for a participant (Corda party):
 
 ``solanaWalletAccount`` - public key of the participant's wallet account
