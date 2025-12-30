@@ -34,6 +34,9 @@ import net.corda.solana.sdk.SplToken
 import net.corda.solana.sdk.instruction.Pubkey
 import java.util.Currency
 
+/**
+ * Seller flow.
+ */
 @InitiatingFlow
 @StartableByRPC
 class StockDvP(
@@ -76,14 +79,17 @@ class StockDvP(
 
         val config = serviceHub.getAppContext().config
         val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
-        val solanaTokenMintDecimals = Integer.parseInt(config.getString("solanaTokenMintDecimals")).toByte()
+
+        val solanaService = serviceHub.cordaService(SolanaService::class.java)
+        val solanaTokenMintDecimals = solanaService.getAccountMintDecimals(solanaTokenMint).toByte()
+
         val solanaDestinationAccount = Pubkey.fromBase58(config.getString("solanaTokenAccount"))
         val solanaMintAuthority = payerDetails.walletAccount
         val solanaSourceAccount = payerDetails.tokenAccount
 
-        val output = StockPaymentState(stockAmount, ourIdentity, buyer,
-            solanaDestinationAccount, solanaSourceAccount,
-            solanaMintAuthority, solanaTokenMint, price.quantity, solanaTokenMintDecimals)
+        val output = StockPaymentState(stockAmount, ourIdentity, buyer, solanaDestinationAccount,
+            solanaSourceAccount, solanaMintAuthority, solanaTokenMint, price.quantity, solanaTokenMintDecimals)
+
         txBuilder.addOutputState(output, StockPaymentContract.ID)
             .addCommand(
                 StockPaymentContract.Commands.Agree(),
@@ -93,18 +99,15 @@ class StockDvP(
         require(payerDetails.tokenMint == solanaTokenMint)
 
         txBuilder.addNotaryInstruction(
-            SplToken.transfer(
-                solanaSourceAccount,
-                solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
-                price.quantity, solanaTokenMintDecimals
-            )
-        ) //TODO decimals
+            SplToken.transfer(solanaSourceAccount, solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
+                price.quantity, solanaTokenMintDecimals)
+        )
 
         /* Sign the transaction with your private */
-        val initialSignedTrnx = serviceHub.signInitialTransaction(txBuilder)
+        val initialSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
         /* Call the CollectSignaturesFlow to receive signature of the buyer */
-        val ftx = subFlow(CollectSignaturesFlow(initialSignedTrnx, listOf(buyerSession)))
+        val ftx = subFlow(CollectSignaturesFlow(initialSignedTx, listOf(buyerSession)))
 
         /* Call finality flow to notarise the transaction */
         val stx = subFlow(FinalityFlow(ftx, listOf(buyerSession)))
@@ -117,6 +120,9 @@ class StockDvP(
     }
 }
 
+/**
+ * Buyer flow.
+ */
 @InitiatedBy(StockDvP::class)
 class SaleStockResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable

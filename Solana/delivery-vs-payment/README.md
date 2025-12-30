@@ -29,7 +29,7 @@ Prerequisite: Solana account needs to be created and contains enough token amoun
     Including this information allows the buyer to verify and approve the Corda transaction.
 
     The seller sends the transaction to the buyer to sign. 
-    The buyer verifies that the `StockPaymentState` matches what was agreed and then signs the transaction.
+    The buyer verifies that the `StockPaymentState` matches what was agreed (for example TokenMint Decimals) and then signs the transaction.
 
     The buyer adds the Solana payment details (the seller’s destination account and the buyer-provided details) 
     to the Notary instruction, and submits the Corda transaction for notarisation.
@@ -45,8 +45,7 @@ The CordApp configuration file contains the following Solana account setting for
 
 ``solanaWalletAccount`` - public key of the participant's wallet account
 ``solanaTokenAccount`` - public key of SPL token account for payment
-``solanaTokenMint`` - public key of the mint account of SPL token;
-``solanaTokenMintDecimals`` - numeric value, CordApp uses Solana checked token transfer that requires providing decimal places
+``solanaTokenMint`` - public key of the mint account of SPL token
 
 Public keys are written in Base58 format.
 

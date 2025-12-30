@@ -51,7 +51,7 @@ class StockDvpDriverTest {
     private val validator = SolanaTestValidator()
     private val bankA = TestIdentity(CordaX500Name("BankA", "", "GB"))
     private val bankB = TestIdentity(CordaX500Name("BankB", "", "US"))
-    private val observer = CordaX500Name("Observer", "Rulerland", "US")
+    private val observer = CordaX500Name("Observer", "New York", "US")
 
     private val solanaNotaryName = CordaX500Name("Notary", "London", "GB")
     private lateinit var solanaNotaryKeyFile: Path
@@ -75,6 +75,7 @@ class StockDvpDriverTest {
                 "validating" to false,
                 "solana" to mapOf(
                     "rpcUrl" to SolanaTestValidator.RPC_URL,
+                    "websocketUrl" to SolanaTestValidator.WS_URL,
                     "notaryKeypairFile" to "$solanaNotaryKeyFile",
                     "custodiedKeysDir" to "$custodiedKeysDir",
                     "programWhitelist" to listOf(SplToken.PROGRAM_ID.toPublicKey().base58()),
@@ -96,8 +97,7 @@ class StockDvpDriverTest {
         mapOf(
             "solanaTokenMint" to tokenMint.base58(),
             "solanaTokenAccount" to bankATokenAccount.base58(),
-            "solanaWalletAccount" to bankAWallet.account.base58(), // not needed in this test
-            "solanaTokenMintDecimals" to tokenDecimals
+            "solanaWalletAccount" to bankAWallet.account.base58() // not used in  the test
         )
     }
 
@@ -106,7 +106,6 @@ class StockDvpDriverTest {
             "solanaTokenMint" to tokenMint.base58(),
             "solanaTokenAccount" to bankBTokenAccount.base58(),
             "solanaWalletAccount" to bankBWallet.account.base58(),
-            "solanaTokenMintDecimals" to tokenDecimals
         )
     }
 
@@ -137,7 +136,7 @@ class StockDvpDriverTest {
     }
 
     @Test
-    fun testDvp() = withDriver {
+    fun `dvp test`() = withDriver {
         val partyA = startNode(
             providedName = bankA.name,
             defaultParameters = NodeParameters().withAdditionalCordapps(setOf(flowCordapp.withConfig(bankAConfig)))

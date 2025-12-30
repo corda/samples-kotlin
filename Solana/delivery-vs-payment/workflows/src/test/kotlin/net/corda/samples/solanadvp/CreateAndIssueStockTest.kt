@@ -2,7 +2,11 @@ package net.corda.samples.solanadvp
 
 import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.CordaX500Name
+import net.corda.core.node.AppServiceHub
+import net.corda.core.serialization.SingletonSerializeAsToken
 import net.corda.samples.solanadvp.flows.CreateAndIssueStock
+import net.corda.samples.solanadvp.flows.SolanaService
+import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNetworkNotarySpec
@@ -33,8 +37,13 @@ class CreateAndIssueStockTest {
         ), networkParameters = testNetworkParameters(minimumPlatformVersion = 4),
                 notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB")))
         ))
-        issuer = network!!.createPartyNode(null)
-        observer = network!!.createPartyNode(CordaX500Name("Observer", "New York", "US"))
+        val unstarted = network!!.createUnstartedNode()
+        unstarted.installCordaService(SolanaService::class.java)
+        issuer = unstarted.start()
+
+        val unstarted2 = network!!.createUnstartedNode(CordaX500Name("Observer", "New York", "US"))
+        unstarted2.installCordaService(SolanaService::class.java)
+        observer = unstarted.start()
         network!!.runNetwork()
     }
 
@@ -58,5 +67,11 @@ class CreateAndIssueStockTest {
         assertNotNull(issuerTx)
         assertNotNull(observerTx)
         assertEquals(issuerTx, observerTx)
+    }
+}
+
+class SolanaService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() {
+    fun getAccountMintDecimals(account: Pubkey): Int {
+        return 3
     }
 }
