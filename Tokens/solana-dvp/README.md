@@ -6,29 +6,28 @@ Corda utilizing the [Token SDK](https://github.com/corda/token-sdk).
 ## Concepts
 
 The DvP is atomic: two participants agree on the delivery of an asset and the payment for it. 
-The payment is executed on Solana by the Notary, acting on behalf of the payer.
+The payment is settled using a stablecoin on Solana by the Notary node. Notary acts on behalf of a payer.
 
 ### Flows
 
-There are two flows that we'll primarily use in this example that you'll be building off of.
+There are two flows that we'll primarily use in this example that you'll be building of.
 
 Prerequisite: Solana account needs to be created and contains enough token amounts.
 
-1. Create and issue a Corda token using `TokenCreateAndIssueFlow`, the toke will be used for 'Delivery" in Delivery Versus Payment.
+1. Create and issue a Corda state using `CreateAndIssueStock`, a state will be used for 'Delivery' part in DvP.
 
-2. Initiate the DVP through `SaleInitiatorFlow`.
-
+2. Initiate the DvP through `StockDvP`.
     DvP is initiated by the seller, who offers an asset for sale and communicates the price to the buyer.
 
     The buyer accepts the price and provides the Solana account details from which the payment will be made. 
 
-    The seller builds a Corda transaction to deliver the asset (in this sample: moving a token to the buyer).
-    The transaction also includes a PaymentState. This is not an on-ledger payment on Corda,
+    The seller builds a Corda transaction to deliver the asset (in this sample: moving a Corda token to the buyer).
+    The transaction also includes a `StockPaymentContract`. This is not an on-ledger payment on Corda,
     it is a receipt/record of what was agreed on Corda to be paid on Solana.
     Including this information allows the buyer to verify and approve the Corda transaction.
 
-    The seller sends the transaction to the buyer for signature. 
-    The buyer verifies that the PaymentState matches what was agreed and then signs the transaction.
+    The seller sends the transaction to the buyer to sign. 
+    The buyer verifies that the `StockPaymentState` matches what was agreed and then signs the transaction.
 
     The buyer adds the Solana payment details (the seller’s destination account and the buyer-provided details) 
     to the Notary instruction, and submits the Corda transaction for notarisation.
@@ -50,6 +49,6 @@ The CordApp configuration file contains the following Solana account setting for
 Public keys are written in Base58 format.
 
 ## Pre-Requisites
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.12/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.13/enterprise/cordapps/getting-set-up.html)
 
 Change values in ``../constant.properties`` ``cordaVersion`` and ``cordaCoreVersion`` to the latest 4.14 Snapshot versions.

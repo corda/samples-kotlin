@@ -4,7 +4,10 @@ import com.r3.corda.lib.tokens.contracts.EvolvableTokenContract
 import com.r3.corda.lib.tokens.contracts.commands.Create
 import com.r3.corda.lib.tokens.contracts.commands.EvolvableTokenTypeCommand
 import com.r3.corda.lib.tokens.contracts.commands.Update
-import net.corda.core.contracts.*
+import net.corda.core.contracts.Contract
+import net.corda.core.contracts.CommandData
+import net.corda.core.contracts.requireSingleCommand
+import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.solanadvp.states.StockState
 import java.math.BigDecimal
@@ -32,7 +35,8 @@ class StockContract : EvolvableTokenContract(), Contract {
         requireThat {
             "Stock symbol must not be empty".using(!createdStockState.symbol.isEmpty())
             "Stock name must not be empty".using(!createdStockState.name.isEmpty())
-            "Stock dividend must start with zero".using(createdStockState.dividend.equals(BigDecimal.ZERO))
+            "Stock price must be greater than zero".using(createdStockState.price > BigDecimal.ZERO)
+            "Stock dividend must start with zero".using(createdStockState.dividend == BigDecimal.ZERO)
         }
     }
 
@@ -43,7 +47,7 @@ class StockContract : EvolvableTokenContract(), Contract {
             "Stock Symbol must not be changed.".using(input.symbol == output.symbol)
             "Stock Currency must not be changed.".using(input.currency == output.currency)
             "Stock Name must not be changed.".using(input.name == output.name)
-            "Stock Company must not be changed.".using(input.issuer == output.issuer)
+            "Stock Issuer must not be changed.".using(input.issuer == output.issuer)
         }
     }
 }

@@ -1,5 +1,6 @@
 package net.corda.samples.solanadvp
 
+import com.lmax.solana4j.Solana
 import com.lmax.solana4j.api.PublicKey
 import net.corda.core.contracts.Amount
 import net.corda.core.identity.CordaX500Name
@@ -9,7 +10,9 @@ import net.corda.core.utilities.getOrThrow
 import net.corda.samples.solanadvp.flows.CreateAndIssueStock
 import net.corda.samples.solanadvp.flows.StockDvP
 import net.corda.solana.notary.common.Signer
+import net.corda.solana.notary.common.rpc.checkResponse
 import net.corda.solana.sdk.SplToken
+import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.driver.DriverDSL
 import net.corda.testing.driver.DriverParameters
@@ -31,6 +34,7 @@ import kotlin.collections.emptyList
 import kotlin.lazy
 import kotlin.test.assertEquals
 
+// This is a sample of full-fledged test with both Corda Nodes and Solana Local Validator
 class StockDvpDriverTest {
     private val networkParameters = NetworkParameters(
         minimumPlatformVersion = 4,
@@ -177,3 +181,13 @@ class StockDvpDriverTest {
         )
     ) { test() }
 }
+
+
+fun Pubkey.toPublicKey(): PublicKey = Solana.account(bytes)
+
+fun SolanaTestValidator.getTokenBalance(publicKey: PublicKey): BigDecimal =
+    client
+        .getTokenAccountBalance(publicKey.base58(), rpcParams)
+        .checkResponse("getTokenAccountBalance")!!
+        .uiAmountString
+        .toBigDecimal()

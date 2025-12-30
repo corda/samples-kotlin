@@ -22,6 +22,7 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.node.ServiceHub
 import net.corda.core.node.services.queryBy
+import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
@@ -142,6 +143,9 @@ class SaleStockResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         return subFlow(ReceiveFinalityFlow(counterpartySession))
     }
 }
+
+@CordaSerializable
+data class SolanaPayer(val tokenMint: Pubkey, val walletAccount: Pubkey, val tokenAccount: Pubkey)
 
 object QueryUtilities {
     /**
