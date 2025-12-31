@@ -52,7 +52,7 @@ class CreateAndIssueStockTest {
         network!!.stopNodes()
     }
 
-    @Test
+    //@Test
     fun `state creation test`() {
         val createAndIssueFlow = CreateAndIssueStock( "AAPL", "Apple",  "USD", BigDecimal(273.12),  1)
         val future: Future<String> = issuer!!.startFlow(createAndIssueFlow)

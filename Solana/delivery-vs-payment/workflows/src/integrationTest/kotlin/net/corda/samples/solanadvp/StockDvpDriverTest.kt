@@ -97,7 +97,9 @@ class StockDvpDriverTest {
         mapOf(
             "solanaTokenMint" to tokenMint.base58(),
             "solanaTokenAccount" to bankATokenAccount.base58(),
-            "solanaWalletAccount" to bankAWallet.account.base58() // not used in  the test
+            "solanaWalletAccount" to bankAWallet.account.base58(), // not used in  the test
+            "solanaRpcUrl" to "http://127.0.0.1:8899",
+            "solanaWsUrl" to "ws://127.0.0.1:8900"
         )
     }
 
@@ -106,6 +108,8 @@ class StockDvpDriverTest {
             "solanaTokenMint" to tokenMint.base58(),
             "solanaTokenAccount" to bankBTokenAccount.base58(),
             "solanaWalletAccount" to bankBWallet.account.base58(),
+            "solanaRpcUrl" to "http://127.0.0.1:8899",
+            "solanaWsUrl" to "ws://127.0.0.1:8900"
         )
     }
 

@@ -12,17 +12,20 @@ import java.net.URI
 
 @CordaService
 class SolanaService(appServiceHub: AppServiceHub): SingletonSerializeAsToken() {
-    private val rpcUrl = "http://127.0.0.1:8899" // TODO read from config
-    private val wslUrl = "ws://127.0.0.1:8900" // TODO read from config
-    private val solanaClient = SolanaClient(URI.create(rpcUrl), URI.create(wslUrl))
+    private var solanaClient: SolanaClient ?= null
 
     init {
-        solanaClient.start()
-        appServiceHub.registerUnloadHandler { solanaClient.close() }
+        val config = appServiceHub.getAppContext().config
+        val wsUrl = config.getString("solanaWsUrl")
+        val rpcUrl = config.getString("solanaRpcUrl")
+        solanaClient = SolanaClient(URI.create(rpcUrl), URI.create(wsUrl))
+        solanaClient!!.start()
+        appServiceHub.registerUnloadHandler { solanaClient!!.close() }
     }
 
     fun getAccountInfo(account: Pubkey): AccountInfo<ByteArray> {
-        val accountInfo = solanaClient.call(SolanaRpcClient::getAccountInfo, account.toSava())
+        checkNotNull(solanaClient)
+        val accountInfo = solanaClient!!.call(SolanaRpcClient::getAccountInfo, account.toSava())
         return accountInfo
     }
 
