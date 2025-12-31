@@ -6,14 +6,14 @@ import net.corda.core.contracts.Contract
 import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
-import net.corda.samples.solana.dvp.states.StockPaymentState
+import net.corda.samples.solana.dvp.states.SharesPaymentState
 import net.corda.solana.sdk.SplToken
 import net.corda.solana.sdk.instruction.SolanaInstruction
 import kotlin.collections.singleOrNull
 
-class StockPaymentContract : Contract {
+class SharesPaymentContract : Contract {
     companion object {
-        const val ID = "net.corda.samples.solana.dvp.contracts.StockPaymentContract"
+        const val ID = "net.corda.samples.solana.dvp.contracts.SharesPaymentContract"
     }
 
     interface Commands : CommandData {
@@ -26,12 +26,12 @@ class StockPaymentContract : Contract {
 
         when (cmd.value) {
             is Commands.Agree -> requireThat {
-                "No inputs should be consumed." using (tx.inputsOfType<StockPaymentState>().isEmpty())
-                val outputs = tx.outputsOfType<StockPaymentState>()
+                "No inputs should be consumed." using (tx.inputsOfType<SharesPaymentState>().isEmpty())
+                val outputs = tx.outputsOfType<SharesPaymentState>()
                 "One output should be created." using (outputs.size == 1)
-                val out = tx.outputsOfType<StockPaymentState>().single()
+                val out = tx.outputsOfType<SharesPaymentState>().single()
                 // This makes buyer signature required in addition to seller
-                val required = setOf(out.seller.owningKey, out.buyer.owningKey)
+                val required = setOf(out.cordaSeller.owningKey, out.cordaBuyer.owningKey)
                 "Seller and buyer must both sign." using (cmd.signers.containsAll(required))
 
                 val solanaInstruction =
@@ -44,8 +44,8 @@ class StockPaymentContract : Contract {
                     out.solanaTokenMint,
                     out.solanaSellerTokenAccount,
                     out.solanaMintAuthority,
-                    out.quantity,
-                    out.decimals
+                    out.solanaPaymentAmount,
+                    out.solanaPaymentDecimals
                 )
 
                 require(solanaInstruction == expectedInstruction) {

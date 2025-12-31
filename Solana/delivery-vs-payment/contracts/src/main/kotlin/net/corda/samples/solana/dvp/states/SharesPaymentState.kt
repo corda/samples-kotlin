@@ -6,23 +6,23 @@ import net.corda.core.contracts.BelongsToContract
 import net.corda.core.contracts.ContractState
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
-import net.corda.samples.solana.dvp.contracts.StockPaymentContract
+import net.corda.samples.solana.dvp.contracts.SharesPaymentContract
 import net.corda.solana.sdk.instruction.Pubkey
 
 /**
- * Receipt of payment for amount of FungibleTokens.
+ * Payment details on Solana for amount of exchanged shares on Corda.
  */
-@BelongsToContract(StockPaymentContract::class)
-data class StockPaymentState(
-    val assetsAmount: Amount<TokenType>,
-    val seller: Party,
-    val buyer: Party,
+@BelongsToContract(SharesPaymentContract::class)
+data class SharesPaymentState(
+    val cordaSharesAmount: Amount<TokenType>,
+    val cordaSeller: Party,
+    val cordaBuyer: Party,
     val solanaSellerTokenAccount: Pubkey,
     val solanaBuyerTokenAccount: Pubkey,
     val solanaMintAuthority: Pubkey,
     val solanaTokenMint: Pubkey,
-    val quantity: Long,
-    val decimals: Byte,
+    val solanaPaymentAmount: Long,
+    val solanaPaymentDecimals: Byte,
 ) : ContractState {
-    override val participants: List<AbstractParty> = listOf(seller, buyer)
+    override val participants: List<AbstractParty> = listOf(cordaSeller, cordaBuyer)
 }

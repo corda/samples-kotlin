@@ -18,7 +18,7 @@ Prerequisite: Solana account needs to be created and contains enough token amoun
 
 1. Create and issue a Corda state using `CreateAndIssueStock`, a state will be used for 'Delivery' part in DvP.
 
-2. Initiate the DvP through `StockDvP`.
+2. Initiate the DvP through `SharesDvP`.
     DvP is initiated by the seller, who offers an asset for sale and communicates the price to the buyer.
 
     The buyer accepts the price and provides the Solana account details from which the payment will be made. 
@@ -46,6 +46,8 @@ The CordApp configuration file contains the following Solana account setting for
 ``solanaWalletAccount`` - public key of the participant's wallet account
 ``solanaTokenAccount`` - public key of SPL token account for payment
 ``solanaTokenMint`` - public key of the mint account of SPL token
+``solanaRpcUrl`` - Solana RPC URL to obtain account info; e.g.: ``http://127.0.0.1:8899``,
+``solanaWsUrl`` - Solana WS URL, not used by a flow in this sample, however needed by underlying client, for future use; e.g.: ``ws://127.0.0.1:8900``
 
 Public keys are written in Base58 format.
 
