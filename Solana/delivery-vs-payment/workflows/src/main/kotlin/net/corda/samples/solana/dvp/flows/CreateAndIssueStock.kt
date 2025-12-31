@@ -22,16 +22,17 @@ import kotlin.jvm.javaClass
 
 @InitiatingFlow
 @StartableByRPC
-class CreateAndIssueStock(val symbol: String,
-                          val name: String,
-                          val currency: String,
-                          val price: BigDecimal,
-                          val issueVol: Long
+class CreateAndIssueStock(
+    val symbol: String,
+    val name: String,
+    val currency: String,
+    val price: BigDecimal,
+    val issueVol: Long
 ) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
     @Suspendable
-    override fun call():String {
+    override fun call(): String {
 
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 

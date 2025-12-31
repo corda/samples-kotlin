@@ -11,8 +11,8 @@ import software.sava.rpc.json.http.response.AccountInfo
 import java.net.URI
 
 @CordaService
-class SolanaService(appServiceHub: AppServiceHub): SingletonSerializeAsToken() {
-    private var solanaClient: SolanaClient ?= null
+class SolanaService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() {
+    private var solanaClient: SolanaClient? = null
 
     init {
         val config = appServiceHub.getAppContext().config

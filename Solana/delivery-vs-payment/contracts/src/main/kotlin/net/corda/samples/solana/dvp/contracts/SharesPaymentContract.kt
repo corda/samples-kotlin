@@ -49,7 +49,7 @@ class SharesPaymentContract : Contract {
                 )
 
                 require(solanaInstruction == expectedInstruction) {
-                    "The Solana instruction in the transaction not the expected burn instruction:\n" +
+                    "The Solana instruction in the transaction not the expected transfer instruction:\n" +
                             "transaction: $solanaInstruction\n" +
                             "expected:    $expectedInstruction"
                 }

@@ -32,7 +32,7 @@ import net.corda.solana.sdk.instruction.Pubkey
 import java.math.BigDecimal
 
 /**
- * Seller flow.
+ * Seller flow. TODO describe
  */
 @InitiatingFlow
 @StartableByRPC
@@ -45,11 +45,11 @@ class SharesDvP(
 
     @Suspendable
     override fun call(): String {
-        /* Obtain a reference from a notary we wish to use. */
+        /* Obtain a reference from a notary we wish to use */
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
         /* Fetch the state to deliver from the vault using the vault query */
-        val stockPointer: TokenPointer<StockState> = QueryUtilities.queryStockPointer(symbol, serviceHub)
+        val stockPointer: TokenPointer<StockState> = StockQueryUtilities.queryStockPointer(symbol, serviceHub)
         val stockAmount: Amount<TokenType> = Amount(quantity, stockPointer)
 
         val txBuilder = TransactionBuilder(notary)
@@ -59,7 +59,8 @@ class SharesDvP(
             txBuilder,
             serviceHub,
             listOf(PartyAndAmount(buyer, stockAmount)),
-            ourIdentity)
+            ourIdentity
+        )
 
         /* Initiate a flow session with the buyer to send the valuation and transfer of the fiat currency */
         val buyerSession = initiateFlow(buyer)
@@ -74,6 +75,7 @@ class SharesDvP(
         /* Collect own Solana accounts for Solana transaction and lookup for decimals (required for a checked transfer) */
         val config = serviceHub.getAppContext().config
         val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
+        require(payerDetails.tokenMint == solanaTokenMint) { "Payer provided an account for different tokenMint (stablecoin)."}
         val solanaService = serviceHub.cordaService(SolanaService::class.java)
         val solanaTokenMintDecimals = solanaService.getAccountMintDecimals(solanaTokenMint)
         val solanaDestinationAccount = Pubkey.fromBase58(config.getString("solanaTokenAccount"))
@@ -83,25 +85,27 @@ class SharesDvP(
         /* Set price in long format for Solana transaction */
         val solanaPrice = stockState.price.multiply(quantity.toBigDecimal())
         val solanaPriceAsLong = solanaPrice.toScaledLong(solanaTokenMintDecimals)
+        val solanaTokenMintDecimalsAsByte = solanaTokenMintDecimals.toByte()
 
         /* Create Corda state with payment details */
-        // TODO there is some duplication wth data in a notary instruction
-        val output = SharesPaymentState(stockAmount, ourIdentity, buyer, solanaDestinationAccount,
+        val sharesPaymentState = SharesPaymentState(
+            stockAmount, ourIdentity, buyer, solanaDestinationAccount,
             solanaSourceAccount, solanaMintAuthority, solanaTokenMint,
-            solanaPriceAsLong, solanaTokenMintDecimals.toByte())
+            solanaPriceAsLong, solanaTokenMintDecimalsAsByte
+        )
 
-        txBuilder.addOutputState(output, SharesPaymentContract.ID)
+        txBuilder.addOutputState(sharesPaymentState, SharesPaymentContract.ID)
             .addCommand(
                 SharesPaymentContract.Commands.Agree(),
                 listOf(ourIdentity.owningKey, buyer.owningKey)
             )
 
-        require(payerDetails.tokenMint == solanaTokenMint)
-
         /* Create Solana transfer instruction that will be run by Corda Notary */
         txBuilder.addNotaryInstruction(
-            SplToken.transfer(solanaSourceAccount, solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
-                output.solanaPaymentAmount, output.solanaPaymentDecimals)
+            SplToken.transfer(
+                solanaSourceAccount, solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
+                sharesPaymentState.solanaPaymentAmount, sharesPaymentState.solanaPaymentDecimals
+            )
         )
 
         /* Sign the transaction with your private key */
@@ -113,7 +117,7 @@ class SharesDvP(
         /* Call finality flow to notarise the transaction and transfer payment on Solana */
         val stx = subFlow(FinalityFlow(ftx, listOf(buyerSession)))
 
-        /* Distribution list is a list of identities that should receive updates. In this sample an observer node. */
+        /* Distribution list is a list of identities that should receive updates; in this sample this is the observer node */
         subFlow(UpdateDistributionListFlow(stx))
 
         return ("\nDvP is done, shares have been transferred to " + buyer.name.organisation + "\nTransaction ID: "
@@ -122,17 +126,17 @@ class SharesDvP(
 }
 
 /**
- * Buyer flow.
+ * Buyer flow. TODO describe
  */
 @InitiatedBy(SharesDvP::class)
 class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call(): SignedTransaction {
         /* Receive the "ask" quantity and price (quote). */
-        val (quantity, price) = counterpartySession.receive<Pair<Long,BigDecimal>>().unwrap { it }
+        val (quantity, price) = counterpartySession.receive<Pair<Long, BigDecimal>>().unwrap { it }
 
         // The flow could be extended to check if the amount of tokens is available on Solana
-        val totalPrice = price.multiply(quantity.toBigDecimal())
+        val solanaPaymentAmount = price.multiply(quantity.toBigDecimal())
 
         /* Collect own Solana accounts for Solana transaction */
         val config = serviceHub.getAppContext().config
@@ -144,11 +148,25 @@ class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         val payerDetails = SolanaPayer(solanaTokenMint, solanaMintAuthority, solanaSourceAccount)
         counterpartySession.send(payerDetails)
 
-        /* Sign Corda transaction */
+        /* Verify and sign Corda transaction */
         subFlow(object : SignTransactionFlow(counterpartySession) {
             @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {
-                //TODO verify if e.g. price in the contract is as agreed because Responder hadn't built any part of Corda transaction
+                /* Verify if transaction details provided by seller matches agreed ones in the flow earlier (e.g. quantity and price),
+                 * because buyer (responder) hadn't built any part of Corda transaction
+                 * */
+                val paymentStates = stx.coreTransaction.outputsOfType(SharesPaymentState::class.java)
+                require(paymentStates.size == 1) { "Received transaction to sign without SharesPaymentState" }
+                val paymentState = paymentStates.first()
+                val solanaService = serviceHub.cordaService(SolanaService::class.java)
+                val solanaTokenMintDecimals = solanaService.getAccountMintDecimals(solanaTokenMint)
+                val expectedSolanaPaymentAmount = solanaPaymentAmount.toScaledLong(solanaTokenMintDecimals)
+                require( paymentState.solanaPaymentAmount == expectedSolanaPaymentAmount ) {
+                    "Expected Solana payment amount ${paymentState.solanaPaymentAmount} doesn't match the agreed amount of $expectedSolanaPaymentAmount."
+                }
+                // TODO and checks to verify amount of shares and buyer Solana accounts' addresses
+
+                /* Validity of Notary Instruction (to perform Solana transfer) is verified in SharesPaymentContract  */
             }
         })
         return subFlow(ReceiveFinalityFlow(counterpartySession))

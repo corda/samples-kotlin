@@ -8,7 +8,7 @@ import net.corda.samples.solana.dvp.states.StockState
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-object QueryUtilities {
+object StockQueryUtilities {
     /**
      * Retrieve any unconsumed StockState and filter by the given symbol
      */
