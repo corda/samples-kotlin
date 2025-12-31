@@ -1,11 +1,11 @@
-package net.corda.samples.solanadvp
+package net.corda.samples.solana.dvp
 
 import net.corda.core.crypto.SecureHash
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.AppServiceHub
 import net.corda.core.serialization.SingletonSerializeAsToken
-import net.corda.samples.solanadvp.flows.CreateAndIssueStock
-import net.corda.samples.solanadvp.flows.SolanaService
+import net.corda.samples.solana.dvp.flows.CreateAndIssueStock
+import net.corda.samples.solana.dvp.flows.SolanaService
 import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.node.MockNetwork

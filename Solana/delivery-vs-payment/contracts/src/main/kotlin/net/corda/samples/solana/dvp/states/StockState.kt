@@ -1,11 +1,11 @@
-package net.corda.samples.solanadvp.states
+package net.corda.samples.solana.dvp.states
 
 import com.r3.corda.lib.tokens.contracts.states.EvolvableTokenType
 import net.corda.core.contracts.BelongsToContract
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.Party
 import net.corda.core.schemas.StatePersistable
-import net.corda.samples.solanadvp.contracts.StockContract
+import net.corda.samples.solana.dvp.contracts.StockContract
 import java.math.BigDecimal
 import java.util.Date
 

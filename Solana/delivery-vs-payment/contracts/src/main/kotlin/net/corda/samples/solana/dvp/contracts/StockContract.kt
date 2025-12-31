@@ -1,4 +1,4 @@
-package net.corda.samples.solanadvp.contracts
+package net.corda.samples.solana.dvp.contracts
 
 import com.r3.corda.lib.tokens.contracts.EvolvableTokenContract
 import com.r3.corda.lib.tokens.contracts.commands.Create
@@ -9,13 +9,13 @@ import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
-import net.corda.samples.solanadvp.states.StockState
+import net.corda.samples.solana.dvp.states.StockState
 import java.math.BigDecimal
 
 
 class StockContract : EvolvableTokenContract(), Contract {
     companion object {
-        const val CONTRACT_ID = "net.corda.samples.solanadvp.contracts.StockContract"
+        const val CONTRACT_ID = "net.corda.samples.solana.dvp.contracts.StockContract"
     }
 
     @Throws(IllegalArgumentException::class)

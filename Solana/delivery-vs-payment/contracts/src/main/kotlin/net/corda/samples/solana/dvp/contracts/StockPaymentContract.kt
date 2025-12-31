@@ -1,4 +1,4 @@
-package net.corda.samples.solanadvp.contracts
+package net.corda.samples.solana.dvp.contracts
 
 import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.CommandWithParties
@@ -6,14 +6,14 @@ import net.corda.core.contracts.Contract
 import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
 import net.corda.core.transactions.LedgerTransaction
-import net.corda.samples.solanadvp.states.StockPaymentState
+import net.corda.samples.solana.dvp.states.StockPaymentState
 import net.corda.solana.sdk.SplToken
 import net.corda.solana.sdk.instruction.SolanaInstruction
 import kotlin.collections.singleOrNull
 
 class StockPaymentContract : Contract {
     companion object {
-        const val ID = "net.corda.samples.solanadvp.contracts.StockPaymentContract"
+        const val ID = "net.corda.samples.solana.dvp.contracts.StockPaymentContract"
     }
 
     interface Commands : CommandData {

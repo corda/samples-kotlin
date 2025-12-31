@@ -1,4 +1,4 @@
-package net.corda.samples.solanadvp.states
+package net.corda.samples.solana.dvp.states
 
 import com.r3.corda.lib.tokens.contracts.types.TokenType
 import net.corda.core.contracts.Amount
@@ -6,7 +6,7 @@ import net.corda.core.contracts.BelongsToContract
 import net.corda.core.contracts.ContractState
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
-import net.corda.samples.solanadvp.contracts.StockPaymentContract
+import net.corda.samples.solana.dvp.contracts.StockPaymentContract
 import net.corda.solana.sdk.instruction.Pubkey
 
 /**

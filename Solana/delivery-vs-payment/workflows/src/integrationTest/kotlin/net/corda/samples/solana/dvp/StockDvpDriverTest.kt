@@ -1,4 +1,4 @@
-package net.corda.samples.solanadvp
+package net.corda.samples.solana.dvp
 
 import com.lmax.solana4j.Solana
 import com.lmax.solana4j.api.PublicKey
@@ -7,8 +7,8 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
 import net.corda.core.node.NetworkParameters
 import net.corda.core.utilities.getOrThrow
-import net.corda.samples.solanadvp.flows.CreateAndIssueStock
-import net.corda.samples.solanadvp.flows.StockDvP
+import net.corda.samples.solana.dvp.flows.CreateAndIssueStock
+import net.corda.samples.solana.dvp.flows.StockDvP
 import net.corda.solana.notary.common.Signer
 import net.corda.solana.notary.common.rpc.checkResponse
 import net.corda.solana.sdk.SplToken
@@ -83,13 +83,13 @@ class StockDvpDriverTest {
             )
         )
     }
-    val flowCordapp = TestCordapp.findCordapp("net.corda.samples.solanadvp.flows")
+    val flowCordapp = TestCordapp.findCordapp("net.corda.samples.solana.dvp.flows")
     val cordappsForAllNodes: List<TestCordapp> by lazy {
         setOf(
             "com.r3.corda.lib.tokens.contracts",
             "com.r3.corda.lib.tokens.workflows",
-            "net.corda.samples.solanadvp.contracts",
-            "net.corda.samples.solanadvp.states",
+            "net.corda.samples.solana.dvp.contracts",
+            "net.corda.samples.solana.dvp.states",
         ).map { TestCordapp.findCordapp(it) }
     }
 
@@ -154,7 +154,8 @@ class StockDvpDriverTest {
         assertEquals(BigDecimal.ZERO, validator.getTokenBalance(bankATokenAccount))
         assertEquals(BigDecimal("1000"), validator.getTokenBalance(bankBTokenAccount))
 
-        val result = partyA.rpc.startFlow(::CreateAndIssueStock,
+        val result = partyA.rpc.startFlow(
+            ::CreateAndIssueStock,
             STOCK_SYMBOL,
             STOCK_NAME,
             STOCK_CURRENCY,
@@ -162,7 +163,8 @@ class StockDvpDriverTest {
             ISSUING_STOCK_QUANTITY
         ).returnValue.get()
 
-        partyA.rpc.startFlow(::StockDvP,
+        partyA.rpc.startFlow(
+            ::StockDvP,
             STOCK_SYMBOL,
             100, // TODO compute stock amount * stock price
             Amount.parseCurrency("1000 USD"),

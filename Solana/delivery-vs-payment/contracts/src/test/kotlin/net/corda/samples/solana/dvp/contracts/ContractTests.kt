@@ -1,9 +1,9 @@
-package net.corda.samples.solanadvp.contracts
+package net.corda.samples.solana.dvp.contracts
 
 import com.r3.corda.lib.tokens.contracts.commands.Create
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
-import net.corda.samples.solanadvp.states.StockState
+import net.corda.samples.solana.dvp.states.StockState
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger

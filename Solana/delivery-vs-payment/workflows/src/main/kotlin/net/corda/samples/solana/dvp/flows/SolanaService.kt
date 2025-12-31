@@ -1,4 +1,4 @@
-package net.corda.samples.solanadvp.flows
+package net.corda.samples.solana.dvp.flows
 
 import net.corda.core.node.AppServiceHub
 import net.corda.core.node.services.CordaService

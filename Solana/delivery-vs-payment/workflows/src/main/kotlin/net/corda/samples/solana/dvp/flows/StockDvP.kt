@@ -1,4 +1,4 @@
-package net.corda.samples.solanadvp.flows
+package net.corda.samples.solana.dvp.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
@@ -27,9 +27,9 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
-import net.corda.samples.solanadvp.contracts.StockPaymentContract
-import net.corda.samples.solanadvp.states.StockPaymentState
-import net.corda.samples.solanadvp.states.StockState
+import net.corda.samples.solana.dvp.contracts.StockPaymentContract
+import net.corda.samples.solana.dvp.states.StockPaymentState
+import net.corda.samples.solana.dvp.states.StockState
 import net.corda.solana.sdk.SplToken
 import net.corda.solana.sdk.instruction.Pubkey
 import java.util.Currency
@@ -49,7 +49,7 @@ class StockDvP(
 
     @Suspendable
     override fun call(): String {
-        // Obtain a reference from a notary we wish to use.
+        /* Obtain a reference from a notary we wish to use. */
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
         /* Fetch the state to deliver from the vault using the vault query */
@@ -59,8 +59,8 @@ class StockDvP(
         /* Build the transaction builder */
         val txBuilder = TransactionBuilder(notary)
 
-        /* Create a move token proposal for the token using the helper function provided by Token SDK. This would create the movement proposal and would
-         * be committed in the ledgers of parties once the transaction in finalized.
+        /* Create a move token proposal for the token using the helper function provided by Token SDK.
+         * This would create the movement proposal and would be committed in the ledgers of parties once the transaction in finalized.
         **/
         addMoveFungibleTokens(
             txBuilder,
@@ -71,7 +71,7 @@ class StockDvP(
         /* Initiate a flow session with the buyer to send the valuation and transfer of the fiat currency */
         val buyerSession = initiateFlow(buyer)
 
-        // Send the valuation to the buyer.
+        /* Send the valuation to the buyer. */
         buyerSession.send(price)
 
         // Receive output for the fiat currency from the buyer, this would contain the transferred amount from buyer to yourself

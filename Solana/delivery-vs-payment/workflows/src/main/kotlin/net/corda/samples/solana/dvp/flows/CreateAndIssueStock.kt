@@ -1,4 +1,4 @@
-package net.corda.samples.solanadvp.flows
+package net.corda.samples.solana.dvp.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
@@ -15,9 +15,10 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.node.services.IdentityService
 import net.corda.core.utilities.ProgressTracker
-import net.corda.samples.solanadvp.states.StockState
+import net.corda.samples.solana.dvp.states.StockState
 import java.math.BigDecimal
 import java.util.Date
+import kotlin.jvm.javaClass
 
 @InitiatingFlow
 @StartableByRPC
