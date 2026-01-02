@@ -1,6 +1,7 @@
 package net.corda.samples.solana.dvp.flows
 
 import co.paralleluniverse.fibers.Suspendable
+import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import com.r3.corda.lib.tokens.contracts.types.TokenType
 import com.r3.corda.lib.tokens.workflows.flows.move.addMoveFungibleTokens
@@ -75,7 +76,7 @@ class SharesDvP(
         /* Collect own Solana accounts for Solana transaction and lookup for decimals (required for a checked transfer) */
         val config = serviceHub.getAppContext().config
         val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
-        require(payerDetails.tokenMint == solanaTokenMint) { "Payer provided an account for different tokenMint (stablecoin)."}
+        require(payerDetails.tokenMint == solanaTokenMint) { "Payer provided an account for different tokenMint (stablecoin)." }
         val solanaService = serviceHub.cordaService(SolanaService::class.java)
         val solanaTokenMintDecimals = solanaService.getAccountMintDecimals(solanaTokenMint)
         val solanaDestinationAccount = Pubkey.fromBase58(config.getString("solanaTokenAccount"))
@@ -135,8 +136,8 @@ class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         /* Receive the "ask" quantity and price (quote). */
         val (quantity, price) = counterpartySession.receive<Pair<Long, BigDecimal>>().unwrap { it }
 
-        // The flow could be extended to check if the amount of tokens is available on Solana
         val solanaPaymentAmount = price.multiply(quantity.toBigDecimal())
+        // The flow could be extended to check if the amount of tokens is available on Solana
 
         /* Collect own Solana accounts for Solana transaction */
         val config = serviceHub.getAppContext().config
@@ -152,21 +153,42 @@ class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         subFlow(object : SignTransactionFlow(counterpartySession) {
             @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {
-                /* Verify if transaction details provided by seller matches agreed ones in the flow earlier (e.g. quantity and price),
-                 * because buyer (responder) hadn't built any part of Corda transaction
+                /* Verify if transaction details provided by a seller match the agreed details in the flow earlier,
+                 * because a buyer (responder) hadn't built any part of Corda transaction.
                  * */
                 val paymentStates = stx.coreTransaction.outputsOfType(SharesPaymentState::class.java)
-                require(paymentStates.size == 1) { "Received transaction to sign without SharesPaymentState" }
+                require(paymentStates.size == 1) { "Received transaction to sign without payment details" }
                 val paymentState = paymentStates.first()
                 val solanaService = serviceHub.cordaService(SolanaService::class.java)
                 val solanaTokenMintDecimals = solanaService.getAccountMintDecimals(solanaTokenMint)
                 val expectedSolanaPaymentAmount = solanaPaymentAmount.toScaledLong(solanaTokenMintDecimals)
-                require( paymentState.solanaPaymentAmount == expectedSolanaPaymentAmount ) {
-                    "Expected Solana payment amount ${paymentState.solanaPaymentAmount} doesn't match the agreed amount of $expectedSolanaPaymentAmount."
+                require(paymentState.solanaPaymentAmount == expectedSolanaPaymentAmount) {
+                    "Payment amount ${paymentState.solanaPaymentAmount} " +
+                            "doesn't match the agreed amount of $expectedSolanaPaymentAmount."
                 }
-                // TODO and checks to verify amount of shares and buyer Solana accounts' addresses
+                require(paymentState.solanaBuyerTokenAccount == solanaSourceAccount) {
+                    "Payment is not transferred from my token account, expected $solanaSourceAccount," +
+                            " received ${paymentState.solanaBuyerTokenAccount}"
+                }
+                require(paymentState.solanaMintAuthority == solanaMintAuthority) {
+                    "Payment is not signed by my account, expected $solanaSourceAccount," +
+                            " received ${paymentState.solanaBuyerTokenAccount}"
+                }
+                require(paymentState.solanaTokenMint == solanaTokenMint) {
+                    "Payment was agreed on different token mint, expected $solanaTokenMint, received ${paymentState.solanaTokenMint}"
+                }
 
                 /* Validity of Notary Instruction (to perform Solana transfer) is verified in SharesPaymentContract  */
+
+                val receivedAssets = stx.coreTransaction.outputsOfType(FungibleToken::class.java).filter {
+                    it.holder == ourIdentity
+                }
+                require(receivedAssets.isNotEmpty()) { "No assets delivered" }
+                // TODO The code below is simplified, it assumes all states are of the same Corda type
+                val receivedAssetsQuantity = receivedAssets.sumOf { it.amount.quantity }
+                require(receivedAssetsQuantity == quantity) {
+                    "Quantity of delivered assets differs, expected $quantity, received $receivedAssetsQuantity"
+                }
             }
         })
         return subFlow(ReceiveFinalityFlow(counterpartySession))
