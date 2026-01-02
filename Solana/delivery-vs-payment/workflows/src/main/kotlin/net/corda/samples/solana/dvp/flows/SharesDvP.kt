@@ -33,7 +33,19 @@ import net.corda.solana.sdk.instruction.Pubkey
 import java.math.BigDecimal
 
 /**
- * Seller flow. TODO describe
+ * Delivery versus Payment exchange is initialized as "ask" from Seller to be approved by Buyer.
+ * The flow omits negotiation phase or "bid" style of buy as this is irrelevant for the sample point of view.
+ * Seller flow initiates exchange.
+ * Seller selects the shares (by symbol) and the quantity to sell on Corda network, and sends the buyer a quote: “X shares at Y price each.”
+ * The amount payed on Solana is 1 to 1 derived from asset price and quantity (X*Y).
+ * Buyer replies with the Solana payment details needed to pay (which stablecoin, and which Solana account will pay from).
+ *
+ * Seller builds a single Corda transaction deal that includes:
+ * Delivery: shares move to the buyer on the Corda network.
+ * Payment: an instruction for the notary to execute an SPL token transfer on Solana from buyer to seller for the agreed amount.
+ *
+ * Both parties approve, then the notary finalizes the transaction: payment is executed on Solana,
+ * shares are delivered on Corda (by Corda Fungible Token move), and the transaction is recorded as complete.
  */
 @InitiatingFlow
 @StartableByRPC
@@ -127,7 +139,12 @@ class SharesDvP(
 }
 
 /**
- * Buyer flow. TODO describe
+ * Buyer flow. Buyer receives the quote (quantity + price) and calculates the total amount to pay.
+ * Buyer sends the seller the required Solana payment coordinates (stablecoin + paying account).
+ * Before approving transaction received from seller, buyer checks the final deal matches what was agreed:
+ * Payment amount and accounts are exactly as expected on Solana,
+ * Shares quantity delivered to the buyer matches the agreed quantity.
+ * If everything matches, buyer approves and records the completed exchange.
  */
 @InitiatedBy(SharesDvP::class)
 class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
