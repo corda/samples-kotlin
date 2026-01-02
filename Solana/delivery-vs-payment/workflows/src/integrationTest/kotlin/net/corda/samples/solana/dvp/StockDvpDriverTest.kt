@@ -2,6 +2,7 @@ package net.corda.samples.solana.dvp
 
 import com.lmax.solana4j.Solana
 import com.lmax.solana4j.api.PublicKey
+import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
 import net.corda.core.utilities.getOrThrow
@@ -22,6 +23,7 @@ import net.corda.testing.node.TestCordapp
 import net.corda.testing.solana.SolanaTestValidator
 import net.corda.testing.solana.randomKeypairFile
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
@@ -162,7 +164,10 @@ class StockDvpDriverTest {
             ISSUING_STOCK_QUANTITY
         ).returnValue.get()
 
-        //TODO check on Corda network that Buyer has no shares
+        assertTrue(
+            buyer.rpc.vaultQuery(FungibleToken::class.java).states.isEmpty(),
+            "Initially Buyer has no assets on Corda network"
+        )
 
         seller.rpc.startFlow(
             ::SharesDvP,
@@ -171,7 +176,11 @@ class StockDvpDriverTest {
             buyer.nodeInfo.legalIdentities[0]
         ).returnValue.get()
 
-        //TODO check on Corda network that shares have been moved to Buyer
+        val buyerAssetsOnCorda = buyer.rpc.vaultQuery(FungibleToken::class.java).states
+        val amount = buyerAssetsOnCorda
+            // Simplified as Corda network has a one asset type, we don't need to check Corda state details (issuer and token pointer)
+            .sumOf { it.state.data.amount.quantity }
+        assertEquals(DELIVERY_STOCK_QUANTITY, amount, "Buyer received assets on Corda network")
 
         assertEquals(
             SOLANA_PAYMENT,
