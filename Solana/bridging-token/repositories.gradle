@@ -1,0 +1,8 @@
+repositories {
+    mavenLocal()
+    mavenCentral()
+
+    maven { url 'https://download.corda.net/maven/corda-dependencies' }
+    maven { url 'https://repo.gradle.org/gradle/libs-releases' }
+    // Add required repositories for Corda artifacts
+}
