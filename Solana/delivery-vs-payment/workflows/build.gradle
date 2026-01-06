@@ -5,7 +5,7 @@ cordapp {
     targetPlatformVersion corda_platform_version.toInteger()
     minimumPlatformVersion corda_platform_version.toInteger()
     workflow {
-        name "solanadvp Flows"
+        name "Corda-Solana DvP Flows"
         vendor "Corda Open Source"
         licence "Apache License, Version 2.0"
         versionId 1
@@ -71,8 +71,16 @@ dependencies {
     cordapp project(":contracts")
 
     // Token SDK dependencies.
-    cordaProvided "$tokens_release_group:tokens-contracts:$tokens_release_version"
-    cordaProvided "$tokens_release_group:tokens-workflows:$tokens_release_version"
+    cordaProvided "$corda_tokens_release_group:tokens-contracts:$corda_tokens_release_version"
+    cordaProvided "$corda_tokens_release_group:tokens-workflows:$corda_tokens_release_version"
+
+    cordaProvided "$corda_release_group:corda-solana-sdk:$corda_release_version"
+
+    //TODO these will be removed after TokenAccountService is placed in a common dependency in toolkit
+    cordaProvided "com.lmax:solana4j:1.2.2"
+    cordaProvided "com.lmax:solana4j-json-rpc:1.2.2"
+    cordaProvided "com.github.ben-manes.caffeine:caffeine:3.2.3"
+    cordaProvided "net.corda.solana.notary:common:$corda_solana_notary_version"
 }
 
 

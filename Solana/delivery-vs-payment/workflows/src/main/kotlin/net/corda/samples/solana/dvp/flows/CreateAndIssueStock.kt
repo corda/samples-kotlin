@@ -27,14 +27,15 @@ class CreateAndIssueStock(
     val name: String,
     val currency: String,
     val price: BigDecimal,
-    val issueVol: Long
+    val issueVol: Long,
+    val notaryName: CordaX500Name
 ) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
     @Suspendable
     override fun call(): String {
 
-        val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
+        val notary = serviceHub.networkMapCache.getNotary(notaryName)
 
         // Sample specific - retrieving the hard-coded observers
         val identityService = serviceHub.identityService
@@ -42,9 +43,15 @@ class CreateAndIssueStock(
 
         // Construct the output StockState
         val stockState = StockState(
-            ourIdentity, symbol, name, currency,
-            price, BigDecimal.ZERO, // A newly issued stock should not have any dividend
-            Date(), Date(), UniqueIdentifier()
+            ourIdentity,
+            symbol,
+            name,
+            currency,
+            price,
+            BigDecimal.ZERO, // A newly issued stock should not have any dividend
+            Date(),
+            Date(),
+            UniqueIdentifier()
         )
 
         // The notary provided here will be used in all future actions of this token

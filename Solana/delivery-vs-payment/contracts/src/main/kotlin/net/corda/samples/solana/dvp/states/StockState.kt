@@ -10,7 +10,7 @@ import java.math.BigDecimal
 import java.util.Date
 
 /**
- * StockState from StockWithDividend sample CordApp.
+ * StockState from StockWithDividend sample CorDapp.
  */
 @BelongsToContract(StockContract::class)
 data class StockState(

@@ -11,17 +11,15 @@ buildscript {
         corda_release_version = constants.getProperty("cordaVersion")
         corda_core_release_version = constants.getProperty("cordaCoreVersion")
         corda_gradle_plugins_version = constants.getProperty("gradlePluginsVersion")
+        corda_solana_notary_version = constants.getProperty("cordaSolanaNotaryVersion")
+        corda_tokens_release_group = constants.getProperty("cordaTokensGroup")
+        corda_tokens_release_version = constants.getProperty("cordaTokensVersion")
+        sava_version = constants.getProperty("savaVersion")
+        corda_platform_version = constants.getProperty("platformVersion").toInteger()
         kotlin_version = constants.getProperty("kotlinVersion")
         junit_version = constants.getProperty("junitVersion")
-        quasar_version = constants.getProperty("quasarVersion")
         log4j_version = constants.getProperty("log4jVersion")
         slf4j_version = constants.getProperty("slf4jVersion")
-        corda_platform_version = constants.getProperty("platformVersion").toInteger()
-        sava_version  = constants.getProperty("savaVersion")
-
-        //Tokens
-        tokens_release_group = 'com.r3.corda.lib.tokens'
-        tokens_release_version = '1.3'
 
         testJvmArgs = ['--add-opens', 'java.base/java.time=ALL-UNNAMED', '--add-opens', 'java.base/java.io=ALL-UNNAMED',
                        '--add-opens', 'java.base/java.util=ALL-UNNAMED', '--add-opens', 'java.base/java.net=ALL-UNNAMED',
@@ -55,31 +53,6 @@ allprojects {
         jvmArgs = rootProject.ext.testJvmArgs
     }
 
-    repositories {
-        mavenLocal()
-
-        mavenCentral()
-        maven { url 'https://download.corda.net/maven/corda-dependencies' }
-        maven { url 'https://download.corda.net/maven/corda-releases' }
-        maven { url 'https://jitpack.io' }
-        //SDK lib
-        maven { url 'https://download.corda.net/maven/corda-lib' }
-        //Gradle Plugins
-        maven { url 'https://repo.gradle.org/gradle/libs-releases' }
-        maven { url 'https://software.r3.com/artifactory/corda-dev'
-            credentials {
-                username = System.getenv('CORDA_ARTIFACTORY_USERNAME')
-                password = System.getenv('CORDA_ARTIFACTORY_PASSWORD')
-            }
-        }
-        maven { url 'https://software.r3.com/artifactory//r3-corda-dev'
-            credentials {
-                username = System.getenv('CORDA_ARTIFACTORY_USERNAME')
-                password = System.getenv('CORDA_ARTIFACTORY_PASSWORD')
-            }
-        }
-    }
-
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
         compilerOptions {
             languageVersion = KOTLIN_1_9
@@ -98,11 +71,6 @@ allprojects {
         options.compilerArgs << '-parameters'
     }
 
-    jar {
-        // This makes the JAR's SHA-256 hash repeatable.
-        preserveFileTimestamps = false
-        reproducibleFileOrder = true
-    }
 }
 
 apply plugin: 'net.corda.plugins.cordapp'
@@ -129,14 +97,15 @@ dependencies {
     cordapp project(":workflows")
     cordapp project(":contracts")
 
+    // Token SDK dependencies.
+    cordapp "$corda_tokens_release_group:tokens-contracts:$corda_tokens_release_version"
+    cordapp "$corda_tokens_release_group:tokens-workflows:$corda_tokens_release_version"
+
     cordaProvided "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j_version}"
     cordaProvided "org.apache.logging.log4j:log4j-web:${log4j_version}"
     cordaProvided "org.slf4j:jul-to-slf4j:$slf4j_version"
-    cordaDriver "net.corda:corda-shell:$corda_release_version"
 
-    // Token SDK dependencies.
-    cordapp "$tokens_release_group:tokens-contracts:$tokens_release_version"
-    cordapp "$tokens_release_group:tokens-workflows:$tokens_release_version"
+    cordaDriver "net.corda:corda-shell:$corda_release_version"
 }
 
 cordapp {

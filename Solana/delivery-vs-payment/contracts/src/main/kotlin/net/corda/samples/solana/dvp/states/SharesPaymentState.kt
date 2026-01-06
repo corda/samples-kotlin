@@ -10,7 +10,8 @@ import net.corda.samples.solana.dvp.contracts.SharesPaymentContract
 import net.corda.solana.sdk.instruction.Pubkey
 
 /**
- * Payment details on Solana for amount of exchanged shares on Corda.
+ * Stablecoin payment details (Solana account addresses and amount),
+ * and a delivery info of an asset (amount of shares, participants) on Corda.
  */
 @BelongsToContract(SharesPaymentContract::class)
 data class SharesPaymentState(
@@ -18,11 +19,12 @@ data class SharesPaymentState(
     val cordaSeller: Party,
     val cordaBuyer: Party,
     val solanaSellerTokenAccount: Pubkey,
-    val solanaBuyerTokenAccount: Pubkey,
-    val solanaMintAuthority: Pubkey,
-    val solanaTokenMint: Pubkey,
-    val solanaPaymentAmount: Long,
-    val solanaPaymentDecimals: Byte,
+    val solanaBuyerTokenAccount: Pubkey,  // This is ATA so it could be derived from other fields,
+                                          // left to avoid dependencies on throw party libraries
+    val solanaBuyerWalletAccount: Pubkey,
+    val solanaStablecoin: Pubkey,
+    val stablecoinAmount: Long,
+    val stablecoinDecimals: Byte,
 ) : ContractState {
     override val participants: List<AbstractParty> = listOf(cordaSeller, cordaBuyer)
 }

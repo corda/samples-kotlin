@@ -29,23 +29,23 @@ class SharesPaymentContract : Contract {
                 "No inputs should be consumed." using (tx.inputsOfType<SharesPaymentState>().isEmpty())
                 val outputs = tx.outputsOfType<SharesPaymentState>()
                 "One output should be created." using (outputs.size == 1)
-                val out = tx.outputsOfType<SharesPaymentState>().single()
+                val output = tx.outputsOfType<SharesPaymentState>().single()
                 // This makes buyer signature required in addition to seller
-                val required = setOf(out.cordaSeller.owningKey, out.cordaBuyer.owningKey)
+                val required = setOf(output.cordaSeller.owningKey, output.cordaBuyer.owningKey)
                 "Seller and buyer must both sign." using (cmd.signers.containsAll(required))
 
                 val solanaInstruction =
                     requireNotNull(tx.notaryInstructionsOfType<SolanaInstruction>().singleOrNull()) {
-                        "Exactly one Solana instruction required"
+                        "Exactly one Solana instruction required."
                     }
 
                 val expectedInstruction = SplToken.transfer(
-                    out.solanaBuyerTokenAccount,
-                    out.solanaTokenMint,
-                    out.solanaSellerTokenAccount,
-                    out.solanaMintAuthority,
-                    out.solanaPaymentAmount,
-                    out.solanaPaymentDecimals
+                    output.solanaBuyerTokenAccount,
+                    output.solanaStablecoin,
+                    output.solanaSellerTokenAccount,
+                    output.solanaBuyerWalletAccount,
+                    output.stablecoinAmount,
+                    output.stablecoinDecimals
                 )
 
                 require(solanaInstruction == expectedInstruction) {

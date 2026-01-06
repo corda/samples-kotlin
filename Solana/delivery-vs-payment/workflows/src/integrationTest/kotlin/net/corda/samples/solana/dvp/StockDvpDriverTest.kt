@@ -2,12 +2,15 @@ package net.corda.samples.solana.dvp
 
 import com.lmax.solana4j.Solana
 import com.lmax.solana4j.api.PublicKey
+import com.lmax.solana4j.programs.AssociatedTokenProgram
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
 import net.corda.core.utilities.getOrThrow
+import net.corda.samples.solana.dvp.flows.CreateAtaFlow
 import net.corda.samples.solana.dvp.flows.CreateAndIssueStock
 import net.corda.samples.solana.dvp.flows.SharesDvP
+import net.corda.samples.solana.dvp.flows.tokenProgramId
 import net.corda.solana.notary.common.Signer
 import net.corda.solana.notary.common.rpc.checkResponse
 import net.corda.solana.sdk.SplToken
@@ -22,19 +25,29 @@ import net.corda.testing.node.NotarySpec
 import net.corda.testing.node.TestCordapp
 import net.corda.testing.solana.SolanaTestValidator
 import net.corda.testing.solana.randomKeypairFile
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.math.BigDecimal
 import java.nio.file.Path
 import kotlin.collections.emptyList
-import kotlin.lazy
 import kotlin.test.assertEquals
 
 // This is a sample of full-fledged test with both Corda Nodes and Solana Local Validator
 class StockDvpDriverTest {
+
+    companion object {
+        private val validator = SolanaTestValidator()
+
+        @JvmStatic
+        @AfterAll
+        fun stopTestValidator(): Unit {
+            validator.close()
+        }
+    }
 
     private val STOCK_SYMBOL = "AAPL"
     private val STOCK_NAME = "Apple"
@@ -52,24 +65,66 @@ class StockDvpDriverTest {
     private val buyer = TestIdentity(CordaX500Name("BankB", "", "US"))
     private val observer = CordaX500Name("Observer", "New York", "US")
     private val solanaNotaryName = CordaX500Name("Notary", "London", "GB")
+    private lateinit var notaryConfig: Map<String, Any>
+    private val dvpFlowCordapp = TestCordapp.findCordapp("net.corda.samples.solana.dvp.flows")
+    private val cordappsForAllNodes: List<TestCordapp> =
+        setOf(
+            "com.r3.corda.lib.tokens.contracts",
+            "com.r3.corda.lib.tokens.workflows",
+            "net.corda.samples.solana.dvp.contracts",
+            "net.corda.samples.solana.dvp.states",
+        ).map { TestCordapp.findCordapp(it) }
 
-    private val validator = SolanaTestValidator()
+    private lateinit var sellerDvpCordappConfig: Map<String, Any>
+    private lateinit var buyerDvpCordappConfig: Map<String, Any>
+
     private lateinit var solanaNotaryKeyFile: Path
     private lateinit var solanaNotaryKey: Signer
-    private val mintAuthoritySigner by lazy { Signer.fromFile(randomKeypairFile(custodiedKeysDir)) }
-    private lateinit var tokenMint: PublicKey
-    private val sellerWallet = Signer.random()
-    private val buyerWallet by lazy { Signer.fromFile(randomKeypairFile(custodiedKeysDir)) }
-    private lateinit var sellerTokenAccount: PublicKey
-    private lateinit var buyerTokenAccount: PublicKey
 
+    // A directory with Corda Notary key pair for singing Corda Program on Solana
+    @TempDir
+    private lateinit var notaryKeyDir: Path
+
+    // A directory for Notary to store Corda participant key pairs for sining Solana transactions,
+    // intentionally these are located in a different directory than Corda Notary Program key pair
     @TempDir
     private lateinit var custodiedKeysDir: Path
 
-    @TempDir
-    private lateinit var generalDir: Path
-    private val notaryConfig: Map<String, Any> by lazy {
-        mapOf(
+    private lateinit var stablecoinAuthority: Signer
+    private lateinit var stabelcoinAccount: PublicKey
+
+    private lateinit var sellerTokenAccount: PublicKey
+    private lateinit var buyerTokenAccount: PublicKey
+
+    private val solanaRpcUrl = "http://127.0.0.1:8899"
+    private val solanaWsUrl = "ws://127.0.0.1:8900"
+
+    @BeforeEach
+    fun setup() {
+        solanaNotaryKeyFile = randomKeypairFile(notaryKeyDir)
+        solanaNotaryKey = Signer.fromFile(solanaNotaryKeyFile)
+        validator.start()
+        validator.defaultNotaryProgramSetup(solanaNotaryKey.account)
+
+        val buyerWalletFilePath = randomKeypairFile(custodiedKeysDir)
+        val buyerWallet = Signer.fromFile(buyerWalletFilePath)
+
+        val sellerWalletFilePath = randomKeypairFile(custodiedKeysDir)
+        val sellerWallet = Signer.fromFile(sellerWalletFilePath)
+        stablecoinAuthority = Signer.random()
+
+        setOf(stablecoinAuthority, sellerWallet, buyerWallet).forEach {
+            validator.fundAccount(100000, it)
+        }
+        stabelcoinAccount =
+            validator.createToken(stablecoinAuthority, decimals = SOLANA_TOKEN_DECIMALS.toByte(), isToken2022 = false)
+        sellerTokenAccount =
+            AssociatedTokenProgram.deriveAddress(sellerWallet.account, tokenProgramId, stabelcoinAccount).address()
+        buyerTokenAccount =
+            AssociatedTokenProgram.deriveAddress(buyerWallet.account, tokenProgramId, stabelcoinAccount).address()
+
+        // corda configs
+        notaryConfig = mapOf(
             "notary" to mapOf(
                 "validating" to false,
                 "solana" to mapOf(
@@ -81,55 +136,18 @@ class StockDvpDriverTest {
                 )
             )
         )
-    }
-    private val dvpFlowCordapp = TestCordapp.findCordapp("net.corda.samples.solana.dvp.flows")
-    private val cordappsForAllNodes: List<TestCordapp> =
-        setOf(
-            "com.r3.corda.lib.tokens.contracts",
-            "com.r3.corda.lib.tokens.workflows",
-            "net.corda.samples.solana.dvp.contracts",
-            "net.corda.samples.solana.dvp.states",
-        ).map { TestCordapp.findCordapp(it) }
-
-    private val sellerDvpCordappConfig: Map<String, Any> by lazy {
-        mapOf(
-            "solanaTokenMint" to tokenMint.base58(),
-            "solanaTokenAccount" to sellerTokenAccount.base58(),
-            "solanaWalletAccount" to sellerWallet.account.base58(), // not used in  the test
-            "solanaRpcUrl" to "http://127.0.0.1:8899",
-            "solanaWsUrl" to "ws://127.0.0.1:8900"
+        sellerDvpCordappConfig = mapOf(
+            "solanaTokenMint" to stabelcoinAccount.base58(),
+            "solanaWalletFile" to sellerWalletFilePath.toString(),
+            "solanaRpcUrl" to solanaRpcUrl,
+            "solanaWsUrl" to solanaWsUrl
         )
-    }
-
-    private val buyerDvpCordappConfig: Map<String, Any> by lazy {
-        mapOf(
-            "solanaTokenMint" to tokenMint.base58(),
-            "solanaTokenAccount" to buyerTokenAccount.base58(),
-            "solanaWalletAccount" to buyerWallet.account.base58(),
-            "solanaRpcUrl" to "http://127.0.0.1:8899",
-            "solanaWsUrl" to "ws://127.0.0.1:8900"
+        buyerDvpCordappConfig = mapOf(
+            "solanaTokenMint" to stabelcoinAccount.base58(),
+            "solanaWalletFile" to buyerWalletFilePath.toString(),
+            "solanaRpcUrl" to solanaRpcUrl,
+            "solanaWsUrl" to solanaWsUrl
         )
-    }
-
-    @BeforeEach
-    fun setup() {
-        solanaNotaryKeyFile = randomKeypairFile(generalDir)
-        solanaNotaryKey = Signer.fromFile(solanaNotaryKeyFile)
-        validator.start()
-        validator.defaultNotaryProgramSetup(solanaNotaryKey.account)
-        setOf(mintAuthoritySigner, sellerWallet, buyerWallet).forEach {
-            validator.fundAccount(100000, it)
-        }
-        tokenMint =
-            validator.createToken(mintAuthoritySigner, decimals = SOLANA_TOKEN_DECIMALS.toByte(), isToken2022 = false)
-        sellerTokenAccount = validator.createTokenAccount(sellerWallet, tokenMint, isToken2022 = false)
-        buyerTokenAccount = validator.createTokenAccount(buyerWallet, tokenMint, isToken2022 = false)
-        validator.mintTo(mintAuthoritySigner, tokenMint, buyerTokenAccount, SOLANA_TOKEN_AMOUNT, isToken2022 = false)
-    }
-
-    @AfterEach
-    fun stopTestValidator() {
-        validator.close()
     }
 
     @Test
@@ -144,24 +162,33 @@ class StockDvpDriverTest {
         ).getOrThrow()
         startNode(providedName = observer).getOrThrow()
 
-        assertEquals(
-            BigDecimal.ZERO,
-            validator.getTokenBalance(sellerTokenAccount),
-            "Seller's initial Solana balance is zero"
+        // Setup continuation - fund stablecoins to the buyer
+        buyer.rpc.startFlow(::CreateAtaFlow).returnValue.get()
+        validator.mintTo(
+            stablecoinAuthority,
+            stabelcoinAccount,
+            buyerTokenAccount,
+            SOLANA_TOKEN_AMOUNT,
+            isToken2022 = false
         )
+
+        assertThrows<Exception>("Seller's initial Solana balance is zero") {
+            validator.getTokenBalance(sellerTokenAccount)
+        }
         assertEquals(
             SOLANA_BUYER_INITIAL_AMOUNT,
             validator.getTokenBalance(buyerTokenAccount),
             "Buyer's initial Solana balance is non-zero"
         )
-
+        // Test
         seller.rpc.startFlow(
             ::CreateAndIssueStock,
             STOCK_SYMBOL,
             STOCK_NAME,
             STOCK_CURRENCY,
             STOCK_PRICE,
-            ISSUING_STOCK_QUANTITY
+            ISSUING_STOCK_QUANTITY,
+            solanaNotaryName
         ).returnValue.get()
 
         assertTrue(
@@ -173,7 +200,8 @@ class StockDvpDriverTest {
             ::SharesDvP,
             STOCK_SYMBOL,
             DELIVERY_STOCK_QUANTITY,
-            buyer.nodeInfo.legalIdentities[0]
+            buyer.nodeInfo.legalIdentities[0],
+            solanaNotaryName
         ).returnValue.get()
 
         val buyerAssetsOnCorda = buyer.rpc.vaultQuery(FungibleToken::class.java).states
@@ -201,7 +229,7 @@ class StockDvpDriverTest {
             startNodesInProcess = false,
             cordappsForAllNodes = cordappsForAllNodes,
             notarySpecs = listOf(NotarySpec(solanaNotaryName, notaryConfig, startInProcess = false)),
-            networkParameters = testNetworkParameters(minimumPlatformVersion = 4).copy(notaries = emptyList())
+            networkParameters = testNetworkParameters(minimumPlatformVersion = 160).copy(notaries = emptyList())
         )
     ) { test() }
 
