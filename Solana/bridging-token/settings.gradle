@@ -1,1 +1,2 @@
+include 'workflows'
 includeBuild "../../Tokens/stockpaydividend"
