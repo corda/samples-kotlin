@@ -2,17 +2,18 @@ package net.corda.samples.solana.dvp
 
 import com.lmax.solana4j.Solana
 import com.lmax.solana4j.api.PublicKey
+import com.lmax.solana4j.client.jsonrpc.SolanaJsonRpcClient
 import com.lmax.solana4j.programs.AssociatedTokenProgram
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
 import net.corda.core.utilities.getOrThrow
-import net.corda.samples.solana.dvp.flows.CreateAtaFlow
 import net.corda.samples.solana.dvp.flows.CreateAndIssueStock
 import net.corda.samples.solana.dvp.flows.SharesDvP
 import net.corda.samples.solana.dvp.flows.tokenProgramId
 import net.corda.solana.notary.common.Signer
 import net.corda.solana.notary.common.rpc.checkResponse
+import net.corda.solana.notary.common.rpc.sendAndConfirm
 import net.corda.solana.sdk.SplToken
 import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.testing.common.internal.testNetworkParameters
@@ -27,13 +28,13 @@ import net.corda.testing.solana.SolanaTestValidator
 import net.corda.testing.solana.randomKeypairFile
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.math.BigDecimal
+import java.net.http.HttpClient
 import java.nio.file.Path
-import kotlin.collections.emptyList
 import kotlin.test.assertEquals
 
 // This is a sample of full-fledged test with both Corda Nodes and Solana Local Validator
@@ -44,7 +45,7 @@ class StockDvpDriverTest {
 
         @JvmStatic
         @AfterAll
-        fun stopTestValidator(): Unit {
+        fun stopTestValidator() {
             validator.close()
         }
     }
@@ -91,13 +92,10 @@ class StockDvpDriverTest {
     private lateinit var custodiedKeysDir: Path
 
     private lateinit var stablecoinAuthority: Signer
-    private lateinit var stabelcoinAccount: PublicKey
+    private lateinit var stablecoinAccount: PublicKey
 
     private lateinit var sellerTokenAccount: PublicKey
     private lateinit var buyerTokenAccount: PublicKey
-
-    private val solanaRpcUrl = "http://127.0.0.1:8899"
-    private val solanaWsUrl = "ws://127.0.0.1:8900"
 
     @BeforeEach
     fun setup() {
@@ -116,12 +114,19 @@ class StockDvpDriverTest {
         setOf(stablecoinAuthority, sellerWallet, buyerWallet).forEach {
             validator.fundAccount(100000, it)
         }
-        stabelcoinAccount =
+        stablecoinAccount =
             validator.createToken(stablecoinAuthority, decimals = SOLANA_TOKEN_DECIMALS.toByte(), isToken2022 = false)
         sellerTokenAccount =
-            AssociatedTokenProgram.deriveAddress(sellerWallet.account, tokenProgramId, stabelcoinAccount).address()
-        buyerTokenAccount =
-            AssociatedTokenProgram.deriveAddress(buyerWallet.account, tokenProgramId, stabelcoinAccount).address()
+            AssociatedTokenProgram.deriveAddress(sellerWallet.account, tokenProgramId, stablecoinAccount).address()
+        buyerTokenAccount = validator.createAta(stablecoinAuthority, stablecoinAccount, buyerWallet.account)
+
+        validator.mintTo(
+            stablecoinAuthority,
+            stablecoinAccount,
+            buyerTokenAccount,
+            SOLANA_TOKEN_AMOUNT,
+            isToken2022 = false
+        )
 
         // corda configs
         notaryConfig = mapOf(
@@ -137,16 +142,16 @@ class StockDvpDriverTest {
             )
         )
         sellerDvpCordappConfig = mapOf(
-            "solanaTokenMint" to stabelcoinAccount.base58(),
+            "solanaTokenMint" to stablecoinAccount.base58(),
             "solanaWalletFile" to sellerWalletFilePath.toString(),
-            "solanaRpcUrl" to solanaRpcUrl,
-            "solanaWsUrl" to solanaWsUrl
+            "solanaRpcUrl" to SolanaTestValidator.RPC_URL,
+            "solanaWsUrl" to SolanaTestValidator.WS_URL
         )
         buyerDvpCordappConfig = mapOf(
-            "solanaTokenMint" to stabelcoinAccount.base58(),
+            "solanaTokenMint" to stablecoinAccount.base58(),
             "solanaWalletFile" to buyerWalletFilePath.toString(),
-            "solanaRpcUrl" to solanaRpcUrl,
-            "solanaWsUrl" to solanaWsUrl
+            "solanaRpcUrl" to SolanaTestValidator.RPC_URL,
+            "solanaWsUrl" to SolanaTestValidator.WS_URL
         )
     }
 
@@ -161,16 +166,6 @@ class StockDvpDriverTest {
             buyer.name
         ).getOrThrow()
         startNode(providedName = observer).getOrThrow()
-
-        // Setup continuation - fund stablecoins to the buyer
-        buyer.rpc.startFlow(::CreateAtaFlow).returnValue.get()
-        validator.mintTo(
-            stablecoinAuthority,
-            stabelcoinAccount,
-            buyerTokenAccount,
-            SOLANA_TOKEN_AMOUNT,
-            isToken2022 = false
-        )
 
         assertThrows<Exception>("Seller's initial Solana balance is zero") {
             validator.getTokenBalance(sellerTokenAccount)
@@ -241,4 +236,28 @@ class StockDvpDriverTest {
             .checkResponse("getTokenAccountBalance")!!
             .uiAmountString
             .toBigDecimal()
+
+    //TODO temporary method code, it will be replaced by new method from Solana estValidator using Sava client
+    fun SolanaTestValidator.createAta(feePayer: Signer, mintAccount: PublicKey, ownerAccount: PublicKey): PublicKey {
+
+        val rpcClient = SolanaJsonRpcClient(HttpClient.newHttpClient(), SolanaTestValidator.RPC_URL)
+        val pda = AssociatedTokenProgram.deriveAddress(ownerAccount, tokenProgramId, mintAccount)
+        val instruction = AssociatedTokenProgram.createAssociatedTokenAccount(
+            pda,
+            mintAccount,
+            ownerAccount,
+            feePayer.account,
+            tokenProgramId,
+            false,
+        )
+        rpcClient.sendAndConfirm(
+            { txBuilder ->
+                txBuilder.append(instruction)
+            },
+            feePayer,
+            emptyList(),
+            rpcParams
+        )
+        return pda.address()
+    }
 }

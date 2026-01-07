@@ -71,8 +71,8 @@ dependencies {
     cordapp project(":contracts")
 
     // Token SDK dependencies.
-    cordaProvided "$corda_tokens_release_group:tokens-contracts:$corda_tokens_release_version"
-    cordaProvided "$corda_tokens_release_group:tokens-workflows:$corda_tokens_release_version"
+    cordaProvided "com.r3.corda.lib.tokens:tokens-contracts:$corda_tokens_release_version"
+    cordaProvided "com.r3.corda.lib.tokens:tokens-workflows:$corda_tokens_release_version"
 
     cordaProvided "$corda_release_group:corda-solana-sdk:$corda_release_version"
 

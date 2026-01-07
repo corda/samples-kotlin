@@ -191,7 +191,6 @@ class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
                 val paymentStates = stx.coreTransaction.outputsOfType(SharesPaymentState::class.java)
                 require(paymentStates.size == 1) { "Received transaction to sign without payment details" }
                 val paymentState = paymentStates.first()
-                val solanaService = serviceHub.cordaService(SolanaService::class.java)
                 val solanaTokenMintDecimals = solanaService.getAccountMintDecimals(solanaTokenMint)
                 val expectedSolanaPaymentAmount = solanaPaymentAmount.toScaledLong(solanaTokenMintDecimals)
                 require(paymentState.stablecoinAmount == expectedSolanaPaymentAmount) {

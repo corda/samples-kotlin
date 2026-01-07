@@ -12,7 +12,6 @@ buildscript {
         corda_core_release_version = constants.getProperty("cordaCoreVersion")
         corda_gradle_plugins_version = constants.getProperty("gradlePluginsVersion")
         corda_solana_notary_version = constants.getProperty("cordaSolanaNotaryVersion")
-        corda_tokens_release_group = constants.getProperty("cordaTokensGroup")
         corda_tokens_release_version = constants.getProperty("cordaTokensVersion")
         sava_version = constants.getProperty("savaVersion")
         corda_platform_version = constants.getProperty("platformVersion").toInteger()
@@ -98,8 +97,8 @@ dependencies {
     cordapp project(":contracts")
 
     // Token SDK dependencies.
-    cordapp "$corda_tokens_release_group:tokens-contracts:$corda_tokens_release_version"
-    cordapp "$corda_tokens_release_group:tokens-workflows:$corda_tokens_release_version"
+    cordapp "com.r3.corda.lib.tokens:tokens-contracts:$corda_tokens_release_version"
+    cordapp "com.r3.corda.lib.tokens:tokens-workflows:$corda_tokens_release_version"
 
     cordaProvided "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j_version}"
     cordaProvided "org.apache.logging.log4j:log4j-web:${log4j_version}"

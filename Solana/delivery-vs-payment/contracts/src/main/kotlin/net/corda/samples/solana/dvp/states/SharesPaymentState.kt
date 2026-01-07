@@ -19,8 +19,7 @@ data class SharesPaymentState(
     val cordaSeller: Party,
     val cordaBuyer: Party,
     val solanaSellerTokenAccount: Pubkey,
-    val solanaBuyerTokenAccount: Pubkey,  // This is ATA so it could be derived from other fields,
-                                          // left to avoid dependencies on throw party libraries
+    val solanaBuyerTokenAccount: Pubkey,
     val solanaBuyerWalletAccount: Pubkey,
     val solanaStablecoin: Pubkey,
     val stablecoinAmount: Long,
