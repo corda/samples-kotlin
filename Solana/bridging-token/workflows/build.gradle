@@ -55,6 +55,8 @@ dependencies {
 
     testImplementation("$corda_release_group:corda-node:$corda_release_version")
     testImplementation("$corda_release_group:corda-node-api:$corda_release_version")
+    testImplementation "$corda_release_group:corda-node-driver:$corda_release_version"
+    testImplementation "$corda_release_group:corda-core-test-utils:$corda_release_version"
 
     // Corda dependencies.
     cordaProvided "$corda_core_release_group:corda-core:$corda_core_release_version"
@@ -64,14 +66,13 @@ dependencies {
     cordaProvided "$corda_release_group:corda-node:$corda_release_version"
     cordaProvided "software.sava:sava-rpc:$sava_version"
 
-    testImplementation "$corda_release_group:corda-node-driver:$corda_release_version"
-    testImplementation "$corda_release_group:corda-core-test-utils:$corda_release_version"
+    cordaProvided "$corda_release_group:corda-solana-sdk:$corda_release_version"
 
-    // Token SDK dependencies.
     cordaProvided "com.r3.corda.lib.tokens:tokens-contracts:$corda_tokens_release_version"
     cordaProvided "com.r3.corda.lib.tokens:tokens-workflows:$corda_tokens_release_version"
 
-    cordaProvided "$corda_release_group:corda-solana-sdk:$corda_release_version"
+    cordapp("com.r3.corda.lib.solana:corda-bridging-token-workflows:0.1.1-SNAPSHOT")
+    cordapp("com.r3.corda.lib.solana:corda-bridging-token-contracts:0.1.1-SNAPSHOT")
 
     cordapp("com.stockpaydividend:contracts:1.0")
     cordapp("com.stockpaydividend:workflows:1.0")
@@ -82,7 +83,6 @@ dependencies {
     cordaProvided "com.github.ben-manes.caffeine:caffeine:3.2.3"
     //cordaProvided "net.corda.solana.notary:common:$corda_solana_notary_version"
 }
-
 
 tasks.withType(Test).configureEach { t ->
     systemProperty 'co.paralleluniverse.fibers.verifyInstrumentation', 'false'
@@ -96,7 +96,6 @@ tasks.withType(Test).configureEach { t ->
     def quasarJar = configurations.quasar.singleFile
     t.jvmArgs "-javaagent:${quasarJar}=m"
 }
-
 
 task integrationTest(type: Test, dependsOn: []) {
     useJUnitPlatform()
