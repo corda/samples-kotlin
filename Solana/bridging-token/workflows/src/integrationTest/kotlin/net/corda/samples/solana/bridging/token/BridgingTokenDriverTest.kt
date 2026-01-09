@@ -4,6 +4,7 @@ import com.lmax.solana4j.Solana
 import com.lmax.solana4j.api.PublicKey
 import com.lmax.solana4j.client.api.AccountInfo
 import com.lmax.solana4j.programs.AssociatedTokenProgram
+import com.lmax.solana4j.programs.Token2022Program
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
@@ -14,7 +15,9 @@ import net.corda.samples.stockpaydividend.flows.GetStockBalance
 import net.corda.samples.stockpaydividend.flows.IssueMoney
 import net.corda.samples.stockpaydividend.flows.MoveStock
 import net.corda.solana.notary.common.Signer
+import net.corda.solana.notary.common.rpc.DefaultRpcParams
 import net.corda.solana.notary.common.rpc.checkResponse
+import net.corda.solana.notary.common.rpc.sendAndConfirm
 import net.corda.solana.sdk.Token2022
 import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.testing.common.internal.eventually
@@ -74,6 +77,7 @@ class BridgingTokenDriverTest {
     private val generalNotaryName = CordaX500Name("Notary", "London", "GB")
     private val bridgeAuthority = CordaX500Name("Bridge Authority", "New York", "US")
     private val shareholderName = CordaX500Name("Shareholder", "New York", "US")
+    private val otherShareholderName = CordaX500Name("Other Shareholder", "Frankfurt", "DE")
     private lateinit var solanaNotaryConfig: Map<String, Any>
 
     private val cordappsForAllNodes =
@@ -105,8 +109,10 @@ class BridgingTokenDriverTest {
     private lateinit var bridgeAuthorityWallet: Signer
 
     private val shareholderWallet: Signer = Signer.random()
+    private val otherShareholderWallet: Signer = Signer.random()
 
     private lateinit var redemptionWalletForShareholder: Signer
+    private lateinit var redemptionWalletForOtherShareholder: Signer
     private lateinit var mintAuthoritySigner: Signer
     private lateinit var tokenMint: PublicKey
 
@@ -127,6 +133,7 @@ class BridgingTokenDriverTest {
         bridgeAuthorityWalletFile = randomKeypairFile(custodiedKeysDir)
         bridgeAuthorityWallet = Signer.fromFile(bridgeAuthorityWalletFile)
         redemptionWalletForShareholder = Signer.fromFile(randomKeypairFile(custodiedKeysDir))
+        redemptionWalletForOtherShareholder = Signer.fromFile(randomKeypairFile(custodiedKeysDir))
 
         mintAuthoritySigner = Signer.fromFile(randomKeypairFile(custodiedKeysDir))
         validator.fundAccount(10, mintAuthoritySigner)
@@ -135,7 +142,9 @@ class BridgingTokenDriverTest {
 
         validator.fundAccount(10, bridgeAuthorityWallet)
         validator.fundAccount(10, shareholderWallet)
+        validator.fundAccount(10, otherShareholderWallet)
         validator.fundAccount(10, redemptionWalletForShareholder)
+        validator.fundAccount(10, redemptionWalletForOtherShareholder)
     }
 
     fun TestCordapp.withBridgeAuthorityConfig(cordaTokenTypeIdentifier: String): TestCordapp = this.withConfig(
@@ -146,7 +155,7 @@ class BridgingTokenDriverTest {
             ),
             "redemptionWalletAccountToHolder" to mapOf(
                 redemptionWalletForShareholder.account.base58() to "$shareholderName",
-                //TODO one more participant
+                redemptionWalletForOtherShareholder.account.base58() to "$otherShareholderName",
             ),
             "mintsWithAuthorities" to mapOf(
                 cordaTokenTypeIdentifier to
@@ -180,6 +189,14 @@ class BridgingTokenDriverTest {
                 rpcUsers
             )
         ).getOrThrow()
+
+        val otherShareholderNode = startNode(
+            NodeParameters(
+                otherShareholderName,
+                rpcUsers
+            )
+        ).getOrThrow()
+
 
         val bankNode = startNode(
             NodeParameters(
@@ -268,6 +285,22 @@ class BridgingTokenDriverTest {
                 "Shareholder bridged $bridgedAmount tokens to Solana"
             }
         }
+
+        validator.transfer(
+            shareholderWallet,
+            shareholderWallet.deriveATA(),
+            otherShareholderWallet.deriveATA(),
+            50
+        )
+
+        validator.transfer(
+            otherShareholderWallet,
+            otherShareholderWallet.deriveATA(),
+            redemptionWalletForOtherShareholder.deriveATA(),
+            25
+        )
+
+        //check on Corda vault of otherShareholder
     }
 
     // Runs a test inside the Driver DSL
@@ -323,4 +356,28 @@ fun SolanaTestValidator.getSolanaTokenBalance(publicKey: PublicKey): BigDecimal 
         .checkResponse("getTokenAccountBalance")!!
         .uiAmountString
         .toBigDecimal()
+}
+
+fun SolanaTestValidator.transfer(
+    fromOwner: Signer,
+    fromTokenAccount: PublicKey,
+    toTokenAccount: PublicKey,
+    amount: Long,
+) {
+    val error = client
+        .sendAndConfirm(
+            { txBuilder ->
+                Token2022Program.factory(txBuilder).transfer(
+                    fromTokenAccount,
+                    toTokenAccount,
+                    fromOwner.account,
+                    amount,
+                    emptyList()
+                )
+            },
+            fromOwner,
+            emptyList(),
+            DefaultRpcParams()
+        ).metadata.err
+    assertNull(error, "Token transfer failed with error: $error")
 }
