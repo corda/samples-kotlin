@@ -27,6 +27,7 @@ import net.corda.testing.node.TestCordapp
 import net.corda.testing.solana.SolanaTestValidator
 import net.corda.testing.solana.randomKeypairFile
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -35,7 +36,6 @@ import org.junit.jupiter.api.io.TempDir
 import java.math.BigDecimal
 import java.net.http.HttpClient
 import java.nio.file.Path
-import kotlin.test.assertEquals
 
 // This is a sample of full-fledged test with both Corda Nodes and Solana Local Validator
 class StockDvpDriverTest {
@@ -142,13 +142,13 @@ class StockDvpDriverTest {
             )
         )
         sellerDvpCordappConfig = mapOf(
-            "solanaTokenMint" to stablecoinAccount.base58(),
+            "stablecoinTokenMint" to stablecoinAccount.base58(),
             "solanaWalletFile" to sellerWalletFilePath.toString(),
             "solanaRpcUrl" to SolanaTestValidator.RPC_URL,
             "solanaWsUrl" to SolanaTestValidator.WS_URL
         )
         buyerDvpCordappConfig = mapOf(
-            "solanaTokenMint" to stablecoinAccount.base58(),
+            "stablecoinTokenMint" to stablecoinAccount.base58(),
             "solanaWalletFile" to buyerWalletFilePath.toString(),
             "solanaRpcUrl" to SolanaTestValidator.RPC_URL,
             "solanaWsUrl" to SolanaTestValidator.WS_URL

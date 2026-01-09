@@ -91,11 +91,11 @@ class SharesDvP(
 
         /* Collect own Solana accounts for Solana transaction and lookup for decimals (required for a checked transfer) */
         val config = serviceHub.getAppContext().config
-        val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
-        require(payerDetails.tokenMint == solanaTokenMint) { "Payer provided an account for different tokenMint (stablecoin)." }
+        val stablecoinTokenMint = Pubkey.fromBase58(config.getString("stablecoinTokenMint"))
+        require(payerDetails.tokenMint == stablecoinTokenMint) { "Payer provided an account for different tokenMint (stablecoin)." }
         val solanaService = serviceHub.cordaService(SolanaService::class.java)
-        val solanaTokenMintDecimals = solanaService.getAccountMintDecimals(solanaTokenMint)
-         val solanaDestinationAccount = solanaService.createAta(solanaTokenMint).toPubkey()
+        val solanaTokenMintDecimals = solanaService.getAccountMintDecimals(stablecoinTokenMint)
+         val solanaDestinationAccount = solanaService.createAta(stablecoinTokenMint).toPubkey()
 
         val solanaMintAuthority = payerDetails.walletAccount
         val solanaSourceAccount = payerDetails.tokenAccount
@@ -113,7 +113,7 @@ class SharesDvP(
             solanaDestinationAccount,
             solanaSourceAccount,
             solanaMintAuthority,
-            solanaTokenMint,
+            stablecoinTokenMint,
             stableCoinAmountAsLong,
             solanaTokenMintDecimalsAsByte
         )
@@ -127,7 +127,7 @@ class SharesDvP(
         /* Create Solana transfer instruction that will be run by Corda Notary */
         txBuilder.addNotaryInstruction(
             SplToken.transfer(
-                solanaSourceAccount, solanaTokenMint, solanaDestinationAccount, solanaMintAuthority,
+                solanaSourceAccount, stablecoinTokenMint, solanaDestinationAccount, solanaMintAuthority,
                 sharesPaymentState.stablecoinAmount, sharesPaymentState.stablecoinDecimals
             )
         )
@@ -168,17 +168,17 @@ class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
 
         /* Collect own Solana accounts for Solana transaction */
         val config = serviceHub.getAppContext().config
-        val solanaTokenMint = Pubkey.fromBase58(config.getString("solanaTokenMint"))
+        val stablecoinTokenMint = Pubkey.fromBase58(config.getString("stablecoinTokenMint"))
         val wallet = Signer.fromFile(Path(config.getString("solanaWalletFile")))
         val solanaMintAuthority = wallet.account.toPubkey()
 
         val solanaService = serviceHub.cordaService(SolanaService::class.java)
         // The ATA should be already created and funded, otherwise the buyer has no stablecoins to spent
-        val solanaSourceAccount = solanaService.deriveAtaAddress(solanaTokenMint).toPubkey()
+        val solanaSourceAccount = solanaService.deriveAtaAddress(stablecoinTokenMint).toPubkey()
         // The flow could be extended to check if the amount of tokens is available on Solana
 
         /* Send to seller to add payment data to a transaction */
-        val payerDetails = SolanaPayer(solanaTokenMint, solanaMintAuthority, solanaSourceAccount)
+        val payerDetails = SolanaPayer(stablecoinTokenMint, solanaMintAuthority, solanaSourceAccount)
         counterpartySession.send(payerDetails)
 
         /* Verify and sign Corda transaction */
@@ -191,7 +191,7 @@ class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
                 val paymentStates = stx.coreTransaction.outputsOfType(SharesPaymentState::class.java)
                 require(paymentStates.size == 1) { "Received transaction to sign without payment details" }
                 val paymentState = paymentStates.first()
-                val solanaTokenMintDecimals = solanaService.getAccountMintDecimals(solanaTokenMint)
+                val solanaTokenMintDecimals = solanaService.getAccountMintDecimals(stablecoinTokenMint)
                 val expectedSolanaPaymentAmount = solanaPaymentAmount.toScaledLong(solanaTokenMintDecimals)
                 require(paymentState.stablecoinAmount == expectedSolanaPaymentAmount) {
                     "Payment amount ${paymentState.stablecoinAmount} " +
@@ -205,8 +205,8 @@ class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
                     "Payment is not signed by my account, expected $solanaSourceAccount," +
                             " received ${paymentState.solanaBuyerTokenAccount}"
                 }
-                require(paymentState.solanaStablecoin == solanaTokenMint) {
-                    "Payment was agreed on different token mint, expected $solanaTokenMint, received ${paymentState.solanaStablecoin}"
+                require(paymentState.solanaStablecoin == stablecoinTokenMint) {
+                    "Payment was agreed on different token mint, expected $stablecoinTokenMint, received ${paymentState.solanaStablecoin}"
                 }
 
                 /* Validity of Notary Instruction (to perform Solana transfer) is verified in SharesPaymentContract  */

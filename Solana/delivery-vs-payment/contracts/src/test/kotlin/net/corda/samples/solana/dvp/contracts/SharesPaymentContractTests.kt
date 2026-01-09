@@ -26,7 +26,7 @@ class SharesPaymentContractTests {
     private val solanaSellerTokenAccount = Pubkey(secureRandomBytes(32))
     private val solanaBuyerTokenAccount = Pubkey(secureRandomBytes(32))
     private val solanaMintAuthority = Pubkey(secureRandomBytes(32))
-    private val solanaTokenMint =  Pubkey(secureRandomBytes(32))
+    private val stablecoinTokenMint =  Pubkey(secureRandomBytes(32))
 
     private val shareTokenType = TokenType("CORDASHARES", 0)
     private val cordaSharesAmount = Amount(100L, shareTokenType)
@@ -41,27 +41,27 @@ class SharesPaymentContractTests {
         solanaSellerTokenAccount = solanaSellerTokenAccount,
         solanaBuyerTokenAccount = solanaBuyerTokenAccount,
         solanaBuyerWalletAccount = solanaMintAuthority,
-        solanaStablecoin = solanaTokenMint,
+        solanaStablecoin = stablecoinTokenMint,
         stablecoinAmount = paymentAmount,
         stablecoinDecimals = paymentDecimals
     )
 
     @Test
     fun `Agree verifies with correct output, signers, and Solana instruction`() {
-        val out = sampleState()
+        val outpput = sampleState()
 
         val instruction: SolanaInstruction = SplToken.transfer(
-            out.solanaBuyerTokenAccount,
-            out.solanaStablecoin,
-            out.solanaSellerTokenAccount,
-            out.solanaBuyerWalletAccount,
-            out.stablecoinAmount,
-            out.stablecoinDecimals
+            outpput.solanaBuyerTokenAccount,
+            outpput.solanaStablecoin,
+            outpput.solanaSellerTokenAccount,
+            outpput.solanaBuyerWalletAccount,
+            outpput.stablecoinAmount,
+            outpput.stablecoinDecimals
         )
 
         ledgerServices.ledger {
             transaction {
-                output(SharesPaymentContract.ID, out)
+                output(SharesPaymentContract.ID, outpput)
 
                 notaryInstruction(instruction)
 
