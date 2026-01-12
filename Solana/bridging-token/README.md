@@ -10,6 +10,7 @@ is deployed to several parties (the same party set as in the original Stock CorD
 Stock CorDapp assumes there are 4 parties:
 * **WayneCo** - creates the stock state.
 * **Shareholder** - owns the stock and bridge shares to Solana Network.
+* **Other Shareholder** - will receive tokens on Solana and then redeem on Corda to own the stock.
 * **Bank** - issues fiat tokens.
 * **Observer** - monitors all the stocks by keeping a copy of transactions whenever a stock is created or updated.
 
@@ -29,7 +30,7 @@ This will check the project into 'build/tmp', it will be deleted whenever you ru
 
 Open a terminal and go to the project root directory and type: (to deploy the nodes using bootstrapper)
 ```bash
-./gradlew clean deployNodes
+./gradlew clean build
 ```
 
 Modify Solana Notary config to include Solana settings.
