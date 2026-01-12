@@ -27,9 +27,9 @@ class SharesPaymentContract : Contract {
         when (cmd.value) {
             is Commands.Agree -> requireThat {
                 "No inputs should be consumed." using (tx.inputsOfType<SharesPaymentState>().isEmpty())
-                val outputs = tx.outputsOfType<SharesPaymentState>()
-                "One output should be created." using (outputs.size == 1)
-                val output = tx.outputsOfType<SharesPaymentState>().single()
+                val output = tx.outputsOfType<SharesPaymentState>().singleOrNull()
+                requireNotNull(output) { "One output should be created."}
+
                 // This makes buyer signature required in addition to seller
                 val required = setOf(output.cordaSeller.owningKey, output.cordaBuyer.owningKey)
                 "Seller and buyer must both sign." using (cmd.signers.containsAll(required))
