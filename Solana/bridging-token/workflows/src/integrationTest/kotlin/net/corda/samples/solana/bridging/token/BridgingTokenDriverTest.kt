@@ -150,6 +150,8 @@ class BridgingTokenDriverTest {
 
         validator.createAta(mintAuthoritySigner, tokenMint, otherShareholderWallet.account)
         validator.createAta(mintAuthoritySigner, tokenMint, redemptionWalletForOtherShareholder.account)
+
+        validator.createAta(mintAuthoritySigner, tokenMint, redemptionWalletForShareholder.account)
     }
 
     fun TestCordapp.withBridgeAuthorityConfig(cordaTokenTypeIdentifier: String): TestCordapp = this.withConfig(
@@ -257,12 +259,12 @@ class BridgingTokenDriverTest {
             ::GetStockBalance,
             "AAPL"
         ).returnValue.get()!!.trimIndent()
-
         assertEquals(
             "You currently have 100 AAPL stocks",
             result,
             "Shareholder received stocks on Corda network"
         )
+        // TODO show Corda balance of Stockholder, OtherStockholder, and confidential identity / BA
 
         assertNull(
             validator.getAccountInfo(shareholderWallet.deriveATA()),
@@ -291,6 +293,8 @@ class BridgingTokenDriverTest {
                 "Shareholder bridged $bridgedAmount tokens to Solana"
             }
         }
+        // TODO show Corda balance of Stockholder, OtherStockholder and confidential identity / BA
+        // TODO show Solana balance of Stockholder, OtherStockholder
 
         validator.transfer(
             shareholderWallet,
@@ -329,6 +333,30 @@ class BridgingTokenDriverTest {
                 "Other Shareholder received stocks on Corda that he had redeemed on Solana"
             )
         }
+        // TODO show Corda balance of OtherStockholder, and confidential identity / BA
+        // TODO show Solana balance of OtherStockholder
+
+        validator.transfer(
+            shareholderWallet,
+            shareholderWallet.deriveATA(),
+            redemptionWalletForShareholder.deriveATA(),
+            20
+        )
+
+        eventually(duration = 20.seconds, waitBefore = 10.seconds, waitBetween = 1.seconds) {
+            val result2 = shareholderNode.rpc.startFlow(
+                ::GetStockBalance,
+                "AAPL"
+            ).returnValue.get()!!.trimIndent()
+
+            assertEquals(
+                "You currently have 30 AAPL stocks",
+                result2,
+                "Other Shareholder received stocks on Corda that he had redeemed on Solana"
+            )
+        }
+        // TODO show Corda balance of Stockholder, and confidential identity / BA
+        // TODO show Solana balance of Stockholder
     }
 
     // Runs a test inside the Driver DSL
