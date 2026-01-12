@@ -3,6 +3,7 @@ package net.corda.samples.solana.bridging.token
 import com.lmax.solana4j.Solana
 import com.lmax.solana4j.api.PublicKey
 import com.lmax.solana4j.client.api.AccountInfo
+import com.lmax.solana4j.client.jsonrpc.SolanaJsonRpcClient
 import com.lmax.solana4j.programs.AssociatedTokenProgram
 import com.lmax.solana4j.programs.Token2022Program
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
@@ -42,6 +43,7 @@ import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.io.TempDir
 import java.math.BigDecimal
+import java.net.http.HttpClient
 import java.nio.file.Path
 import java.util.UUID
 
@@ -92,7 +94,7 @@ class BridgingTokenDriverTest {
             )
         )
     val bridgingContracts = TestCordapp.findCordapp("com.r3.corda.lib.solana.bridging.token.contracts")
-    var bridgingWorkflows: TestCordapp = TestCordapp.findCordapp("com.r3.corda.lib.solana.bridging.token.flows")
+    var bridgingWorkflowsWithoutConfig = TestCordapp.findCordapp("com.r3.corda.lib.solana.bridging.token.flows")
 
     val rpcUsers = listOf(User("user1", "test", permissions = setOf("ALL")))
 
@@ -145,13 +147,16 @@ class BridgingTokenDriverTest {
         validator.fundAccount(10, otherShareholderWallet)
         validator.fundAccount(10, redemptionWalletForShareholder)
         validator.fundAccount(10, redemptionWalletForOtherShareholder)
+
+        validator.createAta(mintAuthoritySigner,tokenMint, otherShareholderWallet.account)
+        validator.createAta(mintAuthoritySigner,tokenMint, redemptionWalletForOtherShareholder.account)
     }
 
     fun TestCordapp.withBridgeAuthorityConfig(cordaTokenTypeIdentifier: String): TestCordapp = this.withConfig(
         mapOf(
             "participants" to mapOf(
                 "$shareholderName" to shareholderWallet.account.base58(),
-                //TODO one more participant
+                "$otherShareholderName" to otherShareholderWallet.account.base58(),
             ),
             "redemptionWalletAccountToHolder" to mapOf(
                 redemptionWalletForShareholder.account.base58() to "$shareholderName",
@@ -219,7 +224,7 @@ class BridgingTokenDriverTest {
             wayneCoNode.nodeInfo.singleIdentity()
         ).returnValue.get()
 
-        val issueance = wayneCoNode.rpc.startFlow(
+        val issuance = wayneCoNode.rpc.startFlow(
             ::CreateAndIssueStock,
             "AAPL",
             "Apple",
@@ -235,7 +240,8 @@ class BridgingTokenDriverTest {
                 rpcUsers = rpcUsers,
                 additionalCordapps = listOf(
                     bridgingContracts,
-                    bridgingWorkflows.withBridgeAuthorityConfig(wayneCoNode.getCordaTokenTypeIdentifier())
+                    bridgingWorkflowsWithoutConfig
+                        .withBridgeAuthorityConfig(wayneCoNode.getCordaTokenTypeIdentifier())
                 )
             )
         ).getOrThrow()
@@ -300,7 +306,29 @@ class BridgingTokenDriverTest {
             25
         )
 
-        //check on Corda vault of otherShareholder
+        eventually(duration = 1.seconds) {
+            val balance = validator.getSolanaTokenBalance(otherShareholderWallet.deriveATA())
+            val bridgedAmount = BigDecimal(25)
+            assertEquals(
+                BigDecimal(25),
+                balance
+            ) {
+                "Other shareholder has send $bridgedAmount tokens on Solana to redeem on Corda"
+            }
+        }
+
+        eventually(duration = 20.seconds, waitBefore = 10.seconds, waitBetween = 1.seconds) {
+            val result2 = otherShareholderNode.rpc.startFlow(
+                ::GetStockBalance,
+                "AAPL"
+            ).returnValue.get()!!.trimIndent()
+
+            assertEquals(
+                "You currently have 25 AAPL stocks",
+                result2,
+                "Other Shareholder received stocks on Corda that he had redeemed on Solana"
+            )
+        }
     }
 
     // Runs a test inside the Driver DSL
@@ -380,4 +408,29 @@ fun SolanaTestValidator.transfer(
             DefaultRpcParams()
         ).metadata.err
     assertNull(error, "Token transfer failed with error: $error")
+}
+
+//TODO temporary method code, it will be replaced by new method from Solana estValidator using Sava client
+fun SolanaTestValidator.createAta(feePayer: Signer, mintAccount: PublicKey, ownerAccount: PublicKey): PublicKey {
+
+    val rpcClient = SolanaJsonRpcClient(HttpClient.newHttpClient(), SolanaTestValidator.RPC_URL)
+    val tokenProgramId = Token2022.PROGRAM_ID.toPublicKey()
+    val pda = AssociatedTokenProgram.deriveAddress(ownerAccount, tokenProgramId, mintAccount)
+    val instruction = AssociatedTokenProgram.createAssociatedTokenAccount(
+        pda,
+        mintAccount,
+        ownerAccount,
+        feePayer.account,
+        tokenProgramId,
+        false,
+    )
+    rpcClient.sendAndConfirm(
+        { txBuilder ->
+            txBuilder.append(instruction)
+        },
+        feePayer,
+        emptyList(),
+        rpcParams
+    )
+    return pda.address()
 }
