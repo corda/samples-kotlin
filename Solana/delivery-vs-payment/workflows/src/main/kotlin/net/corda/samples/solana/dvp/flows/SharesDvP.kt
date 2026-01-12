@@ -186,7 +186,8 @@ class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
             @Throws(FlowException::class)
             override fun checkTransaction(stx: SignedTransaction) {
                 /* Verify if transaction details provided by a seller match the agreed details in the flow earlier,
-                 * because a buyer (responder) hadn't built any part of Corda transaction.
+                 * because a buyer (responder) hadn't built any part of Corda transaction. Buyer doesn't verify
+                 * a destination account to pay stablecoins to as it's a seller interest to provide it correctly.
                  * */
                 val paymentStates = stx.coreTransaction.outputsOfType(SharesPaymentState::class.java)
                 require(paymentStates.size == 1) { "Received transaction to sign without payment details" }

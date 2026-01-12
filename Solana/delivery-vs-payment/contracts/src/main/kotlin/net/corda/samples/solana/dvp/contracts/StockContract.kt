@@ -12,6 +12,7 @@ import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.solana.dvp.states.StockState
 import java.math.BigDecimal
 
+// Copy of a contract class from `StockPayDividend` sample CorDapp.
 class StockContract : EvolvableTokenContract(), Contract {
     companion object {
         const val CONTRACT_ID = "net.corda.samples.solana.dvp.contracts.StockContract"

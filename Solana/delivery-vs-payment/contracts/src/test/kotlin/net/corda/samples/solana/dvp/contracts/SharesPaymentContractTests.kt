@@ -48,20 +48,20 @@ class SharesPaymentContractTests {
 
     @Test
     fun `Agree verifies with correct output, signers, and Solana instruction`() {
-        val outpput = sampleState()
+        val output = sampleState()
 
         val instruction: SolanaInstruction = SplToken.transfer(
-            outpput.solanaBuyerTokenAccount,
-            outpput.solanaStablecoin,
-            outpput.solanaSellerTokenAccount,
-            outpput.solanaBuyerWalletAccount,
-            outpput.stablecoinAmount,
-            outpput.stablecoinDecimals
+            output.solanaBuyerTokenAccount,
+            output.solanaStablecoin,
+            output.solanaSellerTokenAccount,
+            output.solanaBuyerWalletAccount,
+            output.stablecoinAmount,
+            output.stablecoinDecimals
         )
 
         ledgerServices.ledger {
             transaction {
-                output(SharesPaymentContract.ID, outpput)
+                output(SharesPaymentContract.ID, output)
 
                 notaryInstruction(instruction)
 

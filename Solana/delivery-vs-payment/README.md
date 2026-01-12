@@ -54,7 +54,7 @@ Prerequisite: A buyer owns an amount of stablecoins on Solana.
    The seller adds the stablecoin payment details (amount, the seller’s destination account and the buyer-provided details)
    as a Solana notary instruction, which will be executed by the Solana notary node in the same Solana transaction as the notarisation.
    The seller creates their ATA for payment receipt, if such an account didn't already exist for the stablecoin.
-   The seller sends the Corda transaction to the buyer to sign. 
+   The seller sends the Corda transaction to the buyer to sign.
 
 5. The buyer verifies that the transaction data matches what was agreed (for example, a quantity of the asset to exchange 
    and the stablecoin amount to pay) and then signs the transaction.

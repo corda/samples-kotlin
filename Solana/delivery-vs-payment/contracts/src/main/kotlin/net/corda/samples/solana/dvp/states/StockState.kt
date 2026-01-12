@@ -9,9 +9,7 @@ import net.corda.samples.solana.dvp.contracts.StockContract
 import java.math.BigDecimal
 import java.util.Date
 
-/**
- * StockState from StockWithDividend sample CorDapp.
- */
+// Copy of a state class from `StockPayDividend` sample CorDapp.
 @BelongsToContract(StockContract::class)
 data class StockState(
     val issuer: Party,
