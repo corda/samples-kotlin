@@ -148,8 +148,8 @@ class BridgingTokenDriverTest {
         validator.fundAccount(10, redemptionWalletForShareholder)
         validator.fundAccount(10, redemptionWalletForOtherShareholder)
 
-        validator.createAta(mintAuthoritySigner,tokenMint, otherShareholderWallet.account)
-        validator.createAta(mintAuthoritySigner,tokenMint, redemptionWalletForOtherShareholder.account)
+        validator.createAta(mintAuthoritySigner, tokenMint, otherShareholderWallet.account)
+        validator.createAta(mintAuthoritySigner, tokenMint, redemptionWalletForOtherShareholder.account)
     }
 
     fun TestCordapp.withBridgeAuthorityConfig(cordaTokenTypeIdentifier: String): TestCordapp = this.withConfig(
@@ -224,7 +224,7 @@ class BridgingTokenDriverTest {
             wayneCoNode.nodeInfo.singleIdentity()
         ).returnValue.get()
 
-        val issuance = wayneCoNode.rpc.startFlow(
+        wayneCoNode.rpc.startFlow(
             ::CreateAndIssueStock,
             "AAPL",
             "Apple",
