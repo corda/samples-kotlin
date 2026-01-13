@@ -2,7 +2,7 @@
 <Configuration status="warn">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%c{1}.%M %msg%n"/>
+            <PatternLayout pattern="%msg%n"/>
         </Console>
     </Appenders>
 

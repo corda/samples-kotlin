@@ -47,6 +47,7 @@ import java.math.BigDecimal
 import java.net.http.HttpClient
 import java.nio.file.Path
 import java.util.UUID
+import java.util.concurrent.ExecutionException
 
 
 class BridgingTokenDriverTest {
@@ -185,7 +186,7 @@ class BridgingTokenDriverTest {
 
     @Test
     fun `briding token test`() = withDriver {
-        log.info("Starting bridging demo ...")
+        log.info("\nStarting bridging demo ...")
 
         val wayneCoNode = startNode(
             NodeParameters(
@@ -207,7 +208,6 @@ class BridgingTokenDriverTest {
                 rpcUsers
             )
         ).getOrThrow()
-
 
         val bankNode = startNode(
             NodeParameters(
@@ -240,7 +240,7 @@ class BridgingTokenDriverTest {
             notaryHandles.single { it.identity.name == generalNotaryName }.identity
         ).returnValue.get()
 
-        val bridgingAuthorityNode = startNode(
+        val bridgeAuthorityNode = startNode(
             NodeParameters(
                 providedName = bridgeAuthority,
                 rpcUsers = rpcUsers,
@@ -268,8 +268,13 @@ class BridgingTokenDriverTest {
             result,
             "Shareholder received stocks on Corda network"
         )
-        // TODO show Corda balance of Stockholder, OtherStockholder, and confidential identity / BA
-
+        log.info("\nState before bridging:")
+        log.info("  Shareholder Corda balance: ${shareholderNode.cordaBalance()}")
+        log.info("  Other ShareholderNode Corda balance: ${otherShareholderNode.cordaBalance()}")
+        log.info("  Bridge Authority Corda balance: ${bridgeAuthorityNode.cordaBalance()}")
+        log.info("\nSolana state before bridging:")
+        log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
+        log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
         assertNull(
             validator.getAccountInfo(shareholderWallet.deriveATA()),
             "ATA should not be created yet",
@@ -279,7 +284,7 @@ class BridgingTokenDriverTest {
             ::MoveStock,
             "AAPL",
             90,
-            bridgingAuthorityNode.nodeInfo.singleIdentity()
+            bridgeAuthorityNode.nodeInfo.singleIdentity()
         ).returnValue.get()
         eventually(duration = 10.seconds) {
             assertNotNull(
@@ -297,8 +302,13 @@ class BridgingTokenDriverTest {
                 "Shareholder bridged $bridgedAmount tokens to Solana"
             }
         }
-        // TODO show Corda balance of Stockholder, OtherStockholder and confidential identity / BA
-        // TODO show Solana balance of Stockholder, OtherStockholder
+        log.info("\nCorda state after bridging:")
+        log.info("  Shareholder: ${shareholderNode.cordaBalance()}")
+        log.info("  Other ShareholderNode: ${otherShareholderNode.cordaBalance()}")
+        log.info("  Bridge Authority: ${bridgeAuthorityNode.cordaBalance()}")
+        log.info("\nSolana state after bridging:")
+        log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
+        log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
 
         validator.transfer(
             shareholderWallet,
@@ -306,6 +316,10 @@ class BridgingTokenDriverTest {
             otherShareholderWallet.deriveATA(),
             50
         )
+
+        log.info("\nSolana state after on-chain transfer of 50 from Shareholder to Other Shareholder:")
+        log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
+        log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
 
         validator.transfer(
             otherShareholderWallet,
@@ -337,8 +351,9 @@ class BridgingTokenDriverTest {
                 "Other Shareholder received stocks on Corda that he had redeemed on Solana"
             )
         }
-        // TODO show Corda balance of OtherStockholder, and confidential identity / BA
-        // TODO show Solana balance of OtherStockholder
+        log.info("\nSolana state before redemptions:")
+        log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
+        log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
 
         validator.transfer(
             shareholderWallet,
@@ -359,9 +374,15 @@ class BridgingTokenDriverTest {
                 "Other Shareholder received stocks on Corda that he had redeemed on Solana"
             )
         }
-        // TODO show Corda balance of Stockholder, and confidential identity / BA
-        // TODO show Solana balance of Stockholder
-        log.info("Bridging demo is completed.")
+        log.info("\nState after redemptions:")
+        log.info("  Shareholder: ${shareholderNode.cordaBalance()}")
+        log.info("  Other ShareholderNode: ${otherShareholderNode.cordaBalance()}")
+        log.info("  Bridge Authority: ${bridgeAuthorityNode.cordaBalance()}")
+        log.info("\nSolana state after redemptions:")
+        log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
+        log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
+
+        log.info("\nBridging demo is completed.")
     }
 
     // Runs a test inside the Driver DSL
@@ -386,12 +407,21 @@ class BridgingTokenDriverTest {
             tokenMint
         ).address()
 
-    fun NodeHandle.getSharesNumber(): Long {
-        val wayneCoStocks = this.rpc.vaultQuery(FungibleToken::class.java).states
-        return wayneCoStocks
-            // Simplified as Corda network has a one asset type, we don't need to check Corda state details (issuer and token pointer)
-            .sumOf { it.state.data.amount.quantity }
+    fun NodeHandle.cordaBalance(): String = try {
+        this.rpc.startFlow(
+            ::GetStockBalance,
+            "AAPL"
+        ).returnValue.get()!!.trimIndent()
+    } catch (_: ExecutionException) {
+        "No AAPL shares"
     }
+
+    fun Signer.solanaBalance(): String =
+        if (validator.getAccountInfo(this.deriveATA()) != null) {
+            "${validator.getSolanaTokenBalance(this.deriveATA())} coins"
+        } else {
+            "no stablecoin account"
+        }
 
     fun NodeHandle.getCordaTokenTypeIdentifier(): String {
         val states = this.rpc.vaultQuery(FungibleToken::class.java).states
@@ -402,7 +432,6 @@ class BridgingTokenDriverTest {
 }
 
 fun Pubkey.toPublicKey(): PublicKey = Solana.account(bytes)
-
 
 fun SolanaTestValidator.getAccountInfo(publicKey: PublicKey?): AccountInfo? {
     requireNotNull(publicKey) { "PublicKey must not be null" }
