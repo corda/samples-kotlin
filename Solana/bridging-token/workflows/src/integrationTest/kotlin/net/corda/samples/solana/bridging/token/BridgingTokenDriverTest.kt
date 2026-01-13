@@ -374,7 +374,7 @@ class BridgingTokenDriverTest {
                 "Other Shareholder received stocks on Corda that he had redeemed on Solana"
             )
         }
-        log.info("\nState after redemptions:")
+        log.info("\nCorda state after redemptions:")
         log.info("  Shareholder: ${shareholderNode.cordaBalance()}")
         log.info("  Other ShareholderNode: ${otherShareholderNode.cordaBalance()}")
         log.info("  Bridge Authority: ${bridgeAuthorityNode.cordaBalance()}")
