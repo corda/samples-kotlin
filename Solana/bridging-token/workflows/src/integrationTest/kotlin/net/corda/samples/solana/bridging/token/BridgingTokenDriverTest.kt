@@ -42,6 +42,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.io.TempDir
+import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 import java.net.http.HttpClient
 import java.nio.file.Path
@@ -51,6 +52,8 @@ import java.util.UUID
 class BridgingTokenDriverTest {
 
     companion object {
+        private val log = LoggerFactory.getLogger(BridgingTokenDriverTest::class.java)
+
         private val validator = SolanaTestValidator()
         private lateinit var solanaNotaryKeyFile: Path
         private lateinit var solanaNotaryKey: Signer
@@ -182,6 +185,7 @@ class BridgingTokenDriverTest {
 
     @Test
     fun `briding token test`() = withDriver {
+        log.info("Starting bridging demo ...")
 
         val wayneCoNode = startNode(
             NodeParameters(
@@ -212,7 +216,7 @@ class BridgingTokenDriverTest {
             )
         ).getOrThrow()
 
-        val observerNode = startNode(
+        startNode(
             NodeParameters(
                 CordaX500Name("Observer", "Washington DC", "US"),
                 rpcUsers
@@ -357,6 +361,7 @@ class BridgingTokenDriverTest {
         }
         // TODO show Corda balance of Stockholder, and confidential identity / BA
         // TODO show Solana balance of Stockholder
+        log.info("Bridging demo is completed.")
     }
 
     // Runs a test inside the Driver DSL

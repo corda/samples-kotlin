@@ -13,16 +13,8 @@ cordapp {
 }
 
 sourceSets {
-    main {
-        resources {
-            srcDir rootProject.file("config/dev")
-        }
-    }
-    test {
-        resources {
-            srcDir rootProject.file("config/test")
-        }
-    }
+    main {}
+    test {}
     integrationTest {
         kotlin {
             compileClasspath += main.output + test.output
@@ -81,7 +73,6 @@ dependencies {
     cordaProvided "com.lmax:solana4j:1.2.2"
     cordaProvided "com.lmax:solana4j-json-rpc:1.2.2"
     cordaProvided "com.github.ben-manes.caffeine:caffeine:3.2.3"
-    //cordaProvided "net.corda.solana.notary:common:$corda_solana_notary_version"
 }
 
 tasks.withType(Test).configureEach { t ->

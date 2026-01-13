@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%c{1}.%M %msg%n"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="warn"/>
+
+        <Logger name="net.corda" level="warn" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="net.corda.testing.node.internal" level="warn" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="net.corda.samples.solana.bridging.token.BridgingTokenDriverTest" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+    </Loggers>
+</Configuration>
