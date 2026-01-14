@@ -4,19 +4,23 @@ This sample demonstrates how to bridge Corda assets (states/tokens) to the Solan
 - a Bridge Authority (an extra Corda participant that orchestrates bridging/redemption), and
 - a Solana Notary (a Corda notary backed by a Solana notary program).
 
-The Corda asset in this sample is a Fungible Token created using the Corda [Token SDK](https://training.corda.net/libraries/tokens-sdk/),
+The Corda asset in this sample is a Fungible Token created using 
+the Corda [Token SDK](https://training.corda.net/libraries/tokens-sdk/),
 but the same pattern can be applied to other Corda states.
-This project extends (without modifying the core flow logic of) the [StockPayDividends sample CorDapp](https://github.com/corda/samples-kotlin/tree/release/4.12/Tokens/stockpaydividend)
+This project extends (without modifying the core flow logic of) 
+the [StockPayDividends sample CorDapp](https://github.com/corda/samples-kotlin/tree/release/4.12/Tokens/stockpaydividend)
 and deploys the same party set as the original demo and adds bridging parties.
 
 ## Pre-Requisites
 [Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.13/enterprise/cordapps/getting-set-up.html)
 
+A source code of a sibling project ``StockPayDividends`` sample CorDapp to be checked out.
+
 You need access to Corda Enterprise (via repository access or a developer pack). 
 Provide repository URLs for Corda Enterprise JARs in:
 - ``repositories.gradle`` 
 - ``../../Tokens/stockpaydividend/repositories.gradle``.
-  Update the following in``../constant.properties``:
+Update the following in``../constant.properties``:
 - ``cordaOsVersion`` 
 - ``cordaEnterpiseVersion``
 
@@ -37,7 +41,7 @@ gradlew.bat build
 This runs the integration test 
 ``./workflows/src/integrationTest/kotlin/net/corda/samples/solana/briding/BridgingTokenDriverTest.kt`` file.
 The test is written using Corda Driver DSL. It deploys and starts local Corda nodes and installs the CorDapps, 
-starts Solana local test validator (or targets devnet - TBD), creates Solana accounts and deploys the required Solana program,
+starts Solana local test validator (or targets devnet), creates Solana accounts and deploys the required Solana program,
 bridges a portion of a Corda asset to Solana, then redeems it back.
 
 ## Concepts
@@ -153,8 +157,8 @@ The CorDapp configuration file
 - ``participants`` Map of Corda participants (X500 name) to their Solana wallet accounts (base58 address)
 - ``redemptionWalletAccountToHolder`` Map of Solana wallet accounts (base58 address) used 
 for redemption to Corda participants (X500 name)
-- ``mintsWithAuthorities`` Map of Corda token type identifier (e.g., linear UUID / token identifier) to Solana mint account 
-and mint authority (base58 addresses)
+- ``mintsWithAuthorities`` Map of Corda token type identifier (e.g., linear UUID / token identifier) to Solana 
+mint account and mint authority (base58 addresses)
 - ``solanaNotaryName`` - Corda X500 name od the notary that notarises bridging and redemption Corda transactions 
 (the ``Solana Notary``)
 - ``generalNotaryName`` - Corda X500 name of the notary used for regular Corda transactions (non-bridging)
@@ -166,7 +170,7 @@ and `wss://api.devnet.solana.com` for devnet
 - ``lockingIdentityLabel`` - Internal label used by Bridge Authority to store/retrieve the confidential identity used
 for locking Corda assets (any UUID string)
 
-Corda notary requires additional settings in ``node.conf`` file, under a ``notary.solana`` entry:
+Solana notary requires additional settings in ``node.conf`` file, under a ``notary.solana`` entry:
 - ``rpcUrl`` URL of the RPC provider for interacting with the blockchain. If you are using the test validator
  then this will be `http://127.0.0.1:8899`; if you want to use devnet then the URL is `https://api.devnet.solana.com`
 - ``websocketUrl`` The corresponding websocket URL of the RPC provider. `ws://127.0.0.1:8900` for the test validator
