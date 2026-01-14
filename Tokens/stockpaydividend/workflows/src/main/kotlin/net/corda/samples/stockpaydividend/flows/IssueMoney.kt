@@ -21,7 +21,7 @@ class IssueMoney(val currency: String,
     override val progressTracker = ProgressTracker()
 
     @Suspendable
-    override fun call():String {
+    override fun call(): String {
 
         // Create an instance of the fiat currency token type
         val token = getInstance(currency)
@@ -32,7 +32,7 @@ class IssueMoney(val currency: String,
         // Create an instance of FungibleToken for the fiat currency to be issued
         val fungibleToken = FungibleToken(Amount(amount, issuedTokenType), recipient, null)
 
-        // Use the build-in flow, IssueTokens, to issue the required amount to the the recipient
+        // Use the build-in flow, IssueTokens, to issue the required amount to the recipient
         val stx = subFlow(IssueTokens(listOf(fungibleToken), listOf(recipient)))
         return ("\nIssued to " + recipient.name.organisation + " " + this.amount + " "
                 + this.currency + " for stock issuance." + "\nTransaction ID: " + stx.id)
