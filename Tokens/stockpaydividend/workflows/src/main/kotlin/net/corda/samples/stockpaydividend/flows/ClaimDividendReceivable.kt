@@ -26,8 +26,10 @@ import java.util.*
 @StartableByRPC
 class ClaimDividendReceivable(val symbol: String) : FlowLogic<String>() {
     @Suspendable
-    override fun call(): String { // Retrieve the stock and pointer
+    override fun call(): String {
+        // Retrieve the stock and pointer
         val stockPointer: TokenPointer<*> = QueryUtilities.queryStockPointer(symbol, serviceHub)
+        @Suppress("UNCHECKED_CAST")
         val stockStateRef: StateAndRef<StockState> = stockPointer.pointer.resolve(serviceHub) as StateAndRef<StockState>
         val stockState: StockState = stockStateRef.state.data
 
@@ -70,21 +72,22 @@ class ClaimDividendReceivable(val symbol: String) : FlowLogic<String>() {
 class ClaimDividendReceivableResponder(private val holderSession: FlowSession) : FlowLogic<SignedTransaction?>() {
     @Suspendable
     @Throws(FlowException::class)
-    override fun call(): SignedTransaction { // Receives shareholder's state for input and output
-
+    override fun call(): SignedTransaction {
+        // Receives shareholder's state for input and output
         val holderStockStates: List<StateAndRef<StockState>> = subFlow(ReceiveStateAndRefFlow(holderSession))
         val holderStockState: StateAndRef<StockState> = holderStockStates[0]
         val stockState: StockState = holderStockState.state.data
 
         // Query the stored state of the company
         val stockPointer: TokenPointer<*> = QueryUtilities.queryStockPointer(stockState.symbol, serviceHub)
+        @Suppress("UNCHECKED_CAST")
         val stockStateRef: StateAndRef<StockState> = stockPointer.pointer.resolve(serviceHub) as StateAndRef<StockState>
 
         // Receives the amount that the shareholder holds
-        val claimNoticication:ClaimNotification = holderSession.receive(ClaimNotification::class.java).unwrap { it: ClaimNotification->
-            if(holderStockState.ref.txhash != stockStateRef.ref.txhash){
+        val claimNotification:ClaimNotification = holderSession.receive(ClaimNotification::class.java).unwrap { it: ClaimNotification->
+            if (holderStockState.ref.txhash != stockStateRef.ref.txhash) {
                 throw FlowException("StockState does not match with the issuers. Shareholder may not have updated the newest stock state.")
-            }else{
+            } else {
                 it
             }
         }
@@ -94,7 +97,7 @@ class ClaimDividendReceivableResponder(private val holderSession: FlowSession) :
         val dividendTokenType = TokenType(currency.currencyCode, currency.defaultFractionDigits)
 
         // Calculate the actual dividend paying to the shareholder
-        val yield: BigDecimal = stockState.dividend.multiply(BigDecimal.valueOf(claimNoticication.amount.quantity))
+        val yield: BigDecimal = stockState.dividend.multiply(BigDecimal.valueOf(claimNotification.amount.quantity))
         val dividend = `yield`.multiply(stockState.price).multiply(BigDecimal.valueOf(
                 Math.pow(10.0, currency.defaultFractionDigits.toDouble())))
 
@@ -118,9 +121,7 @@ class ClaimDividendReceivableResponder(private val holderSession: FlowSession) :
         val stx = subFlow(CollectSignaturesFlow(ptx, sessions))
         return subFlow(FinalityFlow(stx, sessions))
     }
-
 }
-
 
 @CordaSerializable
 class ClaimNotification(val amount: Amount<TokenType>)
