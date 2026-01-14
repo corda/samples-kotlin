@@ -12,7 +12,8 @@ and deploys the same party set as the original demo and adds bridging parties.
 ## Pre-Requisites
 [Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.13/enterprise/cordapps/getting-set-up.html)
 
-You need access to Corda Enterprise (via repository access or a developer pack). Provide repository URLs for Corda Enterprise JARs in:
+You need access to Corda Enterprise (via repository access or a developer pack). 
+Provide repository URLs for Corda Enterprise JARs in:
 - ``repositories.gradle`` 
 - ``../../Tokens/stockpaydividend/repositories.gradle``.
   Update the following in``../constant.properties``:
@@ -26,7 +27,6 @@ Install the [Solana CLI:](https://solana.com/docs/intro/installation).
 ## Running the sample
 
 From the repository root:
-
 ```bash
 ./gradlew build
 ```
@@ -42,8 +42,8 @@ bridges a portion of a Corda asset to Solana, then redeems it back.
 
 ## Concepts
 
-Briging allows to transfer an assets form Corda netowrk to a token representation on Solana legger.
-The Cord asse is never burned, but it lokec and can be redeem back.
+Bridging allows to transfer an assets form Corda network to a token representation on Solana ledger.
+The Cord asset is never burned, but it locked and can be redeemed back.
 This sample demonstrates how to bridge Corda assets to the Solana network using
 a Bridge Authority (an extra Corda participant that orchestrates bridging/redemption), and
 a Solana Notary (a Corda notary backed by a Solana notary program).
@@ -166,8 +166,8 @@ Participants trust Bridge Authority to follow the authorized bridging/redeeming 
 
 - During redemption, which Corda token are transfer back?
 Because the bridged asset is a Fungible Token, redemption does not require returning 
-the exact same token instances that were originally bridged. Instead, bridged assets form a pooled inventory held by Bridge Authority
-and any current holder of the Solana token can redeem on Corda.
+the exact same token instances that were originally bridged. Instead, bridged assets form a pooled inventory 
+held by Bridge Authority and any current holder of the Solana token can redeem on Corda.
 This means Solana-side token transfers are independent of the original Corda holder.
 Example:
   - Shareholder bridges shares
