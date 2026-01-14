@@ -20,3 +20,4 @@ The samples are divided into 5 sections with the following desciption:
 * [BusinessNetworks](./BusinessNetworks): These include Business Network Extension related samples. Learn more at [bn-extension](https://github.com/corda/bn-extension).
 * [Features](./Features): These samples demonstrate specific Corda [functionalities](https://training.corda.net/corda-details/introduction/).
 * [Tokens](./Tokens): These include TokenSDK related samples. Learn more at [TokenSDK](https://training.corda.net/libraries/tokens-sdk/).
+* [Solana](./Solana): These demonstrate how Corda can work with [Solana network](https://solana.com/).
