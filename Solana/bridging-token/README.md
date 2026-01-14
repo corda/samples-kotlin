@@ -96,7 +96,7 @@ Bridge Authority performs bridging on behalf of Shareholder:
     It internally locks the shares received by moving it under Corda Confidential Identity and creates a Corda token 
     equivalent state with additional Solana information.
   - Creates a “token-equivalent” representation that includes required Solana metadata (mint, destination wallet), 
-    the metadata is kooked up from the node configuration
+    the metadata is looked up from the node configuration
   - Ensures the recipient (``Shareholder``) has an Associated Token Account (ATA) for that mint;
     if not, submits a Solana transaction to create it.
   - Changes a notary for the “token-equivalent” representation to the Solana Notary 
@@ -115,7 +115,26 @@ After finality, the bridged amount is represented as tokens owned by the ``Share
 
 #### Redemption Flow:
 
-TBD
+1. Redemption initialization on Solana
+    Shareholder transfers some Solana tokens to a specially designated wallet for redemption, the token account is ATA.
+   ``Bridge Authority`` monitors changes to the redemption accounts and is notified about a transfer.
+   ``Bridge Authority`` creates a transaction with a new Corda “token-equivalent” representation that includes 
+     required Solana metadata (mint, source wallet)
+     and what Corda tokens will be redeemed, this data is looked up from the node configuration.
+     The transaction contains instruction for Solana to burn tokens from the redemption wallet (ATA).
+   ``Bridge Authority`` submits the transaction to Solana Notary. 
+
+2. Solana Notary verifies and burns on Solana
+   The Solana Notary verifies the validity of the Corda transaction - checks that the amount to be burned on Solana
+   matches the amount to be unlocked (not yet) on Corda, then it submits the Solana burn.
+   The Solana transaction is sign via custodied wallet for ``Shareholder``'s redemptions.
+   The Solana Notary finalizes the Corda transaction only if the Solana burn succeeds.
+   
+3. ``Bridge Authority`` release the  Corda asset
+   ``Bridge Authority`` changes the Solana Notary for the “token-equivalent” representation to the regular notary (``Notary``)
+   ``Bridge Authority`` performs Corda Token selection and creates a transaction to move shares to
+   ``Shareholder`` and to consume the “token-equivalent” representation.
+    The Corda transaction is submitted to ``Notary`` for verification and finalisation.
 
 ### Configuration
 
