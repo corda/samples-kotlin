@@ -21,12 +21,6 @@ Provide repository URLs for Corda Enterprise JARs in:
 - [`repositories.gradle`](repositories.gradle) 
 - sample [`repositories.gradle`](../../Tokens/stockpaydividend/repositories.gradle).
 
-Update the following in the parent [`constants.properties`](../constants.properties):
-- `cordaOsVersion` 
-- `cordaEnterpiseVersion`
-
-Minimum supported version is Corda 4.14.
-
 Install the [Solana CLI:](https://solana.com/docs/intro/installation).
 
 ## Running the sample
@@ -67,7 +61,7 @@ and deploys the same party set as the original demo but adds bridging parties.
 * **Bridge Authority** - a special node that facilitates bridging and redemption.
 * **Solana Notary** - a second notary responsible for bridging/redemption transactions on Solana.
 * **Bank** - issues fiat tokens (used by the original sample).
-* **Observer** -observes stock lifecycle transactions (used by the original sample).
+* **Observer** - observes stock lifecycle transactions (used by the original sample).
 
 WayneCo, Observer and Bank do not participate in bridging directly, but remain necessary for the stock issuance workflow 
 from the original Stock CorDapp.
@@ -199,7 +193,7 @@ which keeps a redeemable pool of assets on Corda.
 Corda participants trust the Bridge Authority to follow the authorized bridging/redeeming flows and not bypass 
 constraints. It's likely the asset issuer is also the `Bridge Authority`.
 
-- During redemption, which Corda tokens are transfered back?
+- During redemption, which Corda tokens are transferred back?
 Because the bridged asset is a fungible token, redemption does not require returning 
 the exact same token instances that were originally bridged. Instead, bridged assets form a pooled inventory 
 held by `Bridge Authority` and any current holder of the bridged Solana token can redeem on Corda.

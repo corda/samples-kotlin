@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import static org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
 import static org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
 
@@ -13,11 +15,11 @@ buildscript {
         corda_gradle_plugins_version = constants.getProperty("gradlePluginsVersion")
         corda_solana_notary_version = constants.getProperty("cordaSolanaNotaryVersion")
         corda_tokens_release_version = constants.getProperty("cordaTokensVersion")
-        sava_version = constants.getProperty("savaVersion")
+        sava_core_version = constants.getProperty("savaCoreVersion")
+        sava_programs_version = constants.getProperty("savaProgramsVersion")
         corda_platform_version = constants.getProperty("platformVersion").toInteger()
         kotlin_version = constants.getProperty("kotlinVersion")
         junit_version = constants.getProperty("junitVersion")
-        corda_bridging_token_release_version = "0.1.0"
     }
 
     repositories {
@@ -48,13 +50,12 @@ allprojects {
                        '--add-modules', 'jdk.incubator.foreign']
     }
 
-    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+    tasks.withType(KotlinCompile) {
         compilerOptions {
             languageVersion = KOTLIN_1_9
             apiVersion = KOTLIN_1_9
             jvmTarget = JVM_17
-            javaParameters = true   // Useful for reflection.
-            freeCompilerArgs = ['-Xjvm-default=all-compatibility']
+            javaParameters = true // Useful for reflection.
         }
     }
 
@@ -69,7 +70,7 @@ allprojects {
 }
 
 apply plugin: 'net.corda.plugins.cordapp'
-apply plugin: 'net.corda.plugins.quasar-utils'
+//apply plugin: 'net.corda.plugins.quasar-utils'
 
 dependencies {
     // Corda dependencies.
@@ -88,11 +89,4 @@ dependencies {
 cordapp {
     targetPlatformVersion corda_platform_version.toInteger()
     minimumPlatformVersion corda_platform_version.toInteger()
-}
-
-tasks.register('installQuasar', Copy) {
-    destinationDir rootProject.file("lib")
-    from(configurations.quasar) {
-        rename 'quasar-core(.*).jar', 'quasar.jar'
-    }
 }
