@@ -19,5 +19,5 @@ The samples are divided into 5 sections with the following desciption:
 * [Basic](./Basic): They demonstrate [fundamental](https://training.corda.net/key-concepts/concepts/) and useful techniques for CorDapp development.
 * [BusinessNetworks](./BusinessNetworks): These include Business Network Extension related samples. Learn more at [bn-extension](https://github.com/corda/bn-extension).
 * [Features](./Features): These samples demonstrate specific Corda [functionalities](https://training.corda.net/corda-details/introduction/).
+* [Solana](./Solana): Demonstrates how Corda can integrate with the [Solana network](https://solana.com/).
 * [Tokens](./Tokens): These include TokenSDK related samples. Learn more at [TokenSDK](https://training.corda.net/libraries/tokens-sdk/).
-* [Solana](./Solana): These demonstrate how Corda can work with [Solana network](https://solana.com/).
