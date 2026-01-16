@@ -1,26 +1,19 @@
 package net.corda.samples.solana.bridging.token
 
-import com.lmax.solana4j.Solana
-import com.lmax.solana4j.api.PublicKey
-import com.lmax.solana4j.client.api.AccountInfo
-import com.lmax.solana4j.client.jsonrpc.SolanaJsonRpcClient
-import com.lmax.solana4j.programs.AssociatedTokenProgram
-import com.lmax.solana4j.programs.Token2022Program
+import com.r3.corda.lib.solana.bridging.token.flows.SavaFactory.toPublicKey
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
 import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.seconds
+import net.corda.node.utilities.solana.FileSigner
+import net.corda.node.utilities.solana.TokenManagement
+import net.corda.node.utilities.solana.TokenProgram
 import net.corda.samples.stockpaydividend.flows.CreateAndIssueStock
 import net.corda.samples.stockpaydividend.flows.GetStockBalance
 import net.corda.samples.stockpaydividend.flows.IssueMoney
 import net.corda.samples.stockpaydividend.flows.MoveStock
-import net.corda.solana.notary.common.Signer
-import net.corda.solana.notary.common.rpc.DefaultRpcParams
-import net.corda.solana.notary.common.rpc.checkResponse
-import net.corda.solana.notary.common.rpc.sendAndConfirm
 import net.corda.solana.sdk.Token2022
-import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.testing.common.internal.eventually
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.singleIdentity
@@ -33,7 +26,6 @@ import net.corda.testing.node.NotarySpec
 import net.corda.testing.node.TestCordapp
 import net.corda.testing.node.User
 import net.corda.testing.solana.SolanaTestValidator
-import net.corda.testing.solana.randomKeypairFile
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -43,21 +35,24 @@ import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.io.TempDir
 import org.slf4j.LoggerFactory
+import software.sava.core.accounts.PublicKey
+import software.sava.core.accounts.Signer
+import software.sava.core.accounts.SolanaAccounts
+import software.sava.core.accounts.meta.AccountMeta
+import software.sava.core.accounts.token.Token2022Account
+import software.sava.core.tx.Instruction
+import software.sava.rpc.json.http.client.SolanaRpcClient
 import java.math.BigDecimal
-import java.net.http.HttpClient
 import java.nio.file.Path
 import java.util.UUID
 import java.util.concurrent.ExecutionException
-
 
 class BridgingTokenDriverTest {
 
     companion object {
         private val log = LoggerFactory.getLogger(BridgingTokenDriverTest::class.java)
-
-        private val validator = SolanaTestValidator()
-        private lateinit var solanaNotaryKeyFile: Path
-        private lateinit var solanaNotaryKey: Signer
+        private lateinit var validator: SolanaTestValidator
+        private lateinit var solanaNotarySigner: FileSigner
 
         // A directory with Corda Notary key pair for singing Corda Program on Solana
         @TempDir
@@ -66,10 +61,10 @@ class BridgingTokenDriverTest {
         @JvmStatic
         @BeforeAll
         fun startTestValidator() {
-            solanaNotaryKeyFile = randomKeypairFile(notaryKeyDir)
-            solanaNotaryKey = Signer.fromFile(solanaNotaryKeyFile)
-            validator.start()
-            validator.defaultNotaryProgramSetup(solanaNotaryKey.account)
+            solanaNotarySigner = FileSigner.random(notaryKeyDir)
+            validator = SolanaTestValidator()
+            validator.startAndWait()
+            validator.defaultNotaryProgramSetup(solanaNotarySigner.publicKey())
         }
 
         @JvmStatic
@@ -104,22 +99,22 @@ class BridgingTokenDriverTest {
 
     // Stockpaydividend doesn't use fractionDigits, in order to maintain 1:1 conversion with Solana token,
     // Solana token will not have fraction digits as well
-    private val TOKEN_DECIMALS = 0
+    private val TOKEN_DECIMALS: Int = 0
 
     // A directory for Notary to store Corda participant key pairs for sining Solana transactions,
     // intentionally these are located in a different directory than Corda Notary Program key pair
     @TempDir
     private lateinit var custodiedKeysDir: Path
 
-    private lateinit var bridgeAuthorityWalletFile: Path
-    private lateinit var bridgeAuthorityWallet: Signer
+    @TempDir
+    private lateinit var otherDir: Path
 
-    private val shareholderWallet: Signer = Signer.random()
-    private val otherShareholderWallet: Signer = Signer.random()
-
-    private lateinit var redemptionWalletForShareholder: Signer
-    private lateinit var redemptionWalletForOtherShareholder: Signer
-    private lateinit var mintAuthoritySigner: Signer
+    private lateinit var bridgeAuthoritySigner: FileSigner
+    private lateinit var shareholderWallet: FileSigner
+    private lateinit var otherShareholderWallet: FileSigner
+    private lateinit var redemptionWalletForShareholder: FileSigner
+    private lateinit var redemptionWalletForOtherShareholder: FileSigner
+    private lateinit var mintAuthoritySigner: FileSigner
     private lateinit var tokenMint: PublicKey
 
     @BeforeEach
@@ -130,49 +125,65 @@ class BridgingTokenDriverTest {
                 "solana" to mapOf(
                     "rpcUrl" to SolanaTestValidator.RPC_URL,
                     "websocketUrl" to SolanaTestValidator.WS_URL,
-                    "notaryKeypairFile" to "$solanaNotaryKeyFile",
+                    "notaryKeypairFile" to "${solanaNotarySigner.file}",
                     "custodiedKeysDir" to "$custodiedKeysDir",
-                    "programWhitelist" to listOf(Token2022.PROGRAM_ID.toPublicKey().base58())
+                    "programWhitelist" to listOf(Token2022.PROGRAM_ID.toPublicKey().toBase58())
                 )
             )
         )
-        bridgeAuthorityWalletFile = randomKeypairFile(custodiedKeysDir)
-        bridgeAuthorityWallet = Signer.fromFile(bridgeAuthorityWalletFile)
-        redemptionWalletForShareholder = Signer.fromFile(randomKeypairFile(custodiedKeysDir))
-        redemptionWalletForOtherShareholder = Signer.fromFile(randomKeypairFile(custodiedKeysDir))
+        bridgeAuthoritySigner = FileSigner.random(custodiedKeysDir)
+        redemptionWalletForShareholder = FileSigner.random(custodiedKeysDir)
+        redemptionWalletForOtherShareholder = FileSigner.random(custodiedKeysDir)
+        mintAuthoritySigner = FileSigner.random(custodiedKeysDir)
+        shareholderWallet = FileSigner.random(otherDir)
+        otherShareholderWallet = FileSigner.random(otherDir)
 
-        mintAuthoritySigner = Signer.fromFile(randomKeypairFile(custodiedKeysDir))
-        validator.fundAccount(10, mintAuthoritySigner)
+        validator.accounts.airdropSol(mintAuthoritySigner.publicKey(), 10)
 
-        tokenMint = validator.createToken(mintAuthoritySigner, decimals = TOKEN_DECIMALS.toByte())
+        tokenMint =
+            validator.tokens.createToken(mintAuthoritySigner, TokenProgram.TOKEN_2022, decimals = TOKEN_DECIMALS)
 
-        validator.fundAccount(10, bridgeAuthorityWallet)
-        validator.fundAccount(10, shareholderWallet)
-        validator.fundAccount(10, otherShareholderWallet)
-        validator.fundAccount(10, redemptionWalletForShareholder)
-        validator.fundAccount(10, redemptionWalletForOtherShareholder)
+        validator.accounts.airdropSol(bridgeAuthoritySigner.publicKey(), 10)
+        validator.accounts.airdropSol(shareholderWallet.publicKey(), 10)
+        validator.accounts.airdropSol(otherShareholderWallet.publicKey(), 10)
+        validator.accounts.airdropSol(redemptionWalletForShareholder.publicKey(), 10)
+        validator.accounts.airdropSol(redemptionWalletForOtherShareholder.publicKey(), 10)
 
-        validator.createAta(mintAuthoritySigner, tokenMint, otherShareholderWallet.account)
-        validator.createAta(mintAuthoritySigner, tokenMint, redemptionWalletForOtherShareholder.account)
-
-        validator.createAta(mintAuthoritySigner, tokenMint, redemptionWalletForShareholder.account)
+        validator.tokens.createAta(
+            mintAuthoritySigner,
+            otherShareholderWallet.publicKey(),
+            tokenMint,
+            Token2022.PROGRAM_ID.toPublicKey()
+        )
+        validator.tokens.createAta(
+            mintAuthoritySigner,
+            redemptionWalletForOtherShareholder.publicKey(),
+            tokenMint,
+            Token2022.PROGRAM_ID.toPublicKey()
+        )
+        validator.tokens.createAta(
+            mintAuthoritySigner,
+            redemptionWalletForShareholder.publicKey(),
+            tokenMint,
+            Token2022.PROGRAM_ID.toPublicKey()
+        )
     }
 
     fun TestCordapp.withBridgeAuthorityConfig(cordaTokenTypeIdentifier: String): TestCordapp = this.withConfig(
         mapOf(
             "participants" to mapOf(
-                "$shareholderName" to shareholderWallet.account.base58(),
-                "$otherShareholderName" to otherShareholderWallet.account.base58(),
+                "$shareholderName" to shareholderWallet.publicKey().toBase58(),
+                "$otherShareholderName" to otherShareholderWallet.publicKey().toBase58(),
             ),
             "redemptionWalletAccountToHolder" to mapOf(
-                redemptionWalletForShareholder.account.base58() to "$shareholderName",
-                redemptionWalletForOtherShareholder.account.base58() to "$otherShareholderName",
+                redemptionWalletForShareholder.publicKey().toBase58() to "$shareholderName",
+                redemptionWalletForOtherShareholder.publicKey().toBase58() to "$otherShareholderName",
             ),
             "mintsWithAuthorities" to mapOf(
                 cordaTokenTypeIdentifier to
                         mapOf(
-                            "tokenMint" to tokenMint.base58(),
-                            "mintAuthority" to mintAuthoritySigner.account.base58()
+                            "tokenMint" to tokenMint.toBase58(),
+                            "mintAuthority" to mintAuthoritySigner.publicKey().toBase58()
                         )
             ),
             "lockingIdentityLabel" to UUID.randomUUID().toString(),
@@ -180,7 +191,7 @@ class BridgingTokenDriverTest {
             "generalNotaryName" to "$generalNotaryName",
             "solanaWsUrl" to SolanaTestValidator.WS_URL,
             "solanaRpcUrl" to SolanaTestValidator.RPC_URL,
-            "bridgeAuthorityWalletFile" to bridgeAuthorityWalletFile.toString()
+            "bridgeAuthorityWalletFile" to bridgeAuthoritySigner.file.toString()
         )
     )
 
@@ -310,7 +321,7 @@ class BridgingTokenDriverTest {
         log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
         log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
 
-        validator.transfer(
+        validator.tokens.transfer(
             shareholderWallet,
             shareholderWallet.deriveATA(),
             otherShareholderWallet.deriveATA(),
@@ -321,7 +332,7 @@ class BridgingTokenDriverTest {
         log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
         log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
 
-        validator.transfer(
+        validator.tokens.transfer(
             otherShareholderWallet,
             otherShareholderWallet.deriveATA(),
             redemptionWalletForOtherShareholder.deriveATA(),
@@ -335,7 +346,7 @@ class BridgingTokenDriverTest {
                 BigDecimal(25),
                 balance
             ) {
-                "Other shareholder has send $bridgedAmount tokens on Solana to redeem on Corda"
+                "Other shareholder has sent $bridgedAmount tokens on Solana to redeem on Corda"
             }
         }
 
@@ -355,7 +366,7 @@ class BridgingTokenDriverTest {
         log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
         log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
 
-        validator.transfer(
+        validator.tokens.transfer(
             shareholderWallet,
             shareholderWallet.deriveATA(),
             redemptionWalletForShareholder.deriveATA(),
@@ -400,12 +411,20 @@ class BridgingTokenDriverTest {
         )
     ) { test() }
 
-    fun Signer.deriveATA(): PublicKey = AssociatedTokenProgram
-        .deriveAddress(
-            this.account,
-            Token2022.PROGRAM_ID.toPublicKey(),
-            tokenMint
-        ).address()
+    fun PublicKey.deriveATA(): PublicKey {
+        val ataProgram = SolanaAccounts.MAIN_NET.associatedTokenAccountProgram()
+        val pda = PublicKey.findProgramAddress(
+            listOf(
+                this.toByteArray(),
+                Token2022.PROGRAM_ID.toPublicKey().toByteArray(),
+                tokenMint.toByteArray()
+            ),
+            ataProgram
+        )
+        return pda.publicKey()
+    }
+
+    fun Signer.deriveATA(): PublicKey = this.publicKey().deriveATA()
 
     fun NodeHandle.cordaBalance(): String = try {
         this.rpc.startFlow(
@@ -429,70 +448,43 @@ class BridgingTokenDriverTest {
             // Simplified as Corda network has a one asset type, we don't need to check Corda state details (issuer and token pointer)
             .first { it.state.data.amount.token.tokenIdentifier != "USD" }.state.data.amount.token.tokenIdentifier
     }
-}
 
-fun Pubkey.toPublicKey(): PublicKey = Solana.account(bytes)
-
-fun SolanaTestValidator.getAccountInfo(publicKey: PublicKey?): AccountInfo? {
-    requireNotNull(publicKey) { "PublicKey must not be null" }
-    return client
-        .getAccountInfo(publicKey.base58(), this.rpcParams)
-        .checkResponse("getAccountInfo")
-}
-
-fun SolanaTestValidator.getSolanaTokenBalance(publicKey: PublicKey): BigDecimal {
-    return client
-        .getTokenAccountBalance(publicKey.base58(), this.rpcParams)
-        .checkResponse("getTokenAccountBalance")!!
-        .uiAmountString
-        .toBigDecimal()
-}
-
-fun SolanaTestValidator.transfer(
-    fromOwner: Signer,
-    fromTokenAccount: PublicKey,
-    toTokenAccount: PublicKey,
-    amount: Long,
-) {
-    val error = client
-        .sendAndConfirm(
-            { txBuilder ->
-                Token2022Program.factory(txBuilder).transfer(
-                    fromTokenAccount,
-                    toTokenAccount,
-                    fromOwner.account,
-                    amount,
-                    emptyList()
-                )
+    //TODO move the method to TokenManagement class
+    fun TokenManagement.createAta(
+        payer: Signer,
+        owner: PublicKey,
+        mint: PublicKey,
+        tokenProgram: PublicKey
+    ): PublicKey {
+        val solana = SolanaAccounts.MAIN_NET
+        val ata = owner.deriveATA()
+        val createIdempotentIx = Instruction.createInstruction(
+            solana.associatedTokenAccountProgram(),
+            listOf(
+                AccountMeta.createFeePayer(payer.publicKey()),
+                AccountMeta.createWrite(ata),
+                AccountMeta.createRead(owner),
+                AccountMeta.createRead(mint),
+                AccountMeta.createRead(solana.systemProgram()),
+                AccountMeta.createRead(tokenProgram)
+            ),
+            byteArrayOf(1)
+        )
+        validator.client.sendAndConfirm(
+            {
+                it.createTransaction(listOf(createIdempotentIx))
             },
-            fromOwner,
-            emptyList(),
-            DefaultRpcParams()
-        ).metadata.err
-    assertNull(error, "Token transfer failed with error: $error")
+            payer,
+            listOf()
+        )
+        return ata
+    }
 }
 
-//TODO temporary method code, it will be replaced by new method from Solana estValidator using Sava client
-fun SolanaTestValidator.createAta(feePayer: Signer, mintAccount: PublicKey, ownerAccount: PublicKey): PublicKey {
-
-    val rpcClient = SolanaJsonRpcClient(HttpClient.newHttpClient(), SolanaTestValidator.RPC_URL)
-    val tokenProgramId = Token2022.PROGRAM_ID.toPublicKey()
-    val pda = AssociatedTokenProgram.deriveAddress(ownerAccount, tokenProgramId, mintAccount)
-    val instruction = AssociatedTokenProgram.createAssociatedTokenAccount(
-        pda,
-        mintAccount,
-        ownerAccount,
-        feePayer.account,
-        tokenProgramId,
-        false,
-    )
-    rpcClient.sendAndConfirm(
-        { txBuilder ->
-            txBuilder.append(instruction)
-        },
-        feePayer,
-        emptyList(),
-        rpcParams
-    )
-    return pda.address()
+fun SolanaTestValidator.getAccountInfo(tokenAccount: PublicKey): Token2022Account? {
+    val raw = this.client.call(SolanaRpcClient::getAccountInfo, tokenAccount)
+    return if (raw?.data != null) Token2022Account.read(raw.pubKey, raw.data) else null
 }
+
+fun SolanaTestValidator.getSolanaTokenBalance(tokenAccount: PublicKey): BigDecimal =
+    this.client.call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount.toBigDecimal()
