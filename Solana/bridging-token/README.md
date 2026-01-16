@@ -53,35 +53,48 @@ but the same pattern can be applied to other Corda states.
 As an example, this project extends the `StockPayDividends` sample CorDapp, without modifying the core flow logic,
 and deploys the same party set as the original demo but adds bridging parties.
 
-`StockPayDividend` CorDapp assumes the following parties:
-* **WayneCo** - creates the stock definition/state and issues stock tokens.
-* **Shareholder** - holds stock tokens on Corda and bridges/redeems to/from Solana.
-* **Other Shareholder** - receives tokens on Solana and may redeem them on Corda
-* **Notary** - the regular Corda notary (for non-bridging transactions).
-* **Bridge Authority** - a special node that facilitates bridging and redemption.
-* **Solana Notary** - a second notary responsible for bridging/redemption transactions on Solana.
-* **Bank** - issues fiat tokens (used by the original sample).
-* **Observer** - observes stock lifecycle transactions (used by the original sample).
-
-WayneCo, Observer and Bank do not participate in bridging directly, but remain necessary for the stock issuance workflow 
-from the original Stock CorDapp.
+The sample assumes the following parties:
+* Parties interested in bridging/redeeming a Corda asset to/from Solana:
+  * **Shareholder** - holds stock tokens on Corda and bridges/redeems to/from Solana; has Solana wallet.
+  * **Other Shareholder** - same role as **Shareholder**, however for illustration purposes
+  this party initially doesn't have an asset on Corda, and gains them via redemption from Solana; has Solana wallet.
+* Parties facilitate bridging/redemption - the only extra parties beyond ones in original `StockPayDividends` sample:
+  * **Bridge Authority** - a special node that facilitates bridging and redemption; has Solana wallet.
+  * **Solana Notary** - a notary responsible for any Corda transactions that involves bridging/redemption to/from Solana;
+  manages Solana wallets.
+* Parties indirectly involved bridging/redemption:
+  * **Notary** - the regular Corda notary.
+* Parties that do not participate in bridging, 
+  but remain necessary for the Corda assets issuance workflows (used by the original sample):
+  * **Bank** - issues fiat tokens.
+  * **WayneCo** - creates the stock definition/state and issues stock tokens.
+  * **Observer** - observes stock lifecycle transactions.
 
 ### Flows
 
-This sample focuses on bridging, not on dividend distribution (which is the focus of the original Stock CorDapp).
+This sample focuses on bridging, and omits dividend distribution (which is the focus of the original `StopPayDivided` sample).
 
-#### Prerequisites:
-Before bridging `WayneCo` creates a `StockState` for `APPL`, issues stock tokens associated with that `StockState`,
-transfers some stock tokens to `Shareholder`.
+#### Setup:
 
-On Solana wallet accounts for `Bridging Authority`, the two shareholders, and the token mint for the `AAPL` token 
-are created and funded.
+The Corda network (including node configurations) and all required Solana wallets/accounts are created automatically 
+by the sample integration test.
 
-`Bridge Authority` node must be configured with mappings between:
-- Corda participants and Solana wallet accounts, 
-- Corda assets  and Solana mints + mint authorities
-`Solana Notary` must have access to required Solana custodied keys,
-because it authorizes Solana transactions as part of notarisation.
+- Before any bridging occurs, the`Shareholder` must own some `APPL` stock tokens.
+  These tokens are issued by `WayneCo` as part of the original `StopPayDivided` sample.
+
+- On Solana, the sample creates and funds wallet accounts for: `Bridge Authority`, both shareholders, and the token mint
+  representing the Solana equivalent of the Corda `AAPL` stock.
+  These wallets are accessed by either `Bridge Authority` or `Solana Notary`depending on the operation being performed.
+
+- The `Bridge Authority` node is configured with mappings between Corda and Solana, allowing it to translate:
+   map a given Corda participant and asset to the corresponding Solana wallet and token mint
+   Asset mappings can only be configured after the Corda asset (in this example, `AAPL` stock) 
+   and the relevant Solana wallets/mint exist.
+   Explicit token accounts are not required in configuration because Associated Token Accounts (ATAs) are used and created on demand.
+   For a detailed explanation of the configuration entries for `Bridge Authority` and `Solana Notary`, 
+   see the [Bridging Toolkit Documentation](TBD).
+
+Only `Bridge Authority` and `Solana Notary require Solana-specific configuration. All other nodes run the original CorDapp unmodified.
 
 #### Bridging Flow:
 
@@ -144,39 +157,6 @@ After finality, the bridged amount is represented as tokens owned by the `Shareh
    At this point, redemption is complete:
    - the Solana tokens have been burned, and 
    - the corresponding Corda stock tokens have been transferred to the Shareholder.
-
-### Configuration
-
-Bridge Authority requires configuration to associate Corda participants/assets with Solana wallets and mints.
-The CorDapp configuration file 
-`<BRIDGE_AUTHORITY_NODE_ROOT_DIR>/cordapps/config/corda-bridging-token-workflows-0.1.1-SNAPSHOT.conf` should contain:
-
-- `participants` Map of Corda participants (X500 name) to their Solana wallet accounts (base58 address)
-- `redemptionWalletAccountToHolder` Map of Solana wallet accounts (base58 address) used 
-for redemption to Corda participants (X500 name)
-- `mintsWithAuthorities` Map of Corda token type identifier (e.g., linear UUID / token identifier) to Solana 
-mint account and mint authority (base58 addresses)
-- `solanaNotaryName` - Corda X500 name of the notary that notarises bridging and redemption Corda transactions 
-(the `Solana Notary`)
-- `generalNotaryName` - Corda X500 name of the notary used for regular Corda transactions (non-bridging)
-- `solanaWsUrl` - URL of the RPC provider for interacting with the blockchain; if you are using the test validator
-then this will be `http://127.0.0.1:8899`, if you want to use devnet then the URL is `https://api.devnet.solana.com`
-- `solanaRpcUrl` - The corresponding websocket URL of the RPC provider. `ws://127.0.0.1:8900` for the test validator
-and `wss://api.devnet.solana.com` for devnet
-- `bridgeAuthorityWalletFile` Solana Wallet used to sign transaction for actions like creating ATAs for participants
-- `lockingIdentityLabel` - Internal label used by Bridge Authority to store/retrieve the confidential identity used
-for locking Corda assets (any UUID string)
-
-Solana notary requires additional settings in `node.conf` file, under a `notary.solana` entry:
-- `rpcUrl` URL of the RPC provider for interacting with the blockchain. If you are using the test validator
- then this will be `http://127.0.0.1:8899`; if you want to use devnet then the URL is `https://api.devnet.solana.com`
-- `websocketUrl` The corresponding websocket URL of the RPC provider. `ws://127.0.0.1:8900` for the test validator
- and `wss://api.devnet.solana.com` for devnet
-- `notaryKeypairFile` The notary [file-system wallet](https://docs.solanalabs.com/cli/wallets/file-system)
- for singing Corda Program on Solana
-- `custodiedKeysDir` The directory for notary to store file-system wallets of Bridge Authority and a fee payer 
- for singing token mint transactions, these should be located in a different directory than the notary wallet
-- `programWhitelist` the list of Solana Programs that can be run by the Notary, set to address of Token2022 Token Program
 
 ### FAQ 
 
