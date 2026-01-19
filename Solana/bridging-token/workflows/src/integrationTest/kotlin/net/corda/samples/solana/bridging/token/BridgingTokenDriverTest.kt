@@ -8,6 +8,7 @@ import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.seconds
 import net.corda.node.utilities.solana.AccountManagement
 import net.corda.node.utilities.solana.FileSigner
+import net.corda.node.utilities.solana.SolanaClient
 import net.corda.node.utilities.solana.TokenManagement
 import net.corda.node.utilities.solana.TokenProgram
 import net.corda.samples.stockpaydividend.flows.CreateAndIssueStock
@@ -27,9 +28,8 @@ import net.corda.testing.node.NotarySpec
 import net.corda.testing.node.TestCordapp
 import net.corda.testing.node.User
 import net.corda.testing.solana.SolanaTestValidator
-import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNotNull
@@ -44,48 +44,42 @@ import software.sava.core.accounts.token.Token2022Account
 import software.sava.core.tx.Instruction
 import software.sava.rpc.json.http.client.SolanaRpcClient
 import java.math.BigDecimal
-import java.net.URI
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.ExecutionException
 
-class BridgingTokenDriverTest {
+open class BridgingTokenDriverTest {
 
-    companion object {
-        private val log = LoggerFactory.getLogger(BridgingTokenDriverTest::class.java)
-        private lateinit var validator: SolanaTestValidator
-        private lateinit var tokenManagement: TokenManagement
-        private lateinit var accountManagement: AccountManagement
-        private lateinit var solanaNotarySigner: FileSigner
-        private val solanaRpcUrl = URI.create("https://api.devnet.solana.com")
-        private val solanaWssUrl = URI.create("wss://api.devnet.solana.com")
-        // A directory with Corda Notary key pair for singing Corda Program on Solana
-        @TempDir
-        private lateinit var notaryKeyDir: Path
+    private val log = LoggerFactory.getLogger(BridgingTokenDriverTest::class.java)
+    private lateinit var validator: SolanaTestValidator
+    protected lateinit var tokenManagement: TokenManagement
+    protected lateinit var accountManagement: AccountManagement
+    protected lateinit var solanaNotarySigner: FileSigner
+    protected lateinit var solanaClient: SolanaClient
 
-        @JvmStatic
-        @BeforeAll
-        fun startTestValidator() {
-            val notaryKeyPath = Paths.get("../../Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json").toAbsolutePath().toString()
-            solanaNotarySigner = FileSigner.read(Path.of(notaryKeyPath))
-            validator = SolanaTestValidator()
-            val solanaClient = validator.client //SolanaClient(solanaRpcUrl, solanaWssUrl).apply { start() })
-            tokenManagement = TokenManagement(solanaClient)
-            accountManagement = AccountManagement(solanaClient)
-            validator.startAndWait()
-            //validator.defaultNotaryProgramSetup(solanaNotarySigner.publicKey())
-            validator.initialiseNotaryProgram()
-            val networkId = validator.createNewCordaNetwork() // require the notary program admin key
-            accountManagement.airdropSol(solanaNotarySigner.publicKey(), 10)
-            validator.addNotary(networkId, solanaNotarySigner.publicKey())
-        }
+    // A directory with Corda Notary key pair for singing Corda Program on Solana
+    @TempDir
+    private lateinit var notaryKeyDir: Path
 
-        @JvmStatic
-        @AfterAll
-        fun stopTestValidator() {
-            validator.close()
-        }
+    @BeforeEach
+    fun setup() {
+        startTestValidator()
+        setupAccounts()
+    }
+
+    @AfterEach
+    open fun stopTestValidator() {
+        validator.close()
+    }
+
+    open fun startTestValidator() {
+        solanaNotarySigner = FileSigner.random(notaryKeyDir)
+        validator = SolanaTestValidator()
+        validator.startAndWait()
+        validator.defaultNotaryProgramSetup(solanaNotarySigner.publicKey())
+        solanaClient = validator.client
+        tokenManagement = TokenManagement( validator.client)
+        accountManagement = AccountManagement( validator.client)
     }
 
     private val solanaNotaryName = CordaX500Name("Solana Notary", "London", "GB")
@@ -131,8 +125,7 @@ class BridgingTokenDriverTest {
     private lateinit var mintAuthoritySigner: FileSigner
     private lateinit var tokenMint: PublicKey
 
-    @BeforeEach
-    fun setup() {
+    fun setupAccounts() {
         solanaNotaryConfig = mapOf<String, Any>(
             "notary" to mapOf(
                 "validating" to false,
@@ -158,7 +151,11 @@ class BridgingTokenDriverTest {
         log.info("  Bridge Authority: ${bridgeAuthoritySigner.publicKey().toBase58()}")
         log.info("  Mint Authority: ${mintAuthoritySigner.publicKey().toBase58()}")
         log.info("  Redemption on behalf of Shareholder: ${redemptionWalletForShareholder.publicKey().toBase58()}")
-        log.info("  Redemption on behalf of Other Shareholder: ${redemptionWalletForOtherShareholder.publicKey().toBase58()}")
+        log.info(
+            "  Redemption on behalf of Other Shareholder: ${
+                redemptionWalletForOtherShareholder.publicKey().toBase58()
+            }"
+        )
 
         accountManagement.airdropSol(mintAuthoritySigner.publicKey(), 10)
 
@@ -311,7 +308,7 @@ class BridgingTokenDriverTest {
         log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
         log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
         assertNull(
-            validator.getAccountInfo(shareholderWallet.deriveATA()),
+            solanaClient.getAccountInfo(shareholderWallet.deriveATA()),
             "ATA should not be created yet",
         )
 
@@ -323,12 +320,12 @@ class BridgingTokenDriverTest {
         ).returnValue.get()
         eventually(duration = 10.seconds) {
             assertNotNull(
-                validator.getAccountInfo(shareholderWallet.deriveATA()),
+                solanaClient.getAccountInfo(shareholderWallet.deriveATA()),
                 "ATA should be created",
             )
         }
         eventually(duration = 10.seconds) {
-            val balance = validator.getSolanaTokenBalance(shareholderWallet.deriveATA())
+            val balance = solanaClient.getSolanaTokenBalance(shareholderWallet.deriveATA())
             val bridgedAmount = BigDecimal(90)
             assertEquals(
                 BigDecimal(90),
@@ -364,7 +361,7 @@ class BridgingTokenDriverTest {
         )
 
         eventually(duration = 1.seconds) {
-            val balance = validator.getSolanaTokenBalance(otherShareholderWallet.deriveATA())
+            val balance = solanaClient.getSolanaTokenBalance(otherShareholderWallet.deriveATA())
             val bridgedAmount = BigDecimal(25)
             assertEquals(
                 BigDecimal(25),
@@ -460,8 +457,8 @@ class BridgingTokenDriverTest {
     }
 
     fun Signer.solanaBalance(): String =
-        if (validator.getAccountInfo(this.deriveATA()) != null) {
-            "${validator.getSolanaTokenBalance(this.deriveATA())} coins"
+        if (solanaClient.getAccountInfo(this.deriveATA()) != null) {
+            "${solanaClient.getSolanaTokenBalance(this.deriveATA())} coins"
         } else {
             "no stablecoin account"
         }
@@ -494,7 +491,7 @@ class BridgingTokenDriverTest {
             ),
             byteArrayOf(1)
         )
-        validator.client.sendAndConfirm(
+        /*validator.client*/solanaClient.sendAndConfirm(
             {
                 it.createTransaction(listOf(createIdempotentIx))
             },
@@ -505,10 +502,10 @@ class BridgingTokenDriverTest {
     }
 }
 
-fun SolanaTestValidator.getAccountInfo(tokenAccount: PublicKey): Token2022Account? {
-    val raw = this.client.call(SolanaRpcClient::getAccountInfo, tokenAccount)
+fun SolanaClient.getAccountInfo(tokenAccount: PublicKey): Token2022Account? {
+    val raw = this.call(SolanaRpcClient::getAccountInfo, tokenAccount)
     return if (raw?.data != null) Token2022Account.read(raw.pubKey, raw.data) else null
 }
 
-fun SolanaTestValidator.getSolanaTokenBalance(tokenAccount: PublicKey): BigDecimal =
-    this.client.call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount.toBigDecimal()
+fun SolanaClient.getSolanaTokenBalance(tokenAccount: PublicKey): BigDecimal =
+    this.call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount.toBigDecimal()
