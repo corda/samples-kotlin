@@ -72,7 +72,6 @@ class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
 
         tokenMint = PublicKey.fromBase58Encoded("GMWmvcYWWWCv1V7WW8pwXeFej97od3SPBvSUR6wsAhSC")
         // tokenMint = tokenManagement.createToken(mintAuthoritySigner, TokenProgram.TOKEN_2022, decimals = TOKEN_DECIMALS)
-        log.info("  Token Mint: ${tokenMint.toBase58()}")
 
         log.info("  Creating Solana Token.")
         log.info("  Shareholder Token Account: ${shareholderWallet.deriveATA().toBase58()}")

@@ -168,7 +168,7 @@ open class BridgingTokenDriverTest {
 
         tokenMint =
             tokenManagement.createToken(mintAuthoritySigner, TokenProgram.TOKEN_2022, decimals = TOKEN_DECIMALS)
-        log.info("  Token Mint: ${tokenMint.toBase58()}")
+
         log.info("  Shareholder Token Account: ${shareholderWallet.deriveATA().toBase58()}")
         log.info("  Other Shareholder Token Account: ${otherShareholderWallet.deriveATA().toBase58()}")
 
