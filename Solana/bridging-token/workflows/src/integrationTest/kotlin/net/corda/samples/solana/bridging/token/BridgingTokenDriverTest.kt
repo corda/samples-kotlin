@@ -50,7 +50,7 @@ import java.util.concurrent.ExecutionException
 
 open class BridgingTokenDriverTest {
 
-    private val log = LoggerFactory.getLogger(BridgingTokenDriverTest::class.java)
+    protected val log = LoggerFactory.getLogger(BridgingTokenDriverTest::class.java)
     private lateinit var validator: SolanaTestValidator
     protected lateinit var tokenManagement: TokenManagement
     protected lateinit var accountManagement: AccountManagement
@@ -87,7 +87,10 @@ open class BridgingTokenDriverTest {
     private val bridgeAuthority = CordaX500Name("Bridge Authority", "New York", "US")
     private val shareholderName = CordaX500Name("Shareholder", "New York", "US")
     private val otherShareholderName = CordaX500Name("Other Shareholder", "Frankfurt", "DE")
-    private lateinit var solanaNotaryConfig: Map<String, Any>
+    protected lateinit var solanaNotaryConfig: Map<String, Any>
+
+    protected open val solanaRpcUrl = SolanaTestValidator.RPC_URL
+    protected open val solanaWssUrl = SolanaTestValidator.WS_URL
 
     private val cordappsForAllNodes =
         listOf(
@@ -107,31 +110,34 @@ open class BridgingTokenDriverTest {
 
     // Stockpaydividend doesn't use fractionDigits, in order to maintain 1:1 conversion with Solana token,
     // Solana token will not have fraction digits as well
-    private val TOKEN_DECIMALS: Int = 0
+    protected val TOKEN_DECIMALS: Int = 0
 
     // A directory for Notary to store Corda participant key pairs for sining Solana transactions,
     // intentionally these are located in a different directory than Corda Notary Program key pair
     @TempDir
-    private lateinit var custodiedKeysDir: Path
+    protected lateinit var custodiedKeysDir: Path
 
     @TempDir
-    private lateinit var otherDir: Path
+    protected lateinit var otherDir: Path
 
-    private lateinit var bridgeAuthoritySigner: FileSigner
-    private lateinit var shareholderWallet: FileSigner
-    private lateinit var otherShareholderWallet: FileSigner
-    private lateinit var redemptionWalletForShareholder: FileSigner
-    private lateinit var redemptionWalletForOtherShareholder: FileSigner
-    private lateinit var mintAuthoritySigner: FileSigner
-    private lateinit var tokenMint: PublicKey
+    protected lateinit var bridgeAuthoritySigner: FileSigner
+    protected lateinit var shareholderWallet: FileSigner
+    protected lateinit var otherShareholderWallet: FileSigner
+    protected lateinit var redemptionWalletForShareholder: FileSigner
+    protected lateinit var redemptionWalletForOtherShareholder: FileSigner
+    protected lateinit var mintAuthoritySigner: FileSigner
+    protected lateinit var tokenMint: PublicKey
 
-    fun setupAccounts() {
+    protected open val shareholderInitialSolanaTokens: BigDecimal = BigDecimal.ZERO
+    protected open val otherShareholderInitialSolanaTokens: BigDecimal = BigDecimal.ZERO
+
+    open fun setupAccounts() {
         solanaNotaryConfig = mapOf<String, Any>(
             "notary" to mapOf(
                 "validating" to false,
                 "solana" to mapOf(
-                    "rpcUrl" to SolanaTestValidator.RPC_URL,
-                    "websocketUrl" to SolanaTestValidator.WS_URL,
+                    "rpcUrl" to solanaRpcUrl,
+                    "websocketUrl" to solanaWssUrl,
                     "notaryKeypairFile" to "${solanaNotarySigner.file}",
                     "custodiedKeysDir" to "$custodiedKeysDir",
                     "programWhitelist" to listOf(Token2022.PROGRAM_ID.toPublicKey().toBase58())
@@ -157,19 +163,20 @@ open class BridgingTokenDriverTest {
             }"
         )
 
-        accountManagement.airdropSol(mintAuthoritySigner.publicKey(), 10)
+        log.info("  Airdrop for: ${mintAuthoritySigner.publicKey().toBase58()}")
+        accountManagement.airdropSol(mintAuthoritySigner.publicKey(), 1)
 
         tokenMint =
             tokenManagement.createToken(mintAuthoritySigner, TokenProgram.TOKEN_2022, decimals = TOKEN_DECIMALS)
-
+        log.info("  Token Mint: ${tokenMint.toBase58()}")
         log.info("  Shareholder Token Account: ${shareholderWallet.deriveATA().toBase58()}")
         log.info("  Other Shareholder Token Account: ${otherShareholderWallet.deriveATA().toBase58()}")
 
-        accountManagement.airdropSol(bridgeAuthoritySigner.publicKey(), 10)
-        accountManagement.airdropSol(shareholderWallet.publicKey(), 10)
-        accountManagement.airdropSol(otherShareholderWallet.publicKey(), 10)
-        accountManagement.airdropSol(redemptionWalletForShareholder.publicKey(), 10)
-        accountManagement.airdropSol(redemptionWalletForOtherShareholder.publicKey(), 10)
+        accountManagement.airdropSol(bridgeAuthoritySigner.publicKey(), 1)
+        accountManagement.airdropSol(shareholderWallet.publicKey(), 1)
+        accountManagement.airdropSol(otherShareholderWallet.publicKey(), 1)
+        accountManagement.airdropSol(redemptionWalletForShareholder.publicKey(), 1)
+        accountManagement.airdropSol(redemptionWalletForOtherShareholder.publicKey(), 1)
 
         tokenManagement.createAta(
             mintAuthoritySigner,
@@ -211,8 +218,8 @@ open class BridgingTokenDriverTest {
             "lockingIdentityLabel" to UUID.randomUUID().toString(),
             "solanaNotaryName" to "$solanaNotaryName",
             "generalNotaryName" to "$generalNotaryName",
-            "solanaWsUrl" to SolanaTestValidator.WS_URL,
-            "solanaRpcUrl" to SolanaTestValidator.RPC_URL,
+            "solanaWsUrl" to solanaWssUrl,
+            "solanaRpcUrl" to solanaRpcUrl,
             "bridgeAuthorityWalletFile" to bridgeAuthoritySigner.file.toString()
         )
     )
@@ -310,11 +317,12 @@ open class BridgingTokenDriverTest {
         log.info("\nSolana state before bridging:")
         log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
         log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
-        assertNull(
+        if (this::class == BridgingTokenDriverTest::class) {
+            assertNull(
             solanaClient.getAccountInfo(shareholderWallet.deriveATA()),
             "ATA should not be created yet",
-        )
-
+            )
+        }
         shareholderNode.rpc.startFlow(
             ::MoveStock,
             "AAPL",
@@ -331,7 +339,7 @@ open class BridgingTokenDriverTest {
             val balance = solanaClient.getSolanaTokenBalance(shareholderWallet.deriveATA())
             val bridgedAmount = BigDecimal(90)
             assertEquals(
-                BigDecimal(90),
+                bridgedAmount + shareholderInitialSolanaTokens,
                 balance
             ) {
                 "Shareholder bridged $bridgedAmount tokens to Solana"
@@ -367,7 +375,7 @@ open class BridgingTokenDriverTest {
             val balance = solanaClient.getSolanaTokenBalance(otherShareholderWallet.deriveATA())
             val bridgedAmount = BigDecimal(25)
             assertEquals(
-                BigDecimal(25),
+                bridgedAmount + otherShareholderInitialSolanaTokens,
                 balance
             ) {
                 "Other shareholder has sent $bridgedAmount tokens on Solana to redeem on Corda"
