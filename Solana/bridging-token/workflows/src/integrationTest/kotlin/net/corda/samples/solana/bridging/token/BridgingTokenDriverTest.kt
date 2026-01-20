@@ -162,6 +162,9 @@ open class BridgingTokenDriverTest {
         tokenMint =
             tokenManagement.createToken(mintAuthoritySigner, TokenProgram.TOKEN_2022, decimals = TOKEN_DECIMALS)
 
+        log.info("  Shareholder Token Account: ${shareholderWallet.deriveATA().toBase58()}")
+        log.info("  Other Shareholder Token Account: ${otherShareholderWallet.deriveATA().toBase58()}")
+
         accountManagement.airdropSol(bridgeAuthoritySigner.publicKey(), 10)
         accountManagement.airdropSol(shareholderWallet.publicKey(), 10)
         accountManagement.airdropSol(otherShareholderWallet.publicKey(), 10)
