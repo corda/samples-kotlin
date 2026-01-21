@@ -297,6 +297,7 @@ open class BridgingTokenDriverTest {
         ).returnValue.get()
 
         log.info("\nCorda `APPL` stock is mapped to Solana tokenMint: ${tokenMint.toBase58()}")
+
         log.info("\nCorda `MSFT` stock is mapped to Solana tokenMint: ${tokenMint2.toBase58()}")
 
         val bridgeAuthorityNode = startNode(
