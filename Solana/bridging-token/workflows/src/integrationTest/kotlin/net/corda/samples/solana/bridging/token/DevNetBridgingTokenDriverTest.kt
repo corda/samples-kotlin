@@ -5,6 +5,7 @@ import net.corda.node.utilities.solana.AccountManagement
 import net.corda.node.utilities.solana.FileSigner
 import net.corda.node.utilities.solana.SolanaClient
 import net.corda.node.utilities.solana.TokenManagement
+import net.corda.node.utilities.solana.TokenProgram
 import net.corda.solana.sdk.Token2022
 import software.sava.core.accounts.PublicKey
 import java.math.BigDecimal
@@ -71,7 +72,8 @@ class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
         //accountManagement.airdropSol(mintAuthoritySigner.publicKey(), 1)
 
         tokenMint = PublicKey.fromBase58Encoded("GMWmvcYWWWCv1V7WW8pwXeFej97od3SPBvSUR6wsAhSC")
-        // tokenMint = tokenManagement.createToken(mintAuthoritySigner, TokenProgram.TOKEN_2022, decimals = TOKEN_DECIMALS)
+        tokenMint2 = PublicKey.fromBase58Encoded("AhZNYSxWTVCbXMcZNJv27e7G38G7auFaqx4zCBBfWikc")
+                //tokenManagement.createToken(mintAuthoritySigner, TokenProgram.TOKEN_2022, decimals = TOKEN_DECIMALS)
 
         log.info("  Creating Solana Token.")
         log.info("  Shareholder Token Account: ${shareholderWallet.deriveATA().toBase58()}")

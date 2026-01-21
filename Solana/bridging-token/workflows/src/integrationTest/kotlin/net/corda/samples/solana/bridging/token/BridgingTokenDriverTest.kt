@@ -127,6 +127,7 @@ open class BridgingTokenDriverTest {
     protected lateinit var redemptionWalletForOtherShareholder: FileSigner
     protected lateinit var mintAuthoritySigner: FileSigner
     protected lateinit var tokenMint: PublicKey
+    protected lateinit var tokenMint2: PublicKey
 
     protected open val shareholderInitialSolanaTokens: BigDecimal = BigDecimal.ZERO
     protected open val otherShareholderInitialSolanaTokens: BigDecimal = BigDecimal.ZERO
@@ -198,7 +199,7 @@ open class BridgingTokenDriverTest {
         )
     }
 
-    fun TestCordapp.withBridgeAuthorityConfig(cordaTokenTypeIdentifier: String): TestCordapp = this.withConfig(
+    fun TestCordapp.withBridgeAuthorityConfig(cordaTokenTypeIdentifier1: String, cordaTokenTypeIdentifier2: String): TestCordapp = this.withConfig(
         mapOf(
             "participants" to mapOf(
                 "$shareholderName" to shareholderWallet.publicKey().toBase58(),
@@ -209,11 +210,16 @@ open class BridgingTokenDriverTest {
                 redemptionWalletForOtherShareholder.publicKey().toBase58() to "$otherShareholderName",
             ),
             "mintsWithAuthorities" to mapOf(
-                cordaTokenTypeIdentifier to
+                cordaTokenTypeIdentifier1 to
                         mapOf(
                             "tokenMint" to tokenMint.toBase58(),
                             "mintAuthority" to mintAuthoritySigner.publicKey().toBase58()
-                        )
+                        ),
+                cordaTokenTypeIdentifier2 to
+                        mapOf(
+                        "tokenMint" to tokenMint2.toBase58(),
+                        "mintAuthority" to mintAuthoritySigner.publicKey().toBase58()
+            )
             ),
             "lockingIdentityLabel" to UUID.randomUUID().toString(),
             "solanaNotaryName" to "$solanaNotaryName",
@@ -280,7 +286,18 @@ open class BridgingTokenDriverTest {
             notaryHandles.single { it.identity.name == generalNotaryName }.identity
         ).returnValue.get()
 
+        wayneCoNode.rpc.startFlow(
+            ::CreateAndIssueStock,
+            "MSFT",
+            "Microsoft",
+            "USD",
+            BigDecimal.TEN,
+            2000,
+            notaryHandles.single { it.identity.name == generalNotaryName }.identity
+        ).returnValue.get()
+
         log.info("\nCorda `APPL` stock is mapped to Solana tokenMint: ${tokenMint.toBase58()}")
+        log.info("\nCorda `MSFT` stock is mapped to Solana tokenMint: ${tokenMint2.toBase58()}")
 
         val bridgeAuthorityNode = startNode(
             NodeParameters(
@@ -289,7 +306,8 @@ open class BridgingTokenDriverTest {
                 additionalCordapps = listOf(
                     bridgingContracts,
                     bridgingWorkflowsWithoutConfig
-                        .withBridgeAuthorityConfig(wayneCoNode.getCordaTokenTypeIdentifier())
+                        .withBridgeAuthorityConfig(wayneCoNode.getCordaTokenTypeIdentifier("AAPL"),
+                            wayneCoNode.getCordaTokenTypeIdentifier("MSFT"))
                 )
             )
         ).getOrThrow()
@@ -298,6 +316,13 @@ open class BridgingTokenDriverTest {
             ::MoveStock,
             "AAPL",
             100,
+            shareholderNode.nodeInfo.singleIdentity()
+        ).returnValue.get()
+
+        wayneCoNode.rpc.startFlow(
+            ::MoveStock,
+            "MSFT",
+            10,
             shareholderNode.nodeInfo.singleIdentity()
         ).returnValue.get()
 
@@ -440,7 +465,7 @@ open class BridgingTokenDriverTest {
                 NotarySpec(generalNotaryName, validating = false, startInProcess = false),
                 NotarySpec(solanaNotaryName, solanaNotaryConfig, startInProcess = false)
             ),
-            waitForAllNodesToFinish = true
+            waitForAllNodesToFinish = false
         )
     ) { test() }
 
@@ -475,11 +500,15 @@ open class BridgingTokenDriverTest {
             "no stablecoin account"
         }
 
-    fun NodeHandle.getCordaTokenTypeIdentifier(): String {
+    fun NodeHandle.getCordaTokenTypeIdentifier(ticket: String): String {
         val states = this.rpc.vaultQuery(FungibleToken::class.java).states
         return states
             // Simplified as Corda network has a one asset type, we don't need to check Corda state details (issuer and token pointer)
-            .first { it.state.data.amount.token.tokenIdentifier != "USD" }.state.data.amount.token.tokenIdentifier
+            //.first { it.state.data.amount.token.tokenIdentifier == ticket }.state.data.amount.token.tokenIdentifier
+            //TODO use token pointers
+            .first { (it.state.data.toString().startsWith("1000") && ticket== "AAPL")
+                    || (it.state.data.toString().startsWith("2000") && ticket== "MSFT") }.state.data.amount.token.tokenIdentifier
+
     }
 
     //TODO move the method to TokenManagement class
