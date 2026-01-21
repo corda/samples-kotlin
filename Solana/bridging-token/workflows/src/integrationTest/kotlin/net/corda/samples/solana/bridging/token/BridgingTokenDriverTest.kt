@@ -462,7 +462,7 @@ open class BridgingTokenDriverTest {
             cordappsForAllNodes = cordappsForAllNodes,
             networkParameters = testNetworkParameters(minimumPlatformVersion = 160).copy(notaries = emptyList()),
             notarySpecs = listOf(
-                NotarySpec(generalNotaryName, validating = false, startInProcess = false),
+                NotarySpec(generalNotaryName, solanaNotaryConfig, startInProcess = false),
                 NotarySpec(solanaNotaryName, solanaNotaryConfig, startInProcess = false)
             ),
             waitForAllNodesToFinish = true
