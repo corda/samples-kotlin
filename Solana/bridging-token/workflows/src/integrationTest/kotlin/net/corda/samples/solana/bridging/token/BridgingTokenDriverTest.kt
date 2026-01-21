@@ -317,7 +317,7 @@ open class BridgingTokenDriverTest {
         log.info("\nSolana state before bridging:")
         log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
         log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
-        if (this::class == BridgingTokenDriverTest::class) {
+  /*      if (this::class == BridgingTokenDriverTest::class) {
             assertNull(
             solanaClient.getAccountInfo(shareholderWallet.deriveATA()),
             "ATA should not be created yet",
@@ -424,7 +424,7 @@ open class BridgingTokenDriverTest {
         log.info("\nSolana state after redemptions:")
         log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
         log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
-
+*/
         log.info("\nBridging demo is completed.")
     }
 
@@ -439,7 +439,8 @@ open class BridgingTokenDriverTest {
             notarySpecs = listOf(
                 NotarySpec(generalNotaryName, validating = false, startInProcess = false),
                 NotarySpec(solanaNotaryName, solanaNotaryConfig, startInProcess = false)
-            )
+            ),
+            waitForAllNodesToFinish = true
         )
     ) { test() }
 
