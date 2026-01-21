@@ -4,6 +4,7 @@ import com.r3.corda.lib.solana.bridging.token.flows.SavaFactory.toPublicKey
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
+import net.corda.core.utilities.NetworkHostAndPort
 import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.seconds
 import net.corda.node.utilities.solana.AccountManagement
@@ -244,14 +245,16 @@ open class BridgingTokenDriverTest {
         val shareholderNode = startNode(
             NodeParameters(
                 shareholderName,
-                rpcUsers
+                rpcUsers,
+                rpcAddress = NetworkHostAndPort("localhost", 10345)
             )
         ).getOrThrow()
 
         val otherShareholderNode = startNode(
             NodeParameters(
                 otherShareholderName,
-                rpcUsers
+                rpcUsers,
+                rpcAddress = NetworkHostAndPort("localhost", 10349)
             )
         ).getOrThrow()
 
