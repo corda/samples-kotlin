@@ -465,7 +465,7 @@ open class BridgingTokenDriverTest {
                 NotarySpec(generalNotaryName, validating = false, startInProcess = false),
                 NotarySpec(solanaNotaryName, solanaNotaryConfig, startInProcess = false)
             ),
-            waitForAllNodesToFinish = false
+            waitForAllNodesToFinish = true
         )
     ) { test() }
 
