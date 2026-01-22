@@ -170,6 +170,9 @@ open class BridgingTokenDriverTest {
 
         tokenMint =
             tokenManagement.createToken(mintAuthoritySigner, TokenProgram.TOKEN_2022, decimals = TOKEN_DECIMALS)
+        //tokenMint2 not in use in the test yet
+        tokenMint2 =
+            tokenManagement.createToken(mintAuthoritySigner, TokenProgram.TOKEN_2022, decimals = TOKEN_DECIMALS)
 
         log.info("  Shareholder Token Account: ${shareholderWallet.deriveATA().toBase58()}")
         log.info("  Other Shareholder Token Account: ${otherShareholderWallet.deriveATA().toBase58()}")
@@ -346,12 +349,15 @@ open class BridgingTokenDriverTest {
         log.info("\nSolana state before bridging:")
         log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
         log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
-  /*      if (this::class == BridgingTokenDriverTest::class) {
-            assertNull(
+        if (this::class != BridgingTokenDriverTest::class) {
+            log.info("\nUsing test as starting Corda deployment only, test logic skipped")
+            return@withDriver
+        }
+        assertNull(
             solanaClient.getAccountInfo(shareholderWallet.deriveATA()),
             "ATA should not be created yet",
             )
-        }
+
         shareholderNode.rpc.startFlow(
             ::MoveStock,
             "AAPL",
@@ -453,7 +459,7 @@ open class BridgingTokenDriverTest {
         log.info("\nSolana state after redemptions:")
         log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
         log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
-*/
+
         log.info("\nBridging demo is completed.")
     }
 
@@ -469,7 +475,7 @@ open class BridgingTokenDriverTest {
                 NotarySpec(generalNotaryName, solanaNotaryConfig, startInProcess = false),
                 NotarySpec(solanaNotaryName, solanaNotaryConfig, startInProcess = false)
             ),
-            waitForAllNodesToFinish = true
+            waitForAllNodesToFinish = this::class != BridgingTokenDriverTest::class
         )
     ) { test() }
 
