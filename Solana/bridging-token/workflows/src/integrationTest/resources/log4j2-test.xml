@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="debug">
+<Configuration status="warn">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%msg%n"/>
@@ -7,12 +7,12 @@
     </Appenders>
 
     <Loggers>
-        <Root level="info"/>
+        <Root level="warn"/>
 
-        <Logger name="net.corda" level="debug" additivity="false">
+        <Logger name="net.corda" level="warn" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="net.corda.testing.node.internal" level="debug" additivity="false">
+        <Logger name="net.corda.testing.node.internal" level="warn" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Logger name="net.corda.samples.solana.bridging.token.BridgingTokenDriverTest" level="debug" additivity="false">

@@ -13,27 +13,23 @@ import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
 
-// shareholder https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio
-// other shareholder https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio
+// Shareholder: https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio
+// Other Shareholder https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio
 class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
 
     override val solanaRpcUrl = "https://api.devnet.solana.com"
     override val solanaWssUrl = "ws://api.devnet.solana.com"
-    override val shareholderInitialSolanaTokens: BigDecimal = BigDecimal(40)
-    override val otherShareholderInitialSolanaTokens: BigDecimal = BigDecimal(50)
 
     override fun startTestValidator() {
 
         val notaryKeyPath =
             Paths.get("../../../../enterprise/solana-devnet/network-0-notary-1-key.json").toAbsolutePath().toString()
-       // val notaryKeyPath =
-       //     Paths.get("../../Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json").toAbsolutePath().toString()
+        //TODO use this:
+        //     Paths.get("../../Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json").toAbsolutePath().toString()
         solanaNotarySigner = FileSigner.read(Path.of(notaryKeyPath))
         solanaClient = SolanaClient(URI.create(solanaRpcUrl), URI.create(solanaWssUrl)).apply { start() }
         tokenManagement = TokenManagement(solanaClient)
         accountManagement = AccountManagement(solanaClient)
-        //log.info("  Airdrop for: ${solanaNotarySigner.publicKey().toBase58()}")
-        //accountManagement.airdropSol(solanaNotarySigner.publicKey(), 1)
     }
 
     override fun setupAccounts() {
@@ -51,8 +47,10 @@ class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
             )
         )
         bridgeAuthoritySigner = FileSigner.read(Path.of("$custodiedKeysDir/bridgeAuthority.json").toAbsolutePath())
-        redemptionWalletForShareholder = FileSigner.read(Path.of("$custodiedKeysDir/redemptionWalletForShareholder.json").toAbsolutePath())
-        redemptionWalletForOtherShareholder = FileSigner.read(Path.of("$custodiedKeysDir/redemptionWalletForOtherShareholder.json").toAbsolutePath())
+        redemptionWalletForShareholder =
+            FileSigner.read(Path.of("$custodiedKeysDir/redemptionWalletForShareholder.json").toAbsolutePath())
+        redemptionWalletForOtherShareholder =
+            FileSigner.read(Path.of("$custodiedKeysDir/redemptionWalletForOtherShareholder.json").toAbsolutePath())
         mintAuthoritySigner = FileSigner.read(Path.of("$custodiedKeysDir/mintAuthoritySigner.json").toAbsolutePath())
         val otherKeysDir = "src/integrationTest/resources/other"
         shareholderWallet = FileSigner.read(Path.of("$otherKeysDir/shareholderWallet.json").toAbsolutePath())
@@ -69,35 +67,38 @@ class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
                 redemptionWalletForOtherShareholder.publicKey().toBase58()
             }"
         )
-        //accountManagement.airdropSol(mintAuthoritySigner.publicKey(), 1)
 
         tokenMint = PublicKey.fromBase58Encoded("GMWmvcYWWWCv1V7WW8pwXeFej97od3SPBvSUR6wsAhSC")
         tokenMint2 = PublicKey.fromBase58Encoded("AhZNYSxWTVCbXMcZNJv27e7G38G7auFaqx4zCBBfWikc")
-                //tokenManagement.createToken(mintAuthoritySigner, TokenProgram.TOKEN_2022, decimals = TOKEN_DECIMALS)
 
         log.info("  Creating Solana Token.")
         log.info("  Shareholder Token Account: ${shareholderWallet.deriveATA().toBase58()}")
         log.info("  Other Shareholder Token Account: ${otherShareholderWallet.deriveATA().toBase58()}")
         log.info("  Shareholder Redemption Token Account: ${redemptionWalletForShareholder.deriveATA().toBase58()}")
-        log.info("  Other Shareholder Redemption Token Account: ${redemptionWalletForOtherShareholder.deriveATA().toBase58()}")
-//      tokenManagement.createAta(
-//            mintAuthoritySigner,
-//            otherShareholderWallet.publicKey(),
-//            tokenMint,
-//            Token2022.PROGRAM_ID.toPublicKey()
-//        )
-//        tokenManagement.createAta(
-//            mintAuthoritySigner,
-//            redemptionWalletForOtherShareholder.publicKey(),
-//            tokenMint,
-//            Token2022.PROGRAM_ID.toPublicKey()
-//        )
-//        tokenManagement.createAta(
-//            mintAuthoritySigner,
-//            redemptionWalletForShareholder.publicKey(),
-//            tokenMint,
-//            Token2022.PROGRAM_ID.toPublicKey()
-//        )
+        log.info(
+            "  Other Shareholder Redemption Token Account: ${
+                redemptionWalletForOtherShareholder.deriveATA().toBase58()
+            }"
+        )
+
+        val shareholderBalance = solanaClient.getSolanaTokenBalance(shareholderWallet.deriveATA())
+        if (shareholderBalance > BigDecimal.ZERO) {
+            tokenManagement.burn(
+                shareholderWallet,
+                tokenMint,
+                shareholderWallet.deriveATA(),
+                shareholderBalance.toLong()
+            )
+        }
+        val otherShareholderBalance = solanaClient.getSolanaTokenBalance(otherShareholderWallet.deriveATA())
+        if (otherShareholderBalance > BigDecimal.ZERO) {
+            tokenManagement.burn(
+                otherShareholderWallet,
+                tokenMint,
+                otherShareholderWallet.deriveATA(),
+                otherShareholderBalance.toLong()
+            )
+        }
     }
 
     override fun stopTestValidator() = Unit
