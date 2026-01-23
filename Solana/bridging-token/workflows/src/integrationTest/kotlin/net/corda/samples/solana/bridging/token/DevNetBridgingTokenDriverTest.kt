@@ -17,15 +17,11 @@ import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
 
-// Shareholder: https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio
-// Other Shareholder https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio
-class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
-
-    val testMode = false
+open class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
 
     override val solanaRpcUrl = "https://api.devnet.solana.com"
     override val solanaWssUrl = "ws://api.devnet.solana.com"
-    val staticCustodiedKeysDir = "src/integrationTest/resources/custodiedKeys"
+    protected val staticCustodiedKeysDir = "src/integrationTest/resources/custodiedKeys"
 
     override fun getSolanaNotaryConfig() : Map<String, Any> {
         return mapOf<String, Any>(
@@ -123,16 +119,12 @@ class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
                 NotarySpec(generalNotaryName, validating = false, startInProcess = false),
                 NotarySpec(solanaNotaryName, getSolanaNotaryConfig(), startInProcess = false)
             ),
-            waitForAllNodesToFinish = !testMode
+            waitForAllNodesToFinish = false
         )
     ) {
         log.info("\nStarting bridging test using Solana validator via $solanaRpcUrl...")
         runtimeSetup()
-        if (testMode)  {
-            test()
-            log.info("\nBridging test is completed.")
-        } else {
-            log.info("\nBridging deployment is running, shut down Corda nodes externally to exit...")
-        }
+        test()
+        log.info("\nBridging test is completed.")
     }
 }
