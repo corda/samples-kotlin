@@ -87,6 +87,7 @@ open class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
 
         val shareholderBalance = solanaClient.getSolanaTokenBalance(shareholderWallet.deriveATA())
         if (shareholderBalance > BigDecimal.ZERO) {
+            log.info("  Shareholder Token Account cleanup - burn existing $shareholderBalance tokens")
             tokenManagement.burn(
                 shareholderWallet,
                 tokenMint,
@@ -96,6 +97,7 @@ open class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
         }
         val otherShareholderBalance = solanaClient.getSolanaTokenBalance(otherShareholderWallet.deriveATA())
         if (otherShareholderBalance > BigDecimal.ZERO) {
+            log.info("  Other Shareholder Token Account cleanup - burn existing $otherShareholderBalance tokens")
             tokenManagement.burn(
                 otherShareholderWallet,
                 tokenMint,
