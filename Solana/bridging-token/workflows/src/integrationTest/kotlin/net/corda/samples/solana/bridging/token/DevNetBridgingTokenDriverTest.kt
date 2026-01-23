@@ -5,8 +5,12 @@ import net.corda.node.utilities.solana.AccountManagement
 import net.corda.node.utilities.solana.FileSigner
 import net.corda.node.utilities.solana.SolanaClient
 import net.corda.node.utilities.solana.TokenManagement
-import net.corda.node.utilities.solana.TokenProgram
 import net.corda.solana.sdk.Token2022
+import net.corda.testing.common.internal.testNetworkParameters
+import net.corda.testing.driver.DriverParameters
+import net.corda.testing.driver.driver
+import net.corda.testing.node.NotarySpec
+import org.junit.jupiter.api.Test
 import software.sava.core.accounts.PublicKey
 import java.math.BigDecimal
 import java.net.URI
@@ -17,11 +21,28 @@ import java.nio.file.Paths
 // Other Shareholder https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio
 class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
 
+    val testMode = false
+
     override val solanaRpcUrl = "https://api.devnet.solana.com"
     override val solanaWssUrl = "ws://api.devnet.solana.com"
+    val staticCustodiedKeysDir = "src/integrationTest/resources/custodiedKeys"
+
+    override fun getSolanaNotaryConfig() : Map<String, Any> {
+        return mapOf<String, Any>(
+            "notary" to mapOf(
+                "validating" to false,
+                "solana" to mapOf(
+                    "rpcUrl" to solanaRpcUrl,
+                    "websocketUrl" to solanaWssUrl,
+                    "notaryKeypairFile" to "${solanaNotarySigner.file}",
+                    "custodiedKeysDir" to "${Path.of(staticCustodiedKeysDir).toAbsolutePath()}",
+                    "programWhitelist" to listOf(Token2022.PROGRAM_ID.toPublicKey().toBase58())
+                )
+            )
+        )
+    }
 
     override fun startTestValidator() {
-
         val notaryKeyPath =
             Paths.get("../../../../enterprise/solana-devnet/network-0-notary-1-key.json").toAbsolutePath().toString()
         //TODO use this:
@@ -33,25 +54,12 @@ class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
     }
 
     override fun setupAccounts() {
-        val custodiedKeysDir = "src/integrationTest/resources/custodiedKeys"
-        solanaNotaryConfig = mapOf<String, Any>(
-            "notary" to mapOf(
-                "validating" to false,
-                "solana" to mapOf(
-                    "rpcUrl" to solanaRpcUrl,
-                    "websocketUrl" to solanaWssUrl,
-                    "notaryKeypairFile" to "${solanaNotarySigner.file}",
-                    "custodiedKeysDir" to "${Path.of(custodiedKeysDir).toAbsolutePath()}",
-                    "programWhitelist" to listOf(Token2022.PROGRAM_ID.toPublicKey().toBase58())
-                )
-            )
-        )
-        bridgeAuthoritySigner = FileSigner.read(Path.of("$custodiedKeysDir/bridgeAuthority.json").toAbsolutePath())
+        bridgeAuthoritySigner = FileSigner.read(Path.of("$staticCustodiedKeysDir/bridgeAuthority.json").toAbsolutePath())
         redemptionWalletForShareholder =
-            FileSigner.read(Path.of("$custodiedKeysDir/redemptionWalletForShareholder.json").toAbsolutePath())
+            FileSigner.read(Path.of("$staticCustodiedKeysDir/redemptionWalletForShareholder.json").toAbsolutePath())
         redemptionWalletForOtherShareholder =
-            FileSigner.read(Path.of("$custodiedKeysDir/redemptionWalletForOtherShareholder.json").toAbsolutePath())
-        mintAuthoritySigner = FileSigner.read(Path.of("$custodiedKeysDir/mintAuthoritySigner.json").toAbsolutePath())
+            FileSigner.read(Path.of("$staticCustodiedKeysDir/redemptionWalletForOtherShareholder.json").toAbsolutePath())
+        mintAuthoritySigner = FileSigner.read(Path.of("$staticCustodiedKeysDir/mintAuthoritySigner.json").toAbsolutePath())
         val otherKeysDir = "src/integrationTest/resources/other"
         shareholderWallet = FileSigner.read(Path.of("$otherKeysDir/shareholderWallet.json").toAbsolutePath())
         otherShareholderWallet = FileSigner.read(Path.of("$otherKeysDir/otherShareholderWallet.json").toAbsolutePath())
@@ -102,4 +110,29 @@ class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
     }
 
     override fun stopTestValidator() = Unit
+
+    @Test
+    override fun `briding token test`() = driver(
+        DriverParameters(
+            isDebug = false,
+            inMemoryDB = false,
+            startNodesInProcess = false,
+            cordappsForAllNodes = cordappsForAllNodes,
+            networkParameters = testNetworkParameters(minimumPlatformVersion = 160).copy(notaries = emptyList()),
+            notarySpecs = listOf(
+                NotarySpec(generalNotaryName, validating = false, startInProcess = false),
+                NotarySpec(solanaNotaryName, getSolanaNotaryConfig(), startInProcess = false)
+            ),
+            waitForAllNodesToFinish = !testMode
+        )
+    ) {
+        log.info("\nStarting bridging test using Solana validator via $solanaRpcUrl...")
+        runtimeSetup()
+        if (testMode)  {
+            test()
+            log.info("\nBridging test is completed.")
+        } else {
+            log.info("\nBridging deployment is running, shut down Corda nodes externally to exit...")
+        }
+    }
 }
