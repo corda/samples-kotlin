@@ -25,6 +25,9 @@ Install the [Solana CLI:](https://solana.com/docs/intro/installation).
 
 ## Running the sample
 
+This repository provides three ways to run the sample, depending on whether you want local Solana or Devnet, 
+and whether you want a test run or a long-running demo:
+
 ### Integration test with Solana Local Validator
 
 From the repository root:
