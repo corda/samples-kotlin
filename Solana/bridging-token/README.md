@@ -25,20 +25,60 @@ Install the [Solana CLI:](https://solana.com/docs/intro/installation).
 
 ## Running the sample
 
+### Integration test with Solana Local Validator
+
 From the repository root:
 ```bash
-./gradlew build
+./gradlew clean integrationtest --tests net.corda.samples.solana.bridging.token.BridgingTokenDriverTest
 ```
 
 On Windows:
 ```bash
-gradlew.bat build
+gradlew.bat  clean integrationtest --tests net.corda.samples.solana.bridging.token.BridgingTokenDriverTest
 ```
 
 This runs the [`BridgingTokenDriverTest`](workflows/src/integrationTest/kotlin/net/corda/samples/solana/bridging/token/BridgingTokenDriverTest.kt)
 integration test, which uses Corda Driver DSL. It deploys and starts local Corda nodes and installs the CorDapps, 
-starts Solana local test validator (or targets devnet), creates Solana accounts and deploys the required Solana program,
+starts Solana local test validator, creates Solana accounts and deploys the required Solana program,
 bridges a portion of a Corda asset to Solana, then redeems it back.
+
+### Integration test with Solana Devnet
+
+From the repository root:
+```bash
+./gradlew clean integrationtest --tests net.corda.samples.solana.bridging.token.DevNetBridgingTokenDriverTest
+```
+
+On Windows:
+```bash
+gradlew.bat  clean integrationtest --tests net.corda.samples.solana.bridging.token.DevNetBridgingTokenDriverTest
+```
+
+This runs the [`DevNetBridgingTokenDriverTest`](workflows/src/integrationTest/kotlin/net/corda/samples/solana/bridging/token/DevNetBridgingTokenDriverTest.kt)
+integration test, that perform the same operation as the [former test](#Integration-test-with-Solana-Local-Validator),
+except it targets Solana Devnet with pre-defined Solana accounts, in particular wallets of
+ [Shareholder](https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio)
+and [Other Shareholder](https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio) - switch to `NFT` tab.
+
+### Long-running demo deployment with Solana Devnet
+
+From the repository root:
+```bash
+./gradlew clean integrationtest --tests net.corda.samples.solana.bridging.token.DevNetBridgingTokenDriverDemo
+```
+
+On Windows:
+```bash
+gradlew.bat  clean integrationtest --tests net.corda.samples.solana.bridging.token.DevNetBridgingTokenDriverDemo
+```
+
+This runs the [`DevNetBridgingTokenDriverDemo`](workflows/src/integrationTest/kotlin/net/corda/samples/solana/bridging/token/DevNetBridgingTokenDriverDemo.kt)
+long-standing local Corda nodes and installs the CorDapps,
+and targets Solana DevNet with pre-defined Solana accounts (the same as in the [integration test](#Integration-test-with-Solana-Devnet)). 
+Unlike the previous two tests, this will not run any bridging operation. Web UI to perform bridging may be provided separately. 
+
+In order to shut down, you need to shut down Corda node processes externally, e.g. `killall java`.
+
 
 ## Concepts
 
@@ -79,7 +119,7 @@ This sample focuses on bridging, and omits dividend distribution (which is the f
 The Corda network (including node configurations) and all required Solana wallets/accounts are created automatically 
 by the sample integration test.
 
-- Before any bridging occurs, the`Shareholder` must own some `APPL` stock tokens.
+- Before any bridging occurs, the`Shareholder` must own some `AAPL` stock tokens.
   These tokens are issued by `WayneCo` as part of the original `StopPayDivided` sample.
 
 - On Solana, the sample creates and funds wallet accounts for: `Bridge Authority`, both shareholders, and the token mint
