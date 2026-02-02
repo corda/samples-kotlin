@@ -2,17 +2,18 @@ package net.corda.samples.solana.dvp.flows
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.lmax.solana4j.Solana
-import com.lmax.solana4j.api.PublicKey
-import com.lmax.solana4j.client.jsonrpc.SolanaJsonRpcClient
-import com.lmax.solana4j.programs.AssociatedTokenProgram
-import net.corda.solana.notary.common.Signer
-import net.corda.solana.notary.common.rpc.DefaultRpcParams
-import net.corda.solana.notary.common.rpc.SolanaTransactionException
-import net.corda.solana.notary.common.rpc.sendAndConfirm
+import net.corda.node.utilities.solana.TokenManagement
+import net.corda.solana.notary.common.SolanaClient
+import net.corda.solana.notary.common.SolanaException
+import net.corda.solana.notary.common.SolanaTransactionException
 import net.corda.solana.sdk.SplToken
-import net.corda.solana.sdk.instruction.Pubkey
 import org.slf4j.LoggerFactory
+import software.sava.core.accounts.PublicKey
+import software.sava.core.accounts.Signer
+import software.sava.core.accounts.SolanaAccounts
+import software.sava.core.accounts.meta.AccountMeta
+import software.sava.core.tx.Instruction
+import software.sava.rpc.json.http.response.TransactionError
 
 // TODO this file will be replaced by use of utility classes from other project
 /**
@@ -23,15 +24,15 @@ import org.slf4j.LoggerFactory
  * @param existingAtaCache The internal results cache, exposed for testing.
  */
 class TokenAccountService(
-    private val client: SolanaJsonRpcClient,
+    private val client: SolanaClient,
     private val feePayer: Signer,
+    private val tokenManagement: TokenManagement = TokenManagement(client),
     private val existingAtaCache: ExistingAtaCache = BoundedExistingAtaCache(), // configurable for testing
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(TokenAccountService::class.java)
 
-        // preflight required to avoid running transaction which will fail on chain
-        private val rpcParams = DefaultRpcParams(globalCommitmentLevelLmax, false)
+        val tokenProgramId : PublicKey =  SplToken.PROGRAM_ID.toSava()
     }
 
     /**
@@ -43,62 +44,71 @@ class TokenAccountService(
      *
      * @param mintAccount The SPL token mint for which the associated token account is created.
      * @param ownerAccount The owner of the associated token account, if omitted it defaults to a fee payer account
-     *
-     * @throws net.corda.solana.notary.common.rpc.SolanaException if the transaction cannot be constructed
-     *         or is too large.
-     * @throws com.lmax.solana4j.client.jsonrpc.SolanaJsonRpcClientException if the underlying RPC calls fail.
      */
-    fun createAta(mintAccount: PublicKey, ownerAccount: PublicKey = feePayer.account): PublicKey {
+    fun createAta(mintAccount: PublicKey, ownerAccount: PublicKey = feePayer.publicKey()): PublicKey {
         if (existingAtaCache.contains(mintAccount, ownerAccount)) {
-            val pda = AssociatedTokenProgram.deriveAddress(ownerAccount, tokenProgramId, mintAccount)
-            return pda.address() // ATA already exists
+            // ATA already exists
+            return deriveAddress(ownerAccount, tokenProgramId, mintAccount)
         }
-        val pda = AssociatedTokenProgram.deriveAddress(ownerAccount, tokenProgramId, mintAccount)
-        val instruction = AssociatedTokenProgram.createAssociatedTokenAccount(
-            pda,
-            mintAccount,
-            ownerAccount,
-            feePayer.account,
-            tokenProgramId,
-            false,
-        )
+        val pda = deriveAddress(ownerAccount, tokenProgramId, mintAccount)
         try {
-            val result = client.sendAndConfirm(
-                { txBuilder ->
-                    txBuilder.append(instruction)
-                },
-                feePayer,
-                emptyList(),
-                rpcParams
-            )
-            logger.info(
-                "ATA created successfully, slot=${result.slot}, owner=$ownerAccount, mint=$mintAccount, pda=$pda."
-            )
-        } catch (e: SolanaTransactionException) {
+            tokenManagement.createAta(feePayer, ownerAccount, mintAccount, tokenProgramId)
+            logger.info("ATA created successfully, owner=$ownerAccount, mint=$mintAccount, pda=$pda.")
+        } catch(e: SolanaException) {
             if (!doesAtaAlreadyExist(e)) {
                 logger.error("Exception while creating ATA owner=$ownerAccount, mint=$mintAccount, pda=$pda", e)
                 throw e
             }
         }
         existingAtaCache.put(mintAccount, ownerAccount)
-        return pda.address()
+        return pda
     }
 
-    fun deriveAddress(mintAccount: PublicKey, ownerAccount: PublicKey = feePayer.account): PublicKey {
-        val pda = AssociatedTokenProgram.deriveAddress(ownerAccount, tokenProgramId, mintAccount)
-        return pda.address()
+    fun deriveAddress(mintAccount: PublicKey, ownerAccount: PublicKey = feePayer.publicKey()): PublicKey {
+        return deriveAddress(ownerAccount, tokenProgramId, mintAccount)
     }
 
     // Checks for an expected error when ATA already exists
-    private fun doesAtaAlreadyExist(e: SolanaTransactionException): Boolean {
-        val errors = e.error
-        if (errors is Map<*, *>) {
-            val errorEntries = errors["InstructionError"]
-            if (errorEntries != null && errorEntries is List<*> && errorEntries.contains("IllegalOwner")) {
-                return true
+    private fun doesAtaAlreadyExist(e: SolanaException): Boolean {
+        if (e is SolanaTransactionException) {
+            val transactionError = e.error
+            if (transactionError is TransactionError.AlreadyProcessed) {
+                    //TODO
+                    return true
+                }
             }
-        }
         return false
+    }
+
+    //TODO move the method to TokenManagement class
+    fun TokenManagement.createAta(
+        payer: Signer,
+        owner: PublicKey,
+        mint: PublicKey,
+        tokenProgram: PublicKey
+    ): PublicKey {
+        val solana = SolanaAccounts.MAIN_NET
+        val ata = deriveAddress(mint, owner, tokenProgram)
+        val createIdempotentIx = Instruction.createInstruction(
+            solana.associatedTokenAccountProgram(),
+            listOf(
+                AccountMeta.createFeePayer(payer.publicKey()),
+                AccountMeta.createWrite(ata),
+                AccountMeta.createRead(owner),
+                AccountMeta.createRead(mint),
+                AccountMeta.createRead(solana.systemProgram()),
+                AccountMeta.createRead(tokenProgram)
+            ),
+            byteArrayOf(1)
+        )
+        client.sendAndConfirm(
+            {
+                it.createTransaction(listOf(createIdempotentIx))
+            },
+            payer,
+            listOf()
+        )
+        return ata
     }
 }
 
@@ -126,6 +136,15 @@ class BoundedExistingAtaCache : ExistingAtaCache {
     }
 }
 
-val globalCommitmentLevelLmax = com.lmax.solana4j.client.api.Commitment.CONFIRMED
-val tokenProgramId = SplToken.PROGRAM_ID.toPublicKey()
-fun Pubkey.toPublicKey(): PublicKey = Solana.account(bytes)
+fun deriveAddress(mintAccount: PublicKey, ownerAccount: PublicKey, programAccount: PublicKey): PublicKey {
+    val ataProgram = SolanaAccounts.MAIN_NET.associatedTokenAccountProgram()
+    val pda = PublicKey.findProgramAddress(
+        listOf(
+            ownerAccount.toByteArray(),
+            programAccount.toByteArray(),
+            mintAccount.toByteArray()
+        ),
+        ataProgram
+    )
+    return pda.publicKey()
+}

@@ -1,37 +1,35 @@
 package net.corda.samples.solana.dvp.flows
 
-import com.lmax.solana4j.api.PublicKey
-import com.lmax.solana4j.client.jsonrpc.SolanaJsonRpcClient
 import net.corda.core.node.AppServiceHub
 import net.corda.core.node.services.CordaService
 import net.corda.core.serialization.SingletonSerializeAsToken
-import net.corda.node.utilities.solana.SolanaClient
-import net.corda.notary.solana.toSava
-import net.corda.solana.notary.common.Signer
+import net.corda.solana.notary.common.FileSigner
+import net.corda.solana.notary.common.SolanaClient
 import net.corda.solana.sdk.instruction.Pubkey
+import software.sava.core.accounts.PublicKey
+import software.sava.core.accounts.Signer
 import software.sava.core.accounts.token.Mint
 import software.sava.rpc.json.http.client.SolanaRpcClient
+import software.sava.rpc.json.http.request.Commitment
 import software.sava.rpc.json.http.response.AccountInfo
 import java.net.URI
-import java.net.http.HttpClient
-import kotlin.io.path.Path
+import java.nio.file.Paths
+
 
 @CordaService
 class SolanaService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() {
     private val solanaClient: SolanaClient
     private val accountService: TokenAccountService
-    private val rpcClient: SolanaJsonRpcClient
-
     init {
         val config = appServiceHub.getAppContext().config
-        val wsUrl = config.getString("solanaWsUrl")
-        val rpcUrl = config.getString("solanaRpcUrl")
-        solanaClient = SolanaClient(URI.create(rpcUrl), URI.create(wsUrl))
+        val rpcUrl = URI.create(config.getString("solanaRpcUrl"))
+        val websocketUrl = URI.create(config.getString("solanaWsUrl"))
+        solanaClient = SolanaClient(rpcUrl, websocketUrl, Commitment.CONFIRMED)
         solanaClient.start()
         appServiceHub.registerUnloadHandler { solanaClient.close() }
 
-        rpcClient = SolanaJsonRpcClient(HttpClient.newHttpClient(), rpcUrl)
-        accountService = TokenAccountService(rpcClient,  Signer.fromFile(Path(config.getString("solanaWalletFile"))))
+        val payer = Signer.createFromPrivateKey(FileSigner.read( Paths.get(config.getString("solanaWalletFile"))).privateKey().encoded)
+        accountService = TokenAccountService(solanaClient, payer)
     }
 
     fun getAccountInfo(account: Pubkey): AccountInfo<ByteArray> {
@@ -40,14 +38,15 @@ class SolanaService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() 
     }
 
     fun getAccountMintDecimals(account: Pubkey): Int {
-
         val accountInfo = getAccountInfo(account)
         val mint = Mint.read(accountInfo.pubKey(), accountInfo.data)
         return mint.decimals
     }
 
-    fun createAta(mint: Pubkey) : PublicKey = accountService.createAta(mint.toPublicKey())
+    fun createAta(mint: PublicKey) : PublicKey = accountService.createAta(mint)
 
-    fun deriveAtaAddress(mint: Pubkey) : PublicKey = accountService.deriveAddress(mint.toPublicKey())
+    fun deriveAtaAddress(mint: Pubkey) : PublicKey = accountService.deriveAddress(mint.toSava())
 
 }
+
+fun Pubkey.toSava(): PublicKey = PublicKey.createPubKey(bytes)

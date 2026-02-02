@@ -50,7 +50,7 @@ class SharesPaymentContractTests {
     fun `Agree verifies with correct output, signers, and Solana instruction`() {
         val output = sampleState()
 
-        val instruction: SolanaInstruction = SplToken.transfer(
+        val instruction: SolanaInstruction = SplToken.transferChecked(
             output.solanaBuyerTokenAccount,
             output.solanaStablecoin,
             output.solanaSellerTokenAccount,
@@ -79,7 +79,7 @@ class SharesPaymentContractTests {
     fun `Agree fails if buyer does not sign`() {
         val out = sampleState()
 
-        val instruction: SolanaInstruction = SplToken.transfer(
+        val instruction: SolanaInstruction = SplToken.transferChecked(
             out.solanaBuyerTokenAccount,
             out.solanaStablecoin,
             out.solanaSellerTokenAccount,

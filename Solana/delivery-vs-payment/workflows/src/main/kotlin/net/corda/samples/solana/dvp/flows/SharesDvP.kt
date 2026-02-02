@@ -29,9 +29,10 @@ import net.corda.notary.solana.toPubkey
 import net.corda.samples.solana.dvp.contracts.SharesPaymentContract
 import net.corda.samples.solana.dvp.states.SharesPaymentState
 import net.corda.samples.solana.dvp.states.StockState
-import net.corda.solana.notary.common.Signer
+import net.corda.solana.notary.common.FileSigner
 import net.corda.solana.sdk.SplToken
 import net.corda.solana.sdk.instruction.Pubkey
+import software.sava.core.accounts.Signer
 import java.math.BigDecimal
 import kotlin.io.path.Path
 
@@ -95,7 +96,7 @@ class SharesDvP(
         require(payerDetails.tokenMint == stablecoinTokenMint) { "Payer provided an account for different tokenMint (stablecoin)." }
         val solanaService = serviceHub.cordaService(SolanaService::class.java)
         val solanaTokenMintDecimals = solanaService.getAccountMintDecimals(stablecoinTokenMint)
-         val solanaDestinationAccount = solanaService.createAta(stablecoinTokenMint).toPubkey()
+         val solanaDestinationAccount = solanaService.createAta(stablecoinTokenMint.toSava()).toPubkey()
 
         val solanaMintAuthority = payerDetails.walletAccount
         val solanaSourceAccount = payerDetails.tokenAccount
@@ -126,7 +127,7 @@ class SharesDvP(
 
         /* Create Solana transfer instruction that will be run by Corda Notary */
         txBuilder.addNotaryInstruction(
-            SplToken.transfer(
+            SplToken.transferChecked(
                 solanaSourceAccount, stablecoinTokenMint, solanaDestinationAccount, solanaMintAuthority,
                 sharesPaymentState.stablecoinAmount, sharesPaymentState.stablecoinDecimals
             )
@@ -169,8 +170,8 @@ class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         /* Collect own Solana accounts for Solana transaction */
         val config = serviceHub.getAppContext().config
         val stablecoinTokenMint = Pubkey.fromBase58(config.getString("stablecoinTokenMint"))
-        val wallet = Signer.fromFile(Path(config.getString("solanaWalletFile")))
-        val solanaMintAuthority = wallet.account.toPubkey()
+        val wallet =  Signer.createFromPrivateKey(FileSigner.read(Path(config.getString("solanaWalletFile"))).privateKey().encoded)
+        val solanaMintAuthority = wallet.publicKey().toPubkey()
 
         val solanaService = serviceHub.cordaService(SolanaService::class.java)
         // The ATA should be already created and funded, otherwise the buyer has no stablecoins to spent

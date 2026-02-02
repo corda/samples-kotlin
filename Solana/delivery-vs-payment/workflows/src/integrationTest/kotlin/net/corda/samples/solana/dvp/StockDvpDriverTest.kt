@@ -1,21 +1,17 @@
 package net.corda.samples.solana.dvp
 
-import com.lmax.solana4j.Solana
-import com.lmax.solana4j.api.PublicKey
-import com.lmax.solana4j.client.jsonrpc.SolanaJsonRpcClient
-import com.lmax.solana4j.programs.AssociatedTokenProgram
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
 import net.corda.core.utilities.getOrThrow
+import net.corda.node.utilities.solana.TokenManagement
+import net.corda.node.utilities.solana.TokenProgram
 import net.corda.samples.solana.dvp.flows.CreateAndIssueStock
 import net.corda.samples.solana.dvp.flows.SharesDvP
-import net.corda.samples.solana.dvp.flows.tokenProgramId
-import net.corda.solana.notary.common.Signer
-import net.corda.solana.notary.common.rpc.checkResponse
-import net.corda.solana.notary.common.rpc.sendAndConfirm
+import net.corda.samples.solana.dvp.flows.deriveAddress
+import net.corda.samples.solana.dvp.flows.toSava
+import net.corda.solana.notary.common.FileSigner
 import net.corda.solana.sdk.SplToken
-import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.driver.DriverDSL
@@ -25,7 +21,6 @@ import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
 import net.corda.testing.node.TestCordapp
 import net.corda.testing.solana.SolanaTestValidator
-import net.corda.testing.solana.randomKeypairFile
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -33,8 +28,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
+import software.sava.core.accounts.PublicKey
+import software.sava.core.accounts.Signer
+import software.sava.core.accounts.SolanaAccounts
+import software.sava.core.accounts.meta.AccountMeta
+import software.sava.core.tx.Instruction
+import software.sava.rpc.json.http.client.SolanaRpcClient
 import java.math.BigDecimal
-import java.net.http.HttpClient
 import java.nio.file.Path
 
 // This is a sample of full-fledged test with both Corda Nodes and Solana Local Validator
@@ -59,7 +59,7 @@ class StockDvpDriverTest {
 
     private val SOLANA_TOKEN_AMOUNT = 1000000L
     private val SOLANA_TOKEN_DECIMALS = 3
-    private val SOLANA_BUYER_INITIAL_AMOUNT = BigDecimal(1000)
+    private val SOLANA_BUYER_INITIAL_AMOUNT = BigDecimal(1000000)
     private val SOLANA_PAYMENT = BigDecimal(740) // STOCK_PRICE * DELIVERY_STOCK_QUANTITY
 
     private val seller = TestIdentity(CordaX500Name("BankA", "", "GB"))
@@ -79,8 +79,7 @@ class StockDvpDriverTest {
     private lateinit var sellerDvpCordappConfig: Map<String, Any>
     private lateinit var buyerDvpCordappConfig: Map<String, Any>
 
-    private lateinit var solanaNotaryKeyFile: Path
-    private lateinit var solanaNotaryKey: Signer
+    private lateinit var solanaNotaryKey: FileSigner
 
     // A directory with Corda Notary key pair for singing Corda Program on Solana
     @TempDir
@@ -91,7 +90,10 @@ class StockDvpDriverTest {
     @TempDir
     private lateinit var custodiedKeysDir: Path
 
-    private lateinit var stablecoinAuthority: Signer
+    @TempDir
+    private lateinit var otherDir: Path
+
+    private lateinit var stablecoinAuthority: FileSigner
     private lateinit var stablecoinAccount: PublicKey
 
     private lateinit var sellerTokenAccount: PublicKey
@@ -99,33 +101,34 @@ class StockDvpDriverTest {
 
     @BeforeEach
     fun setup() {
-        solanaNotaryKeyFile = randomKeypairFile(notaryKeyDir)
-        solanaNotaryKey = Signer.fromFile(solanaNotaryKeyFile)
-        validator.start()
-        validator.defaultNotaryProgramSetup(solanaNotaryKey.account)
+        solanaNotaryKey = FileSigner.random(notaryKeyDir)
+        validator.startAndWait()
+        validator.defaultNotaryProgramSetup(solanaNotaryKey.publicKey())
 
-        val buyerWalletFilePath = randomKeypairFile(custodiedKeysDir)
-        val buyerWallet = Signer.fromFile(buyerWalletFilePath)
+        val buyerWallet = FileSigner.random(custodiedKeysDir)
 
-        val sellerWalletFilePath = randomKeypairFile(custodiedKeysDir)
-        val sellerWallet = Signer.fromFile(sellerWalletFilePath)
-        stablecoinAuthority = Signer.random()
+        val sellerWallet = FileSigner.random(custodiedKeysDir)
+        stablecoinAuthority = FileSigner.random(otherDir)
 
         setOf(stablecoinAuthority, sellerWallet, buyerWallet).forEach {
-            validator.fundAccount(100000, it)
+            validator.accounts.airdropSol(it.publicKey(), 100000)
         }
         stablecoinAccount =
-            validator.createToken(stablecoinAuthority, decimals = SOLANA_TOKEN_DECIMALS.toByte(), isToken2022 = false)
-        sellerTokenAccount =
-            AssociatedTokenProgram.deriveAddress(sellerWallet.account, tokenProgramId, stablecoinAccount).address()
-        buyerTokenAccount = validator.createAta(stablecoinAuthority, stablecoinAccount, buyerWallet.account)
-
-        validator.mintTo(
+            validator.tokens.createToken(stablecoinAuthority, TokenProgram.TOKEN_2022, decimals = SOLANA_TOKEN_DECIMALS)
+        sellerTokenAccount = deriveAddress(
+            stablecoinAuthority.publicKey(),
+            sellerWallet.publicKey(),
+            TokenProgram.TOKEN_2022.programId)
+        buyerTokenAccount = validator.tokens.createAta(
             stablecoinAuthority,
+            buyerWallet.publicKey(),
             stablecoinAccount,
+            TokenProgram.TOKEN_2022.programId)
+        validator.tokens.mintTo(
             buyerTokenAccount,
-            SOLANA_TOKEN_AMOUNT,
-            isToken2022 = false
+            stablecoinAccount,
+            stablecoinAuthority,
+            SOLANA_TOKEN_AMOUNT
         )
 
         // corda configs
@@ -135,21 +138,21 @@ class StockDvpDriverTest {
                 "solana" to mapOf(
                     "rpcUrl" to SolanaTestValidator.RPC_URL,
                     "websocketUrl" to SolanaTestValidator.WS_URL,
-                    "notaryKeypairFile" to "$solanaNotaryKeyFile",
+                    "notaryKeypairFile" to "${solanaNotaryKey.file}",
                     "custodiedKeysDir" to "$custodiedKeysDir",
-                    "programWhitelist" to listOf(SplToken.PROGRAM_ID.toPublicKey().base58()),
+                    "programWhitelist" to listOf(SplToken.PROGRAM_ID.toSava().toBase58()),
                 )
             )
         )
         sellerDvpCordappConfig = mapOf(
-            "stablecoinTokenMint" to stablecoinAccount.base58(),
-            "solanaWalletFile" to sellerWalletFilePath.toString(),
+            "stablecoinTokenMint" to stablecoinAccount.toBase58(),
+            "solanaWalletFile" to sellerWallet.file.toString(),
             "solanaRpcUrl" to SolanaTestValidator.RPC_URL,
             "solanaWsUrl" to SolanaTestValidator.WS_URL
         )
         buyerDvpCordappConfig = mapOf(
-            "stablecoinTokenMint" to stablecoinAccount.base58(),
-            "solanaWalletFile" to buyerWalletFilePath.toString(),
+            "stablecoinTokenMint" to stablecoinAccount.toBase58(),
+            "solanaWalletFile" to buyerWallet.file.toString(),
             "solanaRpcUrl" to SolanaTestValidator.RPC_URL,
             "solanaWsUrl" to SolanaTestValidator.WS_URL
         )
@@ -224,40 +227,45 @@ class StockDvpDriverTest {
             startNodesInProcess = false,
             cordappsForAllNodes = cordappsForAllNodes,
             notarySpecs = listOf(NotarySpec(solanaNotaryName, notaryConfig, startInProcess = false)),
-            networkParameters = testNetworkParameters(minimumPlatformVersion = 160).copy(notaries = emptyList())
+            networkParameters = testNetworkParameters(minimumPlatformVersion = 160).copy(notaries = emptyList()),
+            systemProperties = mapOf(
+                "capsule.jvm.args" to "--add-opens=java.base/sun.nio.fs=ALL-UNNAMED " +
+                        "--add-opens=java.base/sun.security.util.math.intpoly=ALL-UNNAMED"
+            )
         )
     ) { test() }
 
-    private fun Pubkey.toPublicKey(): PublicKey = Solana.account(bytes)
-
     private fun SolanaTestValidator.getTokenBalance(publicKey: PublicKey): BigDecimal =
-        client
-            .getTokenAccountBalance(publicKey.base58(), rpcParams)
-            .checkResponse("getTokenAccountBalance")!!
-            .uiAmountString
-            .toBigDecimal()
+        client.call(SolanaRpcClient::getTokenAccountBalance, publicKey).amount.toBigDecimal()
 
-    //TODO temporary method code, it will be replaced by new method from Solana estValidator using Sava client
-    fun SolanaTestValidator.createAta(feePayer: Signer, mintAccount: PublicKey, ownerAccount: PublicKey): PublicKey {
-
-        val rpcClient = SolanaJsonRpcClient(HttpClient.newHttpClient(), SolanaTestValidator.RPC_URL)
-        val pda = AssociatedTokenProgram.deriveAddress(ownerAccount, tokenProgramId, mintAccount)
-        val instruction = AssociatedTokenProgram.createAssociatedTokenAccount(
-            pda,
-            mintAccount,
-            ownerAccount,
-            feePayer.account,
-            tokenProgramId,
-            false,
+    //TODO move the method to TokenManagement class and/or toolkit repo
+    fun TokenManagement.createAta(
+        payer: Signer,
+        owner: PublicKey,
+        mint: PublicKey,
+        tokenProgram: PublicKey
+    ): PublicKey {
+        val solana = SolanaAccounts.MAIN_NET
+        val ata = deriveAddress(mint, owner, tokenProgram)
+        val createIdempotentIx = Instruction.createInstruction(
+            solana.associatedTokenAccountProgram(),
+            listOf(
+                AccountMeta.createFeePayer(payer.publicKey()),
+                AccountMeta.createWrite(ata),
+                AccountMeta.createRead(owner),
+                AccountMeta.createRead(mint),
+                AccountMeta.createRead(solana.systemProgram()),
+                AccountMeta.createRead(tokenProgram)
+            ),
+            byteArrayOf(1)
         )
-        rpcClient.sendAndConfirm(
-            { txBuilder ->
-                txBuilder.append(instruction)
+        validator.client.sendAndConfirm(
+            {
+                it.createTransaction(listOf(createIdempotentIx))
             },
-            feePayer,
-            emptyList(),
-            rpcParams
+            payer,
+            listOf()
         )
-        return pda.address()
+        return ata
     }
 }

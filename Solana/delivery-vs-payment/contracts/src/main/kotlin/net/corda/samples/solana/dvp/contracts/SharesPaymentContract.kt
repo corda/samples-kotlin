@@ -39,7 +39,7 @@ class SharesPaymentContract : Contract {
                         "Exactly one Solana instruction required."
                     }
 
-                val expectedInstruction = SplToken.transfer(
+                val expectedInstruction = SplToken.transferChecked(
                     output.solanaBuyerTokenAccount,
                     output.solanaStablecoin,
                     output.solanaSellerTokenAccount,
