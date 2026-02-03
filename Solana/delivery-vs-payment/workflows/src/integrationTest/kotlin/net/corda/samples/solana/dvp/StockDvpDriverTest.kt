@@ -114,16 +114,16 @@ class StockDvpDriverTest {
             validator.accounts.airdropSol(it.publicKey(), 100000)
         }
         stablecoinAccount =
-            validator.tokens.createToken(stablecoinAuthority, TokenProgram.TOKEN_2022, decimals = SOLANA_TOKEN_DECIMALS)
+            validator.tokens.createToken(stablecoinAuthority, TokenProgram.TOKEN, decimals = SOLANA_TOKEN_DECIMALS)
         sellerTokenAccount = deriveAddress(
             stablecoinAuthority.publicKey(),
             sellerWallet.publicKey(),
-            TokenProgram.TOKEN_2022.programId)
+            TokenProgram.TOKEN.programId)
         buyerTokenAccount = validator.tokens.createAta(
             stablecoinAuthority,
             buyerWallet.publicKey(),
             stablecoinAccount,
-            TokenProgram.TOKEN_2022.programId)
+            TokenProgram.TOKEN.programId)
         validator.tokens.mintTo(
             buyerTokenAccount,
             stablecoinAccount,

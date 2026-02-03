@@ -30,7 +30,6 @@ object StockQueryUtilities {
     }
 }
 
-
 fun BigDecimal.toScaledLong(decimals: Int, rounding: RoundingMode = RoundingMode.DOWN): Long =
     this.movePointRight(decimals)
         .setScale(0, rounding)   // make it an integer

@@ -29,12 +29,9 @@ import net.corda.notary.solana.toPubkey
 import net.corda.samples.solana.dvp.contracts.SharesPaymentContract
 import net.corda.samples.solana.dvp.states.SharesPaymentState
 import net.corda.samples.solana.dvp.states.StockState
-import net.corda.solana.notary.common.FileSigner
 import net.corda.solana.sdk.SplToken
 import net.corda.solana.sdk.instruction.Pubkey
-import software.sava.core.accounts.Signer
 import java.math.BigDecimal
-import kotlin.io.path.Path
 
 /**
  * Delivery versus Payment exchange is initialized as "ask" from Seller to be approved by Buyer.
@@ -170,13 +167,13 @@ class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         /* Collect own Solana accounts for Solana transaction */
         val config = serviceHub.getAppContext().config
         val stablecoinTokenMint = Pubkey.fromBase58(config.getString("stablecoinTokenMint"))
-        val wallet =  Signer.createFromPrivateKey(FileSigner.read(Path(config.getString("solanaWalletFile"))).privateKey().encoded)
-        val solanaMintAuthority = wallet.publicKey().toPubkey()
 
         val solanaService = serviceHub.cordaService(SolanaService::class.java)
         // The ATA should be already created and funded, otherwise the buyer has no stablecoins to spent
         val solanaSourceAccount = solanaService.deriveAtaAddress(stablecoinTokenMint).toPubkey()
         // The flow could be extended to check if the amount of tokens is available on Solana
+
+        val solanaMintAuthority = solanaService.mintAuthority
 
         /* Send to seller to add payment data to a transaction */
         val payerDetails = SolanaPayer(stablecoinTokenMint, solanaMintAuthority, solanaSourceAccount)
