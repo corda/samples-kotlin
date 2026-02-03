@@ -39,8 +39,7 @@ class TokenAccountService(
      * Optimistically attempts to create an associated token account (ATA) for the given SPL token [mintAccount],
      * [ownerAccount] and Token2022. The method is idempotent and may be rerun in case a flow restart.
      *
-     * The transaction is built and signed using this service's fee payer and submitted with preflight
-     * checks enabled. If submission fails due to a stale blockhash, the creation is retried with a new blockhash.
+     * The transaction is built and signed using this service's fee payer.
      *
      * @param mintAccount The SPL token mint for which the associated token account is created.
      * @param ownerAccount The owner of the associated token account, if omitted it defaults to a fee payer account

@@ -34,6 +34,7 @@ import software.sava.core.accounts.SolanaAccounts
 import software.sava.core.accounts.meta.AccountMeta
 import software.sava.core.tx.Instruction
 import software.sava.rpc.json.http.client.SolanaRpcClient
+import software.sava.rpc.json.http.response.TokenAmount
 import java.math.BigDecimal
 import java.nio.file.Path
 
@@ -59,8 +60,8 @@ class StockDvpDriverTest {
 
     private val SOLANA_TOKEN_AMOUNT = 1000000L
     private val SOLANA_TOKEN_DECIMALS = 3
-    private val SOLANA_BUYER_INITIAL_AMOUNT = BigDecimal(1000000)
-    private val SOLANA_PAYMENT = BigDecimal(740000) // STOCK_PRICE * DELIVERY_STOCK_QUANTITY
+    private val SOLANA_BUYER_INITIAL_AMOUNT = BigDecimal(1000)
+    private val SOLANA_PAYMENT = BigDecimal(740) // STOCK_PRICE * DELIVERY_STOCK_QUANTITY
 
     private val seller = TestIdentity(CordaX500Name("BankA", "", "GB"))
     private val buyer = TestIdentity(CordaX500Name("BankB", "", "US"))
@@ -117,12 +118,14 @@ class StockDvpDriverTest {
         sellerTokenAccount = deriveAddress(
             stablecoinAccount,
             sellerWallet.publicKey(),
-            TokenProgram.TOKEN.programId)
+            TokenProgram.TOKEN.programId
+        )
         buyerTokenAccount = validator.tokens.createAta(
             stablecoinAuthority,
             buyerWallet.publicKey(),
             stablecoinAccount,
-            TokenProgram.TOKEN.programId)
+            TokenProgram.TOKEN.programId
+        )
         validator.tokens.mintTo(
             buyerTokenAccount,
             stablecoinAccount,
@@ -231,7 +234,13 @@ class StockDvpDriverTest {
     ) { test() }
 
     private fun SolanaTestValidator.getTokenBalance(publicKey: PublicKey): BigDecimal =
-        client.call(SolanaRpcClient::getTokenAccountBalance, publicKey).amount.toBigDecimal()
+        client.call(SolanaRpcClient::getTokenAccountBalance, publicKey).uiBigDecimal()
+
+    private fun TokenAmount.uiBigDecimal(): BigDecimal = BigDecimal(amount)
+        .movePointLeft(decimals)
+        .stripTrailingZeros()
+        .toBigInteger()
+        .toBigDecimal()
 
     //TODO move the method to TokenManagement class and/or toolkit repo
     fun TokenManagement.createAta(
