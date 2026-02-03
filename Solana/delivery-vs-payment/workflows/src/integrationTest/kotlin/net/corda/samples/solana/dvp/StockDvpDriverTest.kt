@@ -60,7 +60,7 @@ class StockDvpDriverTest {
     private val SOLANA_TOKEN_AMOUNT = 1000000L
     private val SOLANA_TOKEN_DECIMALS = 3
     private val SOLANA_BUYER_INITIAL_AMOUNT = BigDecimal(1000000)
-    private val SOLANA_PAYMENT = BigDecimal(740) // STOCK_PRICE * DELIVERY_STOCK_QUANTITY
+    private val SOLANA_PAYMENT = BigDecimal(740000) // STOCK_PRICE * DELIVERY_STOCK_QUANTITY
 
     private val seller = TestIdentity(CordaX500Name("BankA", "", "GB"))
     private val buyer = TestIdentity(CordaX500Name("BankB", "", "US"))

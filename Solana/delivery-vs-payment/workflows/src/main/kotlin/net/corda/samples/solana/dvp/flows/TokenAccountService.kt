@@ -48,9 +48,9 @@ class TokenAccountService(
     fun createAta(mintAccount: PublicKey, ownerAccount: PublicKey = feePayer.publicKey()): PublicKey {
         if (existingAtaCache.contains(mintAccount, ownerAccount)) {
             // ATA already exists
-            return deriveAddress(ownerAccount, tokenProgramId, mintAccount)
+            return deriveAddress(mintAccount, ownerAccount, tokenProgramId)
         }
-        val pda = deriveAddress(ownerAccount, tokenProgramId, mintAccount)
+        val pda = deriveAddress(mintAccount, ownerAccount, tokenProgramId)
         try {
             tokenManagement.createAta(feePayer, ownerAccount, mintAccount, tokenProgramId)
             logger.info("ATA created successfully, owner=$ownerAccount, mint=$mintAccount, pda=$pda.")
@@ -65,7 +65,7 @@ class TokenAccountService(
     }
 
     fun deriveAddress(mintAccount: PublicKey, ownerAccount: PublicKey = feePayer.publicKey()): PublicKey {
-        return deriveAddress(ownerAccount, tokenProgramId, mintAccount)
+        return deriveAddress(mintAccount, ownerAccount, tokenProgramId)
     }
 
     // Checks for an expected error when ATA already exists
