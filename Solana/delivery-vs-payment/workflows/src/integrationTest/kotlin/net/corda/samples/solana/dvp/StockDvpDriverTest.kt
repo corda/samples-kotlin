@@ -106,7 +106,6 @@ class StockDvpDriverTest {
         validator.defaultNotaryProgramSetup(solanaNotaryKey.publicKey())
 
         val buyerWallet = FileSigner.random(custodiedKeysDir)
-
         val sellerWallet = FileSigner.random(custodiedKeysDir)
         stablecoinAuthority = FileSigner.random(otherDir)
 
@@ -116,7 +115,7 @@ class StockDvpDriverTest {
         stablecoinAccount =
             validator.tokens.createToken(stablecoinAuthority, TokenProgram.TOKEN, decimals = SOLANA_TOKEN_DECIMALS)
         sellerTokenAccount = deriveAddress(
-            stablecoinAuthority.publicKey(),
+            stablecoinAccount,
             sellerWallet.publicKey(),
             TokenProgram.TOKEN.programId)
         buyerTokenAccount = validator.tokens.createAta(
@@ -227,11 +226,7 @@ class StockDvpDriverTest {
             startNodesInProcess = false,
             cordappsForAllNodes = cordappsForAllNodes,
             notarySpecs = listOf(NotarySpec(solanaNotaryName, notaryConfig, startInProcess = false)),
-            networkParameters = testNetworkParameters(minimumPlatformVersion = 160).copy(notaries = emptyList()),
-            systemProperties = mapOf(
-                "capsule.jvm.args" to "--add-opens=java.base/sun.nio.fs=ALL-UNNAMED " +
-                        "--add-opens=java.base/sun.security.util.math.intpoly=ALL-UNNAMED"
-            )
+            networkParameters = testNetworkParameters(minimumPlatformVersion = 160).copy(notaries = emptyList())
         )
     ) { test() }
 
