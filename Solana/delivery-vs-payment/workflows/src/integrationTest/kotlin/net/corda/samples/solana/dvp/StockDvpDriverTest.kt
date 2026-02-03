@@ -111,10 +111,10 @@ class StockDvpDriverTest {
         stablecoinAuthority = FileSigner.random(otherDir)
 
         setOf(stablecoinAuthority, sellerWallet, buyerWallet).forEach {
-            validator.accounts.airdropSol(it.publicKey(), 100000)
+            validator.accounts.airdropSol(it.publicKey(), 10)
         }
         stablecoinAccount =
-            validator.tokens.createToken(stablecoinAuthority, TokenProgram.TOKEN, decimals = SOLANA_TOKEN_DECIMALS)
+            validator.tokens.createToken(stablecoinAuthority, decimals = SOLANA_TOKEN_DECIMALS)
         sellerTokenAccount = deriveAddress(
             stablecoinAccount,
             sellerWallet.publicKey(),
@@ -234,13 +234,7 @@ class StockDvpDriverTest {
     ) { test() }
 
     private fun SolanaTestValidator.getTokenBalance(publicKey: PublicKey): BigDecimal =
-        client.call(SolanaRpcClient::getTokenAccountBalance, publicKey).uiBigDecimal()
-
-    private fun TokenAmount.uiBigDecimal(): BigDecimal = BigDecimal(amount)
-        .movePointLeft(decimals)
-        .stripTrailingZeros()
-        .toBigInteger()
-        .toBigDecimal()
+        client.call(SolanaRpcClient::getTokenAccountBalance, publicKey).toDecimal().setScale(0) // normalize scale e.g. value as 1E+3 to 1000 to allow easier quality check
 
     //TODO move the method to TokenManagement class and/or toolkit repo
     fun TokenManagement.createAta(
