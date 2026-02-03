@@ -14,6 +14,7 @@ To get started explore the [Basic](./Basic) folder, or navigate to the [Advanced
 ## Directories
 The samples are divided into 5 sections with the following desciption:
 
+* [Solana](./Solana): Demonstrates how Corda can integrate with the [Solana public blockchain](https://solana.com/).
 * [Accounts](./Accounts): These samples showcases how to utilize [Corda Accounts Libray](https://training.corda.net/libraries/accounts-lib/) to build CorDapps which aim to have massive user volume
 * [Advanced](./Advanced): In these samples, we demonstrate more complex and sophisticated [features](https://training.corda.net/corda-details/introduction/) of Corda.
 * [Basic](./Basic): They demonstrate [fundamental](https://training.corda.net/key-concepts/concepts/) and useful techniques for CorDapp development.

@@ -1,0 +1,92 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+import static org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+import static org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
+
+buildscript {
+    Properties constants = new Properties()
+    file("$projectDir/../constants.properties").withInputStream { constants.load(it) }
+
+    ext {
+        corda_enterprise_release_group = constants.getProperty("cordaEnterpriseReleaseGroup")
+        corda_os_release_group = constants.getProperty("cordaOsReleaseGroup")
+        corda_enterprise_release_version = constants.getProperty("cordaEnterpriseVersion")
+        corda_os_release_version = constants.getProperty("cordaOsVersion")
+        corda_gradle_plugins_version = constants.getProperty("gradlePluginsVersion")
+        corda_solana_notary_version = constants.getProperty("cordaSolanaNotaryVersion")
+        corda_tokens_release_version = constants.getProperty("cordaTokensVersion")
+        sava_core_version = constants.getProperty("savaCoreVersion")
+        sava_programs_version = constants.getProperty("savaProgramsVersion")
+        corda_platform_version = constants.getProperty("platformVersion").toInteger()
+        kotlin_version = constants.getProperty("kotlinVersion")
+        junit_version = constants.getProperty("junitVersion")
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url 'https://download.corda.net/maven/corda-releases' }
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "net.corda.plugins:cordapp:$corda_gradle_plugins_version"
+        classpath "net.corda.plugins:cordformation:$corda_gradle_plugins_version"
+        classpath "net.corda.plugins:quasar-utils:$corda_gradle_plugins_version"
+    }
+}
+
+allprojects {
+    apply from: "${rootProject.projectDir}/repositories.gradle"
+    apply plugin: 'kotlin'
+
+    tasks.withType(Test) {
+        jvmArgs = ['--add-opens', 'java.base/java.time=ALL-UNNAMED', '--add-opens', 'java.base/java.io=ALL-UNNAMED',
+                       '--add-opens', 'java.base/java.util=ALL-UNNAMED', '--add-opens', 'java.base/java.net=ALL-UNNAMED',
+                       '--add-opens', 'java.base/java.nio=ALL-UNNAMED', '--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED',
+                       '--add-opens', 'java.base/java.security.cert=ALL-UNNAMED', '--add-opens', 'java.base/java.security=ALL-UNNAMED',
+                       '--add-opens', 'java.base/javax.net.ssl=ALL-UNNAMED', '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+                       '--add-opens', 'java.base/java.util.concurrent=ALL-UNNAMED', '--add-opens', 'java.sql/java.sql=ALL-UNNAMED',
+                       '--add-modules', 'jdk.incubator.foreign']
+    }
+
+    tasks.withType(KotlinCompile) {
+        compilerOptions {
+            languageVersion = KOTLIN_1_9
+            apiVersion = KOTLIN_1_9
+            jvmTarget = JVM_17
+            javaParameters = true // Useful for reflection.
+        }
+    }
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    compileJava {
+        options.compilerArgs << '-parameters'
+    }
+}
+
+apply plugin: 'net.corda.plugins.cordapp'
+//apply plugin: 'net.corda.plugins.quasar-utils'
+
+dependencies {
+    // Corda dependencies.
+    cordaProvided "$corda_os_release_group:corda-core:$corda_os_release_version"
+
+    cordapp "com.r3.corda.lib.tokens:tokens-contracts:$corda_tokens_release_version"
+    cordapp "com.r3.corda.lib.tokens:tokens-workflows:$corda_tokens_release_version"
+
+    cordapp "com.r3.corda.lib.solana:corda-bridging-token-contracts:$corda_bridging_token_release_version"
+    cordapp "com.r3.corda.lib.solana:corda-bridging-token-workflows:$corda_bridging_token_release_version"
+
+    cordapp "com.stockpaydividend:contracts:1.0"
+    cordapp "com.stockpaydividend:workflows:1.0"
+}
+
+cordapp {
+    targetPlatformVersion corda_platform_version.toInteger()
+    minimumPlatformVersion corda_platform_version.toInteger()
+}
