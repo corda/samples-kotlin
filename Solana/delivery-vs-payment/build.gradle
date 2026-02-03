@@ -13,7 +13,7 @@ buildscript {
         corda_gradle_plugins_version = constants.getProperty("gradlePluginsVersion")
         corda_solana_notary_version = constants.getProperty("cordaSolanaNotaryVersion")
         corda_tokens_release_version = constants.getProperty("cordaTokensVersion")
-        sava_version = constants.getProperty("savaVersion")
+        sava_version = constants.getProperty("savaCoreVersion")
         corda_platform_version = constants.getProperty("platformVersion").toInteger()
         kotlin_version = constants.getProperty("kotlinVersion")
         junit_version = constants.getProperty("junitVersion")
