@@ -15,7 +15,7 @@ import software.sava.core.accounts.meta.AccountMeta
 import software.sava.core.tx.Instruction
 import software.sava.rpc.json.http.response.TransactionError
 
-// TODO this file will be replaced by use of utility classes from other project
+// TODO this file will be replaced by use of utility classes from other project, ensuring createAta with preflight mode
 /**
  * Manages creation of Solana ATA account on the fly,
  * ATA requests are cached internally in-memory to avoid unnecessary requests to Solana.
