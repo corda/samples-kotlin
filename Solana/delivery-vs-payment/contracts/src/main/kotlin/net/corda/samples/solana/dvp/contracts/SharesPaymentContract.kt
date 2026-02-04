@@ -5,10 +5,10 @@ import net.corda.core.contracts.CommandWithParties
 import net.corda.core.contracts.Contract
 import net.corda.core.contracts.requireSingleCommand
 import net.corda.core.contracts.requireThat
+import net.corda.core.solana.SolanaInstruction
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.solana.dvp.states.SharesPaymentState
 import net.corda.solana.sdk.SplToken
-import net.corda.solana.sdk.instruction.SolanaInstruction
 import kotlin.collections.singleOrNull
 
 class SharesPaymentContract : Contract {
@@ -39,7 +39,7 @@ class SharesPaymentContract : Contract {
                         "Exactly one Solana instruction required."
                     }
 
-                val expectedInstruction = SplToken.transfer(
+                val expectedInstruction = SplToken.transferChecked(
                     output.solanaBuyerTokenAccount,
                     output.solanaStablecoin,
                     output.solanaSellerTokenAccount,

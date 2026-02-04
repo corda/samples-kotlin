@@ -42,10 +42,8 @@ dependencies {
     implementation "$corda_enterprise_release_group:corda-solana-sdk:$corda_enterprise_release_version"
 
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation 'net.corda.solana.notary:common:0.1.2'
+    testImplementation "net.corda.solana.notary:common:$corda_solana_notary_version"
     testImplementation "$corda_enterprise_release_group:corda-test-utils:$corda_enterprise_release_version"
-    testImplementation 'com.lmax:solana4j:1.2.2'
-    testImplementation 'com.lmax:solana4j-json-rpc:1.2.2'
     testImplementation "$corda_enterprise_release_group:corda-test-common:$corda_enterprise_release_version"
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.14.0")
@@ -63,6 +61,7 @@ dependencies {
     // Corda dependencies needed for SolanaClient.
     cordaProvided "$corda_enterprise_release_group:corda-node:$corda_enterprise_release_version"
     cordaProvided "software.sava:sava-rpc:$sava_version"
+    cordaProvided "software.sava:sava-core:$sava_version"
 
     testImplementation "$corda_enterprise_release_group:corda-node-driver:$corda_enterprise_release_version"
     testImplementation "$corda_enterprise_release_group:corda-core-test-utils:$corda_enterprise_release_version"
@@ -77,8 +76,6 @@ dependencies {
     cordaProvided "$corda_enterprise_release_group:corda-solana-sdk:$corda_enterprise_release_version"
 
     //TODO these will be removed after TokenAccountService is placed in a common dependency in toolkit
-    cordaProvided "com.lmax:solana4j:1.2.2"
-    cordaProvided "com.lmax:solana4j-json-rpc:1.2.2"
     cordaProvided "com.github.ben-manes.caffeine:caffeine:3.2.3"
     cordaProvided "net.corda.solana.notary:common:$corda_solana_notary_version"
 }
