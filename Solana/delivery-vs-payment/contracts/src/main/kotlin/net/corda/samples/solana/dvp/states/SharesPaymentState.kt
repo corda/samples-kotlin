@@ -6,8 +6,8 @@ import net.corda.core.contracts.BelongsToContract
 import net.corda.core.contracts.ContractState
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
+import net.corda.core.solana.Pubkey
 import net.corda.samples.solana.dvp.contracts.SharesPaymentContract
-import net.corda.solana.sdk.instruction.Pubkey
 
 /**
  * Stablecoin payment details (Solana account addresses and amount),

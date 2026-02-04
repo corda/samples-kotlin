@@ -3,11 +3,12 @@ package net.corda.samples.solana.dvp.flows
 import net.corda.core.node.AppServiceHub
 import net.corda.core.node.services.CordaService
 import net.corda.core.serialization.SingletonSerializeAsToken
+import net.corda.core.solana.Pubkey
 import net.corda.notary.solana.toPubkey
 import net.corda.solana.notary.common.FileSigner
 import net.corda.solana.notary.common.SolanaClient
-import net.corda.solana.sdk.instruction.Pubkey
 import software.sava.core.accounts.PublicKey
+import software.sava.core.accounts.Signer
 import software.sava.core.accounts.token.Mint
 import software.sava.rpc.json.http.client.SolanaRpcClient
 import software.sava.rpc.json.http.request.Commitment
@@ -19,8 +20,9 @@ import java.nio.file.Paths
 @CordaService
 class SolanaService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() {
     private val solanaClient: SolanaClient
-    private val accountService: TokenAccountService
-    val mintAuthority: Pubkey
+    private val accountService: CachedTokenManagement
+    private val wallet: Signer
+
     init {
         val config = appServiceHub.getAppContext().config
         val rpcUrl = URI.create(config.getString("solanaRpcUrl"))
@@ -29,10 +31,11 @@ class SolanaService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() 
         solanaClient.start()
         appServiceHub.registerUnloadHandler { solanaClient.close() }
 
-        val payer = FileSigner.read( Paths.get(config.getString("solanaWalletFile")))
-        mintAuthority = payer.publicKey().toPubkey()
-        accountService = TokenAccountService(solanaClient, payer)
+        wallet = FileSigner.read(Paths.get(config.getString("solanaWalletFile")))
+        accountService = CachedTokenManagement(solanaClient)
     }
+
+    fun getMyWalletAddress(): Pubkey = wallet.publicKey().toPubkey()
 
     fun getAccountInfo(account: Pubkey): AccountInfo<ByteArray> {
         val accountInfo = solanaClient.call(SolanaRpcClient::getAccountInfo, account.toSava())
@@ -45,9 +48,9 @@ class SolanaService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() 
         return mint.decimals
     }
 
-    fun createAta(mint: PublicKey) : PublicKey = accountService.createAta(mint)
+    fun createAta(mint: PublicKey): PublicKey = accountService.createAssociatedTokenAccount(wallet, mint)
 
-    fun deriveAtaAddress(mint: Pubkey) : PublicKey = accountService.deriveAddress(mint.toSava())
+    fun deriveAtaAddress(mint: Pubkey): PublicKey = getAssociatedTokenAccountAddress(mint.toSava(), wallet.publicKey())
 }
 
 fun Pubkey.toSava(): PublicKey = PublicKey.createPubKey(bytes)

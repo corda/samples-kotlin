@@ -5,12 +5,12 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
 import net.corda.core.utilities.getOrThrow
 import net.corda.node.utilities.solana.TokenManagement
-import net.corda.node.utilities.solana.TokenProgram
 import net.corda.samples.solana.dvp.flows.CreateAndIssueStock
 import net.corda.samples.solana.dvp.flows.SharesDvP
-import net.corda.samples.solana.dvp.flows.deriveAddress
+import net.corda.samples.solana.dvp.flows.getAssociatedTokenAccountAddress
 import net.corda.samples.solana.dvp.flows.toSava
 import net.corda.solana.notary.common.FileSigner
+import net.corda.solana.notary.common.SolanaUtils
 import net.corda.solana.sdk.SplToken
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.TestIdentity
@@ -31,10 +31,8 @@ import org.junit.jupiter.api.io.TempDir
 import software.sava.core.accounts.PublicKey
 import software.sava.core.accounts.Signer
 import software.sava.core.accounts.SolanaAccounts
-import software.sava.core.accounts.meta.AccountMeta
-import software.sava.core.tx.Instruction
 import software.sava.rpc.json.http.client.SolanaRpcClient
-import software.sava.rpc.json.http.response.TokenAmount
+import software.sava.solana.programs.token.AssociatedTokenProgram
 import java.math.BigDecimal
 import java.nio.file.Path
 
@@ -91,10 +89,7 @@ class StockDvpDriverTest {
     @TempDir
     private lateinit var custodiedKeysDir: Path
 
-    @TempDir
-    private lateinit var otherDir: Path
-
-    private lateinit var stablecoinAuthority: FileSigner
+    private lateinit var stablecoinAuthority: Signer
     private lateinit var stablecoinAccount: PublicKey
 
     private lateinit var sellerTokenAccount: PublicKey
@@ -108,23 +103,21 @@ class StockDvpDriverTest {
 
         val buyerWallet = FileSigner.random(custodiedKeysDir)
         val sellerWallet = FileSigner.random(custodiedKeysDir)
-        stablecoinAuthority = FileSigner.random(otherDir)
+        stablecoinAuthority = SolanaUtils.randomSigner()
 
         setOf(stablecoinAuthority, sellerWallet, buyerWallet).forEach {
             validator.accounts.airdropSol(it.publicKey(), 10)
         }
         stablecoinAccount =
             validator.tokens.createToken(stablecoinAuthority, decimals = SOLANA_TOKEN_DECIMALS)
-        sellerTokenAccount = deriveAddress(
+        sellerTokenAccount = getAssociatedTokenAccountAddress(
             stablecoinAccount,
-            sellerWallet.publicKey(),
-            TokenProgram.TOKEN.programId
+            sellerWallet.publicKey()
         )
-        buyerTokenAccount = validator.tokens.createAta(
+        buyerTokenAccount = validator.tokens.createAssociatedTokenAccount(
             stablecoinAuthority,
-            buyerWallet.publicKey(),
             stablecoinAccount,
-            TokenProgram.TOKEN.programId
+            buyerWallet.publicKey()
         )
         validator.tokens.mintTo(
             buyerTokenAccount,
@@ -234,36 +227,34 @@ class StockDvpDriverTest {
     ) { test() }
 
     private fun SolanaTestValidator.getTokenBalance(publicKey: PublicKey): BigDecimal =
-        client.call(SolanaRpcClient::getTokenAccountBalance, publicKey).toDecimal().setScale(0) // normalize scale e.g. value as 1E+3 to 1000 to allow easier quality check
+        client.call(SolanaRpcClient::getTokenAccountBalance, publicKey)
+            .toDecimal()
+            .setScale(0) // normalize scale e.g. value as 1E+3 to 1000 to allow easier quality check
 
-    //TODO move the method to TokenManagement class and/or toolkit repo
-    fun TokenManagement.createAta(
+    //TODO remove the method once it is available in TokenManagement
+    fun TokenManagement.createAssociatedTokenAccount(
         payer: Signer,
-        owner: PublicKey,
-        mint: PublicKey,
-        tokenProgram: PublicKey
+        tokenMint: PublicKey,
+        accountOwner: PublicKey = payer.publicKey(),
     ): PublicKey {
-        val solana = SolanaAccounts.MAIN_NET
-        val ata = deriveAddress(mint, owner, tokenProgram)
-        val createIdempotentIx = Instruction.createInstruction(
-            solana.associatedTokenAccountProgram(),
-            listOf(
-                AccountMeta.createFeePayer(payer.publicKey()),
-                AccountMeta.createWrite(ata),
-                AccountMeta.createRead(owner),
-                AccountMeta.createRead(mint),
-                AccountMeta.createRead(solana.systemProgram()),
-                AccountMeta.createRead(tokenProgram)
-            ),
-            byteArrayOf(1)
-        )
+        val tokenProgram = getTokenProgram(tokenMint)
+        val tokenAccount = getAssociatedTokenAccountAddress(tokenMint, accountOwner, tokenProgram)
         validator.client.sendAndConfirm(
             {
-                it.createTransaction(listOf(createIdempotentIx))
+                it.createTransaction(
+                    AssociatedTokenProgram.createATAForProgram(
+                        true,
+                        SolanaAccounts.MAIN_NET,
+                        payer.publicKey(),
+                        tokenAccount,
+                        accountOwner,
+                        tokenMint,
+                        tokenProgram.programId
+                    )
+                )
             },
-            payer,
-            listOf()
+            payer
         )
-        return ata
+        return tokenAccount
     }
 }

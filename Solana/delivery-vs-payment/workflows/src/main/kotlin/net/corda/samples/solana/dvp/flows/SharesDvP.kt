@@ -21,6 +21,7 @@ import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.serialization.CordaSerializable
+import net.corda.core.solana.Pubkey
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
@@ -30,7 +31,6 @@ import net.corda.samples.solana.dvp.contracts.SharesPaymentContract
 import net.corda.samples.solana.dvp.states.SharesPaymentState
 import net.corda.samples.solana.dvp.states.StockState
 import net.corda.solana.sdk.SplToken
-import net.corda.solana.sdk.instruction.Pubkey
 import java.math.BigDecimal
 
 /**
@@ -93,7 +93,7 @@ class SharesDvP(
         require(payerDetails.tokenMint == stablecoinTokenMint) { "Payer provided an account for different tokenMint (stablecoin)." }
         val solanaService = serviceHub.cordaService(SolanaService::class.java)
         val solanaTokenMintDecimals = solanaService.getAccountMintDecimals(stablecoinTokenMint)
-         val solanaDestinationAccount = solanaService.createAta(stablecoinTokenMint.toSava()).toPubkey()
+        val solanaDestinationAccount = solanaService.createAta(stablecoinTokenMint.toSava()).toPubkey()
 
         val solanaMintAuthority = payerDetails.walletAccount
         val solanaSourceAccount = payerDetails.tokenAccount
@@ -173,10 +173,8 @@ class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
         val solanaSourceAccount = solanaService.deriveAtaAddress(stablecoinTokenMint).toPubkey()
         // The flow could be extended to check if the amount of tokens is available on Solana
 
-        val solanaMintAuthority = solanaService.mintAuthority
-
         /* Send to seller to add payment data to a transaction */
-        val payerDetails = SolanaPayer(stablecoinTokenMint, solanaMintAuthority, solanaSourceAccount)
+        val payerDetails = SolanaPayer(stablecoinTokenMint, solanaService.getMyWalletAddress(), solanaSourceAccount)
         counterpartySession.send(payerDetails)
 
         /* Verify and sign Corda transaction */
@@ -200,7 +198,7 @@ class SharesDvpResponder(val counterpartySession: FlowSession) : FlowLogic<Signe
                     "Payment is not transferred from my token account, expected $solanaSourceAccount," +
                             " received ${paymentState.solanaBuyerTokenAccount}"
                 }
-                require(paymentState.solanaBuyerWalletAccount == solanaMintAuthority) {
+                require(paymentState.solanaBuyerWalletAccount == solanaService.getMyWalletAddress()) {
                     "Payment is not signed by my account, expected $solanaSourceAccount," +
                             " received ${paymentState.solanaBuyerTokenAccount}"
                 }
