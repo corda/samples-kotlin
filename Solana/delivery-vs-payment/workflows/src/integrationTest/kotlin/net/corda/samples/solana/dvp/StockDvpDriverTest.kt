@@ -134,8 +134,7 @@ class StockDvpDriverTest {
                     "rpcUrl" to SolanaTestValidator.RPC_URL,
                     "websocketUrl" to SolanaTestValidator.WS_URL,
                     "notaryKeypairFile" to "${solanaNotaryKey.file}",
-                    "custodiedKeysDir" to "$custodiedKeysDir",
-                    "programWhitelist" to listOf(SplToken.PROGRAM_ID.toSava().toBase58()),
+                    "custodiedKeysDir" to "$custodiedKeysDir"
                 )
             )
         )
