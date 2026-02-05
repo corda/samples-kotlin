@@ -5,13 +5,13 @@ import net.corda.core.contracts.Amount
 import net.corda.core.identity.CordaX500Name
 import net.corda.samples.solana.dvp.states.SharesPaymentState
 import net.corda.solana.sdk.SplToken
-import net.corda.solana.sdk.instruction.SolanaInstruction
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
 import org.junit.Test
-import net.corda.solana.sdk.instruction.Pubkey
 import net.corda.core.crypto.secureRandomBytes
+import net.corda.core.solana.Pubkey
+import net.corda.core.solana.SolanaInstruction
 
 class SharesPaymentContractTests {
 
