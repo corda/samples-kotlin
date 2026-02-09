@@ -1,14 +1,12 @@
 package net.corda.samples.solana.bridging.token
 
-import com.r3.corda.lib.solana.bridging.token.flows.SavaFactory.toPublicKey
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
+import net.corda.core.solana.Pubkey
 import net.corda.core.utilities.NetworkHostAndPort
 import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.seconds
 import net.corda.node.utilities.solana.AccountManagement
-import net.corda.node.utilities.solana.FileSigner
-import net.corda.node.utilities.solana.SolanaClient
 import net.corda.node.utilities.solana.TokenManagement
 import net.corda.node.utilities.solana.TokenProgram
 import net.corda.samples.stockpaydividend.flows.CreateAndIssueStock
@@ -16,6 +14,8 @@ import net.corda.samples.stockpaydividend.flows.GetStockBalance
 import net.corda.samples.stockpaydividend.flows.IssueMoney
 import net.corda.samples.stockpaydividend.flows.MoveStock
 import net.corda.samples.stockpaydividend.states.StockState
+import net.corda.solana.notary.common.FileSigner
+import net.corda.solana.notary.common.SolanaClient
 import net.corda.solana.sdk.Token2022
 import net.corda.testing.common.internal.eventually
 import net.corda.testing.common.internal.testNetworkParameters
@@ -34,7 +34,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNotNull
-import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.io.TempDir
 import org.slf4j.LoggerFactory
 import software.sava.core.accounts.PublicKey
@@ -46,7 +45,7 @@ import software.sava.core.tx.Instruction
 import software.sava.rpc.json.http.client.SolanaRpcClient
 import java.math.BigDecimal
 import java.nio.file.Path
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ExecutionException
 
 open class BridgingTokenDriverTest {
@@ -198,8 +197,7 @@ open class BridgingTokenDriverTest {
                 "rpcUrl" to solanaRpcUrl,
                 "websocketUrl" to solanaWssUrl,
                 "notaryKeypairFile" to "${solanaNotarySigner.file}",
-                "custodiedKeysDir" to "$custodiedKeysDir",
-                "programWhitelist" to listOf(Token2022.PROGRAM_ID.toPublicKey().toBase58())
+                "custodiedKeysDir" to "$custodiedKeysDir"
             )
         )
     )
@@ -559,3 +557,5 @@ fun SolanaClient.getAccountInfo(tokenAccount: PublicKey): Token2022Account? {
 
 fun SolanaClient.getSolanaTokenBalance(tokenAccount: PublicKey): BigDecimal =
     this.call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount.toBigDecimal()
+
+fun Pubkey.toPublicKey(): PublicKey = PublicKey.createPubKey(bytes)

@@ -37,7 +37,7 @@ From the repository root:
 
 On Windows:
 ```bash
-gradlew.bat  clean integrationtest --tests net.corda.samples.solana.bridging.token.BridgingTokenDriverTest
+gradlew.bat clean integrationtest --tests net.corda.samples.solana.bridging.token.BridgingTokenDriverTest
 ```
 
 This runs the [`BridgingTokenDriverTest`](workflows/src/integrationTest/kotlin/net/corda/samples/solana/bridging/token/BridgingTokenDriverTest.kt)
@@ -54,7 +54,7 @@ From the repository root:
 
 On Windows:
 ```bash
-gradlew.bat  clean integrationtest --tests net.corda.samples.solana.bridging.token.DevNetBridgingTokenDriverTest
+gradlew.bat clean integrationtest --tests net.corda.samples.solana.bridging.token.DevNetBridgingTokenDriverTest
 ```
 
 This runs the [`DevNetBridgingTokenDriverTest`](workflows/src/integrationTest/kotlin/net/corda/samples/solana/bridging/token/DevNetBridgingTokenDriverTest.kt)
@@ -72,7 +72,7 @@ From the repository root:
 
 On Windows:
 ```bash
-gradlew.bat  clean integrationtest --tests net.corda.samples.solana.bridging.token.DevNetBridgingTokenDriverDemo
+gradlew.bat clean integrationtest --tests net.corda.samples.solana.bridging.token.DevNetBridgingTokenDriverDemo
 ```
 
 This runs the [`DevNetBridgingTokenDriverDemo`](workflows/src/integrationTest/kotlin/net/corda/samples/solana/bridging/token/DevNetBridgingTokenDriverDemo.kt)
