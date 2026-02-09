@@ -1,10 +1,9 @@
 package net.corda.samples.solana.bridging.token
 
-import com.r3.corda.lib.solana.bridging.token.flows.SavaFactory.toPublicKey
 import net.corda.node.utilities.solana.AccountManagement
-import net.corda.node.utilities.solana.FileSigner
-import net.corda.node.utilities.solana.SolanaClient
 import net.corda.node.utilities.solana.TokenManagement
+import net.corda.solana.notary.common.FileSigner
+import net.corda.solana.notary.common.SolanaClient
 import net.corda.solana.sdk.Token2022
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.driver.DriverParameters
@@ -32,7 +31,7 @@ open class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
                     "websocketUrl" to solanaWssUrl,
                     "notaryKeypairFile" to "${solanaNotarySigner.file}",
                     "custodiedKeysDir" to "${Path.of(staticCustodiedKeysDir).toAbsolutePath()}",
-                    "programWhitelist" to listOf(Token2022.PROGRAM_ID.toPublicKey().toBase58())
+                    "programWhitelist" to listOf(Token2022.PROGRAM_ID.toSava().toBase58())
                 )
             )
         )
@@ -40,9 +39,7 @@ open class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
 
     override fun startTestValidator() {
         val notaryKeyPath =
-            Paths.get("../../../../enterprise/solana-devnet/network-0-notary-1-key.json").toAbsolutePath().toString()
-        //TODO use this:
-        //     Paths.get("../../Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json").toAbsolutePath().toString()
+             Paths.get("../../Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json").toAbsolutePath().toString()
         solanaNotarySigner = FileSigner.read(Path.of(notaryKeyPath))
         solanaClient = SolanaClient(URI.create(solanaRpcUrl), URI.create(solanaWssUrl)).apply { start() }
         tokenManagement = TokenManagement(solanaClient)

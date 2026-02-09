@@ -1,14 +1,12 @@
 package net.corda.samples.solana.bridging.token
 
-import com.r3.corda.lib.solana.bridging.token.flows.SavaFactory.toPublicKey
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
+import net.corda.core.solana.Pubkey
 import net.corda.core.utilities.NetworkHostAndPort
 import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.seconds
 import net.corda.node.utilities.solana.AccountManagement
-import net.corda.node.utilities.solana.FileSigner
-import net.corda.node.utilities.solana.SolanaClient
 import net.corda.node.utilities.solana.TokenManagement
 import net.corda.node.utilities.solana.TokenProgram
 import net.corda.samples.stockpaydividend.flows.CreateAndIssueStock
@@ -16,6 +14,8 @@ import net.corda.samples.stockpaydividend.flows.GetStockBalance
 import net.corda.samples.stockpaydividend.flows.IssueMoney
 import net.corda.samples.stockpaydividend.flows.MoveStock
 import net.corda.samples.stockpaydividend.states.StockState
+import net.corda.solana.notary.common.FileSigner
+import net.corda.solana.notary.common.SolanaClient
 import net.corda.solana.sdk.Token2022
 import net.corda.testing.common.internal.eventually
 import net.corda.testing.common.internal.testNetworkParameters
@@ -34,7 +34,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNotNull
-import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.io.TempDir
 import org.slf4j.LoggerFactory
 import software.sava.core.accounts.PublicKey
@@ -170,19 +169,19 @@ open class BridgingTokenDriverTest {
             mintAuthoritySigner,
             otherShareholderWallet.publicKey(),
             tokenMint,
-            Token2022.PROGRAM_ID.toPublicKey()
+            Token2022.PROGRAM_ID.toSava()
         )
         tokenManagement.createAta(
             mintAuthoritySigner,
             redemptionWalletForOtherShareholder.publicKey(),
             tokenMint,
-            Token2022.PROGRAM_ID.toPublicKey()
+            Token2022.PROGRAM_ID.toSava()
         )
         tokenManagement.createAta(
             mintAuthoritySigner,
             redemptionWalletForShareholder.publicKey(),
             tokenMint,
-            Token2022.PROGRAM_ID.toPublicKey()
+            Token2022.PROGRAM_ID.toSava()
         )
     }
 
@@ -199,7 +198,7 @@ open class BridgingTokenDriverTest {
                 "websocketUrl" to solanaWssUrl,
                 "notaryKeypairFile" to "${solanaNotarySigner.file}",
                 "custodiedKeysDir" to "$custodiedKeysDir",
-                "programWhitelist" to listOf(Token2022.PROGRAM_ID.toPublicKey().toBase58())
+                "programWhitelist" to listOf(Token2022.PROGRAM_ID.toSava().toBase58())
             )
         )
     )
@@ -487,7 +486,7 @@ open class BridgingTokenDriverTest {
         val pda = PublicKey.findProgramAddress(
             listOf(
                 this.toByteArray(),
-                Token2022.PROGRAM_ID.toPublicKey().toByteArray(),
+                Token2022.PROGRAM_ID.toSava().toByteArray(),
                 tokenMint.toByteArray()
             ),
             ataProgram
@@ -559,3 +558,5 @@ fun SolanaClient.getAccountInfo(tokenAccount: PublicKey): Token2022Account? {
 
 fun SolanaClient.getSolanaTokenBalance(tokenAccount: PublicKey): BigDecimal =
     this.call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount.toBigDecimal()
+
+fun Pubkey.toSava(): PublicKey = PublicKey.createPubKey(bytes)
