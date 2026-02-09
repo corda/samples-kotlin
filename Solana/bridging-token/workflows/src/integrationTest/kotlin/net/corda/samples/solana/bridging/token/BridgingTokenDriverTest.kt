@@ -45,7 +45,7 @@ import software.sava.core.tx.Instruction
 import software.sava.rpc.json.http.client.SolanaRpcClient
 import java.math.BigDecimal
 import java.nio.file.Path
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ExecutionException
 
 open class BridgingTokenDriverTest {
@@ -169,19 +169,19 @@ open class BridgingTokenDriverTest {
             mintAuthoritySigner,
             otherShareholderWallet.publicKey(),
             tokenMint,
-            Token2022.PROGRAM_ID.toSava()
+            Token2022.PROGRAM_ID.toPublicKey()
         )
         tokenManagement.createAta(
             mintAuthoritySigner,
             redemptionWalletForOtherShareholder.publicKey(),
             tokenMint,
-            Token2022.PROGRAM_ID.toSava()
+            Token2022.PROGRAM_ID.toPublicKey()
         )
         tokenManagement.createAta(
             mintAuthoritySigner,
             redemptionWalletForShareholder.publicKey(),
             tokenMint,
-            Token2022.PROGRAM_ID.toSava()
+            Token2022.PROGRAM_ID.toPublicKey()
         )
     }
 
@@ -197,8 +197,7 @@ open class BridgingTokenDriverTest {
                 "rpcUrl" to solanaRpcUrl,
                 "websocketUrl" to solanaWssUrl,
                 "notaryKeypairFile" to "${solanaNotarySigner.file}",
-                "custodiedKeysDir" to "$custodiedKeysDir",
-                "programWhitelist" to listOf(Token2022.PROGRAM_ID.toSava().toBase58())
+                "custodiedKeysDir" to "$custodiedKeysDir"
             )
         )
     )
@@ -486,7 +485,7 @@ open class BridgingTokenDriverTest {
         val pda = PublicKey.findProgramAddress(
             listOf(
                 this.toByteArray(),
-                Token2022.PROGRAM_ID.toSava().toByteArray(),
+                Token2022.PROGRAM_ID.toPublicKey().toByteArray(),
                 tokenMint.toByteArray()
             ),
             ataProgram
@@ -559,4 +558,4 @@ fun SolanaClient.getAccountInfo(tokenAccount: PublicKey): Token2022Account? {
 fun SolanaClient.getSolanaTokenBalance(tokenAccount: PublicKey): BigDecimal =
     this.call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount.toBigDecimal()
 
-fun Pubkey.toSava(): PublicKey = PublicKey.createPubKey(bytes)
+fun Pubkey.toPublicKey(): PublicKey = PublicKey.createPubKey(bytes)

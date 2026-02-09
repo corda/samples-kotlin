@@ -4,7 +4,6 @@ import net.corda.node.utilities.solana.AccountManagement
 import net.corda.node.utilities.solana.TokenManagement
 import net.corda.solana.notary.common.FileSigner
 import net.corda.solana.notary.common.SolanaClient
-import net.corda.solana.sdk.Token2022
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.driver.DriverParameters
 import net.corda.testing.driver.driver
@@ -30,8 +29,7 @@ open class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
                     "rpcUrl" to solanaRpcUrl,
                     "websocketUrl" to solanaWssUrl,
                     "notaryKeypairFile" to "${solanaNotarySigner.file}",
-                    "custodiedKeysDir" to "${Path.of(staticCustodiedKeysDir).toAbsolutePath()}",
-                    "programWhitelist" to listOf(Token2022.PROGRAM_ID.toSava().toBase58())
+                    "custodiedKeysDir" to "${Path.of(staticCustodiedKeysDir).toAbsolutePath()}"
                 )
             )
         )
