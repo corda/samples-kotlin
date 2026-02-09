@@ -38,7 +38,7 @@ class SolanaService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() 
     fun getMyWalletAddress(): Pubkey = wallet.publicKey().toPubkey()
 
     fun getAccountInfo(account: Pubkey): AccountInfo<ByteArray> {
-        val accountInfo = solanaClient.call(SolanaRpcClient::getAccountInfo, account.toSava())
+        val accountInfo = solanaClient.call(SolanaRpcClient::getAccountInfo, account.toPublicKey())
         return accountInfo
     }
 
@@ -50,7 +50,7 @@ class SolanaService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() 
 
     fun createAta(mint: PublicKey): PublicKey = accountService.createAssociatedTokenAccount(wallet, mint)
 
-    fun deriveAtaAddress(mint: Pubkey): PublicKey = getAssociatedTokenAccountAddress(mint.toSava(), wallet.publicKey())
+    fun deriveAtaAddress(mint: Pubkey): PublicKey = getAssociatedTokenAccountAddress(mint.toPublicKey(), wallet.publicKey())
 }
 
-fun Pubkey.toSava(): PublicKey = PublicKey.createPubKey(bytes)
+fun Pubkey.toPublicKey(): PublicKey = PublicKey.createPubKey(bytes)
