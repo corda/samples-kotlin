@@ -8,11 +8,10 @@ buildscript {
     ext {
         corda_enterprise_release_group = constants.getProperty("cordaEnterpriseReleaseGroup")
         corda_os_release_group = constants.getProperty("cordaOsReleaseGroup")
-        // TODO use values from constants once other Solana sample is compatible with OS with SolanaInstruction
-        corda_enterprise_release_version = "4.14-20260204.091854-79" //constants.getProperty("cordaEnterpriseVersion")
-        corda_os_release_version = "4.14-20260204.000800-90" //constants.getProperty("cordaOsVersion")
+        corda_enterprise_release_version = constants.getProperty("cordaEnterpriseVersion")
+        corda_os_release_version = constants.getProperty("cordaOsVersion")
         corda_gradle_plugins_version = constants.getProperty("gradlePluginsVersion")
-        corda_solana_notary_version = "0.2.0" //constants.getProperty("cordaSolanaNotaryVersion")
+        corda_solana_notary_version = constants.getProperty("cordaSolanaNotaryVersion")
         corda_tokens_release_version = constants.getProperty("cordaTokensVersion")
         sava_version = constants.getProperty("savaCoreVersion")
         corda_platform_version = constants.getProperty("platformVersion").toInteger()

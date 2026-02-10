@@ -93,7 +93,7 @@ class SharesDvP(
         require(payerDetails.tokenMint == stablecoinTokenMint) { "Payer provided an account for different tokenMint (stablecoin)." }
         val solanaService = serviceHub.cordaService(SolanaService::class.java)
         val solanaTokenMintDecimals = solanaService.getAccountMintDecimals(stablecoinTokenMint)
-        val solanaDestinationAccount = solanaService.createAta(stablecoinTokenMint.toSava()).toPubkey()
+        val solanaDestinationAccount = solanaService.createAta(stablecoinTokenMint.toPublicKey()).toPubkey()
 
         val solanaMintAuthority = payerDetails.walletAccount
         val solanaSourceAccount = payerDetails.tokenAccount
