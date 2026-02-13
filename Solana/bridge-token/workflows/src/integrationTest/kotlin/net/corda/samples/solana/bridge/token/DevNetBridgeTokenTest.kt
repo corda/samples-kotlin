@@ -1,4 +1,4 @@
-package net.corda.samples.solana.bridging.token
+package net.corda.samples.solana.bridge.token
 
 import net.corda.node.utilities.solana.AccountManagement
 import net.corda.node.utilities.solana.TokenManagement
@@ -15,7 +15,7 @@ import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
 
-open class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
+open class DevNetBridgeTokenTest : BridgingTokenDriverTest() {
 
     override val solanaRpcUrl = "https://api.devnet.solana.com"
     override val solanaWssUrl = "ws://api.devnet.solana.com"

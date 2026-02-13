@@ -1,4 +1,4 @@
-package net.corda.samples.solana.bridging.token
+package net.corda.samples.solana.bridge.token
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
