@@ -1,4 +1,4 @@
-package net.corda.samples.solana.bridging.token
+package net.corda.samples.solana.bridge.token
 
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.driver.DriverParameters
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 // Shareholder: https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio
 // Other Shareholder https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio
-class DevNetBridgingTokenDriverDemo : DevNetBridgingTokenDriverTest() {
+class DevNetBridgeTokenDemo : DevNetBridgeTokenTest() {
 
     @Test
     override fun `briding token test`() = driver(
