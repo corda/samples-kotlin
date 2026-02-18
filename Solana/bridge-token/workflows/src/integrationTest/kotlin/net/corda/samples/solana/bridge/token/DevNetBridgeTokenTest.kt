@@ -10,7 +10,7 @@ import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
 import org.junit.jupiter.api.Test
 import software.sava.core.accounts.PublicKey
-import java.math.BigDecimal
+import java.math.BigInteger
 import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -67,8 +67,8 @@ open class DevNetBridgeTokenTest : BridgingTokenDriverTest() {
             }"
         )
 
-        tokenMint = PublicKey.fromBase58Encoded("GMWmvcYWWWCv1V7WW8pwXeFej97od3SPBvSUR6wsAhSC")
-        tokenMint2 = PublicKey.fromBase58Encoded("AhZNYSxWTVCbXMcZNJv27e7G38G7auFaqx4zCBBfWikc")
+        tokenMint = PublicKey.fromBase58Encoded("GB1b7YV6TYHejA7abGatmmW1BEe2xaxPXwvoAuirFKd1")
+        tokenMint2 = PublicKey.fromBase58Encoded("8EcKmuk3wYBH3rRQxDjZvcUZf7iBBvps2eUpmNGEYcwi")
 
         log.info("  Creating Solana Token.")
         log.info("  Shareholder Token Account: ${shareholderWallet.deriveATA().toBase58()}")
@@ -81,7 +81,7 @@ open class DevNetBridgeTokenTest : BridgingTokenDriverTest() {
         )
 
         val shareholderBalance = solanaClient.getSolanaTokenBalance(shareholderWallet.deriveATA())
-        if (shareholderBalance > BigDecimal.ZERO) {
+        if (shareholderBalance > BigInteger.ZERO) {
             log.info("  Shareholder Token Account cleanup - burn existing $shareholderBalance tokens")
             tokenManagement.burn(
                 shareholderWallet,
@@ -91,7 +91,7 @@ open class DevNetBridgeTokenTest : BridgingTokenDriverTest() {
             )
         }
         val otherShareholderBalance = solanaClient.getSolanaTokenBalance(otherShareholderWallet.deriveATA())
-        if (otherShareholderBalance > BigDecimal.ZERO) {
+        if (otherShareholderBalance > BigInteger.ZERO) {
             log.info("  Other Shareholder Token Account cleanup - burn existing $otherShareholderBalance tokens")
             tokenManagement.burn(
                 otherShareholderWallet,

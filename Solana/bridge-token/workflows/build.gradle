@@ -43,8 +43,8 @@ dependencies {
     cordaProvided "com.r3.corda.lib.tokens:tokens-contracts:$corda_tokens_release_version"
     cordaProvided "com.r3.corda.lib.tokens:tokens-workflows:$corda_tokens_release_version"
 
-    cordapp "com.r3.corda.lib.solana:corda-bridging-token-workflows:$corda_bridging_token_release_version"
-    cordapp "com.r3.corda.lib.solana:corda-bridging-token-contracts:$corda_bridging_token_release_version"
+    cordapp "com.r3.corda.lib.solana:bridge-authority-workflows:$corda_bridging_token_release_version"
+    cordapp "com.r3.corda.lib.solana:bridge-authority-contracts:$corda_bridging_token_release_version"
 
     cordapp "com.stockpaydividend:contracts:1.0"
     cordapp "com.stockpaydividend:workflows:1.0"

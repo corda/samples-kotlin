@@ -44,6 +44,7 @@ import software.sava.core.accounts.token.Token2022Account
 import software.sava.core.tx.Instruction
 import software.sava.rpc.json.http.client.SolanaRpcClient
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.nio.file.Path
 import java.util.UUID
 import java.util.concurrent.ExecutionException
@@ -88,7 +89,7 @@ open class BridgingTokenDriverTest {
 
     // Stockpaydividend doesn't use fractionDigits, in order to maintain 1:1 conversion with Solana token,
     // Solana token will not have fraction digits as well
-    protected val TOKEN_DECIMALS: Int = 0
+    protected val TOKEN_DECIMALS: Int = 2
 
     // A directory for Notary to store Corda participant key pairs for sining Solana transactions,
     // intentionally these are located in a different directory than Corda Notary Program key pair
@@ -389,7 +390,7 @@ open class BridgingTokenDriverTest {
             )
         }
         eventually(duration = 10.seconds) {
-            val balance = solanaClient.getSolanaTokenBalance(shareholderWallet.deriveATA())
+            val balance = solanaClient.getSolanaTokenUiBalance(shareholderWallet.deriveATA())
             val bridgedAmount = BigDecimal(90)
             assertEquals(
                 bridgedAmount,
@@ -410,7 +411,7 @@ open class BridgingTokenDriverTest {
             shareholderWallet,
             shareholderWallet.deriveATA(),
             otherShareholderWallet.deriveATA(),
-            50
+            50 * pow10(TOKEN_DECIMALS).toLong()
         )
 
         log.info("\nSolana state after on-chain transfer of 50 from Shareholder to Other Shareholder:")
@@ -421,11 +422,11 @@ open class BridgingTokenDriverTest {
             otherShareholderWallet,
             otherShareholderWallet.deriveATA(),
             redemptionWalletForOtherShareholder.deriveATA(),
-            25
+            25 * pow10(TOKEN_DECIMALS).toLong()
         )
 
         eventually(duration = 1.seconds) {
-            val balance = solanaClient.getSolanaTokenBalance(otherShareholderWallet.deriveATA())
+            val balance = solanaClient.getSolanaTokenUiBalance(otherShareholderWallet.deriveATA())
             val bridgedAmount = BigDecimal(25)
             assertEquals(
                 bridgedAmount,
@@ -455,7 +456,7 @@ open class BridgingTokenDriverTest {
             shareholderWallet,
             shareholderWallet.deriveATA(),
             redemptionWalletForShareholder.deriveATA(),
-            20
+            20 * pow10(TOKEN_DECIMALS).toLong()
         )
 
         eventually(duration = 20.seconds, waitBefore = 10.seconds, waitBetween = 1.seconds) {
@@ -507,7 +508,7 @@ open class BridgingTokenDriverTest {
 
     fun Signer.solanaBalance(): String =
         if (solanaClient.getAccountInfo(this.deriveATA()) != null) {
-            "${solanaClient.getSolanaTokenBalance(this.deriveATA())} coins"
+            "${solanaClient.getSolanaTokenUiBalance(this.deriveATA())} coins"
         } else {
             "no stablecoin account"
         }
@@ -555,7 +556,22 @@ fun SolanaClient.getAccountInfo(tokenAccount: PublicKey): Token2022Account? {
     return if (raw?.data != null) Token2022Account.read(raw.pubKey, raw.data) else null
 }
 
-fun SolanaClient.getSolanaTokenBalance(tokenAccount: PublicKey): BigDecimal =
-    this.call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount.toBigDecimal()
+fun SolanaClient.getSolanaTokenBalance(tokenAccount: PublicKey): BigInteger =
+    this.call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount
+
+fun SolanaClient.getSolanaTokenUiBalance(tokenAccount: PublicKey): BigDecimal {
+    val result = this.call(SolanaRpcClient::getTokenAccountBalance, tokenAccount)
+    return (result.amount / pow10(result.decimals)).toBigDecimal()
+}
 
 fun Pubkey.toPublicKey(): PublicKey = PublicKey.createPubKey(bytes)
+
+fun pow10(n: Int): BigInteger {
+    require(n >= 0) { "n must be >= 0" }
+    var p = 1L
+    repeat(n) {
+        require(p <= Long.MAX_VALUE / 10L) { "10^$n overflows Long" }
+        p *= 10L
+    }
+    return p.toBigInteger()
+}
