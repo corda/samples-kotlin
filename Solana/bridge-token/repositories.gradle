@@ -40,6 +40,7 @@ repositories {
             password = System.getenv('CORDA_ARTIFACTORY_PASSWORD')
         }
     }
+    // TODO this is temporarily
     // For Corda Bridge Authority Cordapp
     maven { url 'https://software.r3.com/artifactory/corda-dependencies'
         credentials {
