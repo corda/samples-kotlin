@@ -19,6 +19,7 @@ open class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
 
     override val solanaRpcUrl = "https://api.devnet.solana.com"
     override val solanaWssUrl = "ws://api.devnet.solana.com"
+    override val dvpStablecoinMint = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
     protected val staticCustodiedKeysDir = "src/integrationTest/resources/custodiedKeys"
 
     override fun getSolanaNotaryConfig() : Map<String, Any> {

@@ -82,6 +82,8 @@ dependencies {
     cordapp "com.r3.corda.lib.solana:corda-bridging-token-contracts:$corda_bridging_token_release_version"
     cordapp "com.r3.corda.lib.solana:corda-bridging-token-workflows:$corda_bridging_token_release_version"
 
+    cordapp project(":contracts")
+
     cordapp "com.stockpaydividend:contracts:1.0"
     cordapp "com.stockpaydividend:workflows:1.0"
 }

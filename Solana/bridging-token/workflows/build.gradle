@@ -46,14 +46,21 @@ dependencies {
     cordapp "com.r3.corda.lib.solana:corda-bridging-token-workflows:$corda_bridging_token_release_version"
     cordapp "com.r3.corda.lib.solana:corda-bridging-token-contracts:$corda_bridging_token_release_version"
 
+    cordapp project(":contracts")
+
     cordapp "com.stockpaydividend:contracts:1.0"
     cordapp "com.stockpaydividend:workflows:1.0"
+
+    // DvP dependencies
+    cordaProvided "com.github.ben-manes.caffeine:caffeine:3.2.3"
+    cordaProvided "net.corda.solana.notary:common:$corda_solana_notary_version"
+    cordaProvided "software.sava:solana-programs:$sava_programs_version"
+    cordaProvided "software.sava:sava-core:$sava_core_version"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "$corda_enterprise_release_group:corda-solana-sdk:$corda_enterprise_release_version"
 
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation "net.corda.solana.notary:common:$corda_solana_notary_version"
     testImplementation "$corda_enterprise_release_group:corda-test-utils:$corda_enterprise_release_version"
     testImplementation "$corda_enterprise_release_group:corda-test-common:$corda_enterprise_release_version"
 

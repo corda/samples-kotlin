@@ -25,8 +25,21 @@ class DevNetBridgingTokenDriverDemo : DevNetBridgingTokenDriverTest() {
             waitForAllNodesToFinish = true
         )
     ) {
-        log.info("\nStarting bridging test using Solana validator via $solanaRpcUrl...")
+        log.info("\n╔══════════════════════════════════════════════════════╗")
+        log.info("║  Corda-Solana Bridging Demo                         ║")
+        log.info("║  Solana RPC: $solanaRpcUrl")
+        log.info("╚══════════════════════════════════════════════════════╝")
+        log.info("\nStarting notary nodes (General + Solana)...")
+        log.info("  This may take a minute while Corda nodes boot up...")
         runtimeSetup()
-        log.info("\nBridging deployment is running, shut down Corda nodes externally to exit...")
+        log.info("\n╔══════════════════════════════════════════════════════╗")
+        log.info("║  DEMO READY                                         ║")
+        log.info("║                                                      ║")
+        log.info("║  Shareholder RPC:       localhost:10345               ║")
+        log.info("║  OtherShareholder RPC:  localhost:10349               ║")
+        log.info("║                                                      ║")
+        log.info("║  Start the BFF and UI instances to begin.            ║")
+        log.info("║  Shut down Corda nodes externally to exit.           ║")
+        log.info("╚══════════════════════════════════════════════════════╝")
     }
 }

@@ -82,7 +82,7 @@ then this will be `http://127.0.0.1:8899`, if you want to use devnet then the UR
 and `wss://api.devnet.solana.com` for devnet
 
 Corda notary requires additional settings in the node configuration (``node.conf`` file). 
-They are grouped under ``solana`` sub-entry of ``notarty``:
+They are grouped under ``solana`` sub-entry of ``notary``:
 
 - ``rpcUrl`` URL of the RPC provider for interacting with the blockchain. If you are using the test validator
 then this will be `http://127.0.0.1:8899`; if you want to use devnet then the URL is `https://api.devnet.solana.com`

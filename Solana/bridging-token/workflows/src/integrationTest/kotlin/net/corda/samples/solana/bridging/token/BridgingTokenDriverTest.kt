@@ -79,8 +79,11 @@ open class BridgingTokenDriverTest {
             TestCordapp.findCordapp("net.corda.samples.stockpaydividend.flows").withConfig(
                 mapOf("notary" to "O=Notary,L=London,C=GB") // Solana Notary is an additional notary in the Corda network in this sample
                 // set preferred notary for flows that don't receive a notary as parameters (e.g. flows in Corda Tokens SDK)
-            )
+            ),
+            TestCordapp.findCordapp("net.corda.samples.solana.bridging.token.dvp.contracts"),
+            TestCordapp.findCordapp("net.corda.samples.solana.bridging.token.dvp.states"),
         )
+    protected val dvpFlowCordapp = TestCordapp.findCordapp("net.corda.samples.solana.bridging.token.dvp.flows")
     val bridgingContracts = TestCordapp.findCordapp("com.r3.corda.lib.solana.bridging.token.contracts")
     var bridgingWorkflowsWithoutConfig = TestCordapp.findCordapp("com.r3.corda.lib.solana.bridging.token.flows")
 
@@ -106,6 +109,11 @@ open class BridgingTokenDriverTest {
     protected lateinit var mintAuthoritySigner: FileSigner
     protected lateinit var tokenMint: PublicKey
     protected lateinit var tokenMint2: PublicKey
+
+    /** Stablecoin mint used for DvP payment leg. Defaults to the bridging token mint.
+     *  Override in subclasses to use a different stablecoin (e.g. devnet USDC). */
+    protected open val dvpStablecoinMint: String
+        get() = tokenMint.toBase58()
 
     protected lateinit var shareholderNode: NodeHandle
     protected lateinit var otherShareholderNode: NodeHandle
@@ -237,72 +245,117 @@ open class BridgingTokenDriverTest {
     )
 
     fun DriverDSL.runtimeSetup() {
+        val otherKeysDir = "src/integrationTest/resources/other"
+
+        log.info("\n========== STARTING CORDA NODES ==========")
+
+        log.info("Starting WayneCo node...")
         val wayneCoNode = startNode(
             NodeParameters(
                 CordaX500Name("WayneCo", "SF", "US"),
                 rpcUsers
             )
         ).getOrThrow()
+        log.info("  WayneCo node started.")
 
+        log.info("DvP stablecoin mint: $dvpStablecoinMint")
+
+        log.info("Starting Shareholder node (RPC port 10345)...")
         shareholderNode = startNode(
             NodeParameters(
-                shareholderName,
-                rpcUsers,
-                rpcAddress = NetworkHostAndPort("localhost", 10345)
+                providedName = shareholderName,
+                rpcUsers = rpcUsers,
+                rpcAddress = NetworkHostAndPort("localhost", 10345),
+                additionalCordapps = listOf(
+                    dvpFlowCordapp.withConfig(mapOf(
+                        "stablecoinTokenMint" to dvpStablecoinMint,
+                        "solanaWalletFile" to Path.of("$otherKeysDir/shareholderWallet.json").toAbsolutePath().toString(),
+                        "solanaRpcUrl" to solanaRpcUrl,
+                        "solanaWsUrl" to solanaWssUrl
+                    ))
+                )
             )
         ).getOrThrow()
+        log.info("  Shareholder node started.")
 
+        log.info("Starting OtherShareholder node (RPC port 10349)...")
         otherShareholderNode = startNode(
             NodeParameters(
-                otherShareholderName,
-                rpcUsers,
-                rpcAddress = NetworkHostAndPort("localhost", 10349)
+                providedName = otherShareholderName,
+                rpcUsers = rpcUsers,
+                rpcAddress = NetworkHostAndPort("localhost", 10349),
+                additionalCordapps = listOf(
+                    dvpFlowCordapp.withConfig(mapOf(
+                        "stablecoinTokenMint" to dvpStablecoinMint,
+                        "solanaWalletFile" to Path.of("$otherKeysDir/otherShareholderWallet.json").toAbsolutePath().toString(),
+                        "solanaRpcUrl" to solanaRpcUrl,
+                        "solanaWsUrl" to solanaWssUrl
+                    ))
+                )
             )
         ).getOrThrow()
+        log.info("  OtherShareholder node started.")
 
+        log.info("Starting Bank node...")
         val bankNode = startNode(
             NodeParameters(
                 CordaX500Name("Bank", "Washington DC", "US"),
                 rpcUsers
             )
         ).getOrThrow()
+        log.info("  Bank node started.")
 
+        log.info("Starting Observer node...")
         startNode(
             NodeParameters(
                 CordaX500Name("Observer", "Washington DC", "US"),
                 rpcUsers
             )
         ).getOrThrow()
+        log.info("  Observer node started.")
 
+        log.info("\n========== ALL NODES STARTED ==========")
+
+        log.info("\n========== ISSUING MONEY & STOCK ==========")
+
+        log.info("Issuing \$500,000 USD to WayneCo...")
         bankNode.rpc.startFlow(
             ::IssueMoney,
             "USD",
             500000L,
             wayneCoNode.nodeInfo.singleIdentity()
         ).returnValue.get()
+        log.info("  USD issued to WayneCo.")
 
+        log.info("Creating and issuing 1000 BCRED (Blackstone Private Credit Fund) stock...")
         wayneCoNode.rpc.startFlow(
             ::CreateAndIssueStock,
-            "AAPL",
-            "Apple",
+            "BCRED",
+            "Blackstone Private Credit Fund",
             "USD",
             BigDecimal.TEN,
             1000,
             notaryHandles.single { it.identity.name == generalNotaryName }.identity
         ).returnValue.get()
-        val appleCordaTokenTypeIdentifier = wayneCoNode.getCordaTokenTypeIdentifier("AAPL")
+        val appleCordaTokenTypeIdentifier = wayneCoNode.getCordaTokenTypeIdentifier("BCRED")
+        log.info("  BCRED created (tokenId: $appleCordaTokenTypeIdentifier)")
 
+        log.info("Creating and issuing 2000 ARCC (Ares Capital Corporation) stock...")
         wayneCoNode.rpc.startFlow(
             ::CreateAndIssueStock,
-            "MSFT",
-            "Microsoft",
+            "ARCC",
+            "Ares Capital Corporation",
             "USD",
             BigDecimal.TEN,
             2000,
             notaryHandles.single { it.identity.name == generalNotaryName }.identity
         ).returnValue.get()
-        val msftCordaTokenTypeIdentifier = wayneCoNode.getCordaTokenTypeIdentifier("MSFT")
+        val msftCordaTokenTypeIdentifier = wayneCoNode.getCordaTokenTypeIdentifier("ARCC")
+        log.info("  ARCC created (tokenId: $msftCordaTokenTypeIdentifier)")
 
+        log.info("\n========== STARTING BRIDGE AUTHORITY ==========")
+
+        log.info("Starting Bridge Authority node with bridging config...")
         bridgeAuthorityNode = startNode(
             NodeParameters(
                 providedName = bridgeAuthority,
@@ -317,33 +370,42 @@ open class BridgingTokenDriverTest {
                 )
             )
         ).getOrThrow()
+        log.info("  Bridge Authority node started.")
 
-        log.info("\nCorda APPL stock ($appleCordaTokenTypeIdentifier) is mapped to Solana tokenMint: ${tokenMint.toBase58()}")
-        log.info("\nCorda MSFT stock ($msftCordaTokenTypeIdentifier) is mapped to Solana tokenMint: ${tokenMint2.toBase58()}")
+        log.info("\nCorda BCRED stock ($appleCordaTokenTypeIdentifier) is mapped to Solana tokenMint: ${tokenMint.toBase58()}")
+        log.info("Corda ARCC stock ($msftCordaTokenTypeIdentifier) is mapped to Solana tokenMint: ${tokenMint2.toBase58()}")
 
+        log.info("\n========== DISTRIBUTING STOCK ==========")
+
+        log.info("Moving 100 BCRED from WayneCo to Shareholder...")
         wayneCoNode.rpc.startFlow(
             ::MoveStock,
-            "AAPL",
+            "BCRED",
             100,
             shareholderNode.nodeInfo.singleIdentity()
         ).returnValue.get()
+        log.info("  100 BCRED moved to Shareholder.")
 
+        log.info("Moving 10 ARCC from WayneCo to Shareholder...")
         wayneCoNode.rpc.startFlow(
             ::MoveStock,
-            "MSFT",
+            "ARCC",
             10,
             shareholderNode.nodeInfo.singleIdentity()
         ).returnValue.get()
+        log.info("  10 ARCC moved to Shareholder.")
 
         val result = shareholderNode.rpc.startFlow(
             ::GetStockBalance,
-            "AAPL"
+            "BCRED"
         ).returnValue.get()!!.trimIndent()
         assertEquals(
-            "You currently have 100 AAPL stocks",
+            "You currently have 100 BCRED stocks",
             result,
             "Shareholder received stocks on Corda network"
         )
+
+        log.info("\n========== SETUP COMPLETE ==========")
         log.info("\nState before bridging:")
         log.info("  Shareholder Corda balance: ${shareholderNode.cordaBalance()}")
         log.info("  Other ShareholderNode Corda balance: ${otherShareholderNode.cordaBalance()}")
@@ -378,7 +440,7 @@ open class BridgingTokenDriverTest {
     fun test() {
         shareholderNode.rpc.startFlow(
             ::MoveStock,
-            "AAPL",
+            "BCRED",
             90,
             bridgeAuthorityNode.nodeInfo.singleIdentity()
         ).returnValue.get()
@@ -438,11 +500,11 @@ open class BridgingTokenDriverTest {
         eventually(duration = 20.seconds, waitBefore = 10.seconds, waitBetween = 1.seconds) {
             val result2 = otherShareholderNode.rpc.startFlow(
                 ::GetStockBalance,
-                "AAPL"
+                "BCRED"
             ).returnValue.get()!!.trimIndent()
 
             assertEquals(
-                "You currently have 25 AAPL stocks",
+                "You currently have 25 BCRED stocks",
                 result2,
                 "Other Shareholder received stocks on Corda that he had redeemed on Solana"
             )
@@ -461,11 +523,11 @@ open class BridgingTokenDriverTest {
         eventually(duration = 20.seconds, waitBefore = 10.seconds, waitBetween = 1.seconds) {
             val result2 = shareholderNode.rpc.startFlow(
                 ::GetStockBalance,
-                "AAPL"
+                "BCRED"
             ).returnValue.get()!!.trimIndent()
 
             assertEquals(
-                "You currently have 30 AAPL stocks",
+                "You currently have 30 BCRED stocks",
                 result2,
                 "Other Shareholder received stocks on Corda that he had redeemed on Solana"
             )
@@ -499,10 +561,10 @@ open class BridgingTokenDriverTest {
     fun NodeHandle.cordaBalance(): String = try {
         this.rpc.startFlow(
             ::GetStockBalance,
-            "AAPL"
+            "BCRED"
         ).returnValue.get()!!.trimIndent()
     } catch (_: ExecutionException) {
-        "No AAPL shares"
+        "No BCRED shares"
     }
 
     fun Signer.solanaBalance(): String =

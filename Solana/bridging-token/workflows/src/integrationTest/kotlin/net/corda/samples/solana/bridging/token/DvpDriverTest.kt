@@ -1,13 +1,13 @@
-package net.corda.samples.solana.dvp
+package net.corda.samples.solana.bridging.token
 
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
 import net.corda.core.utilities.getOrThrow
 import net.corda.node.utilities.solana.TokenManagement
-import net.corda.samples.solana.dvp.flows.CreateAndIssueStock
-import net.corda.samples.solana.dvp.flows.SharesDvP
-import net.corda.samples.solana.dvp.flows.getAssociatedTokenAccountAddress
+import net.corda.samples.solana.bridging.token.dvp.flows.SharesDvP
+import net.corda.samples.solana.bridging.token.dvp.flows.getAssociatedTokenAccountAddress
+import net.corda.samples.stockpaydividend.flows.CreateAndIssueStock
 import net.corda.solana.notary.common.FileSigner
 import net.corda.solana.notary.common.SolanaUtils
 import net.corda.testing.common.internal.testNetworkParameters
@@ -34,8 +34,11 @@ import software.sava.solana.programs.token.AssociatedTokenProgram
 import java.math.BigDecimal
 import java.nio.file.Path
 
-// This is a sample of full-fledged test with both Corda Nodes and Solana Local Validator
-class StockDvpDriverTest {
+/**
+ * Integration test for atomic Delivery versus Payment (DvP) in the merged bridging-token project.
+ * Shares transfer on Corda + stablecoin payment on Solana in a single atomic transaction.
+ */
+class DvpDriverTest {
 
     companion object {
         private val validator = SolanaTestValidator()
@@ -51,7 +54,7 @@ class StockDvpDriverTest {
     private val STOCK_NAME = "Blackstone Private Credit Fund"
     private val STOCK_CURRENCY = "USD"
     private val STOCK_PRICE = BigDecimal.valueOf(7.4)
-    private val ISSUING_STOCK_QUANTITY = 200000L
+    private val ISSUING_STOCK_QUANTITY = 200000
     private val DELIVERY_STOCK_QUANTITY = 100L
 
     private val SOLANA_TOKEN_AMOUNT = 1000000L
@@ -64,13 +67,16 @@ class StockDvpDriverTest {
     private val observer = CordaX500Name("Observer", "New York", "US")
     private val solanaNotaryName = CordaX500Name("Notary", "London", "GB")
     private lateinit var notaryConfig: Map<String, Any>
-    private val dvpFlowCordapp = TestCordapp.findCordapp("net.corda.samples.solana.dvp.flows")
+    private val dvpFlowCordapp = TestCordapp.findCordapp("net.corda.samples.solana.bridging.token.dvp.flows")
     private val cordappsForAllNodes: List<TestCordapp> =
         setOf(
             "com.r3.corda.lib.tokens.contracts",
             "com.r3.corda.lib.tokens.workflows",
-            "net.corda.samples.solana.dvp.contracts",
-            "net.corda.samples.solana.dvp.states",
+            "net.corda.samples.stockpaydividend.states",
+            "net.corda.samples.stockpaydividend.contracts",
+            "net.corda.samples.stockpaydividend.flows",
+            "net.corda.samples.solana.bridging.token.dvp.contracts",
+            "net.corda.samples.solana.bridging.token.dvp.states",
         ).map { TestCordapp.findCordapp(it) }
 
     private lateinit var sellerDvpCordappConfig: Map<String, Any>
@@ -78,11 +84,11 @@ class StockDvpDriverTest {
 
     private lateinit var solanaNotaryKey: FileSigner
 
-    // A directory with Corda Notary key pair for singing Corda Program on Solana
+    // A directory with Corda Notary key pair for signing Corda Program on Solana
     @TempDir
     private lateinit var notaryKeyDir: Path
 
-    // A directory for Notary to store Corda participant key pairs for sining Solana transactions,
+    // A directory for Notary to store Corda participant key pairs for signing Solana transactions,
     // intentionally these are located in a different directory than Corda Notary Program key pair
     @TempDir
     private lateinit var custodiedKeysDir: Path
@@ -152,6 +158,8 @@ class StockDvpDriverTest {
 
     @Test
     fun `dvp test`() = withDriver {
+        val solanaNotary = notaryHandles.single { it.identity.name == solanaNotaryName }.identity
+
         val seller = startNode(
             NodeParameters().withAdditionalCordapps(setOf(dvpFlowCordapp.withConfig(sellerDvpCordappConfig))),
             seller.name
@@ -170,7 +178,8 @@ class StockDvpDriverTest {
             validator.getTokenBalance(buyerTokenAccount),
             "Buyer's initial Solana balance is non-zero"
         )
-        // Test
+
+        // Issue stock with the Solana Notary so DvP transactions can use it
         seller.rpc.startFlow(
             ::CreateAndIssueStock,
             STOCK_SYMBOL,
@@ -178,7 +187,7 @@ class StockDvpDriverTest {
             STOCK_CURRENCY,
             STOCK_PRICE,
             ISSUING_STOCK_QUANTITY,
-            solanaNotaryName
+            solanaNotary
         ).returnValue.get()
 
         assertTrue(
@@ -226,7 +235,7 @@ class StockDvpDriverTest {
     private fun SolanaTestValidator.getTokenBalance(publicKey: PublicKey): BigDecimal =
         client.call(SolanaRpcClient::getTokenAccountBalance, publicKey)
             .toDecimal()
-            .setScale(0) // normalize scale e.g. value as 1E+3 to 1000 to allow easier quality check
+            .setScale(0) // normalize scale e.g. value as 1E+3 to 1000 to allow easier equality check
 
     //TODO remove the method once it is available in TokenManagement
     fun TokenManagement.createAssociatedTokenAccount(
