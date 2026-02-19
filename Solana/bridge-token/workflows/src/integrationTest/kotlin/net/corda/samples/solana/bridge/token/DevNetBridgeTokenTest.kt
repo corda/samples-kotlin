@@ -1,9 +1,9 @@
 package net.corda.samples.solana.bridge.token
 
-import net.corda.node.utilities.solana.AccountManagement
-import net.corda.node.utilities.solana.TokenManagement
-import net.corda.solana.notary.common.FileSigner
-import net.corda.solana.notary.common.SolanaClient
+import com.r3.corda.lib.solana.core.AccountManagement
+import com.r3.corda.lib.solana.core.FileSigner
+import com.r3.corda.lib.solana.core.SolanaClient
+import com.r3.corda.lib.solana.core.tokens.TokenManagement
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.driver.DriverParameters
 import net.corda.testing.driver.driver
@@ -17,11 +17,12 @@ import java.nio.file.Paths
 
 open class DevNetBridgeTokenTest : BridgingTokenDriverTest() {
 
-    override val solanaRpcUrl = "https://api.devnet.solana.com"
-    override val solanaWssUrl = "ws://api.devnet.solana.com"
+    val solanaRpcUrl = "https://api.devnet.solana.com"
+    val solanaWssUrl = "ws://api.devnet.solana.com"
     protected val staticCustodiedKeysDir = "src/integrationTest/resources/custodiedKeys"
+    lateinit var solanaNotarySigner: FileSigner
 
-    override fun getSolanaNotaryConfig() : Map<String, Any> {
+    override fun getSolanaNotaryConfig(solanaNotarySigner: FileSigner) : Map<String, Any> {
         return mapOf<String, Any>(
             "notary" to mapOf(
                 "validating" to false,
@@ -35,10 +36,10 @@ open class DevNetBridgeTokenTest : BridgingTokenDriverTest() {
         )
     }
 
-    override fun startTestValidator() {
+    fun startTestValidator() {
         val notaryKeyPath =
              Paths.get("../../Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json").toAbsolutePath().toString()
-        solanaNotarySigner = FileSigner.read(Path.of(notaryKeyPath))
+        //solanaNotarySigner = FileSigner.read(Path.of(notaryKeyPath))
         solanaClient = SolanaClient(URI.create(solanaRpcUrl), URI.create(solanaWssUrl)).apply { start() }
         tokenManagement = TokenManagement(solanaClient)
         accountManagement = AccountManagement(solanaClient)
@@ -102,10 +103,8 @@ open class DevNetBridgeTokenTest : BridgingTokenDriverTest() {
         }
     }
 
-    override fun stopTestValidator() = Unit
-
     @Test
-    override fun `briding token test`() = driver(
+    fun `dev net briding token test`() = driver(
         DriverParameters(
             isDebug = false,
             inMemoryDB = false,
@@ -114,7 +113,7 @@ open class DevNetBridgeTokenTest : BridgingTokenDriverTest() {
             networkParameters = testNetworkParameters(minimumPlatformVersion = 160).copy(notaries = emptyList()),
             notarySpecs = listOf(
                 NotarySpec(generalNotaryName, validating = false, startInProcess = false),
-                NotarySpec(solanaNotaryName, getSolanaNotaryConfig(), startInProcess = false)
+                NotarySpec(solanaNotaryName, getSolanaNotaryConfig(solanaNotarySigner), startInProcess = false)
             ),
             waitForAllNodesToFinish = false
         )

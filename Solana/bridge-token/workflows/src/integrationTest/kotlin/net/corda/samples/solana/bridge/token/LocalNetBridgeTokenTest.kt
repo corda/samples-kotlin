@@ -6,17 +6,17 @@ import net.corda.core.solana.Pubkey
 import net.corda.core.utilities.NetworkHostAndPort
 import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.seconds
-import net.corda.node.utilities.solana.AccountManagement
-import net.corda.node.utilities.solana.TokenManagement
-import net.corda.node.utilities.solana.TokenProgram
+import com.r3.corda.lib.solana.core.AccountManagement
+import com.r3.corda.lib.solana.core.FileSigner
+import com.r3.corda.lib.solana.core.SolanaClient
+import com.r3.corda.lib.solana.core.cordautils.Token2022
+import com.r3.corda.lib.solana.core.tokens.TokenManagement
+import com.r3.corda.lib.solana.core.tokens.TokenProgram
 import net.corda.samples.stockpaydividend.flows.CreateAndIssueStock
 import net.corda.samples.stockpaydividend.flows.GetStockBalance
 import net.corda.samples.stockpaydividend.flows.IssueMoney
 import net.corda.samples.stockpaydividend.flows.MoveStock
 import net.corda.samples.stockpaydividend.states.StockState
-import net.corda.solana.notary.common.FileSigner
-import net.corda.solana.notary.common.SolanaClient
-import net.corda.solana.sdk.Token2022
 import net.corda.testing.common.internal.eventually
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.singleIdentity
@@ -28,8 +28,6 @@ import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
 import net.corda.testing.node.TestCordapp
 import net.corda.testing.node.User
-import net.corda.testing.solana.SolanaTestValidator
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -39,36 +37,31 @@ import org.slf4j.LoggerFactory
 import software.sava.core.accounts.PublicKey
 import software.sava.core.accounts.Signer
 import software.sava.core.accounts.SolanaAccounts
-import software.sava.core.accounts.meta.AccountMeta
 import software.sava.core.accounts.token.Token2022Account
-import software.sava.core.tx.Instruction
 import software.sava.rpc.json.http.client.SolanaRpcClient
 import java.math.BigDecimal
 import java.nio.file.Path
 import java.util.UUID
 import java.util.concurrent.ExecutionException
+import com.r3.corda.lib.solana.testing.SolanaTestValidator
+import net.corda.solana.notary.testing.Notary
+import net.corda.solana.notary.testing.SolanaNotaryExtension
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(SolanaNotaryExtension::class)
 open class BridgingTokenDriverTest {
 
     protected val log = LoggerFactory.getLogger(BridgingTokenDriverTest::class.java)
     private lateinit var validator: SolanaTestValidator
     protected lateinit var tokenManagement: TokenManagement
     protected lateinit var accountManagement: AccountManagement
-    protected lateinit var solanaNotarySigner: FileSigner
     protected lateinit var solanaClient: SolanaClient
-
-    // A directory with Corda Notary key pair for singing Corda Program on Solana
-    @TempDir
-    private lateinit var notaryKeyDir: Path
 
     protected val solanaNotaryName = CordaX500Name("Solana Notary", "London", "GB")
     protected val generalNotaryName = CordaX500Name("Notary", "London", "GB")
     private val bridgeAuthority = CordaX500Name("Bridge Authority", "New York", "US")
     private val shareholderName = CordaX500Name("Shareholder", "New York", "US")
     private val otherShareholderName = CordaX500Name("Other Shareholder", "Frankfurt", "DE")
-
-    protected open val solanaRpcUrl = SolanaTestValidator.RPC_URL
-    protected open val solanaWssUrl = SolanaTestValidator.WS_URL
 
     protected val cordappsForAllNodes =
         listOf(
@@ -112,19 +105,12 @@ open class BridgingTokenDriverTest {
     protected lateinit var bridgeAuthorityNode: NodeHandle
 
     @BeforeEach
-    fun setup() {
-        startTestValidator()
+    fun setup(validator: SolanaTestValidator) {
+        this.validator = validator
+        solanaClient = validator.client()
+        tokenManagement = validator.tokens()
+        accountManagement = validator.accounts()
         setupAccounts()
-    }
-
-    open fun startTestValidator() {
-        solanaNotarySigner = FileSigner.random(notaryKeyDir)
-        validator = SolanaTestValidator()
-        validator.startAndWait()
-        validator.defaultNotaryProgramSetup(solanaNotarySigner.publicKey())
-        solanaClient = validator.client
-        tokenManagement = TokenManagement(validator.client)
-        accountManagement = AccountManagement(validator.client)
     }
 
     open fun setupAccounts() {
@@ -165,37 +151,29 @@ open class BridgingTokenDriverTest {
         accountManagement.airdropSol(redemptionWalletForShareholder.publicKey(), 1)
         accountManagement.airdropSol(redemptionWalletForOtherShareholder.publicKey(), 1)
 
-        tokenManagement.createAta(
+        tokenManagement.createAssociatedTokenAccount(
             mintAuthoritySigner,
+            tokenMint,
             otherShareholderWallet.publicKey(),
-            tokenMint,
-            Token2022.PROGRAM_ID.toPublicKey()
         )
-        tokenManagement.createAta(
+        tokenManagement.createAssociatedTokenAccount(
             mintAuthoritySigner,
+            tokenMint,
             redemptionWalletForOtherShareholder.publicKey(),
-            tokenMint,
-            Token2022.PROGRAM_ID.toPublicKey()
         )
-        tokenManagement.createAta(
+        tokenManagement.createAssociatedTokenAccount(
             mintAuthoritySigner,
-            redemptionWalletForShareholder.publicKey(),
             tokenMint,
-            Token2022.PROGRAM_ID.toPublicKey()
+            redemptionWalletForShareholder.publicKey(),
         )
     }
 
-    @AfterEach
-    open fun stopTestValidator() {
-        validator.close()
-    }
-
-    open fun getSolanaNotaryConfig() = mapOf<String, Any>(
+    open fun getSolanaNotaryConfig(solanaNotarySigner: FileSigner) = mapOf<String, Any>(
         "notary" to mapOf(
             "validating" to false,
             "solana" to mapOf(
-                "rpcUrl" to solanaRpcUrl,
-                "websocketUrl" to solanaWssUrl,
+                "rpcUrl" to  "${validator.rpcUrl()}",
+                "websocketUrl" to "${validator.websocketUrl()}",
                 "notaryKeypairFile" to "${solanaNotarySigner.file}",
                 "custodiedKeysDir" to "$custodiedKeysDir"
             )
@@ -230,8 +208,8 @@ open class BridgingTokenDriverTest {
             "lockingIdentityLabel" to UUID.randomUUID().toString(),
             "solanaNotaryName" to "$solanaNotaryName",
             "generalNotaryName" to "$generalNotaryName",
-            "solanaWsUrl" to solanaWssUrl,
-            "solanaRpcUrl" to solanaRpcUrl,
+            "solanaRpcUrl" to "${validator.rpcUrl()}",
+            "solanaWsUrl" to "${validator.websocketUrl()}",
             "bridgeAuthorityWalletFile" to bridgeAuthoritySigner.file.toString()
         )
     )
@@ -354,7 +332,7 @@ open class BridgingTokenDriverTest {
     }
 
     @Test
-    open fun `briding token test`() = driver(
+    open fun `briding token test`(@Notary notaryKey: FileSigner) = driver(
         DriverParameters(
             isDebug = false,
             inMemoryDB = false,
@@ -363,7 +341,7 @@ open class BridgingTokenDriverTest {
             networkParameters = testNetworkParameters(minimumPlatformVersion = 160).copy(notaries = emptyList()),
             notarySpecs = listOf(
                 NotarySpec(generalNotaryName, validating = false, startInProcess = false),
-                NotarySpec(solanaNotaryName, getSolanaNotaryConfig(), startInProcess = false)
+                NotarySpec(solanaNotaryName, getSolanaNotaryConfig(notaryKey), startInProcess = false)
             ),
             waitForAllNodesToFinish = false
         )
@@ -516,37 +494,6 @@ open class BridgingTokenDriverTest {
         return this.rpc.vaultQuery(StockState::class.java).states.single {
             it.state.data.symbol == symbol
         }.state.data.linearId.toString()
-    }
-
-    //TODO move the method to TokenManagement class
-    fun TokenManagement.createAta(
-        payer: Signer,
-        owner: PublicKey,
-        mint: PublicKey,
-        tokenProgram: PublicKey
-    ): PublicKey {
-        val solana = SolanaAccounts.MAIN_NET
-        val ata = owner.deriveATA()
-        val createIdempotentIx = Instruction.createInstruction(
-            solana.associatedTokenAccountProgram(),
-            listOf(
-                AccountMeta.createFeePayer(payer.publicKey()),
-                AccountMeta.createWrite(ata),
-                AccountMeta.createRead(owner),
-                AccountMeta.createRead(mint),
-                AccountMeta.createRead(solana.systemProgram()),
-                AccountMeta.createRead(tokenProgram)
-            ),
-            byteArrayOf(1)
-        )
-        /*validator.client*/solanaClient.sendAndConfirm(
-            {
-                it.createTransaction(listOf(createIdempotentIx))
-            },
-            payer,
-            listOf()
-        )
-        return ata
     }
 }
 

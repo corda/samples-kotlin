@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 class DevNetBridgeTokenDemo : DevNetBridgeTokenTest() {
 
     @Test
-    override fun `briding token test`() = driver(
+    fun `briding token demo`() = driver(
         DriverParameters(
             isDebug = false,
             inMemoryDB = false,
@@ -19,8 +19,8 @@ class DevNetBridgeTokenDemo : DevNetBridgeTokenTest() {
             cordappsForAllNodes = cordappsForAllNodes,
             networkParameters = testNetworkParameters(minimumPlatformVersion = 160).copy(notaries = emptyList()),
             notarySpecs = listOf(
-                NotarySpec(generalNotaryName, getSolanaNotaryConfig(), startInProcess = false),
-                NotarySpec(solanaNotaryName, getSolanaNotaryConfig(), startInProcess = false)
+                NotarySpec(generalNotaryName, getSolanaNotaryConfig(solanaNotarySigner), startInProcess = false),
+                NotarySpec(solanaNotaryName, getSolanaNotaryConfig(solanaNotarySigner), startInProcess = false)
             ),
             waitForAllNodesToFinish = true
         )
