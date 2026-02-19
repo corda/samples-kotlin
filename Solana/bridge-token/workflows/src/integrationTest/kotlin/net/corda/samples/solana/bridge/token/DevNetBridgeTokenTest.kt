@@ -10,7 +10,6 @@ import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.slf4j.LoggerFactory
 import software.sava.core.accounts.PublicKey
 import java.math.BigDecimal
 import java.net.URI
@@ -18,47 +17,43 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 open class DevNetBridgeTokenTest : TestBase() {
-
-    private val log = LoggerFactory.getLogger(DevNetBridgeTokenTest::class.java)
-
-    // A directory for Notary to store Corda participant key pairs for signing Solana transactions,
+    // A directory for Notary to load Corda participant key pairs for signing Solana transactions,
     // intentionally these are located in a different directory than Corda Notary Program key pair
-    protected val staticCustodiedKeysDir = "src/integrationTest/resources/custodiedKeys"
+    protected val custodiedKeysDir = "src/integrationTest/resources/custodiedKeys"
     protected lateinit var solanaNotarySigner: FileSigner
 
     fun getSolanaNotaryConfig(solanaNotarySigner: FileSigner) = mapOf<String, Any>(
             "notary" to mapOf(
                 "validating" to false,
                 "solana" to mapOf(
-                    "rpcUrl" to solanaRpcUrl,
-                    "websocketUrl" to solanaWebsocketUrl,
+                    "rpcUrl" to "$solanaRpcUrl",
+                    "websocketUrl" to "$solanaWebsocketUrl",
                     "notaryKeypairFile" to "${solanaNotarySigner.file}",
-                    "custodiedKeysDir" to "${Path.of(staticCustodiedKeysDir).toAbsolutePath()}"
+                    "custodiedKeysDir" to "${Path.of(custodiedKeysDir).toAbsolutePath()}"
                 )
             )
         )
 
     @BeforeEach
     fun setup() {
-        solanaRpcUrl = "https://api.devnet.solana.com"
-        solanaWebsocketUrl = "ws://api.devnet.solana.com"
-        val notaryKeyPath =
-            Paths.get("../../Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json").toAbsolutePath().toString()
-        solanaNotarySigner = FileSigner.read(Path.of(notaryKeyPath))
-        solanaClient = SolanaClient(URI.create(solanaRpcUrl), URI.create(solanaWebsocketUrl)).apply { start() }
+        solanaRpcUrl = URI.create("https://api.devnet.solana.com")
+        solanaWebsocketUrl = URI.create("ws://api.devnet.solana.com")
+        val notaryKeyPath = Paths.get("../../Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json").toAbsolutePath()
+        solanaNotarySigner = FileSigner.read(notaryKeyPath)
+        solanaClient = SolanaClient(solanaRpcUrl, solanaWebsocketUrl).apply { start() }
         tokenManagement = TokenManagement(solanaClient)
         accountManagement = AccountManagement(solanaClient)
 
         bridgeAuthoritySigner =
-            FileSigner.read(Path.of("$staticCustodiedKeysDir/bridgeAuthority.json").toAbsolutePath())
+            FileSigner.read(Path.of("$custodiedKeysDir/bridgeAuthority.json").toAbsolutePath())
         redemptionWalletForShareholder =
-            FileSigner.read(Path.of("$staticCustodiedKeysDir/redemptionWalletForShareholder.json").toAbsolutePath())
+            FileSigner.read(Path.of("$custodiedKeysDir/redemptionWalletForShareholder.json").toAbsolutePath())
         redemptionWalletForOtherShareholder =
             FileSigner.read(
-                Path.of("$staticCustodiedKeysDir/redemptionWalletForOtherShareholder.json").toAbsolutePath()
+                Path.of("$custodiedKeysDir/redemptionWalletForOtherShareholder.json").toAbsolutePath()
             )
         mintAuthoritySigner =
-            FileSigner.read(Path.of("$staticCustodiedKeysDir/mintAuthoritySigner.json").toAbsolutePath())
+            FileSigner.read(Path.of("$custodiedKeysDir/mintAuthoritySigner.json").toAbsolutePath())
         val otherKeysDir = "src/integrationTest/resources/other"
         shareholderWallet = FileSigner.read(Path.of("$otherKeysDir/shareholderWallet.json").toAbsolutePath())
         otherShareholderWallet = FileSigner.read(Path.of("$otherKeysDir/otherShareholderWallet.json").toAbsolutePath())

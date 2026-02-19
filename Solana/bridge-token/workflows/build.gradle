@@ -58,7 +58,6 @@ dependencies {
     testImplementation "$corda_enterprise_release_group:corda-test-common:$corda_enterprise_release_version"
 
     // Corda - Solana dependencies.
-    testImplementation "software.sava:sava-rpc:$sava_core_version"
     testImplementation "net.corda.solana.notary:testing:$corda_solana_notary_version"
     testImplementation "com.r3.corda.lib.solana:testing:$corda_solana_toolkit_version"
 

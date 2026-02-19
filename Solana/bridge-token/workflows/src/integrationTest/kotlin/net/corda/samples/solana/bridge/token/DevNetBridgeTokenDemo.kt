@@ -5,11 +5,8 @@ import net.corda.testing.driver.DriverParameters
 import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
 import org.junit.jupiter.api.Test
-import org.slf4j.LoggerFactory
 
 class DevNetBridgeTokenDemo : DevNetBridgeTokenTest() {
-
-    private val log = LoggerFactory.getLogger(DevNetBridgeTokenDemo::class.java)
 
     @Test
     fun `dev net bridge token demo`() = driver(

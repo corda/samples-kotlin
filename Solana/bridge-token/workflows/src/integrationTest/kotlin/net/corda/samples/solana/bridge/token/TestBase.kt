@@ -29,22 +29,23 @@ import org.slf4j.LoggerFactory
 import software.sava.core.accounts.PublicKey
 import software.sava.core.accounts.Signer
 import software.sava.core.accounts.SolanaAccounts
-import software.sava.core.accounts.token.Token2022Account
 import software.sava.rpc.json.http.client.SolanaRpcClient
 import java.math.BigDecimal
+import java.net.URI
 import java.util.UUID
 import java.util.concurrent.ExecutionException
 import kotlin.text.trimIndent
 
 open class TestBase {
-
-    private val log = LoggerFactory.getLogger(TestBase::class.java)
+    companion object {
+        val log = LoggerFactory.getLogger(TestBase::class.java)
+    }
 
     protected lateinit var tokenManagement: TokenManagement
     protected lateinit var accountManagement: AccountManagement
     protected lateinit var solanaClient: SolanaClient
-    protected open lateinit var solanaRpcUrl : String
-    protected open lateinit var solanaWebsocketUrl : String
+    protected lateinit var solanaRpcUrl : URI
+    protected lateinit var solanaWebsocketUrl : URI
 
     protected val solanaNotaryName = CordaX500Name("Solana Notary", "London", "GB")
     protected val generalNotaryName = CordaX500Name("Notary", "London", "GB")
@@ -63,10 +64,10 @@ open class TestBase {
                 // set preferred notary for flows that don't receive a notary as parameters (e.g. flows in Corda Tokens SDK)
             )
         )
-    val bridgingContracts = TestCordapp.findCordapp("com.r3.corda.lib.solana.bridging.token.contracts")
-    var bridgingWorkflowsWithoutConfig = TestCordapp.findCordapp("com.r3.corda.lib.solana.bridging.token.flows")
+    protected val bridgingContracts = TestCordapp.findCordapp("com.r3.corda.lib.solana.bridging.token.contracts")
+    protected val bridgingWorkflowsWithoutConfig = TestCordapp.findCordapp("com.r3.corda.lib.solana.bridging.token.flows")
 
-    val rpcUsers = listOf(User("user1", "test", permissions = setOf("ALL")))
+    protected val rpcUsers = listOf(User("user1", "test", permissions = setOf("ALL")))
 
     protected lateinit var bridgeAuthoritySigner: FileSigner
     protected lateinit var shareholderWallet: FileSigner
@@ -81,7 +82,7 @@ open class TestBase {
     protected lateinit var otherShareholderNode: NodeHandle
     protected lateinit var bridgeAuthorityNode: NodeHandle
 
-    fun TestCordapp.withBridgeAuthorityConfig(
+    protected fun TestCordapp.withBridgeAuthorityConfig(
         cordaTokenTypeIdentifier1: String,
         cordaTokenTypeIdentifier2: String,
     ): TestCordapp = this.withConfig(
@@ -109,13 +110,13 @@ open class TestBase {
             "lockingIdentityLabel" to UUID.randomUUID().toString(),
             "solanaNotaryName" to "$solanaNotaryName",
             "generalNotaryName" to "$generalNotaryName",
-            "solanaRpcUrl" to solanaRpcUrl,
-            "solanaWsUrl" to solanaWebsocketUrl,
+            "solanaRpcUrl" to "$solanaRpcUrl",
+            "solanaWsUrl" to "$solanaWebsocketUrl",
             "bridgeAuthorityWalletFile" to bridgeAuthoritySigner.file.toString()
         )
     )
 
-    fun DriverDSL.runtimeSetup() {
+    protected fun DriverDSL.runtimeSetup() {
         val wayneCoNode = startNode(
             NodeParameters(
                 CordaX500Name("WayneCo", "SF", "US"),
@@ -232,7 +233,7 @@ open class TestBase {
         log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
     }
 
-    fun test() {
+    protected fun test() {
         shareholderNode.rpc.startFlow(
             ::MoveStock,
             "AAPL",
@@ -241,7 +242,7 @@ open class TestBase {
         ).returnValue.get()
         eventually(duration = 10.seconds) {
             assertNotNull(
-                solanaClient.getAccountInfo(shareholderWallet.deriveATA()),
+                accountManagement.getAccountInfo(shareholderWallet.deriveATA()),
                 "ATA should be created",
             )
         }
@@ -362,22 +363,17 @@ open class TestBase {
         "No AAPL shares"
     }
 
-    fun Signer.solanaBalance(): String =
-        if (solanaClient.getAccountInfo(deriveATA()) != null) {
+    protected fun Signer.solanaBalance(): String =
+        if (accountManagement.getAccountInfo(deriveATA()) != null) {
             "${solanaClient.getSolanaTokenBalance(deriveATA())} coins"
         } else {
             "no stablecoin account"
         }
 
-    fun NodeHandle.getCordaTokenTypeIdentifier(symbol: String) =
+    protected fun NodeHandle.getCordaTokenTypeIdentifier(symbol: String) =
         rpc.vaultQuery(StockState::class.java).states.single {
             it.state.data.symbol == symbol
         }.state.data.linearId.toString()
-}
-
-fun SolanaClient.getAccountInfo(tokenAccount: PublicKey): Token2022Account? {
-    val raw = call(SolanaRpcClient::getAccountInfo, tokenAccount)
-    return if (raw?.data != null) Token2022Account.read(raw.pubKey, raw.data) else null
 }
 
 fun SolanaClient.getSolanaTokenBalance(tokenAccount: PublicKey): BigDecimal =

@@ -13,14 +13,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
-import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
 @ExtendWith(SolanaNotaryExtension::class)
 open class LocalNetBridgeTokenTest : TestBase() {
-
-    private val log = LoggerFactory.getLogger(LocalNetBridgeTokenTest::class.java)
-
     private lateinit var validator: SolanaTestValidator
 
     // A directory for Notary to store Corda participant key pairs for signing Solana transactions,
@@ -35,21 +31,22 @@ open class LocalNetBridgeTokenTest : TestBase() {
         "notary" to mapOf(
             "validating" to false,
             "solana" to mapOf(
-                "rpcUrl" to solanaRpcUrl,
-                "websocketUrl" to solanaWebsocketUrl,
+                "rpcUrl" to "$solanaRpcUrl",
+                "websocketUrl" to "$solanaWebsocketUrl",
                 "notaryKeypairFile" to "${solanaNotarySigner.file}",
                 "custodiedKeysDir" to "$custodiedKeysDir"
             )
         )
     )
+
     @BeforeEach
     fun setup(validator: SolanaTestValidator) {
         this.validator = validator
         solanaClient = validator.client()
         tokenManagement = validator.tokens()
         accountManagement = validator.accounts()
-        solanaRpcUrl = validator.rpcUrl().toString()
-        solanaWebsocketUrl = validator.websocketUrl().toString()
+        solanaRpcUrl = validator.rpcUrl()
+        solanaWebsocketUrl = validator.websocketUrl()
 
         bridgeAuthoritySigner = FileSigner.random(custodiedKeysDir)
         redemptionWalletForShareholder = FileSigner.random(custodiedKeysDir)
@@ -74,8 +71,8 @@ open class LocalNetBridgeTokenTest : TestBase() {
         accountManagement.airdropSol(mintAuthoritySigner.publicKey(), 1)
 
         // Stockpaydividend doesn't use fractionDigits, in order to maintain 1:1 conversion with Solana token,
-        // Solana token will not have fraction digits as well
-        val tokenDecimals: Int = 0
+        // Solana token will not have fraction digits either
+        val tokenDecimals = 0
 
         tokenMint =
             tokenManagement.createToken(mintAuthoritySigner, TokenProgram.TOKEN_2022, decimals = tokenDecimals)
