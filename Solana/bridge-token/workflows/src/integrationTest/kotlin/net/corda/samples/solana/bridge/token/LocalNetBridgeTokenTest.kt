@@ -83,8 +83,8 @@ open class LocalNetBridgeTokenTest : TestBase() {
         tokenMint2 =
             tokenManagement.createToken(mintAuthoritySigner, TokenProgram.TOKEN_2022, decimals = tokenDecimals)
 
-        log.info("  Shareholder Token Account: ${shareholderWallet.toATA().toBase58()}")
-        log.info("  Other Shareholder Token Account: ${otherShareholderWallet.toATA().toBase58()}")
+        log.info("  Shareholder Token Account: ${shareholderWallet.deriveATA().toBase58()}")
+        log.info("  Other Shareholder Token Account: ${otherShareholderWallet.deriveATA().toBase58()}")
 
         accountManagement.airdropSol(bridgeAuthoritySigner.publicKey(), 1)
         accountManagement.airdropSol(shareholderWallet.publicKey(), 1)

@@ -79,32 +79,32 @@ open class DevNetBridgeTokenTest : TestBase() {
         tokenMint2 = PublicKey.fromBase58Encoded("AhZNYSxWTVCbXMcZNJv27e7G38G7auFaqx4zCBBfWikc")
 
         log.info("  Creating Solana Token.")
-        log.info("  Shareholder Token Account: ${shareholderWallet.toATA().toBase58()}")
-        log.info("  Other Shareholder Token Account: ${otherShareholderWallet.toATA().toBase58()}")
-        log.info("  Shareholder Redemption Token Account: ${redemptionWalletForShareholder.toATA().toBase58()}")
+        log.info("  Shareholder Token Account: ${shareholderWallet.deriveATA().toBase58()}")
+        log.info("  Other Shareholder Token Account: ${otherShareholderWallet.deriveATA().toBase58()}")
+        log.info("  Shareholder Redemption Token Account: ${redemptionWalletForShareholder.deriveATA().toBase58()}")
         log.info(
             "  Other Shareholder Redemption Token Account: ${
-                redemptionWalletForOtherShareholder.toATA().toBase58()
+                redemptionWalletForOtherShareholder.deriveATA().toBase58()
             }"
         )
 
-        val shareholderBalance = solanaClient.getSolanaTokenBalance(shareholderWallet.toATA())
+        val shareholderBalance = solanaClient.getSolanaTokenBalance(shareholderWallet.deriveATA())
         if (shareholderBalance > BigDecimal.ZERO) {
             log.info("  Shareholder Token Account cleanup - burn existing $shareholderBalance tokens")
             tokenManagement.burn(
                 shareholderWallet,
                 tokenMint,
-                shareholderWallet.toATA(),
+                shareholderWallet.deriveATA(),
                 shareholderBalance.toLong()
             )
         }
-        val otherShareholderBalance = solanaClient.getSolanaTokenBalance(otherShareholderWallet.toATA())
+        val otherShareholderBalance = solanaClient.getSolanaTokenBalance(otherShareholderWallet.deriveATA())
         if (otherShareholderBalance > BigDecimal.ZERO) {
             log.info("  Other Shareholder Token Account cleanup - burn existing $otherShareholderBalance tokens")
             tokenManagement.burn(
                 otherShareholderWallet,
                 tokenMint,
-                otherShareholderWallet.toATA(),
+                otherShareholderWallet.deriveATA(),
                 otherShareholderBalance.toLong()
             )
         }

@@ -241,12 +241,12 @@ open class TestBase {
         ).returnValue.get()
         eventually(duration = 10.seconds) {
             assertNotNull(
-                solanaClient.getAccountInfo(shareholderWallet.toATA()),
+                solanaClient.getAccountInfo(shareholderWallet.deriveATA()),
                 "ATA should be created",
             )
         }
         eventually(duration = 10.seconds) {
-            val balance = solanaClient.getSolanaTokenBalance(shareholderWallet.toATA())
+            val balance = solanaClient.getSolanaTokenBalance(shareholderWallet.deriveATA())
             val bridgedAmount = BigDecimal(90)
             assertEquals(
                 bridgedAmount,
@@ -265,8 +265,8 @@ open class TestBase {
 
         tokenManagement.transfer(
             shareholderWallet,
-            shareholderWallet.toATA(),
-            otherShareholderWallet.toATA(),
+            shareholderWallet.deriveATA(),
+            otherShareholderWallet.deriveATA(),
             50
         )
 
@@ -276,13 +276,13 @@ open class TestBase {
 
         tokenManagement.transfer(
             otherShareholderWallet,
-            otherShareholderWallet.toATA(),
-            redemptionWalletForOtherShareholder.toATA(),
+            otherShareholderWallet.deriveATA(),
+            redemptionWalletForOtherShareholder.deriveATA(),
             25
         )
 
         eventually(duration = 1.seconds) {
-            val balance = solanaClient.getSolanaTokenBalance(otherShareholderWallet.toATA())
+            val balance = solanaClient.getSolanaTokenBalance(otherShareholderWallet.deriveATA())
             val bridgedAmount = BigDecimal(25)
             assertEquals(
                 bridgedAmount,
@@ -310,8 +310,8 @@ open class TestBase {
 
         tokenManagement.transfer(
             shareholderWallet,
-            shareholderWallet.toATA(),
-            redemptionWalletForShareholder.toATA(),
+            shareholderWallet.deriveATA(),
+            redemptionWalletForShareholder.deriveATA(),
             20
         )
 
@@ -337,7 +337,7 @@ open class TestBase {
     }
 
     /** Driven ATA for Token2022 and token mint for Apple */
-    fun PublicKey.toATA(): PublicKey {
+    fun PublicKey.deriveATA(): PublicKey {
         val ataProgram = SolanaAccounts.MAIN_NET.associatedTokenAccountProgram()
         val pda = PublicKey.findProgramAddress(
             listOf(
@@ -351,7 +351,7 @@ open class TestBase {
     }
 
     /** Driven ATA for Token2022 and token mint for Apple */
-    fun Signer.toATA(): PublicKey = publicKey().toATA()
+    fun Signer.deriveATA(): PublicKey = publicKey().deriveATA()
 
     fun NodeHandle.cordaBalance(): String = try {
         rpc.startFlow(
@@ -363,8 +363,8 @@ open class TestBase {
     }
 
     fun Signer.solanaBalance(): String =
-        if (solanaClient.getAccountInfo(toATA()) != null) {
-            "${solanaClient.getSolanaTokenBalance(toATA())} coins"
+        if (solanaClient.getAccountInfo(deriveATA()) != null) {
+            "${solanaClient.getSolanaTokenBalance(deriveATA())} coins"
         } else {
             "no stablecoin account"
         }
