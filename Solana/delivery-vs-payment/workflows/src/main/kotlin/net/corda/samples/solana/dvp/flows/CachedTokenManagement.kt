@@ -41,11 +41,11 @@ class CachedTokenManagement(
         tokenMint: PublicKey,
         accountOwner: PublicKey = payer.publicKey()
     ): PublicKey {
+        val pda = getAssociatedTokenAccountAddress(tokenMint, accountOwner)
         if (existingAtaCache.contains(tokenMint, accountOwner)) {
             // ATA already exists
-            return getAssociatedTokenAccountAddress(tokenMint, accountOwner)
+            return pda
         }
-        val pda = getAssociatedTokenAccountAddress(tokenMint, accountOwner)
         try {
             tokenManagement.createAssociatedTokenAccount(payer, tokenMint)
             logger.info("ATA created successfully, owner=$accountOwner, mint=$tokenMint, pda=$pda.")
