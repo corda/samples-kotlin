@@ -12,6 +12,13 @@ repositories {
             password = System.getenv('CORDA_ARTIFACTORY_PASSWORD')
         }
     }
+    maven {
+        url 'https://software.r3.com/artifactory/corda-releases'
+        credentials {
+            username = System.getenv('CORDA_ARTIFACTORY_USERNAME')
+            password = System.getenv('CORDA_ARTIFACTORY_PASSWORD')
+        }
+    }
     // For Corda Node API
     maven { url 'https://software.r3.com/artifactory/r3-corda-dev'
         credentials {
@@ -28,6 +35,12 @@ repositories {
     }
     maven {
         url 'https://software.r3.com/artifactory/corda-dependencies'
+        credentials {
+            username = System.getenv('CORDA_ARTIFACTORY_USERNAME')
+            password = System.getenv('CORDA_ARTIFACTORY_PASSWORD')
+        }
+    }
+    maven { url 'https://software.r3.com/artifactory/corda-dependencies'
         credentials {
             username = System.getenv('CORDA_ARTIFACTORY_USERNAME')
             password = System.getenv('CORDA_ARTIFACTORY_PASSWORD')

@@ -1,12 +1,13 @@
 package net.corda.samples.solana.dvp.flows
 
+import com.r3.corda.lib.solana.core.FileSigner
+import com.r3.corda.lib.solana.core.SolanaClient
+import com.r3.corda.lib.solana.core.tokens.TokenManagement.Companion.getAssociatedTokenAccountAddress
 import net.corda.core.node.AppServiceHub
 import net.corda.core.node.services.CordaService
 import net.corda.core.serialization.SingletonSerializeAsToken
 import net.corda.core.solana.Pubkey
 import net.corda.notary.solana.toPubkey
-import net.corda.solana.notary.common.FileSigner
-import net.corda.solana.notary.common.SolanaClient
 import software.sava.core.accounts.PublicKey
 import software.sava.core.accounts.Signer
 import software.sava.core.accounts.token.Mint

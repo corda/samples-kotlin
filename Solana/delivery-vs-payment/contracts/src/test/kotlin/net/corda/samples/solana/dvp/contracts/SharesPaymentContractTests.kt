@@ -1,10 +1,10 @@
 package net.corda.samples.solana.dvp.contracts
 
+import com.r3.corda.lib.solana.core.cordautils.SplToken
 import com.r3.corda.lib.tokens.contracts.types.TokenType
 import net.corda.core.contracts.Amount
 import net.corda.core.identity.CordaX500Name
 import net.corda.samples.solana.dvp.states.SharesPaymentState
-import net.corda.solana.sdk.SplToken
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
@@ -26,7 +26,7 @@ class SharesPaymentContractTests {
     private val solanaSellerTokenAccount = Pubkey(secureRandomBytes(32))
     private val solanaBuyerTokenAccount = Pubkey(secureRandomBytes(32))
     private val solanaMintAuthority = Pubkey(secureRandomBytes(32))
-    private val stablecoinTokenMint =  Pubkey(secureRandomBytes(32))
+    private val stablecoinTokenMint = Pubkey(secureRandomBytes(32))
 
     private val shareTokenType = TokenType("CORDASHARES", 0)
     private val cordaSharesAmount = Amount(100L, shareTokenType)
