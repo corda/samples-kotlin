@@ -65,12 +65,6 @@ dependencies {
     testImplementation "$corda_enterprise_release_group:corda-core-test-utils:$corda_enterprise_release_version"
     testImplementation "net.corda.solana.notary:testing:$corda_solana_notary_version"
     testImplementation "com.r3.corda.lib.solana:testing:$corda_solana_toolkit_version"
-
-    testImplementation "org.junit.jupiter:junit-jupiter:5.14.0"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.14.0"
-
-    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.14.0"
 }
 
 tasks.withType(Test).configureEach { t ->
@@ -85,7 +79,6 @@ tasks.withType(Test).configureEach { t ->
     def quasarJar = configurations.quasar.singleFile
     t.jvmArgs "-javaagent:${quasarJar}=m"
 }
-
 
 task integrationTest(type: Test, dependsOn: []) {
     useJUnitPlatform()
