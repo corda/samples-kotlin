@@ -20,6 +20,7 @@ buildscript {
         junit_version = constants.getProperty("junitVersion")
         log4j_version = constants.getProperty("log4jVersion")
         slf4j_version = constants.getProperty("slf4jVersion")
+        caffeine_version = "3.2.3"
     }
 
     repositories {

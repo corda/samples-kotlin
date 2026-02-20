@@ -42,37 +42,36 @@ dependencies {
     implementation "com.r3.corda.lib.solana:corda-utils:$corda_solana_toolkit_version"
     implementation "com.r3.corda.lib.solana:core:$corda_solana_toolkit_version"
 
-    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation "$corda_enterprise_release_group:corda-test-utils:$corda_enterprise_release_version"
-    testImplementation "$corda_enterprise_release_group:corda-test-common:$corda_enterprise_release_version"
-
-    testImplementation("org.junit.jupiter:junit-jupiter:5.14.0")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.14.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.14.0")
-
-    testImplementation("$corda_enterprise_release_group:corda-node:$corda_enterprise_release_version")
-    testImplementation("$corda_enterprise_release_group:corda-node-api:$corda_enterprise_release_version")
+    // CorDapp dependencies.
+    cordapp project(":contracts")
 
     // Corda dependencies.
     cordaProvided "$corda_os_release_group:corda-core:$corda_os_release_version"
     cordaProvided "$corda_enterprise_release_group:corda-node:$corda_enterprise_release_version"
 
+    // Token SDK dependencies.
+    cordaProvided "com.r3.corda.lib.tokens:tokens-contracts:$corda_tokens_release_version"
+    cordaProvided "com.r3.corda.lib.tokens:tokens-workflows:$corda_tokens_release_version"
+
+    cordaProvided "com.github.ben-manes.caffeine:caffeine:$caffeine_version"
+
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testImplementation "$corda_enterprise_release_group:corda-test-utils:$corda_enterprise_release_version"
+    testImplementation "$corda_enterprise_release_group:corda-test-common:$corda_enterprise_release_version"
+
+    testImplementation "$corda_enterprise_release_group:corda-node:$corda_enterprise_release_version"
+    testImplementation "$corda_enterprise_release_group:corda-node-api:$corda_enterprise_release_version"
     testImplementation "$corda_enterprise_release_group:corda-node-driver:$corda_enterprise_release_version"
     testImplementation "$corda_enterprise_release_group:corda-core-test-utils:$corda_enterprise_release_version"
     testImplementation "net.corda.solana.notary:testing:$corda_solana_notary_version"
     testImplementation "com.r3.corda.lib.solana:testing:$corda_solana_toolkit_version"
 
-    // CorDapp dependencies.
-    cordapp project(":contracts")
+    testImplementation "org.junit.jupiter:junit-jupiter:5.14.0"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.14.0"
 
-    // Token SDK dependencies.
-    cordaProvided "com.r3.corda.lib.tokens:tokens-contracts:$corda_tokens_release_version"
-    cordaProvided "com.r3.corda.lib.tokens:tokens-workflows:$corda_tokens_release_version"
-
-    cordaProvided "com.github.ben-manes.caffeine:caffeine:3.2.3"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.14.0"
 }
-
 
 tasks.withType(Test).configureEach { t ->
     systemProperty 'co.paralleluniverse.fibers.verifyInstrumentation', 'false'
