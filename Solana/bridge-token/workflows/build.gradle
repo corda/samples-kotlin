@@ -34,40 +34,33 @@ dependencies {
     cordaProvided "$corda_os_release_group:corda-core:$corda_os_release_version"
     cordaProvided "$corda_enterprise_release_group:corda:$corda_enterprise_release_version"
 
-    // Corda dependencies needed for SolanaClient.
-    cordaProvided "$corda_enterprise_release_group:corda-node:$corda_enterprise_release_version"
-    cordaProvided "software.sava:sava-rpc:$sava_core_version"
-
-    cordaProvided "$corda_enterprise_release_group:corda-solana-sdk:$corda_enterprise_release_version"
-
     cordaProvided "com.r3.corda.lib.tokens:tokens-contracts:$corda_tokens_release_version"
     cordaProvided "com.r3.corda.lib.tokens:tokens-workflows:$corda_tokens_release_version"
 
-    cordapp "com.r3.corda.lib.solana:corda-bridging-token-workflows:$corda_bridging_token_release_version"
-    cordapp "com.r3.corda.lib.solana:corda-bridging-token-contracts:$corda_bridging_token_release_version"
+    cordapp "com.r3.corda.lib.solana:bridge-authority-workflows:$corda_solana_toolkit_version"
+    cordapp "com.r3.corda.lib.solana:bridge-authority-contracts:$corda_solana_toolkit_version"
 
     cordapp "com.stockpaydividend:contracts:1.0"
     cordapp "com.stockpaydividend:workflows:1.0"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "$corda_enterprise_release_group:corda-solana-sdk:$corda_enterprise_release_version"
 
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation "net.corda.solana.notary:common:$corda_solana_notary_version"
-    testImplementation "$corda_enterprise_release_group:corda-test-utils:$corda_enterprise_release_version"
-    testImplementation "$corda_enterprise_release_group:corda-test-common:$corda_enterprise_release_version"
-
     testImplementation "org.junit.jupiter:junit-jupiter:5.14.0"
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.14.0"
 
+    // Corda dependencies.
     testImplementation "$corda_enterprise_release_group:corda-node:$corda_enterprise_release_version"
     testImplementation "$corda_enterprise_release_group:corda-node-api:$corda_enterprise_release_version"
     testImplementation "$corda_enterprise_release_group:corda-node-driver:$corda_enterprise_release_version"
     testImplementation "$corda_enterprise_release_group:corda-core-test-utils:$corda_enterprise_release_version"
+    testImplementation "$corda_enterprise_release_group:corda-test-utils:$corda_enterprise_release_version"
+    testImplementation "$corda_enterprise_release_group:corda-test-common:$corda_enterprise_release_version"
 
-    //TODO these will be removed after ATA creation is moved to TokenManagement
-    testImplementation "software.sava:solana-programs:$sava_programs_version"
-    testImplementation "software.sava:sava-rpc:$sava_core_version"
+    // Corda - Solana dependencies.
+    testImplementation "net.corda.solana.notary:testing:$corda_solana_notary_version"
+    testImplementation "com.r3.corda.lib.solana:testing:$corda_solana_toolkit_version"
+
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.14.0"
 }

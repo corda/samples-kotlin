@@ -1,13 +1,14 @@
 package net.corda.samples.solana.bridge.token
 
-import net.corda.node.utilities.solana.AccountManagement
-import net.corda.node.utilities.solana.TokenManagement
-import net.corda.solana.notary.common.FileSigner
-import net.corda.solana.notary.common.SolanaClient
+import com.r3.corda.lib.solana.core.AccountManagement
+import com.r3.corda.lib.solana.core.FileSigner
+import com.r3.corda.lib.solana.core.SolanaClient
+import com.r3.corda.lib.solana.core.tokens.TokenManagement
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.driver.DriverParameters
 import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import software.sava.core.accounts.PublicKey
 import java.math.BigDecimal
@@ -15,42 +16,44 @@ import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
 
-open class DevNetBridgeTokenTest : BridgingTokenDriverTest() {
+open class DevNetBridgeTokenTest : TestBase() {
+    // A directory for Notary to load Corda participant key pairs for signing Solana transactions,
+    // intentionally these are located in a different directory than Corda Notary Program key pair
+    protected val custodiedKeysDir = "src/integrationTest/resources/custodiedKeys"
+    protected lateinit var solanaNotarySigner: FileSigner
 
-    override val solanaRpcUrl = "https://api.devnet.solana.com"
-    override val solanaWssUrl = "ws://api.devnet.solana.com"
-    protected val staticCustodiedKeysDir = "src/integrationTest/resources/custodiedKeys"
-
-    override fun getSolanaNotaryConfig() : Map<String, Any> {
-        return mapOf<String, Any>(
+    fun getSolanaNotaryConfig(solanaNotarySigner: FileSigner) = mapOf<String, Any>(
             "notary" to mapOf(
                 "validating" to false,
                 "solana" to mapOf(
-                    "rpcUrl" to solanaRpcUrl,
-                    "websocketUrl" to solanaWssUrl,
+                    "rpcUrl" to "$solanaRpcUrl",
+                    "websocketUrl" to "$solanaWebsocketUrl",
                     "notaryKeypairFile" to "${solanaNotarySigner.file}",
-                    "custodiedKeysDir" to "${Path.of(staticCustodiedKeysDir).toAbsolutePath()}"
+                    "custodiedKeysDir" to "${Path.of(custodiedKeysDir).toAbsolutePath()}"
                 )
             )
         )
-    }
 
-    override fun startTestValidator() {
-        val notaryKeyPath =
-             Paths.get("../../Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json").toAbsolutePath().toString()
-        solanaNotarySigner = FileSigner.read(Path.of(notaryKeyPath))
-        solanaClient = SolanaClient(URI.create(solanaRpcUrl), URI.create(solanaWssUrl)).apply { start() }
+    @BeforeEach
+    fun setup() {
+        solanaRpcUrl = URI.create("https://api.devnet.solana.com")
+        solanaWebsocketUrl = URI.create("ws://api.devnet.solana.com")
+        val notaryKeyPath = Paths.get("../../Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json").toAbsolutePath()
+        solanaNotarySigner = FileSigner.read(notaryKeyPath)
+        solanaClient = SolanaClient(solanaRpcUrl, solanaWebsocketUrl).apply { start() }
         tokenManagement = TokenManagement(solanaClient)
         accountManagement = AccountManagement(solanaClient)
-    }
 
-    override fun setupAccounts() {
-        bridgeAuthoritySigner = FileSigner.read(Path.of("$staticCustodiedKeysDir/bridgeAuthority.json").toAbsolutePath())
+        bridgeAuthoritySigner =
+            FileSigner.read(Path.of("$custodiedKeysDir/bridgeAuthority.json").toAbsolutePath())
         redemptionWalletForShareholder =
-            FileSigner.read(Path.of("$staticCustodiedKeysDir/redemptionWalletForShareholder.json").toAbsolutePath())
+            FileSigner.read(Path.of("$custodiedKeysDir/redemptionWalletForShareholder.json").toAbsolutePath())
         redemptionWalletForOtherShareholder =
-            FileSigner.read(Path.of("$staticCustodiedKeysDir/redemptionWalletForOtherShareholder.json").toAbsolutePath())
-        mintAuthoritySigner = FileSigner.read(Path.of("$staticCustodiedKeysDir/mintAuthoritySigner.json").toAbsolutePath())
+            FileSigner.read(
+                Path.of("$custodiedKeysDir/redemptionWalletForOtherShareholder.json").toAbsolutePath()
+            )
+        mintAuthoritySigner =
+            FileSigner.read(Path.of("$custodiedKeysDir/mintAuthoritySigner.json").toAbsolutePath())
         val otherKeysDir = "src/integrationTest/resources/other"
         shareholderWallet = FileSigner.read(Path.of("$otherKeysDir/shareholderWallet.json").toAbsolutePath())
         otherShareholderWallet = FileSigner.read(Path.of("$otherKeysDir/otherShareholderWallet.json").toAbsolutePath())
@@ -102,10 +105,8 @@ open class DevNetBridgeTokenTest : BridgingTokenDriverTest() {
         }
     }
 
-    override fun stopTestValidator() = Unit
-
     @Test
-    override fun `briding token test`() = driver(
+    fun `dev net bridge token test`() = driver(
         DriverParameters(
             isDebug = false,
             inMemoryDB = false,
@@ -114,7 +115,7 @@ open class DevNetBridgeTokenTest : BridgingTokenDriverTest() {
             networkParameters = testNetworkParameters(minimumPlatformVersion = 160).copy(notaries = emptyList()),
             notarySpecs = listOf(
                 NotarySpec(generalNotaryName, validating = false, startInProcess = false),
-                NotarySpec(solanaNotaryName, getSolanaNotaryConfig(), startInProcess = false)
+                NotarySpec(solanaNotaryName, getSolanaNotaryConfig(solanaNotarySigner), startInProcess = false)
             ),
             waitForAllNodesToFinish = false
         )

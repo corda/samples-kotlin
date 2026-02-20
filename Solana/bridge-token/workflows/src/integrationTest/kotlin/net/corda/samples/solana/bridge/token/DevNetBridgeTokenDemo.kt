@@ -6,12 +6,10 @@ import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
 import org.junit.jupiter.api.Test
 
-// Shareholder: https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio
-// Other Shareholder https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio
 class DevNetBridgeTokenDemo : DevNetBridgeTokenTest() {
 
     @Test
-    override fun `briding token test`() = driver(
+    fun `dev net bridge token demo`() = driver(
         DriverParameters(
             isDebug = false,
             inMemoryDB = false,
@@ -19,14 +17,17 @@ class DevNetBridgeTokenDemo : DevNetBridgeTokenTest() {
             cordappsForAllNodes = cordappsForAllNodes,
             networkParameters = testNetworkParameters(minimumPlatformVersion = 160).copy(notaries = emptyList()),
             notarySpecs = listOf(
-                NotarySpec(generalNotaryName, getSolanaNotaryConfig(), startInProcess = false),
-                NotarySpec(solanaNotaryName, getSolanaNotaryConfig(), startInProcess = false)
+                NotarySpec(generalNotaryName, getSolanaNotaryConfig(solanaNotarySigner), startInProcess = false),
+                NotarySpec(solanaNotaryName, getSolanaNotaryConfig(solanaNotarySigner), startInProcess = false)
             ),
             waitForAllNodesToFinish = true
         )
     ) {
-        log.info("\nStarting bridging test using Solana validator via $solanaRpcUrl...")
+        log.info("\nStarting bridge test using Solana validator via $solanaRpcUrl...")
         runtimeSetup()
-        log.info("\nBridging deployment is running, shut down Corda nodes externally to exit...")
+        log.info("\nBridge deployment is running, shut down Corda nodes externally to exit...")
+        log.info("\nShareholders wallets:")
+        log.info("\n Shareholder: https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio")
+        log.info("\n Other Shareholder https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio")
     }
 }
