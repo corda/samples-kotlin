@@ -2,15 +2,13 @@ package net.corda.samples.solana.dvp.flows
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import net.corda.node.utilities.solana.TokenManagement
-import net.corda.node.utilities.solana.TokenProgram
-import net.corda.solana.notary.common.SolanaClient
-import net.corda.solana.notary.common.SolanaException
+import com.r3.corda.lib.solana.core.SolanaClient
+import com.r3.corda.lib.solana.core.SolanaException
+import com.r3.corda.lib.solana.core.tokens.TokenManagement
+import com.r3.corda.lib.solana.core.tokens.TokenManagement.Companion.getAssociatedTokenAccountAddress
 import org.slf4j.LoggerFactory
 import software.sava.core.accounts.PublicKey
 import software.sava.core.accounts.Signer
-import software.sava.core.accounts.SolanaAccounts
-import software.sava.solana.programs.token.AssociatedTokenProgram
 
 /**
  * Manages creation of Solana ATA account on the fly,
@@ -43,11 +41,11 @@ class CachedTokenManagement(
         tokenMint: PublicKey,
         accountOwner: PublicKey = payer.publicKey()
     ): PublicKey {
+        val pda = getAssociatedTokenAccountAddress(tokenMint, accountOwner)
         if (existingAtaCache.contains(tokenMint, accountOwner)) {
             // ATA already exists
-            return getAssociatedTokenAccountAddress(tokenMint, accountOwner)
+            return pda
         }
-        val pda = getAssociatedTokenAccountAddress(tokenMint, accountOwner)
         try {
             tokenManagement.createAssociatedTokenAccount(payer, tokenMint)
             logger.info("ATA created successfully, owner=$accountOwner, mint=$tokenMint, pda=$pda.")
@@ -57,33 +55,6 @@ class CachedTokenManagement(
         }
         existingAtaCache.put(tokenMint, accountOwner)
         return pda
-    }
-
-    //TODO remove the method once it is available in TokenManagement
-    fun TokenManagement.createAssociatedTokenAccount(
-        payer: Signer,
-        tokenMint: PublicKey,
-        accountOwner: PublicKey = payer.publicKey(),
-    ): PublicKey {
-        val tokenProgram = getTokenProgram(tokenMint)
-        val tokenAccount = getAssociatedTokenAccountAddress(tokenMint, accountOwner, tokenProgram)
-        client.sendAndConfirm(
-            {
-                it.createTransaction(
-                    AssociatedTokenProgram.createATAForProgram(
-                        true,
-                        SolanaAccounts.MAIN_NET,
-                        payer.publicKey(),
-                        tokenAccount,
-                        accountOwner,
-                        tokenMint,
-                        tokenProgram.programId
-                    )
-                )
-            },
-            payer
-        )
-        return tokenAccount
     }
 }
 
@@ -109,18 +80,4 @@ class BoundedExistingAtaCache : ExistingAtaCache {
     override fun contains(mintAccount: PublicKey, ownerAccount: PublicKey): Boolean {
         return cache.getIfPresent(mintAccount to ownerAccount) != null
     }
-}
-
-//TODO remove the method once it is available in TokenManagement
-/**
- * Return the associated token account (ATA) address for the given token mint and account owner.
- */
-fun getAssociatedTokenAccountAddress(
-    tokenMint: PublicKey,
-    accountOwner: PublicKey,
-    tokenProgram: TokenProgram = TokenProgram.TOKEN,
-): PublicKey {
-    return AssociatedTokenProgram
-        .findATA(SolanaAccounts.MAIN_NET, accountOwner, tokenProgram.programId, tokenMint)
-        .publicKey()
 }

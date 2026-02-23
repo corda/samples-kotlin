@@ -1,5 +1,6 @@
 package net.corda.samples.solana.dvp.contracts
 
+import com.r3.corda.lib.solana.core.cordautils.SplToken
 import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.CommandWithParties
 import net.corda.core.contracts.Contract
@@ -8,7 +9,6 @@ import net.corda.core.contracts.requireThat
 import net.corda.core.solana.SolanaInstruction
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.samples.solana.dvp.states.SharesPaymentState
-import net.corda.solana.sdk.SplToken
 import kotlin.collections.singleOrNull
 
 class SharesPaymentContract : Contract {

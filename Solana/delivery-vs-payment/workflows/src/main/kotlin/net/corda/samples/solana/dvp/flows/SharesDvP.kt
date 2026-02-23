@@ -1,6 +1,7 @@
 package net.corda.samples.solana.dvp.flows
 
 import co.paralleluniverse.fibers.Suspendable
+import com.r3.corda.lib.solana.core.cordautils.SplToken
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import com.r3.corda.lib.tokens.contracts.types.TokenPointer
 import com.r3.corda.lib.tokens.contracts.types.TokenType
@@ -30,7 +31,6 @@ import net.corda.notary.solana.toPubkey
 import net.corda.samples.solana.dvp.contracts.SharesPaymentContract
 import net.corda.samples.solana.dvp.states.SharesPaymentState
 import net.corda.samples.solana.dvp.states.StockState
-import net.corda.solana.sdk.SplToken
 import java.math.BigDecimal
 
 /**
