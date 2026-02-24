@@ -32,7 +32,6 @@ import software.sava.core.accounts.SolanaAccounts
 import software.sava.rpc.json.http.client.SolanaRpcClient
 import java.math.BigDecimal
 import java.net.URI
-import java.util.UUID
 import java.util.concurrent.ExecutionException
 import kotlin.text.trimIndent
 
@@ -107,11 +106,10 @@ open class TestBase {
                             "mintAuthority" to mintAuthoritySigner.publicKey().toBase58()
                         )
             ),
-            "lockingIdentityLabel" to UUID.randomUUID().toString(),
             "solanaNotaryName" to "$solanaNotaryName",
             "generalNotaryName" to "$generalNotaryName",
             "solanaRpcUrl" to "$solanaRpcUrl",
-            "solanaWsUrl" to "$solanaWebsocketUrl",
+            "solanaWebsocketUrl" to "$solanaWebsocketUrl",
             "bridgeAuthorityWalletFile" to bridgeAuthoritySigner.file.toString()
         )
     )
