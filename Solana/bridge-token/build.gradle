@@ -14,6 +14,7 @@ buildscript {
         corda_os_release_version = constants.getProperty("cordaOsVersion")
         corda_gradle_plugins_version = constants.getProperty("gradlePluginsVersion")
         corda_solana_notary_version = constants.getProperty("cordaSolanaNotaryVersion")
+        corda_solana_toolkit_version = constants.getProperty("cordaSolanaToolkitVersion")
         corda_tokens_release_version = constants.getProperty("cordaTokensVersion")
         sava_core_version = constants.getProperty("savaCoreVersion")
         sava_programs_version = constants.getProperty("savaProgramsVersion")
