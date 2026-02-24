@@ -122,13 +122,13 @@ class StockDvpDriverTest {
             "stablecoinTokenMint" to stablecoinAccount.toBase58(),
             "solanaWalletFile" to sellerWallet.file.toString(),
             "solanaRpcUrl" to "${validator.rpcUrl()}",
-            "solanaWsUrl" to "${validator.websocketUrl()}"
+            "solanaWebsocketUrl" to "${validator.websocketUrl()}"
         )
         buyerDvpCordappConfig = mapOf(
             "stablecoinTokenMint" to stablecoinAccount.toBase58(),
             "solanaWalletFile" to buyerWallet.file.toString(),
             "solanaRpcUrl" to "${validator.rpcUrl()}",
-            "solanaWsUrl" to "${validator.websocketUrl()}"
+            "solanaWebsocketUrl" to "${validator.websocketUrl()}"
         )
     }
 

@@ -27,7 +27,7 @@ class SolanaService(appServiceHub: AppServiceHub) : SingletonSerializeAsToken() 
     init {
         val config = appServiceHub.getAppContext().config
         val rpcUrl = URI.create(config.getString("solanaRpcUrl"))
-        val websocketUrl = URI.create(config.getString("solanaWsUrl"))
+        val websocketUrl = URI.create(config.getString("solanaWebsocketUrl"))
         solanaClient = SolanaClient(rpcUrl, websocketUrl, Commitment.CONFIRMED)
         solanaClient.start()
         appServiceHub.registerUnloadHandler { solanaClient.close() }
