@@ -203,14 +203,14 @@ open class TestBase {
         wayneCoNode.rpc.startFlow(
             ::MoveStock,
             "AAPL",
-            100 * 100,
+            100,
             shareholderNode.nodeInfo.singleIdentity()
         ).returnValue.get()
 
         wayneCoNode.rpc.startFlow(
             ::MoveStock,
             "MSFT",
-            10 * 100,
+            10,
             shareholderNode.nodeInfo.singleIdentity()
         ).returnValue.get()
 
@@ -281,6 +281,17 @@ open class TestBase {
             25 * 100
         )
 
+        eventually(duration = 1.seconds) {
+            val balance = solanaClient.getSolanaTokenUiBalance(otherShareholderWallet.deriveATA())
+            val bridgedAmount = BigDecimal(25)
+            assertEquals(
+                bridgedAmount,
+                balance
+            ) {
+                "Other shareholder has sent $bridgedAmount tokens on Solana to redeem on Corda"
+            }
+        }
+
         eventually(duration = 20.seconds, waitBefore = 10.seconds, waitBetween = 1.seconds) {
             val result = otherShareholderNode.rpc.startFlow(
                 ::GetStockBalance,
@@ -292,17 +303,6 @@ open class TestBase {
                 result,
                 "Other Shareholder received stocks on Corda that he had redeemed on Solana"
             )
-        }
-
-        eventually(duration = 20.seconds, waitBetween = 1.seconds) {
-            val balance = solanaClient.getSolanaTokenUiBalance(otherShareholderWallet.deriveATA())
-            val bridgedAmount = BigDecimal.ZERO
-            assertEquals(
-                bridgedAmount,
-                balance
-            ) {
-                "Other shareholder has no more tokens on Solana waiting to be redeemed"
-            }
         }
 
         log.info("\nSolana state before redemptions:")
