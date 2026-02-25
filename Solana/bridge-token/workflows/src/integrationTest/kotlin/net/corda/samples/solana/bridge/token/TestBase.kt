@@ -301,7 +301,7 @@ open class TestBase {
                 bridgedAmount,
                 balance
             ) {
-                "Other shareholder has sent $bridgedAmount tokens on Solana to redeem on Corda"
+                "Other shareholder has no more tokens on Solana waiting to be redeemed"
             }
         }
 
