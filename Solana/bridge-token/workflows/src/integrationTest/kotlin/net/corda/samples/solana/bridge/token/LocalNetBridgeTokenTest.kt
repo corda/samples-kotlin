@@ -70,9 +70,8 @@ open class LocalNetBridgeTokenTest : TestBase() {
         log.info("  Airdrop for: ${mintAuthoritySigner.publicKey().toBase58()}")
         accountManagement.airdropSol(mintAuthoritySigner.publicKey(), 1)
 
-        // Stockpaydividend doesn't use fractionDigits, in order to maintain 1:1 conversion with Solana token,
-        // Solana token will not have fraction digits either
-        val tokenDecimals = 0
+        // Stockpaydividend doesn't use fractionDigits,  Solana token has 2 fraction digits
+        val tokenDecimals = 2
 
         tokenMint =
             tokenManagement.createToken(mintAuthoritySigner, TokenProgram.TOKEN_2022, decimals = tokenDecimals)

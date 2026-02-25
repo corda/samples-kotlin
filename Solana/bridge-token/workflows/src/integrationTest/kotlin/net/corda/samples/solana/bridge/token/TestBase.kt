@@ -31,6 +31,7 @@ import software.sava.core.accounts.Signer
 import software.sava.core.accounts.SolanaAccounts
 import software.sava.rpc.json.http.client.SolanaRpcClient
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.net.URI
 import java.util.concurrent.ExecutionException
 import kotlin.text.trimIndent
@@ -43,8 +44,8 @@ open class TestBase {
     protected lateinit var tokenManagement: TokenManagement
     protected lateinit var accountManagement: AccountManagement
     protected lateinit var solanaClient: SolanaClient
-    protected lateinit var solanaRpcUrl : URI
-    protected lateinit var solanaWebsocketUrl : URI
+    protected lateinit var solanaRpcUrl: URI
+    protected lateinit var solanaWebsocketUrl: URI
 
     protected val solanaNotaryName = CordaX500Name("Solana Notary", "London", "GB")
     protected val generalNotaryName = CordaX500Name("Notary", "London", "GB")
@@ -246,7 +247,7 @@ open class TestBase {
         }
         eventually(duration = 10.seconds) {
             val balance = solanaClient.getSolanaTokenBalance(shareholderWallet.deriveATA())
-            val bridgedAmount = BigDecimal(90)
+            val bridgedAmount = BigInteger.valueOf(90)
             assertEquals(
                 bridgedAmount,
                 balance
@@ -280,17 +281,6 @@ open class TestBase {
             25
         )
 
-        eventually(duration = 1.seconds) {
-            val balance = solanaClient.getSolanaTokenBalance(otherShareholderWallet.deriveATA())
-            val bridgedAmount = BigDecimal(25)
-            assertEquals(
-                bridgedAmount,
-                balance
-            ) {
-                "Other shareholder has sent $bridgedAmount tokens on Solana to redeem on Corda"
-            }
-        }
-
         eventually(duration = 20.seconds, waitBefore = 10.seconds, waitBetween = 1.seconds) {
             val result2 = otherShareholderNode.rpc.startFlow(
                 ::GetStockBalance,
@@ -303,6 +293,18 @@ open class TestBase {
                 "Other Shareholder received stocks on Corda that he had redeemed on Solana"
             )
         }
+
+        eventually(duration = 1.seconds) {
+            val balance = solanaClient.getSolanaTokenUiBalance(otherShareholderWallet.deriveATA())
+            val bridgedAmount = BigDecimal.ZERO
+            assertEquals(
+                bridgedAmount,
+                balance
+            ) {
+                "Other shareholder has sent $bridgedAmount tokens on Solana to redeem on Corda"
+            }
+        }
+
         log.info("\nSolana state before redemptions:")
         log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
         log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
@@ -363,7 +365,7 @@ open class TestBase {
 
     protected fun Signer.solanaBalance(): String =
         if (accountManagement.getAccountInfo(deriveATA()) != null) {
-            "${solanaClient.getSolanaTokenBalance(deriveATA())} coins"
+            "${solanaClient.getSolanaTokenUiBalance(deriveATA())} coins"
         } else {
             "no stablecoin account"
         }
@@ -374,7 +376,12 @@ open class TestBase {
         }.state.data.linearId.toString()
 }
 
-fun SolanaClient.getSolanaTokenBalance(tokenAccount: PublicKey): BigDecimal =
-    call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount.toBigDecimal()
+fun SolanaClient.getSolanaTokenBalance(tokenAccount: PublicKey): BigInteger =
+    call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount
+
+fun SolanaClient.getSolanaTokenUiBalance(tokenAccount: PublicKey): BigDecimal {
+    val result = this.call(SolanaRpcClient::getTokenAccountBalance, tokenAccount)
+    return (result.amount / BigDecimal.TEN.pow(result.decimals).toBigInteger()).toBigDecimal()
+}
 
 fun Pubkey.toPublicKey(): PublicKey = PublicKey.createPubKey(bytes)
