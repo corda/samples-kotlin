@@ -46,8 +46,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation "org.junit.jupiter:junit-jupiter:5.14.0"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.14.0"
+    testImplementation "org.junit.jupiter:junit-jupiter:$junit_version"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
 
     // Corda dependencies.
     testImplementation "$corda_enterprise_release_group:corda-node:$corda_enterprise_release_version"
@@ -58,8 +58,8 @@ dependencies {
     testImplementation "$corda_enterprise_release_group:corda-test-common:$corda_enterprise_release_version"
 
     // Corda - Solana dependencies.
-    testImplementation "net.corda.solana.notary:testing:$corda_solana_notary_version"
-    testImplementation "com.r3.corda.lib.solana:testing:$corda_solana_toolkit_version"
+    testImplementation "net.corda.solana.notary:solana-notary-testing:$corda_solana_notary_version"
+    testImplementation "com.r3.corda.lib.solana:corda-solana-testing:$corda_solana_toolkit_version"
 
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.14.0"
