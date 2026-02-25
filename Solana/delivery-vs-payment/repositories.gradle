@@ -4,9 +4,11 @@ repositories {
     maven { url 'https://download.corda.net/maven/corda-dependencies' }
     maven { url 'https://repo.gradle.org/gradle/libs-releases' }
     maven { url 'https://download.corda.net/maven/corda-lib' }
+    maven { url 'https://download.corda.net/maven/corda-releases' }
     // Add other Corda required repositories
     // For Corda Core
-    maven { url 'https://software.r3.com/artifactory/corda-dev'
+    maven {
+        url 'https://software.r3.com/artifactory/corda-dev'
         credentials {
             username = System.getenv('CORDA_ARTIFACTORY_USERNAME')
             password = System.getenv('CORDA_ARTIFACTORY_PASSWORD')

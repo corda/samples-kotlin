@@ -1,5 +1,8 @@
-apply plugin: 'net.corda.plugins.cordapp'
-apply plugin: 'net.corda.plugins.quasar-utils'
+plugins {
+    id 'net.corda.plugins.cordapp'
+    id 'net.corda.plugins.quasar-utils'
+    id 'com.adarshr.test-logger' version '4.0.0'
+}
 
 cordapp {
     targetPlatformVersion corda_platform_version.toInteger()
@@ -38,9 +41,8 @@ configurations {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "com.r3.corda.lib.solana:corda-utils:$corda_solana_toolkit_version"
-    implementation "com.r3.corda.lib.solana:core:$corda_solana_toolkit_version"
+    implementation "com.r3.corda.lib.solana:corda-solana-cordapp-utils:$corda_solana_toolkit_version"
+    implementation "com.r3.corda.lib.solana:corda-solana-core:$corda_solana_toolkit_version"
 
     // CorDapp dependencies.
     cordapp project(":contracts")
@@ -48,46 +50,18 @@ dependencies {
     // Corda dependencies.
     cordaProvided "$corda_os_release_group:corda-core:$corda_os_release_version"
     cordaProvided "$corda_enterprise_release_group:corda-node:$corda_enterprise_release_version"
-
     // Token SDK dependencies.
     cordaProvided "com.r3.corda.lib.tokens:tokens-contracts:$corda_tokens_release_version"
     cordaProvided "com.r3.corda.lib.tokens:tokens-workflows:$corda_tokens_release_version"
-
     cordaProvided "com.github.ben-manes.caffeine:caffeine:$caffeine_version"
 
-    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation "$corda_enterprise_release_group:corda-test-utils:$corda_enterprise_release_version"
-    testImplementation "$corda_enterprise_release_group:corda-test-common:$corda_enterprise_release_version"
-
-    testImplementation "$corda_enterprise_release_group:corda-node:$corda_enterprise_release_version"
-    testImplementation "$corda_enterprise_release_group:corda-node-api:$corda_enterprise_release_version"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
     testImplementation "$corda_enterprise_release_group:corda-node-driver:$corda_enterprise_release_version"
     testImplementation "$corda_enterprise_release_group:corda-core-test-utils:$corda_enterprise_release_version"
-    testImplementation "net.corda.solana.notary:testing:$corda_solana_notary_version"
-    testImplementation "com.r3.corda.lib.solana:testing:$corda_solana_toolkit_version"
+    testImplementation "net.corda.solana.notary:solana-notary-testing:$corda_solana_notary_version"
+    testImplementation "com.r3.corda.lib.solana:corda-solana-testing:$corda_solana_toolkit_version"
 }
-
-tasks.withType(Test).configureEach { t ->
-    systemProperty 'co.paralleluniverse.fibers.verifyInstrumentation', 'false'
-    systemProperty 'co.paralleluniverse.fibers.detectRunawayFibers', 'false'
-
-    // Remove existing quasar -javaagent if something (e.g. corda/quasar-utils) already adds it
-    def currentArgs = (t.jvmArgs ?: [])
-    t.jvmArgs = currentArgs.findAll { !(it.toString().contains('quasar') && it.toString().contains('-javaagent:')) }
-
-    // Add Quasar agent with allowMonitors (=m) to fix kotlin/SynchronizedLazyImpl issues
-    def quasarJar = configurations.quasar.singleFile
-    t.jvmArgs "-javaagent:${quasarJar}=m"
-}
-
-task integrationTest(type: Test, dependsOn: []) {
-    useJUnitPlatform()
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-}
-
-check.dependsOn integrationTest
 
 test {
-    useJUnitPlatform()
+    jvmArgs '--add-modules=jdk.incubator.foreign'
 }

@@ -142,8 +142,9 @@ class SharesDvP(
         /* Distribution list is a list of identities that should receive updates; in this sample this is the observer node */
         subFlow(UpdateDistributionListFlow(stx))
 
-        return ("\nDvP is done, shares have been transferred to " + buyer.name.organisation + "\nTransaction ID: "
-                + stx.id)
+        return """
+DvP is done, shares have been transferred to ${buyer.name.organisation}
+Transaction ID: ${stx.id}"""
     }
 }
 

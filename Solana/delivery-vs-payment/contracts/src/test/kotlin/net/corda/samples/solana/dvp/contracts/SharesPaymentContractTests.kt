@@ -3,15 +3,15 @@ package net.corda.samples.solana.dvp.contracts
 import com.r3.corda.lib.solana.core.cordautils.SplToken
 import com.r3.corda.lib.tokens.contracts.types.TokenType
 import net.corda.core.contracts.Amount
+import net.corda.core.crypto.secureRandomBytes
 import net.corda.core.identity.CordaX500Name
+import net.corda.core.solana.Pubkey
+import net.corda.core.solana.SolanaInstruction
 import net.corda.samples.solana.dvp.states.SharesPaymentState
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
-import org.junit.Test
-import net.corda.core.crypto.secureRandomBytes
-import net.corda.core.solana.Pubkey
-import net.corda.core.solana.SolanaInstruction
+import org.junit.jupiter.api.Test
 
 class SharesPaymentContractTests {
 

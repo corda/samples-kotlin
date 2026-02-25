@@ -1,11 +1,17 @@
 package net.corda.samples.solana.dvp
 
+import com.r3.corda.lib.solana.core.FileSigner
+import com.r3.corda.lib.solana.core.SolanaUtils
+import com.r3.corda.lib.solana.core.tokens.TokenManagement.Companion.getAssociatedTokenAccountAddress
+import com.r3.corda.lib.solana.testing.SolanaTestValidator
 import com.r3.corda.lib.tokens.contracts.states.FungibleToken
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.startFlow
 import net.corda.core.utilities.getOrThrow
 import net.corda.samples.solana.dvp.flows.CreateAndIssueStock
 import net.corda.samples.solana.dvp.flows.SharesDvP
+import net.corda.solana.notary.testing.Notary
+import net.corda.solana.notary.testing.SolanaNotaryExtension
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.driver.DriverDSL
@@ -26,29 +32,23 @@ import software.sava.core.accounts.Signer
 import software.sava.rpc.json.http.client.SolanaRpcClient
 import java.math.BigDecimal
 import java.nio.file.Path
-import com.r3.corda.lib.solana.core.FileSigner
-import com.r3.corda.lib.solana.core.SolanaUtils
-import com.r3.corda.lib.solana.core.tokens.TokenManagement.Companion.getAssociatedTokenAccountAddress
-import com.r3.corda.lib.solana.testing.SolanaTestValidator
-import net.corda.solana.notary.testing.Notary
-import net.corda.solana.notary.testing.SolanaNotaryExtension
 
 // This is a sample of full-fledged test with Corda Nodes and Solana Local Validator
 @ExtendWith(SolanaNotaryExtension::class)
 class StockDvpDriverTest {
-    private lateinit var validator: SolanaTestValidator
+    companion object {
+        private const val STOCK_SYMBOL = "AAPL"
+        private const val STOCK_NAME = "Apple"
+        private const val STOCK_CURRENCY = "USD"
+        private val STOCK_PRICE = BigDecimal.valueOf(7.4)
+        private const val ISSUING_STOCK_QUANTITY = 200000L
+        private const val DELIVERY_STOCK_QUANTITY = 100L
 
-    private val STOCK_SYMBOL = "AAPL"
-    private val STOCK_NAME = "Apple"
-    private val STOCK_CURRENCY = "USD"
-    private val STOCK_PRICE = BigDecimal.valueOf(7.4)
-    private val ISSUING_STOCK_QUANTITY = 200000L
-    private val DELIVERY_STOCK_QUANTITY = 100L
-
-    private val SOLANA_TOKEN_AMOUNT = 1000000L
-    private val SOLANA_TOKEN_DECIMALS = 3
-    private val SOLANA_BUYER_INITIAL_AMOUNT = BigDecimal(1000)
-    private val SOLANA_PAYMENT = BigDecimal(740) // STOCK_PRICE * DELIVERY_STOCK_QUANTITY
+        private const val SOLANA_TOKEN_AMOUNT = 1000000L
+        private const val SOLANA_TOKEN_DECIMALS = 3
+        private val SOLANA_BUYER_INITIAL_AMOUNT = BigDecimal(1000)
+        private val SOLANA_PAYMENT = BigDecimal(740) // STOCK_PRICE * DELIVERY_STOCK_QUANTITY
+    }
 
     private val seller = TestIdentity(CordaX500Name("BankA", "", "GB"))
     private val buyer = TestIdentity(CordaX500Name("BankB", "", "US"))
@@ -66,6 +66,8 @@ class StockDvpDriverTest {
 
     private lateinit var sellerDvpCordappConfig: Map<String, Any>
     private lateinit var buyerDvpCordappConfig: Map<String, Any>
+
+    private lateinit var validator: SolanaTestValidator
 
     // A directory for Notary to store Corda participant key pairs for sining Solana transactions,
     // intentionally these are located in a different directory than Corda Notary Program key pair
