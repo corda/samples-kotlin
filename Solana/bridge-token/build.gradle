@@ -16,11 +16,9 @@ buildscript {
         corda_solana_notary_version = constants.getProperty("cordaSolanaNotaryVersion")
         corda_solana_toolkit_version = constants.getProperty("cordaSolanaToolkitVersion")
         corda_tokens_release_version = constants.getProperty("cordaTokensVersion")
-        sava_core_version = constants.getProperty("savaCoreVersion")
-        sava_programs_version = constants.getProperty("savaProgramsVersion")
         corda_platform_version = constants.getProperty("platformVersion").toInteger()
         kotlin_version = constants.getProperty("kotlinVersion")
-        junit_version = constants.getProperty("junitVersion")
+        junit_version = constants.getProperty("junitJupiterVersion")
     }
 
     repositories {
