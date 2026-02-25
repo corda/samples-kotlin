@@ -203,14 +203,14 @@ open class TestBase {
         wayneCoNode.rpc.startFlow(
             ::MoveStock,
             "AAPL",
-            100,
+            100 * 100,
             shareholderNode.nodeInfo.singleIdentity()
         ).returnValue.get()
 
         wayneCoNode.rpc.startFlow(
             ::MoveStock,
             "MSFT",
-            10,
+            10 * 100,
             shareholderNode.nodeInfo.singleIdentity()
         ).returnValue.get()
 
@@ -246,8 +246,8 @@ open class TestBase {
             )
         }
         eventually(duration = 10.seconds) {
-            val balance = solanaClient.getSolanaTokenBalance(shareholderWallet.deriveATA())
-            val bridgedAmount = BigInteger.valueOf(90)
+            val balance = solanaClient.getSolanaTokenUiBalance(shareholderWallet.deriveATA())
+            val bridgedAmount = BigDecimal(90)
             assertEquals(
                 bridgedAmount,
                 balance
@@ -267,7 +267,7 @@ open class TestBase {
             shareholderWallet,
             shareholderWallet.deriveATA(),
             otherShareholderWallet.deriveATA(),
-            50
+            50 * 100
         )
 
         log.info("\nSolana state after on-chain transfer of 50 from Shareholder to Other Shareholder:")
@@ -278,23 +278,23 @@ open class TestBase {
             otherShareholderWallet,
             otherShareholderWallet.deriveATA(),
             redemptionWalletForOtherShareholder.deriveATA(),
-            25
+            25 * 100
         )
 
         eventually(duration = 20.seconds, waitBefore = 10.seconds, waitBetween = 1.seconds) {
-            val result2 = otherShareholderNode.rpc.startFlow(
+            val result = otherShareholderNode.rpc.startFlow(
                 ::GetStockBalance,
                 "AAPL"
             ).returnValue.get()!!.trimIndent()
 
             assertEquals(
                 "You currently have 25 AAPL stocks",
-                result2,
+                result,
                 "Other Shareholder received stocks on Corda that he had redeemed on Solana"
             )
         }
 
-        eventually(duration = 1.seconds) {
+        eventually(duration = 20.seconds, waitBetween = 1.seconds) {
             val balance = solanaClient.getSolanaTokenUiBalance(otherShareholderWallet.deriveATA())
             val bridgedAmount = BigDecimal.ZERO
             assertEquals(
@@ -313,7 +313,7 @@ open class TestBase {
             shareholderWallet,
             shareholderWallet.deriveATA(),
             redemptionWalletForShareholder.deriveATA(),
-            20
+            20 * 100
         )
 
         eventually(duration = 20.seconds, waitBefore = 10.seconds, waitBetween = 1.seconds) {
