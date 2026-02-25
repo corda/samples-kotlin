@@ -70,7 +70,7 @@ open class LocalNetBridgeTokenTest : TestBase() {
         log.info("  Airdrop for: ${mintAuthoritySigner.publicKey().toBase58()}")
         accountManagement.airdropSol(mintAuthoritySigner.publicKey(), 1)
 
-        // Stockpaydividend doesn't use fractionDigits,  Solana token has 2 fraction digits
+        // Stockpaydividend Cordapp doesn't use fraction digits however Solana token mint has 2 fraction digits
         val tokenDecimals = 2
 
         tokenMint =
