@@ -48,9 +48,20 @@ dependencies {
     testImplementation "com.r3.corda.lib.solana:corda-solana-testing:$corda_solana_toolkit_version"
 
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.14.0"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junit_version"
 }
 
 test {
-    jvmArgs '--add-modules=jdk.incubator.foreign'
+    systemProperty 'co.paralleluniverse.fibers.verifyInstrumentation', 'false'
+    systemProperty 'co.paralleluniverse.fibers.detectRunawayFibers', 'false'
+
+    // Remove existing quasar -javaagent if something (e.g. corda/quasar-utils) already adds it
+    def currentArgs = (jvmArgs ?: [])
+    def filteredArgs = currentArgs.findAll { !(it.toString().contains('quasar') && it.toString().contains('-javaagent:')) }
+
+    // Add Quasar agent with allowMonitors (=m) to fix kotlin/SynchronizedLazyImpl issues
+    def quasarJar = configurations.quasar.singleFile
+    jvmArgs = filteredArgs + ["-javaagent:${quasarJar}=m", '--add-modules=jdk.incubator.foreign']
+
+    useJUnitPlatform()
 }
