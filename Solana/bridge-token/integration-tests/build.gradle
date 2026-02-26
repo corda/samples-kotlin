@@ -1,5 +1,7 @@
-apply plugin: 'net.corda.plugins.cordapp'
-apply plugin: 'net.corda.plugins.quasar-utils'
+plugins {
+    id 'net.corda.plugins.cordapp'
+    id 'net.corda.plugins.quasar-utils'
+}
 
 cordapp {
     targetPlatformVersion corda_platform_version.toInteger()
@@ -14,19 +16,28 @@ cordapp {
 
 sourceSets {
     main {}
-    test {}
-    integrationTest {
+    test {
         kotlin {
             compileClasspath += main.output + test.output
             runtimeClasspath += main.output + test.output
-            srcDir file('src/integrationTest/kotlin')
+            srcDir file('src/test/kotlin')
         }
     }
 }
 
 configurations {
-    integrationTestImplementation.extendsFrom testImplementation
-    integrationTestRuntimeOnly.extendsFrom testRuntimeOny
+    testOutput
+}
+
+// Create a JAR of integrationTest classes to share with other modules
+tasks.register('testJar', Jar) {
+    archiveClassifier = 'test'
+    from sourceSets.test.output
+}
+
+// Expose integrationTest JAR to other modules
+artifacts {
+    testOutput testJar
 }
 
 dependencies {
@@ -65,24 +76,6 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.14.0"
 }
 
-tasks.withType(Test).configureEach { t ->
-    systemProperty 'co.paralleluniverse.fibers.verifyInstrumentation', 'false'
-    systemProperty 'co.paralleluniverse.fibers.detectRunawayFibers', 'false'
-
-    // Remove existing quasar -javaagent if something (e.g. corda/quasar-utils) already adds it
-    def currentArgs = (t.jvmArgs ?: [])
-    t.jvmArgs = currentArgs.findAll { !(it.toString().contains('quasar') && it.toString().contains('-javaagent:')) }
-
-    // Add Quasar agent with allowMonitors (=m) to fix kotlin/SynchronizedLazyImpl issues
-    def quasarJar = configurations.quasar.singleFile
-    t.jvmArgs "-javaagent:${quasarJar}=m"
-
-    useJUnitPlatform()
+test {
+    jvmArgs '--add-modules=jdk.incubator.foreign'
 }
-
-task integrationTest(type: Test, dependsOn: []) {
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-}
-
-check.dependsOn integrationTest
