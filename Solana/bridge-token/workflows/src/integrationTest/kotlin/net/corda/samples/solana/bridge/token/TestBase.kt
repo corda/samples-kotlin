@@ -31,6 +31,7 @@ import software.sava.core.accounts.Signer
 import software.sava.core.accounts.SolanaAccounts
 import software.sava.rpc.json.http.client.SolanaRpcClient
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.net.URI
 import java.util.concurrent.ExecutionException
 import kotlin.text.trimIndent
@@ -43,8 +44,8 @@ open class TestBase {
     protected lateinit var tokenManagement: TokenManagement
     protected lateinit var accountManagement: AccountManagement
     protected lateinit var solanaClient: SolanaClient
-    protected lateinit var solanaRpcUrl : URI
-    protected lateinit var solanaWebsocketUrl : URI
+    protected lateinit var solanaRpcUrl: URI
+    protected lateinit var solanaWebsocketUrl: URI
 
     protected val solanaNotaryName = CordaX500Name("Solana Notary", "London", "GB")
     protected val generalNotaryName = CordaX500Name("Notary", "London", "GB")
@@ -245,8 +246,8 @@ open class TestBase {
             )
         }
         eventually(duration = 10.seconds) {
-            val balance = solanaClient.getSolanaTokenBalance(shareholderWallet.deriveATA())
-            val bridgedAmount = BigDecimal(90)
+            val balance = solanaClient.getSolanaTokenUiBalance(shareholderWallet.deriveATA())
+            val bridgedAmount = "90"
             assertEquals(
                 bridgedAmount,
                 balance
@@ -266,7 +267,7 @@ open class TestBase {
             shareholderWallet,
             shareholderWallet.deriveATA(),
             otherShareholderWallet.deriveATA(),
-            50
+            50 * 100
         )
 
         log.info("\nSolana state after on-chain transfer of 50 from Shareholder to Other Shareholder:")
@@ -277,12 +278,12 @@ open class TestBase {
             otherShareholderWallet,
             otherShareholderWallet.deriveATA(),
             redemptionWalletForOtherShareholder.deriveATA(),
-            25
+            25 * 100
         )
 
         eventually(duration = 1.seconds) {
-            val balance = solanaClient.getSolanaTokenBalance(otherShareholderWallet.deriveATA())
-            val bridgedAmount = BigDecimal(25)
+            val balance = solanaClient.getSolanaTokenUiBalance(otherShareholderWallet.deriveATA())
+            val bridgedAmount = "25"
             assertEquals(
                 bridgedAmount,
                 balance
@@ -292,17 +293,18 @@ open class TestBase {
         }
 
         eventually(duration = 20.seconds, waitBefore = 10.seconds, waitBetween = 1.seconds) {
-            val result2 = otherShareholderNode.rpc.startFlow(
+            val result = otherShareholderNode.rpc.startFlow(
                 ::GetStockBalance,
                 "AAPL"
             ).returnValue.get()!!.trimIndent()
 
             assertEquals(
                 "You currently have 25 AAPL stocks",
-                result2,
+                result,
                 "Other Shareholder received stocks on Corda that he had redeemed on Solana"
             )
         }
+
         log.info("\nSolana state before redemptions:")
         log.info("  Shareholder: ${shareholderWallet.solanaBalance()}")
         log.info("  Other ShareholderNode: ${otherShareholderWallet.solanaBalance()}")
@@ -311,7 +313,7 @@ open class TestBase {
             shareholderWallet,
             shareholderWallet.deriveATA(),
             redemptionWalletForShareholder.deriveATA(),
-            20
+            20 * 100
         )
 
         eventually(duration = 20.seconds, waitBefore = 10.seconds, waitBetween = 1.seconds) {
@@ -363,7 +365,7 @@ open class TestBase {
 
     protected fun Signer.solanaBalance(): String =
         if (accountManagement.getAccountInfo(deriveATA()) != null) {
-            "${solanaClient.getSolanaTokenBalance(deriveATA())} coins"
+            "${solanaClient.getSolanaTokenUiBalance(deriveATA())} coins"
         } else {
             "no stablecoin account"
         }
@@ -374,7 +376,10 @@ open class TestBase {
         }.state.data.linearId.toString()
 }
 
-fun SolanaClient.getSolanaTokenBalance(tokenAccount: PublicKey): BigDecimal =
-    call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount.toBigDecimal()
+fun SolanaClient.getSolanaTokenBalance(tokenAccount: PublicKey): BigInteger =
+    call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount
+
+fun SolanaClient.getSolanaTokenUiBalance(tokenAccount: PublicKey): String =
+    call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).toDecimal().toPlainString() //normalize value e.g. 9E+1 to 90
 
 fun Pubkey.toPublicKey(): PublicKey = PublicKey.createPubKey(bytes)
