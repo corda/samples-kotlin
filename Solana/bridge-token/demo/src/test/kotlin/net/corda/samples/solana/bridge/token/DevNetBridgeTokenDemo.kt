@@ -28,6 +28,6 @@ class DevNetBridgeTokenDemo : DevNetBridgeTokenTest() {
         log.info("\nBridge deployment is running, shut down Corda nodes externally to exit...")
         log.info("\nShareholders wallets:")
         log.info("\n Shareholder: https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio")
-        log.info("\n Other Shareholder https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio")
+        log.info("\n Other Shareholder: https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio")
     }
 }
