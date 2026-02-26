@@ -71,7 +71,7 @@ open class LocalNetBridgeTokenTest : TestBase() {
         accountManagement.airdropSol(mintAuthoritySigner.publicKey(), 1)
 
         // Stockpaydividend Cordapp doesn't use fraction digits however Solana token mint has 2 fraction digits,
-        // bridging handles the conversion between Corda and Solana token amounts automatically.
+        // Bridge Authority handles the conversion between Corda and Solana token amounts automatically.
         val tokenDecimals = 2
 
         tokenMint =

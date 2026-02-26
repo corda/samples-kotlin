@@ -56,7 +56,7 @@ allprojects {
             languageVersion = KOTLIN_1_9
             apiVersion = KOTLIN_1_9
             jvmTarget = JVM_17
-            javaParameters = true   // Useful for reflection.
+            javaParameters = true // Useful for reflection.
         }
     }
 
