@@ -65,8 +65,7 @@ open class TestBase {
             )
         )
     protected val bridgingContracts = TestCordapp.findCordapp("com.r3.corda.lib.solana.bridging.token.contracts")
-    protected val bridgingWorkflowsWithoutConfig =
-        TestCordapp.findCordapp("com.r3.corda.lib.solana.bridging.token.flows")
+    protected val bridgingWorkflowsWithoutConfig = TestCordapp.findCordapp("com.r3.corda.lib.solana.bridging.token.flows")
 
     protected val rpcUsers = listOf(User("user1", "test", permissions = setOf("ALL")))
 
@@ -380,7 +379,9 @@ open class TestBase {
 fun SolanaClient.getSolanaTokenBalance(tokenAccount: PublicKey): BigInteger =
     call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount
 
-fun SolanaClient.getSolanaTokenUiBalance(tokenAccount: PublicKey): BigDecimal =
-    call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).toDecimal()
+fun SolanaClient.getSolanaTokenUiBalance(tokenAccount: PublicKey): BigDecimal {
+    val result = this.call(SolanaRpcClient::getTokenAccountBalance, tokenAccount)
+    return (result.amount / BigDecimal.TEN.pow(result.decimals).toBigInteger()).toBigDecimal()
+}
 
 fun Pubkey.toPublicKey(): PublicKey = PublicKey.createPubKey(bytes)
