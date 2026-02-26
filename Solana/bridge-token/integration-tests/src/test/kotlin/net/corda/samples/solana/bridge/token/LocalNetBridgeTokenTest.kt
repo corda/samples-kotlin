@@ -20,7 +20,7 @@ open class LocalNetBridgeTokenTest : TestBase() {
     private lateinit var validator: SolanaTestValidator
 
     // A directory for Notary to store Corda participant key pairs for signing Solana transactions,
-    // intentionally these are located in a different directory than Corda Notary Program key pair
+    // the keys are located in a different directory than Corda Notary Program key pair
     @TempDir
     private lateinit var custodiedKeysDir: Path
 
