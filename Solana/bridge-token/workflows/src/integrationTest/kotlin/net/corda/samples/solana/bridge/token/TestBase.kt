@@ -247,7 +247,7 @@ open class TestBase {
         }
         eventually(duration = 10.seconds) {
             val balance = solanaClient.getSolanaTokenUiBalance(shareholderWallet.deriveATA())
-            val bridgedAmount = BigDecimal(90)
+            val bridgedAmount = "90"
             assertEquals(
                 bridgedAmount,
                 balance
@@ -283,7 +283,7 @@ open class TestBase {
 
         eventually(duration = 1.seconds) {
             val balance = solanaClient.getSolanaTokenUiBalance(otherShareholderWallet.deriveATA())
-            val bridgedAmount = BigDecimal(25)
+            val bridgedAmount = "25"
             assertEquals(
                 bridgedAmount,
                 balance
@@ -379,9 +379,7 @@ open class TestBase {
 fun SolanaClient.getSolanaTokenBalance(tokenAccount: PublicKey): BigInteger =
     call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).amount
 
-fun SolanaClient.getSolanaTokenUiBalance(tokenAccount: PublicKey): BigDecimal {
-    val result = this.call(SolanaRpcClient::getTokenAccountBalance, tokenAccount)
-    return (result.amount / BigDecimal.TEN.pow(result.decimals).toBigInteger()).toBigDecimal()
-}
+fun SolanaClient.getSolanaTokenUiBalance(tokenAccount: PublicKey): String =
+    call(SolanaRpcClient::getTokenAccountBalance, tokenAccount).toDecimal().toPlainString() //normalize value e.g. 9E+1 to 90
 
 fun Pubkey.toPublicKey(): PublicKey = PublicKey.createPubKey(bytes)
