@@ -97,6 +97,7 @@ open class BridgingTokenDriverTest {
     protected lateinit var bridgeAuthoritySigner: FileSigner
     protected lateinit var issuerWallet: FileSigner
     protected lateinit var custodianWallet: FileSigner
+    protected lateinit var investorWallet: FileSigner
     protected lateinit var redemptionWalletForIssuer: FileSigner
     protected lateinit var redemptionWalletForCustodian: FileSigner
     protected lateinit var mintAuthoritySigner: FileSigner
@@ -128,8 +129,9 @@ open class BridgingTokenDriverTest {
         redemptionWalletForIssuer = FileSigner.random(custodiedKeysDir)
         redemptionWalletForCustodian = FileSigner.random(custodiedKeysDir)
         mintAuthoritySigner = FileSigner.random(custodiedKeysDir)
-        issuerWallet = FileSigner.random(otherDir)
-        custodianWallet = FileSigner.random(otherDir)
+        issuerWallet = FileSigner.random(custodiedKeysDir)
+        custodianWallet = FileSigner.random(custodiedKeysDir)
+        investorWallet = FileSigner.random(custodiedKeysDir)
 
         log.info("\nSolana wallet account addresses:")
         log.info("  Issuer: ${issuerWallet.publicKey().toBase58()}")

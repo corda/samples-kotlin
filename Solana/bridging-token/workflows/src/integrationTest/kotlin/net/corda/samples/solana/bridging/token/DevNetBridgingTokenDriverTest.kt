@@ -54,10 +54,12 @@ open class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
         mintAuthoritySigner = FileSigner.read(Path.of("$staticCustodiedKeysDir/mintAuthoritySigner.json").toAbsolutePath())
         issuerWallet = FileSigner.read(Path.of("$staticCustodiedKeysDir/issuerWallet.json").toAbsolutePath())
         custodianWallet = FileSigner.read(Path.of("$staticCustodiedKeysDir/custodianWallet.json").toAbsolutePath())
+        investorWallet = FileSigner.read(Path.of("$staticCustodiedKeysDir/investor.json").toAbsolutePath())
 
         log.info("\nSolana wallet account addresses:")
         log.info("  Issuer: ${issuerWallet.publicKey().toBase58()}")
         log.info("  Custodian: ${custodianWallet.publicKey().toBase58()}")
+        log.info("  Investor: ${investorWallet.publicKey().toBase58()}")
         log.info("  Bridge Authority: ${bridgeAuthoritySigner.publicKey().toBase58()}")
         log.info("  Mint Authority: ${mintAuthoritySigner.publicKey().toBase58()}")
         log.info("  Redemption on behalf of Issuer: ${redemptionWalletForIssuer.publicKey().toBase58()}")
@@ -70,9 +72,9 @@ open class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
         tokenMint = PublicKey.fromBase58Encoded("FuWNGKEmJKweaon2cnn8bwB8gogYkdDexeUZCWwvb7t5")
         tokenMint2 = PublicKey.fromBase58Encoded("AhZNYSxWTVCbXMcZNJv27e7G38G7auFaqx4zCBBfWikc")
 
-        log.info("  Creating Solana Token.")
         log.info("  Issuer Token Account: ${issuerWallet.deriveATA().toBase58()}")
         log.info("  Custodian Token Account: ${custodianWallet.deriveATA().toBase58()}")
+        log.info("  Investor Token Account: ${investorWallet.deriveATA().toBase58()}")
         log.info("  Issuer Redemption Token Account: ${redemptionWalletForIssuer.deriveATA().toBase58()}")
         log.info(
             "  Custodian Redemption Token Account: ${
@@ -80,31 +82,22 @@ open class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
             }"
         )
 
-        // Guard against the ATA not existing yet (e.g. first run with a new mint).
-        // getTokenAccountBalance throws JsonRpcException for non-existent accounts,
-        // so check via getAccountInfo first – the same pattern used in solanaBalance().
-        if (solanaClient.getAccountInfo(issuerWallet.deriveATA()) != null) {
-            val issuerBalance = solanaClient.getSolanaTokenBalance(issuerWallet.deriveATA())
-            if (issuerBalance > BigInteger.ZERO) {
-                log.info("  Issuer Token Account cleanup - burn existing $issuerBalance tokens")
-                tokenManagement.burn(
-                    issuerWallet,
-                    tokenMint,
-                    issuerWallet.deriveATA(),
-                    issuerBalance.toLong()
-                )
-            }
-        }
-        if (solanaClient.getAccountInfo(custodianWallet.deriveATA()) != null) {
-            val custodianBalance = solanaClient.getSolanaTokenBalance(custodianWallet.deriveATA())
-            if (custodianBalance > BigInteger.ZERO) {
-                log.info("  Custodian Token Account cleanup - burn existing $custodianBalance tokens")
-                tokenManagement.burn(
-                    custodianWallet,
-                    tokenMint,
-                    custodianWallet.deriveATA(),
-                    custodianBalance.toLong()
-                )
+        listOf(
+            "Issuer" to issuerWallet,
+            "Custodian" to custodianWallet,
+            "Investor" to investorWallet
+        ).forEach { (name, wallet) -> burnExistingTokens(name, wallet) }
+    }
+
+    // Guard against the ATA not existing yet (e.g. first run with a new mint).
+    // getTokenAccountBalance throws JsonRpcException for non-existent accounts,
+    // so check via getAccountInfo first – the same pattern used in solanaBalance().
+    private fun burnExistingTokens(name: String, wallet: FileSigner) {
+        if (solanaClient.getAccountInfo(wallet.deriveATA()) != null) {
+            val balance = solanaClient.getSolanaTokenBalance(wallet.deriveATA())
+            if (balance > BigInteger.ZERO) {
+                log.info("  $name Token Account cleanup - burn existing $balance tokens")
+                tokenManagement.burn(wallet, tokenMint, wallet.deriveATA(), balance.toLong())
             }
         }
     }
