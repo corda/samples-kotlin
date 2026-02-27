@@ -1,5 +1,7 @@
-apply plugin: 'net.corda.plugins.cordapp'
-apply plugin: 'net.corda.plugins.quasar-utils'
+plugins {
+    id 'net.corda.plugins.cordapp'
+    id 'net.corda.plugins.quasar-utils'
+}
 
 cordapp {
     targetPlatformVersion corda_platform_version.toInteger()
@@ -26,13 +28,10 @@ dependencies {
     cordapp "com.stockpaydividend:contracts:1.0"
     cordapp "com.stockpaydividend:workflows:1.0"
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-
     // Dependency on integration-tests module's integrationTest source set
     testImplementation project(path: ':integration-tests', configuration: 'testOutput')
 
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation "org.junit.jupiter:junit-jupiter:$junit_version"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
 
     // Corda dependencies.
@@ -46,9 +45,6 @@ dependencies {
     // Corda - Solana dependencies.
     testImplementation "net.corda.solana.notary:solana-notary-testing:$corda_solana_notary_version"
     testImplementation "com.r3.corda.lib.solana:corda-solana-testing:$corda_solana_toolkit_version"
-
-    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junit_version"
 }
 
 test {

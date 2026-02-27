@@ -16,7 +16,7 @@ import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
 
-open class DevNetBridgeTokenTest : TestBase() {
+open class DevNetBridgeAuthorityTest : TestBase() {
     // A directory for Notary to load Corda participant key pairs for signing Solana transactions,
     // the keys are located in a different directory than Corda Notary Program key pair
     protected val custodiedKeysDir = "../integration-tests/src/test/resources/custodiedKeys"
@@ -106,7 +106,7 @@ open class DevNetBridgeTokenTest : TestBase() {
     }
 
     @Test
-    fun `dev net bridge token test`() = driver(
+    fun `dev net bridge authority test`() = driver(
         DriverParameters(
             isDebug = false,
             inMemoryDB = false,

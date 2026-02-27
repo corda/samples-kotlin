@@ -14,17 +14,6 @@ cordapp {
     }
 }
 
-sourceSets {
-    main {}
-    test {
-        kotlin {
-            compileClasspath += main.output
-            runtimeClasspath += main.output
-            srcDir file('src/test/kotlin')
-        }
-    }
-}
-
 configurations {
     testOutput
 }
@@ -54,10 +43,9 @@ dependencies {
     cordapp "com.stockpaydividend:contracts:1.0"
     cordapp "com.stockpaydividend:workflows:1.0"
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    //implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation "org.junit.jupiter:junit-jupiter:$junit_version"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
 
     // Corda dependencies.
@@ -71,9 +59,6 @@ dependencies {
     // Corda - Solana dependencies.
     testImplementation "net.corda.solana.notary:solana-notary-testing:$corda_solana_notary_version"
     testImplementation "com.r3.corda.lib.solana:corda-solana-testing:$corda_solana_toolkit_version"
-
-    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junit_version"
 }
 
 test {

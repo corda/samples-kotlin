@@ -6,10 +6,10 @@ import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
 import org.junit.jupiter.api.Test
 
-class DevNetBridgeTokenDemo : DevNetBridgeTokenTest() {
+class DevNetBridgeAuthorityDemo : DevNetBridgeAuthorityTest() {
 
     @Test
-    fun `dev net bridge token demo`() = driver(
+    fun `dev net bridge authority demo`() = driver(
         DriverParameters(
             isDebug = false,
             inMemoryDB = false,

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 
 @ExtendWith(SolanaNotaryExtension::class)
-open class LocalNetBridgeTokenTest : TestBase() {
+open class LocalNetBridgeAuthorityTest : TestBase() {
     private lateinit var validator: SolanaTestValidator
 
     // A directory for Notary to store Corda participant key pairs for signing Solana transactions,
@@ -107,7 +107,7 @@ open class LocalNetBridgeTokenTest : TestBase() {
     }
 
     @Test
-    open fun `local net bridge token test`(@Notary notarySigner: FileSigner) = driver(
+    open fun `local net bridge authority test`(@Notary notarySigner: FileSigner) = driver(
         DriverParameters(
             isDebug = false,
             inMemoryDB = false,
