@@ -1,4 +1,4 @@
-package net.corda.samples.solana.bridge.token
+package net.corda.samples.solana.bridge.authority
 
 import com.r3.corda.lib.solana.core.FileSigner
 import com.r3.corda.lib.solana.core.tokens.TokenProgram

@@ -1,7 +1,7 @@
 # Bridge Authority Sample
 
-This sample demonstrates how to bridge Corda assets (states/tokens) to the Solana network using:
-- a Bridge Authority (an extra Corda participant that orchestrates bridging/redemption), and
+This sample demonstrates how to bridge Corda assets to the Solana network using:
+- a Bridge Authority (a Corda participant that orchestrates bridging/redemption), and
 - a Solana Notary (a Corda notary backed by the [Solana notary program](https://github.com/corda/solana-notary)).
 
 The Corda asset in this sample is a Fungible Token created using 
@@ -32,15 +32,15 @@ and whether you want a test run or a long-running demo:
 
 From the repository root:
 ```bash
-./gradlew clean test --tests net.corda.samples.solana.bridge.authority.LocalNetBridgeAuthorityTest
+./gradlew clean integration-tests:test --tests net.corda.samples.solana.bridge.authority.LocalNetBridgeAuthorityTest
 ```
 
 On Windows:
 ```bash
-gradlew.bat clean test --tests net.corda.samples.solana.bridge.authority.LocalNetBridgeAuthorityTest
+gradlew.bat clean integration-tests:test --tests net.corda.samples.solana.bridge.authority.LocalNetBridgeAuthorityTest
 ```
 
-This runs the [`LocalNetBridgeAuthorityTest`](integration-tests/src/test/kotlin/net/corda/samples/solana/bridge/token/LocalNetBridgeAuthorityTest.kt)
+This runs the [`LocalNetBridgeAuthorityTest`](integration-tests/src/test/kotlin/net/corda/samples/solana/bridge/authority/LocalNetBridgeAuthorityTest.kt)
 integration test, which uses Corda Driver DSL. It deploys and starts local Corda nodes and installs the CorDapps, 
 starts Solana local test validator, creates Solana accounts and deploys the required Solana program,
 bridges a portion of a Corda asset to Solana, then redeems it back.
@@ -49,33 +49,33 @@ bridges a portion of a Corda asset to Solana, then redeems it back.
 
 From the repository root:
 ```bash
-./gradlew clean test --tests net.corda.samples.solana.bridge.token.DevNetBridgeTokenTest
+./gradlew clean integration-tests:test --tests net.corda.samples.solana.bridge.authority.DevNetBridgeAuthorityTest
 ```
 
 On Windows:
 ```bash
-gradlew.bat clean test --tests net.corda.samples.solana.bridge.token.DevNetBridgeTokenTest
+gradlew.bat clean integration-tests:test --tests net.corda.samples.solana.bridge.authority.DevNetBridgeAuthorityTest
 ```
 
-This runs the [`DevNetBridgeTokenTest`](integration-tests/src/test/kotlin/net/corda/samples/solana/bridge/token/DevNetBridgeAuthorityTest.kt)
+This runs the [`DevNetBridgeTokenTest`](integration-tests/src/test/kotlin/net/corda/samples/solana/bridge/authority/DevNetBridgeAuthorityTest.kt)
 integration test, that perform the same operation as the [former test](#Integration-test-with-Solana-Local-Validator),
 except it targets Solana Devnet with pre-defined Solana accounts, in particular wallets of
  [Shareholder](https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio)
-and [Other Shareholder](https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio) - switch to `NFT` tab.
+and [Other Shareholder](https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio).
 
 ### Long-running demo deployment with Solana Devnet
 
 From the repository root:
 ```bash
-./gradlew clean test --tests net.corda.samples.solana.bridge.authority.DevNetBridgeAuthorityDemo
+./gradlew clean demo:test --tests net.corda.samples.solana.bridge.authority.DevNetBridgeAuthorityDemo
 ```
 
 On Windows:
 ```bash
-gradlew.bat clean test --tests net.corda.samples.solana.bridge.authority.DevNetBridgeAuthorityDemo
+gradlew.bat clean demo:test --tests net.corda.samples.solana.bridge.authority.DevNetBridgeAuthorityDemo
 ```
 
-This runs the [`DevNetBridgeTokenDemo`](demo/src/test/kotlin/net/corda/samples/solana/bridge/token/DevNetBridgeAuthorityDemo.kt)
+This runs the [`DevNetBridgeTokenDemo`](demo/src/test/kotlin/net/corda/samples/solana/bridge/authority/DevNetBridgeAuthorityDemo.kt)
 long-standing local Corda nodes and installs the CorDapps,
 and targets Solana DevNet with pre-defined Solana accounts (the same as in the [integration test](#Integration-test-with-Solana-Devnet)). 
 Unlike the previous two tests, this will not run any bridging operation. Web UI to perform bridging may be provided separately. 

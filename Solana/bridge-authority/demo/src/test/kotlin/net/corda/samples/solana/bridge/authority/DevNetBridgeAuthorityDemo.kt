@@ -1,4 +1,4 @@
-package net.corda.samples.solana.bridge.token
+package net.corda.samples.solana.bridge.authority
 
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.driver.DriverParameters
