@@ -1,4 +1,4 @@
-package net.corda.samples.solana.bridge.token
+package net.corda.samples.solana.bridge.authority
 
 import com.r3.corda.lib.solana.core.FileSigner
 import com.r3.corda.lib.solana.core.tokens.TokenProgram
@@ -16,11 +16,11 @@ import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 
 @ExtendWith(SolanaNotaryExtension::class)
-open class LocalNetBridgeTokenTest : TestBase() {
+open class LocalNetBridgeAuthorityTest : TestBase() {
     private lateinit var validator: SolanaTestValidator
 
     // A directory for Notary to store Corda participant key pairs for signing Solana transactions,
-    // intentionally these are located in a different directory than Corda Notary Program key pair
+    // the keys are located in a different directory than Corda Notary Program key pair
     @TempDir
     private lateinit var custodiedKeysDir: Path
 
@@ -71,7 +71,7 @@ open class LocalNetBridgeTokenTest : TestBase() {
         accountManagement.airdropSol(mintAuthoritySigner.publicKey(), 1)
 
         // Stockpaydividend Cordapp doesn't use fraction digits however Solana token mint has 2 fraction digits,
-        // bridging handles the conversion between Corda and Solana token amounts automatically.
+        // Bridge Authority handles the conversion between Corda and Solana token amounts automatically.
         val tokenDecimals = 2
 
         tokenMint =
@@ -107,7 +107,7 @@ open class LocalNetBridgeTokenTest : TestBase() {
     }
 
     @Test
-    open fun `local net bridge token test`(@Notary notarySigner: FileSigner) = driver(
+    open fun `local net bridge authority test`(@Notary notarySigner: FileSigner) = driver(
         DriverParameters(
             isDebug = false,
             inMemoryDB = false,

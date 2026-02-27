@@ -1,4 +1,4 @@
-package net.corda.samples.solana.bridge.token
+package net.corda.samples.solana.bridge.authority
 
 import net.corda.testing.common.internal.testNetworkParameters
 import net.corda.testing.driver.DriverParameters
@@ -6,10 +6,10 @@ import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
 import org.junit.jupiter.api.Test
 
-class DevNetBridgeTokenDemo : DevNetBridgeTokenTest() {
+class DevNetBridgeAuthorityDemo : DevNetBridgeAuthorityTest() {
 
     @Test
-    fun `dev net bridge token demo`() = driver(
+    fun `dev net bridge authority demo`() = driver(
         DriverParameters(
             isDebug = false,
             inMemoryDB = false,
@@ -28,6 +28,6 @@ class DevNetBridgeTokenDemo : DevNetBridgeTokenTest() {
         log.info("\nBridge deployment is running, shut down Corda nodes externally to exit...")
         log.info("\nShareholders wallets:")
         log.info("\n Shareholder: https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio")
-        log.info("\n Other Shareholder https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio")
+        log.info("\n Other Shareholder: https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio")
     }
 }

@@ -1,4 +1,4 @@
-package net.corda.samples.solana.bridge.token
+package net.corda.samples.solana.bridge.authority
 
 import com.r3.corda.lib.solana.core.AccountManagement
 import com.r3.corda.lib.solana.core.FileSigner
@@ -16,10 +16,10 @@ import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
 
-open class DevNetBridgeTokenTest : TestBase() {
+open class DevNetBridgeAuthorityTest : TestBase() {
     // A directory for Notary to load Corda participant key pairs for signing Solana transactions,
-    // intentionally these are located in a different directory than Corda Notary Program key pair
-    protected val custodiedKeysDir = "src/integrationTest/resources/custodiedKeys"
+    // the keys are located in a different directory than Corda Notary Program key pair
+    protected val custodiedKeysDir = "../integration-tests/src/test/resources/custodiedKeys"
     protected lateinit var solanaNotarySigner: FileSigner
 
     fun getSolanaNotaryConfig(solanaNotarySigner: FileSigner) = mapOf<String, Any>(
@@ -54,7 +54,7 @@ open class DevNetBridgeTokenTest : TestBase() {
             )
         mintAuthoritySigner =
             FileSigner.read(Path.of("$custodiedKeysDir/mintAuthoritySigner.json").toAbsolutePath())
-        val otherKeysDir = "src/integrationTest/resources/other"
+        val otherKeysDir = "../integration-tests/src/test/resources/other"
         shareholderWallet = FileSigner.read(Path.of("$otherKeysDir/shareholderWallet.json").toAbsolutePath())
         otherShareholderWallet = FileSigner.read(Path.of("$otherKeysDir/otherShareholderWallet.json").toAbsolutePath())
 
@@ -106,7 +106,7 @@ open class DevNetBridgeTokenTest : TestBase() {
     }
 
     @Test
-    fun `dev net bridge token test`() = driver(
+    fun `dev net bridge authority test`() = driver(
         DriverParameters(
             isDebug = false,
             inMemoryDB = false,

@@ -1,4 +1,4 @@
-package net.corda.samples.solana.bridge.token
+package net.corda.samples.solana.bridge.authority
 
 import com.r3.corda.lib.solana.core.AccountManagement
 import com.r3.corda.lib.solana.core.FileSigner
@@ -24,7 +24,7 @@ import net.corda.testing.driver.NodeParameters
 import net.corda.testing.node.TestCordapp
 import net.corda.testing.node.User
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.slf4j.LoggerFactory
 import software.sava.core.accounts.PublicKey
 import software.sava.core.accounts.Signer
