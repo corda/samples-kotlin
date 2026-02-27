@@ -52,9 +52,8 @@ open class DevNetBridgingTokenDriverTest : BridgingTokenDriverTest() {
         redemptionWalletForCustodian =
             FileSigner.read(Path.of("$staticCustodiedKeysDir/redemptionWalletForCustodian.json").toAbsolutePath())
         mintAuthoritySigner = FileSigner.read(Path.of("$staticCustodiedKeysDir/mintAuthoritySigner.json").toAbsolutePath())
-        val otherKeysDir = "src/integrationTest/resources/other"
-        issuerWallet = FileSigner.read(Path.of("$otherKeysDir/issuerWallet.json").toAbsolutePath())
-        custodianWallet = FileSigner.read(Path.of("$otherKeysDir/custodianWallet.json").toAbsolutePath())
+        issuerWallet = FileSigner.read(Path.of("$staticCustodiedKeysDir/issuerWallet.json").toAbsolutePath())
+        custodianWallet = FileSigner.read(Path.of("$staticCustodiedKeysDir/custodianWallet.json").toAbsolutePath())
 
         log.info("\nSolana wallet account addresses:")
         log.info("  Issuer: ${issuerWallet.publicKey().toBase58()}")

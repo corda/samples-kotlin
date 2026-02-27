@@ -229,7 +229,7 @@ open class BridgingTokenDriverTest {
     )
 
     fun DriverDSL.runtimeSetup() {
-        val otherKeysDir = "src/integrationTest/resources/other"
+        val otherKeysDir = "src/integrationTest/resources/custodiedKeys"
 
         log.info("\n========== STARTING CORDA NODES ==========")
 
