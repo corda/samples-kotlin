@@ -58,8 +58,8 @@ gradlew.bat clean integrationtest --tests net.corda.samples.solana.bridging.toke
 This runs the [`DevNetBridgingTokenDriverTest`](workflows/src/integrationTest/kotlin/net/corda/samples/solana/bridging/token/DevNetBridgingTokenDriverTest.kt)
 integration test, that performs the same operation as the [former test](#bridging-integration-test-with-solana-local-validator),
 except it targets Solana Devnet with pre-defined Solana accounts, in particular wallets of
- [Shareholder](https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio)
-and [Other Shareholder](https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio) - switch to `NFT` tab.
+ [Issuer](https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio)
+and [Custodian](https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio) - switch to `NFT` tab.
 
 ### DvP: Integration test with Solana Local Validator
 
@@ -130,8 +130,8 @@ bridging-token/
 
 The sample assumes the following parties:
 
-* **Seller** / **Shareholder** - holds stock tokens on Corda; has a Solana wallet to receive stablecoin payment (DvP) or bridged tokens (bridging).
-* **Buyer** / **Other Shareholder** - purchases shares on Corda by paying stablecoin on Solana (DvP); or receives bridged tokens on Solana and redeems them on Corda (bridging). Has a Solana wallet.
+* **Seller** / **Issuer** - holds stock tokens on Corda; has a Solana wallet to receive stablecoin payment (DvP) or bridged tokens (bridging).
+* **Buyer** / **Custodian** - purchases shares on Corda by paying stablecoin on Solana (DvP); or receives bridged tokens on Solana and redeems them on Corda (bridging). Has a Solana wallet.
 * **Bridge Authority** - a special node that facilitates bridging and redemption; has a Solana wallet. Required only for the bridging pattern.
 * **Solana Notary** - a notary that can execute Solana blockchain transactions (mint, burn, SPL transfer) as part of Corda transaction finality. Used by both patterns.
 * **Notary** - the regular Corda notary for non-Solana transactions.
@@ -262,10 +262,10 @@ in addition to the Solana Notary.
 The Corda network (including node configurations) and all required Solana wallets/accounts are created automatically
 by the sample integration test.
 
-- Before any bridging occurs, the `Shareholder` must own some `AAPL` stock tokens.
+- Before any bridging occurs, the `Issuer` must own some `AAPL` stock tokens.
   These tokens are issued by `WayneCo` as part of the original `StockPayDividends` sample.
 
-- On Solana, the sample creates and funds wallet accounts for: `Bridge Authority`, both shareholders, and the token mint
+- On Solana, the sample creates and funds wallet accounts for: `Bridge Authority`, both parties (Issuer and Custodian), and the token mint
   representing the Solana equivalent of the Corda `AAPL` stock.
   These wallets are accessed by either `Bridge Authority` or `Solana Notary` depending on the operation being performed.
 
@@ -281,19 +281,19 @@ Only `Bridge Authority` and `Solana Notary` require Solana-specific configuratio
 
 #### Bridging Flow
 
-1. **Shareholder moves tokens to Bridge Authority (Corda)**
+1. **Issuer moves tokens to Bridge Authority (Corda)**
 
-   `Shareholder` transfers shares (`60 AAPL` shares) to the Bridge Authority by running `MoveStock` flow
+   `Issuer` transfers shares (`60 AAPL` shares) to the Bridge Authority by running `MoveStock` flow
    with `Bridge Authority` as the recipient. This is a standard Corda (Tokens SDK) action -
    the asset is moved under Corda's rules before any Solana action occurs.
 
 2. **Bridge Authority prepares the bridged representation**
 
-   Bridge Authority performs bridging on behalf of Shareholder:
+   Bridge Authority performs bridging on behalf of Issuer:
    - Locks the received shares under a confidential identity controlled by Bridge Authority.
    - Creates a "token-equivalent" representation that includes required Solana metadata (mint, destination wallet),
      looked up from the node configuration.
-   - Ensures the recipient (`Shareholder`) has an Associated Token Account (ATA) for that mint;
+   - Ensures the recipient (`Issuer`) has an Associated Token Account (ATA) for that mint;
      if not, submits a Solana transaction to create it.
    - Changes the notary for the "token-equivalent" representation to the Solana Notary
      (bridging-related transactions are notarised by the Solana Notary, not the regular Corda Notary).
@@ -308,13 +308,13 @@ Only `Bridge Authority` and `Solana Notary` require Solana-specific configuratio
    The Solana transaction is signed via Bridge Authority's Solana wallet custodied by Solana Notary.
    The Solana Notary finalizes the Corda transaction only if the Solana mint succeeds
    and the Solana program detects no double-mint.
-   After finality, the bridged amount is represented as tokens owned by the `Shareholder`'s Solana wallet.
+   After finality, the bridged amount is represented as tokens owned by the `Issuer`'s Solana wallet.
 
 #### Redemption Flow
 
 1. **Redemption initialization on Solana**
 
-   The Shareholder transfers some Solana tokens to a designated wallet (an Associated Token Account for the token mint).
+   The Issuer transfers some Solana tokens to a designated wallet (an Associated Token Account for the token mint).
    `Bridge Authority` monitors the redemption token accounts and is notified when a transfer occurs.
    `Bridge Authority` determines (from node configuration) which Corda asset type the Solana mint corresponds to
    and constructs a Corda transaction that creates a new Corda "token-equivalent" representation state to be redeemed.
@@ -326,7 +326,7 @@ Only `Bridge Authority` and `Solana Notary` require Solana-specific configuratio
 
    The Solana Notary verifies the Corda transaction is valid - checks that the amount to be burned on Solana
    matches the amount to be unlocked on Corda, then it submits a Solana burn transaction.
-   The Solana transaction is signed using the custodied redemption wallet for `Shareholder`.
+   The Solana transaction is signed using the custodied redemption wallet for `Issuer`.
    The Solana Notary finalizes the Corda transaction only if the Solana burn succeeds.
 
 3. **Bridge Authority releases the Corda asset**
@@ -336,13 +336,13 @@ Only `Bridge Authority` and `Solana Notary` require Solana-specific configuratio
    `Bridge Authority` updates the "token-equivalent" representation so that subsequent Corda-only steps
    are notarised by the regular Corda Notary rather than the Solana Notary.
    `Bridge Authority` performs Corda token selection and builds a Corda transaction that:
-   - moves the redeemed shares to the Shareholder (via regular Corda Fungible Token move)
+   - moves the redeemed shares to the Issuer (via regular Corda Fungible Token move)
    - consumes the "token-equivalent" representation state
 
    This transaction is submitted to the regular Notary for verification and finality.
    At this point, redemption is complete:
    - the Solana tokens have been burned, and
-   - the corresponding Corda stock tokens have been transferred to the Shareholder.
+   - the corresponding Corda stock tokens have been transferred to the Issuer.
 
 ## FAQ
 
@@ -369,9 +369,9 @@ held by `Bridge Authority` and any current holder of the bridged Solana token ca
 This means Solana token transfers are independent of the original Corda holder.
 
 Example:
-  - `Shareholder` bridges shares
-  - `Shareholder` transfers Solana tokens to `Other Shareholder` on Solana
-  - `Other Shareholder` redeems those shares on Corda by transferring the Solana tokens to the redemption account
+  - `Issuer` bridges shares
+  - `Issuer` transfers Solana tokens to `Custodian` on Solana
+  - `Custodian` redeems those shares on Corda by transferring the Solana tokens to the redemption account
 
 **How does atomicity work in DvP?**
 

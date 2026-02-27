@@ -6,8 +6,8 @@ import net.corda.testing.driver.driver
 import net.corda.testing.node.NotarySpec
 import org.junit.jupiter.api.Test
 
-// Shareholder: https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio
-// Other Shareholder https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio
+// Issuer: https://solscan.io/account/3Wuk6fKtqCzMppikC1S58vK3J5ZbqnbcZXkDhJUHCom7?cluster=devnet#portfolio
+// Custodian https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1LASEWbQmAQjCeBKj?cluster=devnet#portfolio
 class DevNetBridgingTokenDriverDemo : DevNetBridgingTokenDriverTest() {
 
     @Test
@@ -35,8 +35,8 @@ class DevNetBridgingTokenDriverDemo : DevNetBridgingTokenDriverTest() {
         log.info("\n╔══════════════════════════════════════════════════════╗")
         log.info("║  DEMO READY                                         ║")
         log.info("║                                                      ║")
-        log.info("║  Shareholder RPC:       localhost:10345               ║")
-        log.info("║  OtherShareholder RPC:  localhost:10349               ║")
+        log.info("║  Issuer RPC:            localhost:10345               ║")
+        log.info("║  Custodian RPC:         localhost:10349               ║")
         log.info("║                                                      ║")
         log.info("║  Start the BFF and UI instances to begin.            ║")
         log.info("║  Shut down Corda nodes externally to exit.           ║")

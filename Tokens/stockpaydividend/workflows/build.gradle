@@ -1,5 +1,15 @@
 apply plugin: 'net.corda.plugins.cordapp'
 apply plugin: 'net.corda.plugins.quasar-utils'
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = 'workflows'
+            artifact jar
+        }
+    }
+}
 
 cordapp {
     targetPlatformVersion corda_platform_version.toInteger()

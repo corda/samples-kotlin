@@ -1,4 +1,14 @@
 apply plugin: 'net.corda.plugins.cordapp'
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = 'contracts'
+            artifact jar
+        }
+    }
+}
 
 cordapp {
     targetPlatformVersion corda_platform_version.toInteger()
