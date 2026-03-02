@@ -33,4 +33,12 @@ repositories {
             password = System.getenv('CORDA_ARTIFACTORY_PASSWORD')
         }
     }
+
+    // TODO this is temporarily until toolkit '0.1.8' is release
+    maven { url 'https://software.r3.com/artifactory/corda-dependencies-dev'
+        credentials {
+            username = System.getenv('CORDA_ARTIFACTORY_USERNAME')
+            password = System.getenv('CORDA_ARTIFACTORY_PASSWORD')
+        }
+    }
 }
