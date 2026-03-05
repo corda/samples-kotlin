@@ -2,8 +2,6 @@ repositories {
     mavenCentral()
     maven { url 'https://download.corda.net/maven/corda-dependencies' }
     maven { url 'https://repo.gradle.org/gradle/libs-releases' }
-    maven { url 'https://download.corda.net/maven/corda-lib' }
-    maven { url 'https://download.corda.net/maven/corda-releases' }
     // For Corda Enterprise dependencies, for example corda-node
     maven {
         url 'https://software.r3.com/artifactory/r3-corda-releases'
