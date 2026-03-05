@@ -7,7 +7,7 @@ dependencies {
     // Corda dependencies.
     testImplementation "$corda_os_release_group:corda-core:$corda_os_release_version"
     testImplementation "$corda_enterprise_release_group:corda-node-driver:$corda_enterprise_release_version"
-    testImplementation "$corda_enterprise_release_group:corda-test-common:$corda_enterprise_release_version"
+    testImplementation "$corda_os_release_group:corda-test-common:$corda_os_release_version"
 
     testImplementation "com.r3.corda.lib.solana:bridge-authority-workflows:$corda_solana_toolkit_version"
     testImplementation "com.r3.corda.lib.solana:bridge-authority-contracts:$corda_solana_toolkit_version"
