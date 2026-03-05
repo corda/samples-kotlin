@@ -3,16 +3,10 @@ repositories {
 
     maven { url 'https://repo.gradle.org/gradle/libs-releases' }
     maven { url 'https://download.corda.net/maven/corda-dependencies' }
+    maven { url 'https://download.corda.net/maven/corda-lib' }
     // For Corda Enterprise dependencies, for example corda-node-driver
     maven {
         url 'https://software.r3.com/artifactory/r3-corda-releases'
-        credentials {
-            username = System.getenv('CORDA_ARTIFACTORY_USERNAME')
-            password = System.getenv('CORDA_ARTIFACTORY_PASSWORD')
-        }
-    }
-    // For Corda Tokens SDK Cordapp
-    maven { url 'https://software.r3.com/artifactory/corda-lib'
         credentials {
             username = System.getenv('CORDA_ARTIFACTORY_USERNAME')
             password = System.getenv('CORDA_ARTIFACTORY_PASSWORD')

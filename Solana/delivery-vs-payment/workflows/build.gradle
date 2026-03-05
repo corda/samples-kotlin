@@ -50,6 +50,7 @@ dependencies {
     // Corda dependencies.
     cordaProvided "$corda_os_release_group:corda-core:$corda_os_release_version"
     cordaProvided "$corda_enterprise_release_group:corda-node:$corda_enterprise_release_version"
+
     // Token SDK dependencies.
     cordaProvided "com.r3.corda.lib.tokens:tokens-contracts:$corda_tokens_release_version"
     cordaProvided "com.r3.corda.lib.tokens:tokens-workflows:$corda_tokens_release_version"
