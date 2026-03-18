@@ -34,7 +34,6 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.net.URI
 import java.util.concurrent.ExecutionException
-import kotlin.text.trimIndent
 
 open class TestBase {
     companion object {
@@ -95,17 +94,9 @@ open class TestBase {
                 redemptionWalletForShareholder.publicKey().toBase58() to "$shareholderName",
                 redemptionWalletForOtherShareholder.publicKey().toBase58() to "$otherShareholderName",
             ),
-            "mintsWithAuthorities" to mapOf(
-                cordaTokenTypeIdentifier1 to
-                        mapOf(
-                            "tokenMint" to tokenMint.toBase58(),
-                            "mintAuthority" to mintAuthoritySigner.publicKey().toBase58()
-                        ),
-                cordaTokenTypeIdentifier2 to
-                        mapOf(
-                            "tokenMint" to tokenMint2.toBase58(),
-                            "mintAuthority" to mintAuthoritySigner.publicKey().toBase58()
-                        )
+            "tokens" to mapOf(
+                cordaTokenTypeIdentifier1 to tokenMint.toBase58(),
+                cordaTokenTypeIdentifier2 to tokenMint2.toBase58(),
             ),
             "solanaNotaryName" to "$solanaNotaryName",
             "generalNotaryName" to "$generalNotaryName",
