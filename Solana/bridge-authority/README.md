@@ -12,7 +12,7 @@ The Corda asset in this sample is a Fungible Token created using the Corda
 logic of) the [StockPayDividends sample CorDapp](../../Tokens/stockpaydividend) and deploys the same party set as 
 the original demo, adding the bridging parties.
 
-## Pre-Requisites
+## Prerequisites
 
 [Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.14/enterprise/cordapps/getting-set-up.html)
 
@@ -33,11 +33,6 @@ whether you want a test run or a long-running demo:
 ./gradlew clean integration-tests:test --tests net.corda.samples.solana.bridge.authority.LocalNetBridgeAuthorityTest
 ```
 
-On Windows:
-```bash
-gradlew.bat clean integration-tests:test --tests net.corda.samples.solana.bridge.authority.LocalNetBridgeAuthorityTest
-```
-
 This runs the [`LocalNetBridgeAuthorityTest`](integration-tests/src/test/kotlin/net/corda/samples/solana/bridge/authority/LocalNetBridgeAuthorityTest.kt)
 integration test, which uses Corda Driver DSL. It deploys and starts local Corda nodes and installs the CorDapps,
 starts Solana local test validator, creates Solana accounts and deploys the required Solana program,
@@ -50,11 +45,6 @@ From the repository root:
 ./gradlew clean integration-tests:test --tests net.corda.samples.solana.bridge.authority.DevNetBridgeAuthorityTest
 ```
 
-On Windows:
-```bash
-gradlew.bat clean integration-tests:test --tests net.corda.samples.solana.bridge.authority.DevNetBridgeAuthorityTest
-```
-
 This runs the [`DevNetBridgeTokenTest`](integration-tests/src/test/kotlin/net/corda/samples/solana/bridge/authority/DevNetBridgeAuthorityTest.kt)
 integration test, that perform the same operation as the [former test](#integration-test-with-local-test-validator),
 except it targets Solana Devnet with pre-defined Solana accounts, in particular wallets of
@@ -65,11 +55,6 @@ and [Other Shareholder](https://solscan.io/account/AoDHzQwk7s6crxMcC1nptRVHAhd1L
 
 ```bash
 ./gradlew clean demo:test --tests net.corda.samples.solana.bridge.authority.DevNetBridgeAuthorityDemo
-```
-
-On Windows:
-```bash
-gradlew.bat clean demo:test --tests net.corda.samples.solana.bridge.authority.DevNetBridgeAuthorityDemo
 ```
 
 This runs the [`DevNetBridgeTokenDemo`](demo/src/test/kotlin/net/corda/samples/solana/bridge/authority/DevNetBridgeAuthorityDemo.kt)

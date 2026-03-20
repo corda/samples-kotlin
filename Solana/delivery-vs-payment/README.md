@@ -17,12 +17,6 @@ Navigate to the `delivery-vs-payment` folder and run:
 ./gradlew build
 ```
 
-or on Windows:
-
-```bash
-gradlew.bat build
-```
-
 This compiles the CorDapp and runs the integration test in
 `workflows/src/test/kotlin/net/corda/samples/solana/dvp/StockDvpDriverTest.kt`. The test uses the Corda Driver DSL 
 to start real Corda nodes and a local Solana test validator (via `SolanaNotaryExtension`), then executes a complete 
