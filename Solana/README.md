@@ -28,7 +28,7 @@ leg completing without the other.
 
 ## Devnet
 
-The samples can also be run against [Solana devnet](https://solscan.io/account/notary95bwkGXj74HV2CXeCn4CgBzRVv5nmEVfqonVY?cluster=devnet)
+The samples (Bridge Authority out-of-box) can also be run against [Solana devnet](https://solscan.io/account/notary95bwkGXj74HV2CXeCn4CgBzRVv5nmEVfqonVY?cluster=devnet)
 where [`devnet-sample-notary-keypair.json`](devnet-sample-notary-keypair.json) has been provisioned for testing
 purposes.
 
