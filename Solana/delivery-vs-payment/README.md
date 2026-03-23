@@ -1,42 +1,58 @@
-# Atomic Corda-Solana DvP Sample
+# Atomic Corda-Solana Delivery-vs-Payment Sample
 
-This CorDapp provides an example atomic DvP ("delivery vs payment") transaction of an asset (in this case shares in a stock) 
+This CorDapp provides an example atomic DvP ("delivery vs payment") transaction of an asset (in this case shares in a stock)
 on a Corda network for payment using a Solana stablecoin (SPL Token).
 
-## Pre-Requisites
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.13/enterprise/cordapps/getting-set-up.html)
+## Prerequisites
 
-Access to Corda Enterprise repository or builds.
-Change values in ``../constant.properties``, ``cordaOsVersion`` and ``cordaEnterpiseVersion`` to the appropriate version (minimum 4.14).
-
-Install [Solana](https://solana.com/docs/intro/installation).
+- [Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.14/enterprise/cordapps/getting-set-up.html)
+  with access to Corda Enterprise (via repository access or a developer pack).
+- [Solana CLI tools](https://solana.com/docs/intro/installation) installed.
 
 ## Running the sample
 
-Navigate to root folder of the project and run
-``bash
+Navigate to the `delivery-vs-payment` folder and run:
+
+```bash
 ./gradlew build
-``
-or on Windows
-``bash
-gradlew.bat build
-``
-The command deploys runs a test from ``./workflows/src/integrationTest/kotlin/net/corda/samples/solana/dvp/StockDvpDriverTest.kt`` file.
-The test is written in Corda Driver DSL. It deploys locally Corda nodes, starts Solana local test validator (or uses devnet),
-and runs a DvP transaction between two Corda Nodes and Solana. The test also creates Solana accounts and deploy Corda Program.
+```
 
-## Concepts
+This compiles the CorDapp and runs the integration test in
+`workflows/src/test/kotlin/net/corda/samples/solana/dvp/StockDvpDriverTest.kt`. The test uses the Corda Driver DSL 
+to start real Corda nodes and a local Solana test validator (via `SolanaNotaryExtension`), then executes a complete 
+DvP between a seller and a buyer.
 
-The DvP is an atomic swap between the two participants. They agree on the delivery of an asset and the payment for it. 
-A payment is settled using a stablecoin on Solana. The Corda notary acts as an intermediary (on behalf of a payer)
-and records the transaction on the Solana blockchain using the [Corda Notary Program](https://github.com/corda/solana-notary/).
-This allows the swap to be performed atomically across both networks and prevents any double spends of either transfers.
-In this example the Corda asset is expressed as a Fungible Token utilizing the [Token SDK](https://github.com/corda/token-sdk), 
-however it could be any regular Corda state.
+## Architecture
 
-### Flows
+The DvP is an atomic swap: the seller delivers Corda stock tokens and the buyer pays in a Solana stablecoin. 
+Atomicity is guaranteed by the Solana notary — it only finalises the Corda transaction (delivering the stock) if it 
+can also execute the SPL token transfer (the payment) within the same Solana transaction. Neither leg can succeed 
+without the other.
 
-There are two flows ``SharesDvp``and ``SharesDvpResponder`` to perform DvP. 
+The Solana notary custodies the Solana private keys for each Corda participant. This allows it to sign the SPL token 
+transfer on the buyer's behalf at notarisation time, without the buyer needing to interact with Solana directly.
+
+`SharesPaymentContract` enforces on-ledger that the Solana instruction embedded in the transaction exactly encodes 
+the Solana `transferChecked` instruction described by the `SharesPaymentState`. This means the buyer's signature on the 
+Corda transaction is also their consent to the specific payment, preventing a malicious seller from substituting a 
+different instruction.
+
+In this sample the Corda asset is expressed as a Fungible Token via the
+[Token SDK](https://github.com/corda/token-sdk), but any regular Corda state could be used.
+
+## States
+
+- **`StockState`**: An evolvable token type representing the stock being traded. Records the issuer, ticker symbol, 
+  currency, and price per share.
+
+- **`SharesPaymentState`**: A receipt that records the agreed payment terms — the quantity of stock being delivered, 
+  the stablecoin mint, the Solana account addresses of both parties, and the stablecoin amount. 
+  `SharesPaymentContract` uses this to verify that the embedded Solana notary instruction matches what both parties 
+  signed.
+
+## Flows
+
+There are two flows `SharesDvP` and `SharesDvpResponder` to perform DvP.
 
 Prerequisite: A buyer owns an amount of stablecoins on Solana.
 
@@ -45,51 +61,40 @@ Prerequisite: A buyer owns an amount of stablecoins on Solana.
 2. Initiate the DvP through `SharesDvP`.
    DvP is initiated by the seller, who offers an asset for sale and communicates the price to the buyer.
 
-3. The buyer accepts the price and provides the Solana account details from which the payment will be made. 
+3. The buyer accepts the price and provides the Solana account details from which the payment will be made.
 
 4. The seller builds a Corda transaction to deliver the asset.
-   The transaction also includes a `StockPaymentContract`. This is not an on-ledger payment on Corda,
+   The transaction also includes a `SharesPaymentContract`. This is not an on-ledger payment on Corda,
    but rather it is a receipt/record of what was agreed on Corda to be paid in stablecoins.
    Including this information allows the buyer to verify and approve the Corda transaction.
-   The seller adds the stablecoin payment details (amount, the seller’s destination account and the buyer-provided details)
+   The seller adds the stablecoin payment details (amount, the seller's destination account and the buyer-provided details)
    as a Solana notary instruction, which will be executed by the Solana notary node in the same Solana transaction as the notarisation.
    The seller creates their ATA for payment receipt, if such an account didn't already exist for the stablecoin.
    The seller sends the Corda transaction to the buyer to sign.
 
-5. The buyer verifies that the transaction data matches what was agreed (for example, a quantity of the asset to exchange 
+5. The buyer verifies that the transaction data matches what was agreed (for example, a quantity of the asset to exchange
    and the stablecoin amount to pay) and then signs the transaction.
 
 6. The seller submits the transaction to Corda Notary for notarisation.
 
-7. The notary performs the SPL token transfer of the stabelcoin from the buyer’s account to the seller’s account 
-   according to the submitted Solana notary instruction. 
+7. The notary performs the SPL token transfer of the stablecoin from the buyer's account to the seller's account
+   according to the submitted Solana notary instruction.
    The Solana transaction also contains a Corda Program instruction to record Corda states.
    If there is sufficient stablecoin in the buyer's account and the Corda state hasn't been spent already
    then both the payment and delivery of the asset succeed atomically.
 
-### Configuration
+## Configuration
 
-Each Corda node require settings for the Cordapp workflows to connect Solana and access to Solana Wallet file.
-The CorDapp configuration file (``<NODE_ROOT_DIR>/cordapps/config/workflows-1.0.conf``) contains 
-the following Solana account settings for the participant (Corda party):
+### CorDapp config — per node (`<NODE_ROOT_DIR>/cordapps/config/workflows-1.0.conf`)
 
-- ``solanaWalletFile`` the participant's Solana [file-system wallet](https://docs.solanalabs.com/cli/wallets/file-system),
-used to auto-create create ATA for storing stabelcoins
-- ``stablecoinTokenMint`` public key of the stablecoin mint account of SPL token
-- ``solanaRpcUrl`` URL of the RPC provider for interacting with the blockchain; if you are using the test validator 
-then this will be `http://127.0.0.1:8899`, if you want to use devnet then the URL is `https://api.devnet.solana.com`
-- ``solanaWsUrl`` - The corresponding websocket URL of the RPC provider. `ws://127.0.0.1:8900` for the test validator 
-and `wss://api.devnet.solana.com` for devnet
+| Key                   | Description                                                                                                                       |
+|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| `solanaWalletFile`    | Path to the node's Solana [file-system wallet](https://docs.solanalabs.com/cli/wallets/file-system). This is used to create ATAs. |
+| `stablecoinTokenMint` | Base-58 public key of the stablecoin SPL token mint                                                                               |
+| `solanaRpcUrl`        | Solana RPC endpoint (`http://127.0.0.1:8899` for the local validator; `https://api.devnet.solana.com` for devnet)                 |
+| `solanaWebsocketUrl`  | Corresponding WebSocket URL (`ws://127.0.0.1:8900` for the local validator; `wss://api.devnet.solana.com` for devnet)             |
 
-Corda notary requires additional settings in the node configuration (``node.conf`` file). 
-They are grouped under ``solana`` sub-entry of ``notarty``:
+### Notary config
 
-- ``rpcUrl`` URL of the RPC provider for interacting with the blockchain. If you are using the test validator
-then this will be `http://127.0.0.1:8899`; if you want to use devnet then the URL is `https://api.devnet.solana.com`
-- ``websocketUrl`` The corresponding websocket URL of the RPC provider. `ws://127.0.0.1:8900` for the test validator
-and `wss://api.devnet.solana.com` for devnet
-- ``notaryKeypairFile`` The notary [file-system wallet](https://docs.solanalabs.com/cli/wallets/file-system) 
-for singing Corda Program on Solana
-- ``custodiedKeysDir`` The directory for notary to store Corda participant Solana file-system wallets 
-for singing stablecoin transactions, these should be located in a different directory than the notary wallet
-- ``programWhitelist`` the list of Solana Programs that can be run by the Notary, set to address of SPL Token Program
+The Solana-specific notary configuration fields (`node.conf`, under `notary.solana`) are documented
+[here](https://docs.r3.com/en/platform/corda/4.14/enterprise/node/setup/corda-configuration-fields.html#notary).

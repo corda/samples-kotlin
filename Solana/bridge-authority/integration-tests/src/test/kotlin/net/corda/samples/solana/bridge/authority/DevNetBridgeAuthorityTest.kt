@@ -38,7 +38,7 @@ open class DevNetBridgeAuthorityTest : TestBase() {
     fun setup() {
         solanaRpcUrl = URI.create("https://api.devnet.solana.com")
         solanaWebsocketUrl = URI.create("ws://api.devnet.solana.com")
-        val notaryKeyPath = Paths.get("../../Dev7chG99tLCAny3PNYmBdyhaKEVcZnSTp3p1mKVb5m5.json").toAbsolutePath()
+        val notaryKeyPath = Paths.get("../../devnet-sample-notary-keypair.json").toAbsolutePath()
         solanaNotarySigner = FileSigner.read(notaryKeyPath)
         solanaClient = SolanaClient(solanaRpcUrl, solanaWebsocketUrl).apply { start() }
         tokenManagement = TokenManagement(solanaClient)
