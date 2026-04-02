@@ -94,6 +94,8 @@ Prerequisite: A buyer owns an amount of stablecoins on Solana.
 | `solanaRpcUrl`        | Solana RPC endpoint (`http://127.0.0.1:8899` for the local validator; `https://api.devnet.solana.com` for devnet)                 |
 | `solanaWebsocketUrl`  | Corresponding WebSocket URL (`ws://127.0.0.1:8900` for the local validator; `wss://api.devnet.solana.com` for devnet)             |
 
+Note: The test `StockDvpDriverTest.kt` can run the Cordapp against local validator only.
+
 ### Notary config
 
 The Solana-specific notary configuration fields (`node.conf`, under `notary.solana`) are documented
