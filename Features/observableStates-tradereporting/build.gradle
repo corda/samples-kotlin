@@ -61,6 +61,8 @@ allprojects { //Properties that you need to compile your project (The applicatio
         maven { url 'https://download.corda.net/maven/corda-dependencies' }
         maven { url 'https://download.corda.net/maven/corda-releases' }
         maven { url 'https://jitpack.io' }
+        maven { url 'https://download.corda.net/maven/corda-dev' }
+        maven { url 'https://download.corda.net/maven/r3-corda-dev' }
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
@@ -160,7 +162,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         cordapps.clear()
     }
     node {
-        name "O=Seller,L=London,C=GB"
+        name "O=Seller, L=London, C=GB"
         p2pPort 10005
         rpcSettings {
             address("localhost:10006")
@@ -168,7 +170,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         }
     }
     node {
-        name "O=Buyer,L=New York,C=US"
+        name "O=Buyer, L=New York, C=US"
         p2pPort 10008
         rpcSettings {
             address("localhost:10009")
@@ -176,7 +178,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         }
     }
     node {
-        name "O=StateRegulator,L=New York,C=US"
+        name "O=StateRegulator, L=New York, C=US"
         p2pPort 10011
         rpcSettings {
             address("localhost:10012")
@@ -184,7 +186,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         }
     }
     node {
-        name "O=NationalRegulator,L=New York,C=US"
+        name "O=NationalRegulator, L=New York, C=US"
         p2pPort 10014
         rpcSettings {
             address("localhost:10015")
