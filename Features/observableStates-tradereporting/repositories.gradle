@@ -5,4 +5,9 @@ repositories {
     maven { url 'https://jitpack.io' }
     maven { url 'https://download.corda.net/maven/corda-dependencies' }
     maven { url 'https://repo.gradle.org/gradle/libs-releases' }
+    maven {url 'https://software.r3.com/artifactory/corda-releases'
+        credentials {
+            username = findProperty('cordaArtifactoryUsername') ?: System.getenv('CORDA_ARTIFACTORY_USERNAME')
+            password = findProperty('cordaArtifactoryPassword') ?: System.getenv('CORDA_ARTIFACTORY_PASSWORD')
+        }}
 }
