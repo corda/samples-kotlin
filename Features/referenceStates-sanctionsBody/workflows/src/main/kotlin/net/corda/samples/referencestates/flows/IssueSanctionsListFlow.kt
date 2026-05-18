@@ -3,7 +3,6 @@ package net.corda.samples.referencestates.flows
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.samples.referencestates.contracts.SanctionedEntitiesContract
 import net.corda.samples.referencestates.flows.IOUIssueFlow.Acceptor
-import net.corda.samples.referencestates.flows.IssueSanctionsListFlow.Initiator
 import net.corda.samples.referencestates.states.SanctionedEntities
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateAndRef
@@ -11,7 +10,7 @@ import net.corda.core.flows.FinalityFlow
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
-import net.corda.core.identity.CordaX500Name
+import net.corda.core.flows.FlowException
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
@@ -58,14 +57,17 @@ object IssueSanctionsListFlow {
         @Suspendable
         override fun call(): StateAndRef<SanctionedEntities> {
             // Obtain a reference from a notary we wish to use.
-            val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
+            val notary = serviceHub.networkMapCache.notaryIdentities.firstOrNull()
+                ?: throw FlowException("No available notary.")
 
             // Stage 1.
             progressTracker.currentStep = GENERATING_TRANSACTION
             // Generate an unsigned transaction.
             val state = SanctionedEntities(emptyList(), serviceHub.myInfo.legalIdentities.first())
-            val txCommand =
-                Command(SanctionedEntitiesContract.Commands.Create, serviceHub.myInfo.legalIdentities.first().owningKey)
+            val txCommand = Command(
+                SanctionedEntitiesContract.Commands.Create,
+                serviceHub.myInfo.legalIdentities.first().owningKey
+            )
             val txBuilder = TransactionBuilder(notary)
                 .addOutputState(state, SanctionedEntitiesContract.SANCTIONS_CONTRACT_ID)
                 .addCommand(txCommand)
