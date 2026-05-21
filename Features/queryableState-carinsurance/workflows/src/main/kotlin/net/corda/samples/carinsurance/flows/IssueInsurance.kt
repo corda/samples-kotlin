@@ -60,11 +60,6 @@ class IssueInsurance(val insuranceInfo: InsuranceInfo,
 class IssueInsuranceResponder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call(): SignedTransaction {
-        subFlow(object : SignTransactionFlow(counterpartySession) {
-            @Throws(FlowException::class)
-            override fun checkTransaction(stx: SignedTransaction) {
-            }
-        })
         return subFlow(ReceiveFinalityFlow(counterpartySession))
     }
 }
