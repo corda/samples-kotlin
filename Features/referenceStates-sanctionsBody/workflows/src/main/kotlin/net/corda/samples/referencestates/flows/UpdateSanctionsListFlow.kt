@@ -6,6 +6,7 @@ import net.corda.samples.referencestates.states.SanctionedEntities
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.flows.FinalityFlow
+import net.corda.core.flows.FlowException
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
@@ -18,7 +19,16 @@ import net.corda.core.utilities.ProgressTracker.Step
 object UpdateSanctionsListFlow {
     @InitiatingFlow
     @StartableByRPC
-    class Initiator(val partyToSanction: Party) : FlowLogic<StateAndRef<SanctionedEntities>>() {
+    class Initiator(
+        val partyToSanction: Party,
+        private val notaryName: String
+    ) : FlowLogic<StateAndRef<SanctionedEntities>>() {
+        constructor(partyToSanction: Party) : this(partyToSanction, DEFAULT_NOTARY_NAME)
+
+        companion object {
+            private const val DEFAULT_NOTARY_NAME = "O=Notary,L=London,C=GB"
+        }
+
         val ADDING_PARTY_TO_LIST = Step("Sanctioning Party: ${partyToSanction.name}")
         val GENERATING_TRANSACTION = Step("Generating Transaction")
         val SIGNING_TRANSACTION = Step("Signing transaction with our private key.")
@@ -41,12 +51,14 @@ object UpdateSanctionsListFlow {
          */
         @Suspendable
         override fun call(): StateAndRef<SanctionedEntities> {
-            // Obtain a reference from a notary we wish to use.
-            /*val notary = serviceHub.networkMapCache.notaryIdentities.firstOrNull()
-                ?: throw FlowException("No available notary.")*/
-            val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
+            val notary = resolveNotary(notaryName)
 
             val oldList = serviceHub.vaultService.queryBy(SanctionedEntities::class.java).states.single()
+            if (oldList.state.notary != notary) {
+                throw FlowException(
+                    "Provided notary $notaryName does not match input state notary ${oldList.state.notary.name}"
+                )
+            }
             val newList = oldList.state.data.copy(badPeople = oldList.state.data.badPeople + listOf(partyToSanction))
 
             // Stage 1.
@@ -80,5 +92,9 @@ object UpdateSanctionsListFlow {
                 )
             ).tx.outRefsOfType(SanctionedEntities::class.java).single()
         }
+
+        private fun resolveNotary(x500Name: String) =
+            serviceHub.networkMapCache.getNotary(CordaX500Name.parse(x500Name))
+                ?: throw FlowException("Notary not found: $x500Name")
     }
 }

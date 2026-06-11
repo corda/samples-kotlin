@@ -7,6 +7,7 @@ import net.corda.samples.referencestates.states.SanctionedEntities
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.flows.FinalityFlow
+import net.corda.core.flows.FlowException
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
@@ -29,12 +30,15 @@ import net.corda.core.utilities.ProgressTracker.Step
 object IssueSanctionsListFlow {
     @InitiatingFlow
     @StartableByRPC
-    class Initiator : FlowLogic<StateAndRef<SanctionedEntities>>() {
+    class Initiator(private val notaryName: String) : FlowLogic<StateAndRef<SanctionedEntities>>() {
+        constructor() : this(DEFAULT_NOTARY_NAME)
+
         /**
          * The progress tracker checkpoints each stage of the flows and outputs the specified messages when each
          * checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call() function.
          */
         companion object {
+            private const val DEFAULT_NOTARY_NAME = "O=Notary,L=London,C=GB"
             object GENERATING_TRANSACTION : Step("Generating Transaction")
             object SIGNING_TRANSACTION : Step("Signing transaction with our private key.")
 
@@ -56,10 +60,7 @@ object IssueSanctionsListFlow {
          */
         @Suspendable
         override fun call(): StateAndRef<SanctionedEntities> {
-            // Obtain a reference from a notary we wish to use.
-            /*val notary = serviceHub.networkMapCache.notaryIdentities.firstOrNull()
-                ?: throw FlowException("No available notary.")*/
-            val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
+            val notary = resolveNotary(notaryName)
 
             // Stage 1.
             progressTracker.currentStep = GENERATING_TRANSACTION
@@ -91,5 +92,9 @@ object IssueSanctionsListFlow {
                 )
             ).tx.outRefsOfType(SanctionedEntities::class.java).single()
         }
+
+        private fun resolveNotary(x500Name: String) =
+            serviceHub.networkMapCache.getNotary(CordaX500Name.parse(x500Name))
+                ?: throw FlowException("Notary not found: $x500Name")
     }
 }

@@ -24,10 +24,18 @@ object IOUIssueFlow {
     class Initiator(
         val iouValue: Int,
         val otherParty: Party,
-        val sanctionsBody: Party
+        val sanctionsBody: Party,
+        private val notaryName: String
     ) : FlowLogic<SignedTransaction>() {
+        constructor(iouValue: Int, otherParty: Party, sanctionsBody: Party) : this(
+            iouValue,
+            otherParty,
+            sanctionsBody,
+            DEFAULT_NOTARY_NAME
+        )
 
         companion object {
+            private const val DEFAULT_NOTARY_NAME = "O=Notary,L=London,C=GB"
             object GENERATING_TRANSACTION : Step("Generating transaction based on new IOU.")
             object VERIFYING_TRANSACTION : Step("Verifying contracts constraints.")
             object SIGNING_TRANSACTION : Step("Signing transaction with our private key.")
@@ -52,10 +60,7 @@ object IOUIssueFlow {
 
         @Suspendable
         override fun call(): SignedTransaction {
-            // Obtain a reference from a notary we wish to use.
-            /*val notary = serviceHub.networkMapCache.notaryIdentities.firstOrNull()
-                ?: throw FlowException("No available notary.")*/
-            val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
+            val notary = resolveNotary(notaryName)
 
             // Stage 1.
             progressTracker.currentStep = GENERATING_TRANSACTION
@@ -71,6 +76,11 @@ object IOUIssueFlow {
                 .addCommand(txCommand)
 
             sanctionsListToUse?.let { sanctionsList ->
+                if (sanctionsList.state.notary != notary) {
+                    throw FlowException(
+                        "Reference state notary ${sanctionsList.state.notary.name} does not match tx notary ${notary.name}"
+                    )
+                }
                 txBuilder.addReferenceState(sanctionsList.referenced())
             }
 
@@ -118,6 +128,10 @@ object IOUIssueFlow {
         fun getLatestSanctionsList(sanctionsBody: Party): StateAndRef<SanctionedEntities>? {
             return subFlow(GetSanctionsListFlow.Initiator(sanctionsBody)).firstOrNull()
         }
+
+        private fun resolveNotary(x500Name: String) =
+            serviceHub.networkMapCache.getNotary(CordaX500Name.parse(x500Name))
+                ?: throw FlowException("Notary not found: $x500Name")
     }
 
     @InitiatedBy(Initiator::class)
