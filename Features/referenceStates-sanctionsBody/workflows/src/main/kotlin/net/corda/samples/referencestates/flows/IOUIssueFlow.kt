@@ -52,8 +52,9 @@ object IOUIssueFlow {
         @Suspendable
         override fun call(): SignedTransaction {
             // Obtain a reference from a notary we wish to use.
-            val notary = serviceHub.networkMapCache.notaryIdentities.firstOrNull()
-                ?: throw FlowException("No available notary.")
+            /*val notary = serviceHub.networkMapCache.notaryIdentities.firstOrNull()
+                ?: throw FlowException("No available notary.")*/
+            val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
             // Stage 1.
             progressTracker.currentStep = GENERATING_TRANSACTION

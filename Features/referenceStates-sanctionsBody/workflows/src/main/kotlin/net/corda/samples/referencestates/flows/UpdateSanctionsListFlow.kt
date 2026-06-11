@@ -42,8 +42,9 @@ object UpdateSanctionsListFlow {
         @Suspendable
         override fun call(): StateAndRef<SanctionedEntities> {
             // Obtain a reference from a notary we wish to use.
-            val notary = serviceHub.networkMapCache.notaryIdentities.firstOrNull()
-                ?: throw FlowException("No available notary.")
+            /*val notary = serviceHub.networkMapCache.notaryIdentities.firstOrNull()
+                ?: throw FlowException("No available notary.")*/
+            val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB")) // METHOD 2
 
             val oldList = serviceHub.vaultService.queryBy(SanctionedEntities::class.java).states.single()
             val newList = oldList.state.data.copy(badPeople = oldList.state.data.badPeople + listOf(partyToSanction))
