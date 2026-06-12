@@ -3,7 +3,6 @@
 package net.corda.samples.referencestates.flows
 
 import net.corda.samples.referencestates.states.SanctionableIOUState
-import net.corda.samples.referencestates.states.SanctionedEntities
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.utilities.getOrThrow
 import net.corda.testing.common.internal.testNetworkParameters
@@ -15,7 +14,6 @@ import net.corda.testing.node.StartedMockNode
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -42,10 +40,10 @@ class IOUSettleFlowTests {
 
         // Register ALL flow responders on ALL nodes
         listOf(a, b, c, issuer).forEach { node ->
-            node.registerInitiatedFlow(IOUIssueFlow.Acceptor::class.java)
-            node.registerInitiatedFlow(IOUSettleFlow.Acceptor::class.java)
-            node.registerInitiatedFlow(IOUTransferFlow.Acceptor::class.java)
-            node.registerInitiatedFlow(GetSanctionsListFlow.Acceptor::class.java)
+            node.registerInitiatedFlow(IOUIssueFlowAcceptor::class.java)
+            node.registerInitiatedFlow(IOUSettleFlowAcceptor::class.java)
+            node.registerInitiatedFlow(IOUTransferFlowAcceptor::class.java)
+            node.registerInitiatedFlow(GetSanctionsListFlowAcceptor::class.java)
         }
 
         network.runNetwork()
@@ -59,7 +57,7 @@ class IOUSettleFlowTests {
     @Test
     fun `IOU can be settled successfully by lender`() {
         // Issue sanctions list
-        val issuanceFlow = issuer.startFlow(IssueSanctionsListFlow.Initiator())
+        val issuanceFlow = issuer.startFlow(IssueSanctionsListFlow())
         network.runNetwork()
         issuanceFlow.getOrThrow()
 
@@ -67,7 +65,7 @@ class IOUSettleFlowTests {
         getSanctionsList(a, issuer.info.singleIdentity())
 
         // Issue IOU (A lends to B)
-        val issueFlow = IOUIssueFlow.Initiator(100, b.info.singleIdentity(), issuer.info.singleIdentity())
+        val issueFlow = IOUIssueFlow(100, b.info.singleIdentity(), issuer.info.singleIdentity())
         val issueFuture = a.startFlow(issueFlow)
         network.runNetwork()
         val issueTx = issueFuture.getOrThrow()
@@ -75,27 +73,27 @@ class IOUSettleFlowTests {
         val iouState = issueTx.tx.outputsOfType<SanctionableIOUState>().single()
 
         // Settle IOU from lender side (A)
-        val settleFlow = IOUSettleFlow.Initiator(iouState.linearId, issuer.info.singleIdentity())
+        val settleFlow = IOUSettleFlow(iouState.linearId, issuer.info.singleIdentity())
         val settleFuture = a.startFlow(settleFlow)
         network.runNetwork()
         val settleTx = settleFuture.getOrThrow()
 
         // Verify settlement
-        assertTrue("Settlement transaction should have inputs", settleTx.tx.inputs.isNotEmpty())
-        assertTrue("Settlement transaction should have no IOU outputs",
-            settleTx.tx.outputsOfType<SanctionableIOUState>().isEmpty())
+        assertTrue(settleTx.tx.inputs.isNotEmpty(), "Settlement transaction should have inputs")
+        assertTrue(settleTx.tx.outputsOfType<SanctionableIOUState>().isEmpty(),
+            "Settlement transaction should have no IOU outputs")
 
         // Verify IOU is consumed from both vaults
         val aIOUs = a.services.vaultService.queryBy(SanctionableIOUState::class.java).states
         val bIOUs = b.services.vaultService.queryBy(SanctionableIOUState::class.java).states
-        assertTrue("Node A should have no unconsumed IOUs", aIOUs.isEmpty())
-        assertTrue("Node B should have no unconsumed IOUs", bIOUs.isEmpty())
+        assertTrue(aIOUs.isEmpty(), "Node A should have no unconsumed IOUs")
+        assertTrue(bIOUs.isEmpty(), "Node B should have no unconsumed IOUs")
     }
 
     @Test
     fun `IOU can be settled successfully by borrower`() {
         // Issue sanctions list
-        val issuanceFlow = issuer.startFlow(IssueSanctionsListFlow.Initiator())
+        val issuanceFlow = issuer.startFlow(IssueSanctionsListFlow())
         network.runNetwork()
         issuanceFlow.getOrThrow()
 
@@ -103,7 +101,7 @@ class IOUSettleFlowTests {
         getSanctionsList(a, issuer.info.singleIdentity())
 
         // Issue IOU (A lends to B)
-        val issueFlow = IOUIssueFlow.Initiator(100, b.info.singleIdentity(), issuer.info.singleIdentity())
+        val issueFlow = IOUIssueFlow(100, b.info.singleIdentity(), issuer.info.singleIdentity())
         val issueFuture = a.startFlow(issueFlow)
         network.runNetwork()
         val issueTx = issueFuture.getOrThrow()
@@ -111,21 +109,21 @@ class IOUSettleFlowTests {
         val iouState = issueTx.tx.outputsOfType<SanctionableIOUState>().single()
 
         // Settle IOU from borrower side (B)
-        val settleFlow = IOUSettleFlow.Initiator(iouState.linearId, issuer.info.singleIdentity())
+        val settleFlow = IOUSettleFlow(iouState.linearId, issuer.info.singleIdentity())
         val settleFuture = b.startFlow(settleFlow)
         network.runNetwork()
         val settleTx = settleFuture.getOrThrow()
 
         // Verify settlement
-        assertTrue("Settlement transaction should have inputs", settleTx.tx.inputs.isNotEmpty())
-        assertTrue("Settlement transaction should have no IOU outputs",
-            settleTx.tx.outputsOfType<SanctionableIOUState>().isEmpty())
+        assertTrue(settleTx.tx.inputs.isNotEmpty(), "Settlement transaction should have inputs")
+        assertTrue(settleTx.tx.outputsOfType<SanctionableIOUState>().isEmpty(),
+            "Settlement transaction should have no IOU outputs")
     }
 
     @Test
     fun `IOU can be transferred and then settled`() {
         // Issue sanctions list
-        val issuanceFlow = issuer.startFlow(IssueSanctionsListFlow.Initiator())
+        val issuanceFlow = issuer.startFlow(IssueSanctionsListFlow())
         network.runNetwork()
         issuanceFlow.getOrThrow()
 
@@ -135,7 +133,7 @@ class IOUSettleFlowTests {
         getSanctionsList(c, issuer.info.singleIdentity())
 
         // Issue IOU (A lends to B)
-        val issueFlow = IOUIssueFlow.Initiator(100, b.info.singleIdentity(), issuer.info.singleIdentity())
+        val issueFlow = IOUIssueFlow(100, b.info.singleIdentity(), issuer.info.singleIdentity())
         val issueFuture = a.startFlow(issueFlow)
         network.runNetwork()
         val issueTx = issueFuture.getOrThrow()
@@ -144,7 +142,7 @@ class IOUSettleFlowTests {
         println("Original IOU: lender=${originalIOU.lender.name}, borrower=${originalIOU.borrower.name}, linearId=${originalIOU.linearId}")
 
         // Transfer IOU from A to C
-        val transferFlow = IOUTransferFlow.Initiator(
+        val transferFlow = IOUTransferFlow(
             originalIOU.linearId,
             c.info.singleIdentity(),
             issuer.info.singleIdentity()
@@ -169,28 +167,28 @@ class IOUSettleFlowTests {
         assertEquals(transferredIOU.linearId, cIOUs.single().state.data.linearId)
 
         // Now settle from new lender (C)
-        val settleFlow = IOUSettleFlow.Initiator(transferredIOU.linearId, issuer.info.singleIdentity())
+        val settleFlow = IOUSettleFlow(transferredIOU.linearId, issuer.info.singleIdentity())
         val settleFuture = c.startFlow(settleFlow)
         network.runNetwork()
         val settleTx = settleFuture.getOrThrow()
 
         // Verify settlement
-        assertTrue("Settlement transaction should have inputs", settleTx.tx.inputs.isNotEmpty())
-        assertTrue("Settlement transaction should have no IOU outputs",
-            settleTx.tx.outputsOfType<SanctionableIOUState>().isEmpty())
+        assertTrue(settleTx.tx.inputs.isNotEmpty(), "Settlement transaction should have inputs")
+        assertTrue(settleTx.tx.outputsOfType<SanctionableIOUState>().isEmpty(),
+            "Settlement transaction should have no IOU outputs")
 
         // Verify IOU is consumed from all vaults
         val aIOUsAfterSettle = a.services.vaultService.queryBy(SanctionableIOUState::class.java).states
         val bIOUsAfterSettle = b.services.vaultService.queryBy(SanctionableIOUState::class.java).states
         val cIOUsAfterSettle = c.services.vaultService.queryBy(SanctionableIOUState::class.java).states
 
-        assertTrue("Node A should have no unconsumed IOUs after settlement", aIOUsAfterSettle.isEmpty())
-        assertTrue("Node B should have no unconsumed IOUs after settlement", bIOUsAfterSettle.isEmpty())
-        assertTrue("Node C should have no unconsumed IOUs after settlement", cIOUsAfterSettle.isEmpty())
+        assertTrue(aIOUsAfterSettle.isEmpty(), "Node A should have no unconsumed IOUs after settlement")
+        assertTrue(bIOUsAfterSettle.isEmpty(), "Node B should have no unconsumed IOUs after settlement")
+        assertTrue(cIOUsAfterSettle.isEmpty(), "Node C should have no unconsumed IOUs after settlement")
     }
 
     private fun getSanctionsList(node: StartedMockNode, issuerOfSanctions: net.corda.core.identity.Party) {
-        val flow = node.startFlow(GetSanctionsListFlow.Initiator(issuerOfSanctions))
+        val flow = node.startFlow(GetSanctionsListFlow(issuerOfSanctions))
         network.runNetwork()
         flow.getOrThrow()
     }

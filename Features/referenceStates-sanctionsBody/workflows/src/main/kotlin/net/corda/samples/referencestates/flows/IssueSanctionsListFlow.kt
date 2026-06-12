@@ -3,8 +3,6 @@
 package net.corda.samples.referencestates.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.samples.referencestates.contracts.SanctionedEntitiesContract
-import net.corda.samples.referencestates.states.SanctionedEntities
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.flows.FinalityFlow
@@ -16,6 +14,8 @@ import net.corda.core.identity.Party
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
+import net.corda.samples.referencestates.contracts.SanctionedEntitiesContract
+import net.corda.samples.referencestates.states.SanctionedEntities
 
 /**
  * Flow to issue an initial empty sanctions list

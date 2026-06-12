@@ -1,3 +1,5 @@
+// File: workflows/src/test/kotlin/net/corda/samples/referencestates/flows/IOUFlowTests.kt
+
 package net.corda.samples.referencestates.flows
 
 import net.corda.core.contracts.TransactionVerificationException
@@ -39,10 +41,10 @@ class IOUFlowTests {
 
         // Register ALL flow responders on ALL nodes
         listOf(a, b, c, issuer).forEach { node ->
-            node.registerInitiatedFlow(IOUIssueFlow.Acceptor::class.java)
-            node.registerInitiatedFlow(IOUSettleFlow.Acceptor::class.java)
-            node.registerInitiatedFlow(IOUTransferFlow.Acceptor::class.java)
-            node.registerInitiatedFlow(GetSanctionsListFlow.Acceptor::class.java)
+            node.registerInitiatedFlow(IOUIssueFlowAcceptor::class.java)
+            node.registerInitiatedFlow(IOUSettleFlowAcceptor::class.java)
+            node.registerInitiatedFlow(IOUTransferFlowAcceptor::class.java)
+            node.registerInitiatedFlow(GetSanctionsListFlowAcceptor::class.java)
         }
 
         network.runNetwork()
@@ -55,7 +57,7 @@ class IOUFlowTests {
 
     @Test(expected = TransactionVerificationException.ContractRejection::class)
     fun `deal fails if there is no issued sanctions list`() {
-        val flow = IOUIssueFlow.Initiator(1, b.info.singleIdentity(), issuerParty)
+        val flow = IOUIssueFlow(1, b.info.singleIdentity(), issuerParty)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -64,13 +66,13 @@ class IOUFlowTests {
 
     @Test
     fun `deal succeeds with issued sanctions`() {
-        val issuanceFlow = issuer.startFlow(IssueSanctionsListFlow.Initiator())
+        val issuanceFlow = issuer.startFlow(IssueSanctionsListFlow())
         network.runNetwork()
         issuanceFlow.getOrThrow()
 
         getSanctionsList(a, issuerParty)
 
-        val flow = IOUIssueFlow.Initiator(1, b.info.singleIdentity(), issuerParty)
+        val flow = IOUIssueFlow(1, b.info.singleIdentity(), issuerParty)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -80,17 +82,17 @@ class IOUFlowTests {
 
     @Test(expected = TransactionVerificationException.ContractRejection::class)
     fun `deal is rejected if party is sanctioned`() {
-        val issuanceFlow = issuer.startFlow(IssueSanctionsListFlow.Initiator())
+        val issuanceFlow = issuer.startFlow(IssueSanctionsListFlow())
         network.runNetwork()
         issuanceFlow.getOrThrow()
 
-        val updateFuture = issuer.startFlow(UpdateSanctionsListFlow.Initiator(b.info.legalIdentities.first()))
+        val updateFuture = issuer.startFlow(UpdateSanctionsListFlow(b.info.legalIdentities.first()))
         network.runNetwork()
         updateFuture.getOrThrow()
 
         getSanctionsList(a, issuerParty)
 
-        val flow = IOUIssueFlow.Initiator(1, b.info.singleIdentity(), issuerParty)
+        val flow = IOUIssueFlow(1, b.info.singleIdentity(), issuerParty)
         val future = a.startFlow(flow)
         network.runNetwork()
 
@@ -98,7 +100,7 @@ class IOUFlowTests {
     }
 
     private fun getSanctionsList(node: StartedMockNode, issuerOfSanctions: Party) {
-        val flow = node.startFlow(GetSanctionsListFlow.Initiator(issuerOfSanctions))
+        val flow = node.startFlow(GetSanctionsListFlow(issuerOfSanctions))
         network.runNetwork()
         flow.getOrThrow()
     }
