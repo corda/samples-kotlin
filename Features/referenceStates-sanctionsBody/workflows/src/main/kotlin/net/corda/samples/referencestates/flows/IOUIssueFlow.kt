@@ -9,7 +9,6 @@ import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
-import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.node.StatesToRecord
 import net.corda.core.transactions.SignedTransaction
@@ -25,24 +24,16 @@ object IOUIssueFlow {
         val iouValue: Int,
         val otherParty: Party,
         val sanctionsBody: Party,
-        private val notaryName: String
+        private val notary: Party? = null
     ) : FlowLogic<SignedTransaction>() {
-        constructor(iouValue: Int, otherParty: Party, sanctionsBody: Party) : this(
-            iouValue,
-            otherParty,
-            sanctionsBody,
-            DEFAULT_NOTARY_NAME
-        )
 
         companion object {
-            private const val DEFAULT_NOTARY_NAME = "O=Notary,L=London,C=GB"
             object GENERATING_TRANSACTION : Step("Generating transaction based on new IOU.")
             object VERIFYING_TRANSACTION : Step("Verifying contracts constraints.")
             object SIGNING_TRANSACTION : Step("Signing transaction with our private key.")
             object GATHERING_SIGS : Step("Gathering the counterparty's signature.") {
                 override fun childProgressTracker() = CollectSignaturesFlow.tracker()
             }
-
             object FINALISING_TRANSACTION : Step("Obtaining notary signature and recording transaction.") {
                 override fun childProgressTracker() = FinalityFlow.tracker()
             }
@@ -60,9 +51,12 @@ object IOUIssueFlow {
 
         @Suspendable
         override fun call(): SignedTransaction {
-            val notary = resolveNotary(notaryName)
+            // Determine notary to use
+            val selectedNotary = notary ?: serviceHub.networkMapCache.notaryIdentities.firstOrNull()
+            ?: throw FlowException("No notary available and none specified.")
 
-            // Stage 1.
+            logger.info("Using notary: ${selectedNotary.name}")
+
             progressTracker.currentStep = GENERATING_TRANSACTION
             val sanctionsListToUse = getSanctionsList(sanctionsBody)
             val iouState = SanctionableIOUState(iouValue, serviceHub.myInfo.legalIdentities.first(), otherParty)
@@ -71,32 +65,21 @@ object IOUIssueFlow {
                 iouState.participants.map { it.owningKey }
             )
 
-            val txBuilder = TransactionBuilder(notary)
+            val txBuilder = TransactionBuilder(selectedNotary)
                 .addOutputState(iouState, IOU_CONTRACT_ID)
                 .addCommand(txCommand)
 
             sanctionsListToUse?.let { sanctionsList ->
-                if (sanctionsList.state.notary != notary) {
-                    throw FlowException(
-                        "Reference state notary ${sanctionsList.state.notary.name} does not match tx notary ${notary.name}"
-                    )
-                }
                 txBuilder.addReferenceState(sanctionsList.referenced())
             }
 
-            // Stage 2.
             progressTracker.currentStep = VERIFYING_TRANSACTION
-            // Verify that the transaction is valid.
             txBuilder.verify(serviceHub)
 
-            // Stage 3.
             progressTracker.currentStep = SIGNING_TRANSACTION
-            // Sign the transaction.
             val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
-            // Stage 4.
             progressTracker.currentStep = GATHERING_SIGS
-            // Send the states to the counterparty, and receive it back with their signature.
             val otherPartySession = initiateFlow(otherParty)
             val fullySignedTx = subFlow(
                 CollectSignaturesFlow(
@@ -106,9 +89,7 @@ object IOUIssueFlow {
                 )
             )
 
-            // Stage 5.
             progressTracker.currentStep = FINALISING_TRANSACTION
-            // Notarise and record the transaction in both parties' vaults.
             return subFlow(
                 FinalityFlow(
                     fullySignedTx,
@@ -123,15 +104,6 @@ object IOUIssueFlow {
             return serviceHub.vaultService.queryBy(SanctionedEntities::class.java)
                 .states.filter { it.state.data.issuer == sanctionsBody }.singleOrNull()
         }
-
-        @Suspendable
-        fun getLatestSanctionsList(sanctionsBody: Party): StateAndRef<SanctionedEntities>? {
-            return subFlow(GetSanctionsListFlow.Initiator(sanctionsBody)).firstOrNull()
-        }
-
-        private fun resolveNotary(x500Name: String) =
-            serviceHub.networkMapCache.getNotary(CordaX500Name.parse(x500Name))
-                ?: throw FlowException("Notary not found: $x500Name")
     }
 
     @InitiatedBy(Initiator::class)
@@ -148,14 +120,13 @@ object IOUIssueFlow {
             }
             val txId = subFlow(signTransactionFlow).id
 
-            val recordedTx = subFlow(
+            return subFlow(
                 ReceiveFinalityFlow(
                     otherPartySession,
                     expectedTxId = txId,
                     statesToRecord = StatesToRecord.ALL_VISIBLE
                 )
             )
-            return recordedTx
         }
     }
 }

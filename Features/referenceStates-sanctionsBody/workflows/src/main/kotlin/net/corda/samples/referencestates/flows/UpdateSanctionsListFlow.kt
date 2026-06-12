@@ -10,7 +10,6 @@ import net.corda.core.flows.FlowException
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
-import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
@@ -21,13 +20,8 @@ object UpdateSanctionsListFlow {
     @StartableByRPC
     class Initiator(
         val partyToSanction: Party,
-        private val notaryName: String
+        private val notary: Party? = null
     ) : FlowLogic<StateAndRef<SanctionedEntities>>() {
-        constructor(partyToSanction: Party) : this(partyToSanction, DEFAULT_NOTARY_NAME)
-
-        companion object {
-            private const val DEFAULT_NOTARY_NAME = "O=Notary,L=London,C=GB"
-        }
 
         val ADDING_PARTY_TO_LIST = Step("Sanctioning Party: ${partyToSanction.name}")
         val GENERATING_TRANSACTION = Step("Generating Transaction")
@@ -46,44 +40,34 @@ object UpdateSanctionsListFlow {
 
         override val progressTracker = tracker()
 
-        /**
-         * The flows logic is encapsulated within the call() method.
-         */
         @Suspendable
         override fun call(): StateAndRef<SanctionedEntities> {
-            val notary = resolveNotary(notaryName)
-
             val oldList = serviceHub.vaultService.queryBy(SanctionedEntities::class.java).states.single()
-            if (oldList.state.notary != notary) {
-                throw FlowException(
-                    "Provided notary $notaryName does not match input state notary ${oldList.state.notary.name}"
-                )
-            }
+
+            // Use notary from existing state or provided notary
+            val selectedNotary = notary ?: oldList.state.notary
+
+            logger.info("Using notary: ${selectedNotary.name}")
+
             val newList = oldList.state.data.copy(badPeople = oldList.state.data.badPeople + listOf(partyToSanction))
 
-            // Stage 1.
             progressTracker.currentStep = GENERATING_TRANSACTION
-            // Generate an unsigned transaction.
             val txCommand = Command(
                 SanctionedEntitiesContract.Commands.Update,
                 serviceHub.myInfo.legalIdentities.first().owningKey
             )
-            val txBuilder = TransactionBuilder(notary)
+            val txBuilder = TransactionBuilder(selectedNotary)
                 .addOutputState(newList, SanctionedEntitiesContract.SANCTIONS_CONTRACT_ID)
                 .addInputState(oldList)
                 .addCommand(txCommand)
-            progressTracker.currentStep = ADDING_PARTY_TO_LIST
 
+            progressTracker.currentStep = ADDING_PARTY_TO_LIST
             txBuilder.verify(serviceHub)
 
-            // Stage 3.
             progressTracker.currentStep = SIGNING_TRANSACTION
-            // Sign the transaction.
             val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
-            // Stage 5.
             progressTracker.currentStep = FINALISING_TRANSACTION
-            // Notarise and record the transaction in both parties' vaults.
             return subFlow(
                 FinalityFlow(
                     partSignedTx,
@@ -92,9 +76,5 @@ object UpdateSanctionsListFlow {
                 )
             ).tx.outRefsOfType(SanctionedEntities::class.java).single()
         }
-
-        private fun resolveNotary(x500Name: String) =
-            serviceHub.networkMapCache.getNotary(CordaX500Name.parse(x500Name))
-                ?: throw FlowException("Notary not found: $x500Name")
     }
 }
