@@ -18,9 +18,19 @@ import net.corda.core.utilities.ProgressTracker.Step
 object IssueSanctionsListFlow {
     @InitiatingFlow
     @StartableByRPC
-    class Initiator(
-        private val notary: Party? = null
-    ) : FlowLogic<StateAndRef<SanctionedEntities>>() {
+    class Initiator : FlowLogic<StateAndRef<SanctionedEntities>> {
+
+        private val notary: Party?
+
+        // Primary constructor for shell usage
+        constructor(notary: Party) {
+            this.notary = notary
+        }
+
+        // Secondary constructor for backward compatibility
+        constructor() {
+            this.notary = null
+        }
 
         companion object {
             object GENERATING_TRANSACTION : Step("Generating Transaction")
