@@ -1,4 +1,112 @@
-# Sanctionbody -- ReferenceState 
+# Reference States - Sanctions Body CorDapp
+
+This CorDapp demonstrates the use of reference states in Corda by implementing an IOU system with sanctions checking. The application shows how reference states can be used to share data across transactions without consuming it.
+
+## Overview
+
+The CorDapp consists of:
+- **SanctionedEntities**: A reference state containing a list of sanctioned parties
+- **SanctionableIOUState**: An IOU state that references the sanctions list for validation
+- **Flows**: Complete IOU lifecycle including issue, transfer, and settlement with sanctions checking
+
+## States
+
+### SanctionedEntities
+A linear state that maintains a list of sanctioned parties. This state is used as a reference state in IOU transactions to ensure no sanctioned parties participate.
+
+```kotlin
+data class SanctionedEntities(
+    val badPeople: List<Party>,
+    val issuer: Party,
+    override val linearId: UniqueIdentifier = UniqueIdentifier()
+) : LinearState
+```
+
+### SanctionableIOUState
+An IOU state representing a debt between a lender and borrower, with built-in sanctions checking.
+
+```kotlin
+data class SanctionableIOUState(
+    val value: Int,
+    val lender: Party,
+    val borrower: Party,
+    override val linearId: UniqueIdentifier = UniqueIdentifier()
+) : LinearState
+```
+
+## Contracts
+
+### SanctionedEntitiesContract
+Governs the creation and updating of sanctions lists.
+
+**Commands:**
+- `Create`: Creates a new sanctions list
+- `Update`: Updates an existing sanctions list
+
+### SanctionableIOUContract
+Governs IOU transactions with sanctions checking.
+
+**Commands:**
+- `Create`: Issues a new IOU (requires sanctions list reference)
+- `Transfer`: Transfers IOU ownership (requires sanctions list reference)
+- `Settle`: Settles/closes an IOU
+
+## Flows
+
+### Sanctions Management Flows
+
+#### IssueSanctionsListFlow
+Creates an initial empty sanctions list.
+
+**Usage:**
+```bash
+# Without specific notary (uses default)
+flow start IssueSanctionsListFlow
+
+# With specific notary
+flow start IssueSanctionsListFlow notary: "O=Notary,OU=CRAFT-LDNM-FPW93FR4K6,L=London,C=GB"
+```
+
+#### UpdateSanctionsListFlow
+Adds a party to the sanctions list.
+
+**Usage:**
+```bash
+# Without specific notary (uses existing state's notary)
+flow start UpdateSanctionsListFlow partyToSanction: "O=PartyName,L=City,C=Country"
+
+# With specific notary
+flow start UpdateSanctionsListFlow partyToSanction: "O=PartyName,L=City,C=Country", notary: "O=Notary,OU=CRAFT-LDNM-FPW93FR4K6,L=London,C=GB"
+```
+
+#### GetSanctionsListFlow
+Retrieves the latest sanctions list from another node.
+**Usage:**
+```bash
+flow start GetSanctionsListFlow otherParty: "O=SanctionsAuthority,L=London,C=GB"
+```
+
+### IOU Lifecycle Flows
+
+#### IOUIssueFlow
+Creates a new IOU between two parties with sanctions checking.
+```bash
+start IOUIssueFlow iouValue: 100, otherParty: "O=Borrower,L=City,C=Country", sanctionsBody: "O=SanctionsAuthority,L=London,C=GB"
+```
+
+#### IOUTransferFlow
+Transfers IOU ownership from current lender to a new lender.
+```bash
+start IOUTransferFlow linearId: "LINEAR_ID", newLender: "O=NewLender,L=City,C=Country", sanctionsBody: "O=SanctionsAuthority,L=London,C=GB"
+```
+
+#### IOUSettleFlow
+Settles an IOU, removing it from the ledger.
+```bash
+start IOUSettleFlow linearId: "LINEAR_ID", sanctionsBody: "O=SanctionsAuthority,L=London,C=GB"
+```
+
+## Complete Usage Guide
 
 This CorDapp demonstrates the use of [reference states](https://training.corda.net/corda-details/reference-states/) in a transaction and in the verification method of a contract.
 

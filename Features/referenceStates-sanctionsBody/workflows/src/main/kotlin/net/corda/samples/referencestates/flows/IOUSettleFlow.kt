@@ -1,36 +1,35 @@
+// File: workflows/src/main/kotlin/net/corda/samples/referencestates/flows/IOUSettleFlow.kt
+
 package net.corda.samples.referencestates.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateAndRef
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.identity.Party
 import net.corda.core.node.StatesToRecord
+import net.corda.core.node.services.queryBy
+import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.ProgressTracker.Step
 import net.corda.samples.referencestates.contracts.SanctionableIOUContract
-import net.corda.samples.referencestates.contracts.SanctionableIOUContract.Companion.IOU_CONTRACT_ID
 import net.corda.samples.referencestates.states.SanctionableIOUState
 import net.corda.samples.referencestates.states.SanctionedEntities
 
-/**
- * Flow to issue an IOU with sanctions checking
- */
 @InitiatingFlow
 @StartableByRPC
-class IOUIssueFlow(
-    val iouValue: Int,
-    val otherParty: Party,
-    val sanctionsBody: Party,
-    private val notary: Party? = null
+class IOUSettleFlow(
+    private val linearId: UniqueIdentifier,
+    private val sanctionsBody: Party
 ) : FlowLogic<SignedTransaction>() {
 
     companion object {
-        object GENERATING_TRANSACTION : Step("Generating transaction based on new IOU.")
-        object VERIFYING_TRANSACTION : Step("Verifying contracts constraints.")
+        object GENERATING_TRANSACTION : Step("Generating settlement transaction.")
+        object VERIFYING_TRANSACTION : Step("Verifying contract constraints.")
         object SIGNING_TRANSACTION : Step("Signing transaction with our private key.")
         object GATHERING_SIGS : Step("Gathering the counterparty's signature.") {
             override fun childProgressTracker() = CollectSignaturesFlow.tracker()
@@ -52,24 +51,38 @@ class IOUIssueFlow(
 
     @Suspendable
     override fun call(): SignedTransaction {
-        // Determine notary to use
-        val selectedNotary = notary ?: serviceHub.networkMapCache.notaryIdentities.firstOrNull()
-        ?: throw FlowException("No notary available and none specified.")
-
-        logger.info("Using notary: ${selectedNotary.name}")
-
         progressTracker.currentStep = GENERATING_TRANSACTION
+
+        // Find the IOU to settle
+        val queryCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(linearId))
+        val iouStateAndRef = serviceHub.vaultService.queryBy<SanctionableIOUState>(queryCriteria).states.singleOrNull()
+            ?: throw FlowException("IOU with linear ID $linearId not found.")
+
+        val iouState = iouStateAndRef.state.data
+        val notary = iouStateAndRef.state.notary
+        val ourIdentity = serviceHub.myInfo.legalIdentities.first()
+
+        // Verify we are either the lender or borrower
+        require(ourIdentity == iouState.lender || ourIdentity == iouState.borrower) {
+            "Only the lender or borrower can settle the IOU. Current lender: ${iouState.lender.name}, borrower: ${iouState.borrower.name}, you are: ${ourIdentity.name}"
+        }
+
+        logger.info("Settling IOU: lender=${iouState.lender.name}, borrower=${iouState.borrower.name}, value=${iouState.value}")
+
+        // Get the sanctions list
         val sanctionsListToUse = getSanctionsList(sanctionsBody)
-        val iouState = SanctionableIOUState(iouValue, serviceHub.myInfo.legalIdentities.first(), otherParty)
+
+        // Build the transaction
         val txCommand = Command(
-            SanctionableIOUContract.Commands.Create(sanctionsBody),
-            iouState.participants.map { it.owningKey }
+            SanctionableIOUContract.Commands.Settle(sanctionsBody),
+            listOf(iouState.lender.owningKey, iouState.borrower.owningKey)
         )
 
-        val txBuilder = TransactionBuilder(selectedNotary)
-            .addOutputState(iouState, IOU_CONTRACT_ID)
+        val txBuilder = TransactionBuilder(notary)
+            .addInputState(iouStateAndRef)
             .addCommand(txCommand)
 
+        // Add reference state if available
         sanctionsListToUse?.let { sanctionsList ->
             txBuilder.addReferenceState(sanctionsList.referenced())
         }
@@ -81,7 +94,10 @@ class IOUIssueFlow(
         val partSignedTx = serviceHub.signInitialTransaction(txBuilder)
 
         progressTracker.currentStep = GATHERING_SIGS
+        // Determine who we need to collect signatures from
+        val otherParty = if (ourIdentity == iouState.lender) iouState.borrower else iouState.lender
         val otherPartySession = initiateFlow(otherParty)
+
         val fullySignedTx = subFlow(
             CollectSignaturesFlow(
                 partSignedTx,
@@ -102,25 +118,32 @@ class IOUIssueFlow(
 
     @Suspendable
     private fun getSanctionsList(sanctionsBody: Party): StateAndRef<SanctionedEntities>? {
-        return serviceHub.vaultService.queryBy(SanctionedEntities::class.java)
-            .states.filter { it.state.data.issuer == sanctionsBody }.singleOrNull()
+        return try {
+            serviceHub.vaultService.queryBy(SanctionedEntities::class.java)
+                .states.filter { it.state.data.issuer == sanctionsBody }.singleOrNull()
+        } catch (e: Exception) {
+            logger.warn("Could not retrieve sanctions list: ${e.message}")
+            null
+        }
     }
 }
 
-@InitiatedBy(IOUIssueFlow::class)
-class IOUIssueFlowAcceptor(val otherPartySession: FlowSession) : FlowLogic<SignedTransaction>() {
+@InitiatedBy(IOUSettleFlow::class)
+class IOUSettleFlowAcceptor(private val otherPartySession: FlowSession) : FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call(): SignedTransaction {
         val signTransactionFlow = object : SignTransactionFlow(otherPartySession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-                val output = stx.tx.outputs.single().data
-                "This must be an IOU transaction." using (output is SanctionableIOUState)
-                val iou = output as SanctionableIOUState
-                "I won't accept IOUs with a value over 100." using (iou.value <= 100)
+                val transaction = stx.tx
+
+                "Transaction must have exactly one input." using (transaction.inputs.size == 1)
+                "Transaction must have no outputs for settlement." using (transaction.outputs.isEmpty())
+
+                logger.info("Accepting settlement transaction")
             }
         }
-        val txId = subFlow(signTransactionFlow).id
 
+        val txId = subFlow(signTransactionFlow).id
         return subFlow(
             ReceiveFinalityFlow(
                 otherPartySession,
