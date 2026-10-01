@@ -21,7 +21,7 @@ This Cordapp shows how to trigger a flow with vault update(completion of prior f
 </p>
 
 ### [Trade Reporting -- ObservableStates](./observableStates-tradereporting):
-This CorDapp shows how Corda's [observable states](https://docs.corda.net/docs/corda-os/4.4/tutorial-observer-nodes.html#observer-nodes) feature works. Observable states is the ability for nodes who are not participants in a transaction to still store them if the transactions are sent to them.
+This CorDapp shows how Corda's [observable states](https://docs.corda.net/docs/corda-os/4.15/tutorial-observer-nodes.html#observer-nodes) feature works. Observable states is the ability for nodes who are not participants in a transaction to still store them if the transactions are sent to them.
 
 ### [Prime Number -- Oracle](./oracle-primenumber):
 This CorDapp implements an [oracle service](https://training.corda.net/corda-details/oracles) that allows nodes to:

@@ -4,7 +4,7 @@ These samples showcase integrations of Corda with the [Solana blockchain](https:
 cross-chain workflows between the two networks.
 
 Atomicity is provided by the
-[Solana notary](https://docs.r3.com/en/platform/corda/4.14/enterprise/notary/solana-notary.html): a specialised
+[Solana notary](https://docs.r3.com/en/platform/corda/4.15/enterprise/notary/solana-notary.html): a specialised
 Corda notary that executes Solana transactions as an integral part of Corda notarisation. Because both operations
 are committed in the same Solana transaction, they either both succeed or both fail — with no possibility of one
 leg completing without the other.
@@ -18,12 +18,12 @@ leg completing without the other.
   network without modification (in this case the [stock pay dividend sample](../Tokens/stockpaydividend)). A
   [Bridge Authority](https://github.com/corda/corda-solana-toolkit/tree/main/bridge-authority) node orchestrates
   bridging on behalf of token holders, locking Corda tokens in a pool while a
-  [Solana notary](https://docs.r3.com/en/platform/corda/4.14/enterprise/notary/solana-notary.html#configuration)
+  [Solana notary](https://docs.r3.com/en/platform/corda/4.15/enterprise/notary/solana-notary.html#configuration)
   atomically mints equivalent SPL tokens — and burns them to release the original Corda tokens on redemption.
 
 ## Prerequisites
 
-[Corda Enterprise 4.14](https://docs.r3.com/en/platform/corda/4.14/enterprise/release-notes-enterprise.html#new-features-enhancements-and-restrictions)
+[Corda Enterprise 4.15](https://docs.r3.com/en/platform/corda/4.15/enterprise/release-notes-enterprise.html#new-features-enhancements-and-restrictions)
 (or later) and [Solana CLI tools](https://solana.com/docs/intro/installation) are required.
 
 ## Devnet

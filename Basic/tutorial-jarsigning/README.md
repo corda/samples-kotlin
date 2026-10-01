@@ -10,7 +10,7 @@ cordapp {
     targetPlatformVersion corda_platform_version
     minimumPlatformVersion corda_platform_version
     workflow {
-        name "4.8LTS Tutorial Flows"
+        name "4.15 Tutorial Flows"
         vendor "Corda Open Source"
         licence "Apache License, Version 2.0"
         versionId 1
@@ -26,7 +26,7 @@ cordapp {
     targetPlatformVersion corda_platform_version
     minimumPlatformVersion corda_platform_version
     contract {
-        name "4.8LTS Tutorial Contracts"
+        name "4.15 Tutorial Contracts"
         vendor "Corda Open Source"
         licence "Apache License, Version 2.0"
         versionId 1
