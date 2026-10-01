@@ -5,7 +5,7 @@ on a Corda network for payment using a Solana stablecoin (SPL Token).
 
 ## Prerequisites
 
-- [Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.14/enterprise/cordapps/getting-set-up.html)
+- [Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.15/enterprise/cordapps/getting-set-up.html)
   with access to Corda Enterprise (via repository access or a developer pack).
 - [Solana CLI tools](https://solana.com/docs/intro/installation) installed.
 
@@ -99,4 +99,4 @@ Note: The test `StockDvpDriverTest.kt` can run the Cordapp against local validat
 ### Notary config
 
 The Solana-specific notary configuration fields (`node.conf`, under `notary.solana`) are documented
-[here](https://docs.r3.com/en/platform/corda/4.14/enterprise/node/setup/corda-configuration-fields.html#notary).
+[here](https://docs.r3.com/en/platform/corda/4.15/enterprise/node/setup/corda-configuration-fields.html#notary).

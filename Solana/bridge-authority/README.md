@@ -14,7 +14,7 @@ the original demo, adding the bridging parties.
 
 ## Prerequisites
 
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.14/enterprise/cordapps/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.15/enterprise/cordapps/getting-set-up.html)
 
 A source code of a sibling project `StockPayDividends` sample CorDapp to be checked out.
 
