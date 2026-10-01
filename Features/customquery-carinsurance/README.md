@@ -1,6 +1,6 @@
 # Car Insurance -- QueryableState -- Custom Query
 
-This CorDapp demonstrates how [Custom Query](https://docs.r3.com/en/platform/corda/4.8/open-source/api-vault-query.html)
+This CorDapp demonstrates how [Custom Query](https://docs.r3.com/en/platform/corda/4.15/open-source/api-vault-query.html)
 work in Corda. Corda allows developers to have the ability to query the vault using multiple mechanisms such as the
 Vault Query API, using a JDBC session, etc. This sample demonstrates how to store your state data to a custom database
 using an ORM tool and how to query this vault via Vault Query using some custom field defined in your state (for example
