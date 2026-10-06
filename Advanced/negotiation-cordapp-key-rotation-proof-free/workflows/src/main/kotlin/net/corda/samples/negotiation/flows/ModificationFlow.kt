@@ -20,11 +20,11 @@ import net.corda.samples.negotiation.states.ProposalState
 object ModificationFlow {
     @InitiatingFlow
     @StartableByRPC
-    class Initiator(val proposalId: UniqueIdentifier, val newAmount: Int) : FlowLogic<Unit>() {
+    class Initiator(val proposalId: UniqueIdentifier, val newAmount: Int) : FlowLogic<SignedTransaction>() {
         override val progressTracker = ProgressTracker()
 
         @Suspendable
-        override fun call() {
+        override fun call(): SignedTransaction {
             // Retrieving the input from the vault.
             val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(proposalId))
             val inputStateAndRef = serviceHub.vaultService.queryBy<ProposalState>(inputCriteria).states.single()
@@ -48,7 +48,6 @@ object ModificationFlow {
             val sellerKeyResolution = resolver.resolve(input.seller)
             val proposerKeyResolution = resolver.resolve(input.proposer)
             val proposeeKeyResolution = resolver.resolve(input.proposee)
-
 
             // A proof map must be included in the transaction command if any of the parties have rotated their keys,
             // and the input states contain the old identity while the output states contain the new identity.
@@ -90,7 +89,6 @@ object ModificationFlow {
                 proposerKeyResolution.originalOrCurrentParty
             }
 
-
             // Creating the output using the newest identity provided by the resolver.
             //
             // This ensures that any outdated keys are replaced in the output state where possible.
@@ -117,7 +115,7 @@ object ModificationFlow {
             // constructing the output state. Old and new keys for a given node must not be mixed.
             //
             // The included proofs will be accessible to the contract during transaction verification via the command.
-            val requiredSigners = listOf(proposeeKeyResolution.getOriginalKey(), proposerKeyResolution.getOwningKey())
+            val requiredSigners = listOf(proposeeKeyResolution.getOwningKey(), proposerKeyResolution.getOwningKey())
             val command = Command(Modify(), requiredSigners, proofMap)
 
             // Building the transaction.
@@ -137,18 +135,18 @@ object ModificationFlow {
             val fullyStx = subFlow(CollectSignaturesFlow(partStx, listOf(counterpartySession)))
 
             // Finalising the transaction.
-            subFlow(FinalityFlow(fullyStx, listOf(counterpartySession)))
+            return subFlow(FinalityFlow(fullyStx, listOf(counterpartySession)))
         }
     }
 
     @InitiatedBy(Initiator::class)
-    class Responder(val counterpartySession: FlowSession) : FlowLogic<Unit>() {
+    class Responder(val counterpartySession: FlowSession) : FlowLogic<SignedTransaction>() {
         @Suspendable
-        override fun call() {
+        override fun call(): SignedTransaction {
             val signTransactionFlow = object : SignTransactionFlow(counterpartySession) {
                 override fun checkTransaction(stx: SignedTransaction) {
                     val ledgerTx = stx.toLedgerTransaction(serviceHub, false)
-                    val input: ProposalState = ledgerTx.inputsOfType<ProposalState>()[0]!!
+                    val input: ProposalState = ledgerTx.inputsOfType<ProposalState>()[0]
 
                     // The counterparty session always provides the most up-to-date identity for the counterparty.
                     //
@@ -165,7 +163,7 @@ object ModificationFlow {
 
             val txId = subFlow(signTransactionFlow).id
 
-            subFlow(ReceiveFinalityFlow(counterpartySession, txId))
+            return subFlow(ReceiveFinalityFlow(counterpartySession, txId))
         }
     }
 }
