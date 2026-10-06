@@ -94,7 +94,7 @@ sourceSets {
 //Module dependencis
 dependencies {
     // Corda dependencies.
-    cordaProvided "$corda_release_group:corda-core:$corda_release_version"
+    cordaProvided "$corda_core_release_group:corda-core:$corda_core_release_version"
     cordaBootstrapper("$corda_release_group:corda-node-api:$corda_release_version") {
         exclude group: "ch.qos.logback", module: "logback-classic"
     }
