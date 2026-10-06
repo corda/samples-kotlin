@@ -1,7 +1,7 @@
-# Negotiation Cordapp 
+# Negotiation Cordapp With Key Rotation Support
 
 This CorDapp shows how multi-party negotiation is handled on the Corda ledger, in the absence of an API for user
-interaction.
+interaction. This version of the CorDapp demonstrates how to implement a negotiation flow with key rotation support.
 
 ## Concepts
 
