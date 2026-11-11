@@ -3,11 +3,12 @@ package net.corda.samples.example.schema
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
 import java.util.*
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Table
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Table
 //4.6 changes
-import org.hibernate.annotations.Type
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 
 
 /**
@@ -39,7 +40,7 @@ object IOUSchemaV1 : MappedSchema(
             var value: Int,
 
             @Column(name = "linear_id")
-            @Type(type = "uuid-char")
+            @JdbcTypeCode(SqlTypes.VARCHAR)
             var linearId: UUID
     ) : PersistentState() {
         // Default constructor required by hibernate.

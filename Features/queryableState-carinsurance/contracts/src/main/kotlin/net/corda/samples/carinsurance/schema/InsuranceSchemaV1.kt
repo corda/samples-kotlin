@@ -2,10 +2,11 @@ package net.corda.samples.carinsurance.schema
 
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
-import org.hibernate.annotations.Type
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.io.Serializable
 import java.util.*
-import javax.persistence.*
+import jakarta.persistence.*
 
 /**
  * The family of schemas for IOUState.
@@ -27,7 +28,7 @@ object InsuranceSchemaV1 : MappedSchema(
     @Table(name = "CLAIM_DETAIL")
     class PersistentClaim(
             @Id @Column(name = "Id")
-            @Type(type = "uuid-char")
+            @JdbcTypeCode(SqlTypes.VARCHAR)
             val uuid: UUID,
 
             @Column(name = "claimNumber")
@@ -50,7 +51,7 @@ object InsuranceSchemaV1 : MappedSchema(
     @Table(name = "VEHICLE_DETAIL")
     class PersistentVehicle(
             @Id @Column(name = "Id")
-            @Type(type = "uuid-char")
+            @JdbcTypeCode(SqlTypes.VARCHAR)
             val uuid: UUID,
 
             @Column(name = "registrationNumber")

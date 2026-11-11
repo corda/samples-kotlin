@@ -13,8 +13,8 @@ cordapp {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "javax.persistence:javax.persistence-api:$persistence_version"
-    implementation "org.hibernate:hibernate-core:$hibernate_version"
+    cordaProvided "jakarta.persistence:jakarta.persistence-api:$jakarta_persistence_version"
+    cordaProvided "org.hibernate.orm:hibernate-core:$hibernate_version"
 
     // Corda dependencies.
     cordaProvided "$corda_core_release_group:corda-core:$corda_core_release_version"
