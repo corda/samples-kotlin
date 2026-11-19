@@ -12,6 +12,8 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 
+// No changes are required in this flow, as the transaction contains no input states and all parties are obtained either
+// from `getOurIdentity` or from the counterparty session, both of which always provide the most up-to-date identity.
 object ProposalFlow {
     @InitiatingFlow
     @StartableByRPC

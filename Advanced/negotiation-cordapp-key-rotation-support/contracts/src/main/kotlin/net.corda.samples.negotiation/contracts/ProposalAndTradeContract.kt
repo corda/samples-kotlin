@@ -64,8 +64,8 @@ class ProposalAndTradeContract : Contract {
                 "The buyer is unmodified in the output" using (input.buyer == output.buyer)
                 "The seller is unmodified in the output" using (input.seller == output.seller)
 
-                "The proposer is a required signer" using (cmd.signers.contains(output.proposer.owningKey))
-                "The proposee is a required signer" using (cmd.signers.contains(output.proposee.owningKey))
+                "The proposer is a required signer" using (cmd.signers.contains(input.proposer.owningKey))
+                "The proposee is a required signer" using (cmd.signers.contains(input.proposee.owningKey))
             }
         }
     }
