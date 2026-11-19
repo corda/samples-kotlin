@@ -20,11 +20,11 @@ import net.corda.samples.negotiation.states.TradeState
 object AcceptanceFlow {
     @InitiatingFlow
     @StartableByRPC
-    class Initiator(val proposalId: UniqueIdentifier) : FlowLogic<Unit>() {
+    class Initiator(val proposalId: UniqueIdentifier) : FlowLogic<SignedTransaction>() {
         override val progressTracker = ProgressTracker()
 
         @Suspendable
-        override fun call() {
+        override fun call(): SignedTransaction {
             // Retrieving the input from the vault.
             val inputCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(proposalId))
             val inputStateAndRef = serviceHub.vaultService.queryBy<ProposalState>(inputCriteria).states.single()
@@ -76,7 +76,7 @@ object AcceptanceFlow {
             val fullyStx = subFlow(CollectSignaturesFlow(partStx, listOf(counterpartySession)))
 
             // Finalising the transaction.
-            subFlow(FinalityFlow(fullyStx, listOf(counterpartySession)))
+            return subFlow(FinalityFlow(fullyStx, listOf(counterpartySession)))
         }
     }
 

@@ -18,7 +18,7 @@ buildscript { //properties that you need to build the project
         quasar_version = constants.getProperty("quasarVersion")
         log4j_version = constants.getProperty("log4jVersion")
         slf4j_version = constants.getProperty("slf4jVersion")
-        corda_platform_version = constants.getProperty("platformVersion").toInteger()
+        corda_platform_version = constants.getProperty("keyRotationPlatformVersion").toInteger()
         rxjava_version = constants.getProperty("rxJavaVersion")
         snappy_version = constants.getProperty("snappyVersion")
         //springboot
@@ -37,6 +37,7 @@ buildscript { //properties that you need to build the project
         mavenLocal()
         mavenCentral()
 
+        maven { url 'https://download.corda.net/maven/corda-dependencies' }
         maven { url 'https://download.corda.net/maven/corda-releases' }
     }
 
@@ -55,7 +56,7 @@ allprojects { //Properties that you need to compile your project (The applicatio
 
     repositories {
         mavenLocal()
-        maven { url 'https://download.corda.net/maven/corda-releases' }
+
         mavenCentral()
         maven { url 'https://download.corda.net/maven/corda-dependencies' }
         maven { url 'https://jitpack.io' }
