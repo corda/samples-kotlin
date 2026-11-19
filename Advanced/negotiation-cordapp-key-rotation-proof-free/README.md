@@ -23,14 +23,14 @@ We start with the proposal flow implemented in `ProposalFlow.kt`.
 The modification of the proposal is implemented in `ModificationFlow.kt`.
 
 
-In the `AcceptanceFlow.java`, we receive the modified ProposalState and it's converted into a TradeState.
+In the `AcceptanceFlow.kt`, we receive the modified ProposalState and it's converted into a TradeState.
 
 
 
 ## Usage
 
 ### Pre-Requisites
-[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.14/community/getting-set-up.html)
+[Set up for CorDapp development](https://docs.r3.com/en/platform/corda/4.15/community/getting-set-up.html)
 
 This sample requires **Corda Enterprise 4.15**: key rotation is a Corda Enterprise feature (see
 [Cross-provider key rotation](https://docs.r3.com/en/platform/corda/4.15/enterprise/node/cross-provider-key-rotation/cross-provider-key-rotation.html)).
