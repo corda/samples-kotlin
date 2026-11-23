@@ -64,6 +64,9 @@ class ProposalAndTradeContract : Contract {
                 "The buyer is unmodified in the output" using (input.buyer == output.buyer)
                 "The seller is unmodified in the output" using (input.seller == output.seller)
 
+                // The signers are checked against the consumed input, which is the semantically right check: the input is the
+                // proposal its proposer and proposee are changing. This is not required by key rotation: with this sample's flow
+                // the output names the same two stored parties, swapped, so a check against the output would also pass.
                 "The proposer is a required signer" using (cmd.signers.contains(input.proposer.owningKey))
                 "The proposee is a required signer" using (cmd.signers.contains(input.proposee.owningKey))
             }
