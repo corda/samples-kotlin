@@ -103,6 +103,32 @@ class KeyRotationFlowTests : KeyRotationTestBase() {
         assertEquals(partyB, trade.seller)
     }
 
+    @Test
+    fun nodeARotatesAndNodeBReplacesTheKeyWithALearnedProof() {
+        val partyAOriginal = identityOf(a)
+        val partyB = identityOf(b)
+
+        // Node A proposes twice to Node B. Only the proposee can modify, so Node B needs two proposals to act twice.
+        val firstProposalId = propose(a, 1, partyB)
+        val secondProposalId = propose(a, 1, partyB)
+
+        a = rotate(a)
+        val partyARotated = identityOf(a)
+
+        // 1. Node B modifies the first proposal: Node A proves its rotation in its signature, and Node B learns the proof.
+        val firstModifiedByB = modify(b, firstProposalId, 2)
+        assertProposal(outputOf(firstModifiedByB), partyAOriginal, partyB, partyB, partyAOriginal, 2)
+        assertNull(commandProofMap(firstModifiedByB))
+        assertProofInSignature(firstModifiedByB, partyAOriginal, partyARotated)
+
+        // 2. Node B modifies the second proposal: it resolves Node A to its rotated key with the learned proof, names that key
+        // in the output and puts Node A's proof in the command.
+        val secondModifiedByB = modify(b, secondProposalId, 2)
+        assertProposal(outputOf(secondModifiedByB), partyARotated, partyB, partyB, partyARotated, 2)
+        assertProofInCommand(secondModifiedByB, partyAOriginal, partyARotated)
+        assertNoProofInSignatures(secondModifiedByB)
+    }
+
     // --- Assertions --------------------------------------------------------------------------------------------------------
 
     private fun outputOf(stx: SignedTransaction): ProposalState = stx.coreTransaction.outputStates.single() as ProposalState

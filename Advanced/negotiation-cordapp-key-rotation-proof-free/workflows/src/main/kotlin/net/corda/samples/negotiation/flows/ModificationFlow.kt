@@ -39,6 +39,8 @@ object ModificationFlow {
             // on its new key. A counterparty's proofs are only known once that counterparty has signed a transaction with its
             // new key and the proof carried by that signature has been recorded. Until then, the resolver returns the
             // counterparty's stored (old-key) identity, which is still valid; later resolutions return the updated identity.
+            // Learned counterparty proofs are held in memory only: after a restart the node resolves the counterparty to its stored
+            // (old-key) identity again, and the proof travels in the counterparty's signature until it is learned anew.
             val resolver = PartyIdentityResolver(serviceHub.identityService)
             val buyerKeyResolution = resolver.resolve(input.buyer)
             val sellerKeyResolution = resolver.resolve(input.seller)
